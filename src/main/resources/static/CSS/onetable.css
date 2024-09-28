@@ -1,0 +1,10 @@
+.body{
+    background-color: #1a1a1a;
+    color: white;
+    text-align: center;
+}
+.div{
+    margin: auto;
+    width: 300px;
+    text-align: left;
+}
