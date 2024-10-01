@@ -4,9 +4,11 @@ import marketMaster.DTO.employee.EmployeeInfoDTO;
 import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.DTO.product.ProductNameDTO;
 import marketMaster.DTO.restock.RestockDTO;
+import marketMaster.DTO.restock.RestockDetailViewDTO;
 import marketMaster.DTO.restock.RestockDetailsDTO;
 import marketMaster.bean.restock.RestockBean;
 import marketMaster.bean.restock.RestockDetailsBean;
+import marketMaster.service.restock.RestockDetailRepository;
 import marketMaster.service.restock.RestockRepository;
 import marketMaster.service.restock.RestockService;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,8 @@ class MarketMasterApplicationTests {
     @Autowired
     private RestockRepository restockRepository;
 
+    @Autowired
+    private RestockDetailRepository restockDetailRepository;
 
     @Test
     void contextLoads() {
@@ -124,7 +128,18 @@ class MarketMasterApplicationTests {
 
         // 驗證 `getLatestRestockId()` 返回下一個 ID
         String latestRestockId = restockService.getLatestRestockId();
-        assertEquals("20240926002", latestRestockId, "Latest Restock ID should be '20240926002'");
+        assertEquals("20240928001", latestRestockId, "Latest Restock ID should be '20240928001'");
     }
+    @Test
+    public void testGetALl(){
+      List<RestockDetailViewDTO> restockDetailViewDTOList=  restockService.getAllRestockDetail();
+      restockDetailViewDTOList.forEach(System.out::println);
+
+    }
+    @Test
+    public void testDelete(){
+        restockService.delete("20240928001");
+    }
+
 
 }
