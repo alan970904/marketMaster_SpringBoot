@@ -6,8 +6,9 @@ import java.util.Objects;
 
 @Embeddable
 public class RestockDetailsId implements Serializable {
-
-    private String restockId;
+	private static final long serialVersionUID = 1L;
+	
+	private String restockId;
     private String productId;
 
     public RestockDetailsId() {}
