@@ -1,5 +1,5 @@
 package marketMaster.bean.bonus;
-import java.util.Date;
+import java.time.LocalDate;
 
 import marketMaster.bean.employee.CustomerBean;
 import marketMaster.bean.product.ProductBean;
@@ -40,12 +40,14 @@ public class BonusExchangeBean implements java.io.Serializable {
     private int numberOfExchange;
 
     @Column(name="exchange_date")
-    private Date exchangeDate;
+    private LocalDate exchangeDate;  // 將類型從 Date 改為 LocalDate
+    
+    
  // Constructors, Getters, and Setters
     public BonusExchangeBean() {}
 
     public BonusExchangeBean(String exchangeId, String customerTel, String productId,
-                         int usePoints, int numberOfExchange, Date exchangeDate) {
+                         int usePoints, int numberOfExchange, LocalDate  exchangeDate) {
         this.exchangeId = exchangeId;
         this.customerTel = customerTel;
         this.productId = productId;
@@ -65,8 +67,8 @@ public class BonusExchangeBean implements java.io.Serializable {
     public void setUsePoints(int usePoints) { this.usePoints = usePoints; }
     public int getNumberOfExchange() { return numberOfExchange; }
     public void setNumberOfExchange(int numberOfExchange) { this.numberOfExchange = numberOfExchange; }
-    public Date getExchangeDate() { return exchangeDate; }
-    public void setExchangeDate(Date exchangeDate) { this.exchangeDate = exchangeDate; }
+    public LocalDate  getExchangeDate() { return exchangeDate; }
+    public void setExchangeDate(LocalDate  exchangeDate) { this.exchangeDate = exchangeDate; }
     // 添加 customer 和 product 的 getter 和 setter
     public CustomerBean getCustomer() { return customer; }
     public void setCustomer(CustomerBean customer) { this.customer = customer; }
