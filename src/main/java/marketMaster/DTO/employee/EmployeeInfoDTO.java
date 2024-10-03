@@ -16,9 +16,9 @@ public class EmployeeInfoDTO {
     public EmployeeInfoDTO() {
     }
 
-    public EmployeeInfoDTO(String employeeName, String employeeId) {
-        this.employeeName = employeeName;
+    public EmployeeInfoDTO(String employeeId, String employeeName) {
         this.employeeId = employeeId;
+        this.employeeName = employeeName;
     }
 
     public String getEmployeeName() {

@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import marketMaster.bean.product.ProductBean;
@@ -29,8 +32,10 @@ public class ProductService {
 		return null;
 	}
 
-	public List<ProductBean> findAllProduct() {
-		return productRepo.findAll();
+	public Page<ProductBean>  findAllProduct(Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber-1,pageSize);
+		Page<ProductBean> page = productRepo.findAll(pgb);
+		return page;
 	}
 
 	public ProductBean shelveProduct(String productId, Integer newShelveNumber) {
