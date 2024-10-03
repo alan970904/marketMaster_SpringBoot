@@ -1,6 +1,7 @@
 package marketMaster.service.product;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
+import marketMaster.DTO.product.ProductIdDTO;
 import marketMaster.DTO.product.ProductNameDTO;
 import marketMaster.bean.product.ProductBean;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +19,7 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     @Query("SELECT DISTINCT new marketMaster.DTO.product.ProductNameDTO(p.productName) FROM ProductBean p WHERE p.productCategory= :productCategory")
     List<ProductNameDTO>findAllProductNamesByCategory(@Param("productCategory") String productCategory);
 
+    @Query("select DISTINCT new marketMaster.DTO.product.ProductIdDTO(p.productId)FROM ProductBean p WHERE p.productName= :productName")
+    List<ProductIdDTO>findAllProductIdByProductName(@Param("productName")String productName);
 
 }

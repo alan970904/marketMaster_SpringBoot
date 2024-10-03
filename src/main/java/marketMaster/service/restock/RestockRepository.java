@@ -10,7 +10,8 @@ import java.util.Optional;
 @Repository
 public interface RestockRepository extends JpaRepository<RestockBean,String> {
     // 查詢最新的 Restock ID 並排序
-    @Query("SELECT r FROM RestockBean r WHERE r.restockId LIKE :restockIdPattern ORDER BY r.restockId DESC")
+    @Query(value = "SELECT * FROM restocks WHERE restock_id LIKE :restockIdPattern ORDER BY restock_id DESC LIMIT 1", nativeQuery = true)
     Optional<RestockBean> findLatestRestockByDate(@Param("restockIdPattern") String restockIdPattern);
+
 
 }

@@ -88,4 +88,5 @@ public class RestockBean {
         restockDetails.remove(details);
         details.setRestock(null);
     }
+
 }
