@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.*;
 
@@ -34,8 +35,8 @@ public class CheckoutBean implements Serializable  {
     @Column(name = "POINTS_DUE_DATE")
 	private Date pointsDueDate;
 	
-	@OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<CheckoutDetailsBean> checkoutDetails;
+	@OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<CheckoutDetailsBean> checkoutDetails = new ArrayList<>();
 
 	// Constructors, Getters, and Setters
 
@@ -127,4 +128,32 @@ public class CheckoutBean implements Serializable  {
 		checkoutDetails.add(detail);
 		detail.setCheckout(this);
 	}
+	
+	// 添加 equals 和 hashCode 方法
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CheckoutBean)) return false;
+        CheckoutBean that = (CheckoutBean) o;
+        return Objects.equals(checkoutId, that.checkoutId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(checkoutId);
+    }
+
+    // 添加 toString 方法
+    @Override
+    public String toString() {
+        return "CheckoutBean{" +
+               "checkoutId='" + checkoutId + '\'' +
+               ", customerTel='" + customerTel + '\'' +
+               ", employeeId='" + employeeId + '\'' +
+               ", checkoutTotalPrice=" + checkoutTotalPrice +
+               ", checkoutDate=" + checkoutDate +
+               ", bonusPoints=" + bonusPoints +
+               ", pointsDueDate=" + pointsDueDate +
+               '}';
+    }
 }

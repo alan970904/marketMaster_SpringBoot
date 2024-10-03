@@ -2,17 +2,18 @@ package marketMaster.dao.checkout;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import marketMaster.bean.checkout.CheckoutDetailsBean;
-import marketMaster.bean.checkout.CheckoutBean;
+import marketMaster.bean.checkout.CheckoutDetailsBean.CheckoutDetailsId;
 
 import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface CheckoutDetailsDao extends JpaRepository<CheckoutDetailsBean, CheckoutDetailsBean.CheckoutDetailsId> {
+public interface CheckoutDetailsDao extends JpaRepository<CheckoutDetailsBean, CheckoutDetailsId> {
 
     // 獲取特定結帳ID的所有明細
     List<CheckoutDetailsBean> findByCheckoutId(String checkoutId);
@@ -31,9 +32,28 @@ public interface CheckoutDetailsDao extends JpaRepository<CheckoutDetailsBean, C
     @Query("SELECT COALESCE(CAST(SUM(cd.checkoutPrice) AS int), 0) FROM CheckoutDetailsBean cd WHERE cd.checkoutId = :checkoutId")
     int calculateCheckoutTotal(@Param("checkoutId") String checkoutId);
 
-    // 更新結帳總金額和紅利點數（需要在服務層實現）
+    // 刪除特定結帳ID的所有明細
+    @Modifying
+    @Query("DELETE FROM CheckoutDetailsBean cd WHERE cd.checkoutId = :checkoutId")
+    void deleteByCheckoutId(@Param("checkoutId") String checkoutId);
 
-    // 更新退貨後的結帳明細（需要在服務層實現）
+    // 更新退貨後的結帳明細
+    @Modifying
+    @Query("UPDATE CheckoutDetailsBean cd SET cd.numberOfCheckout = cd.numberOfCheckout - :returnQuantity, " +
+           "cd.checkoutPrice = cd.checkoutPrice - :returnPrice " +
+           "WHERE cd.checkoutId = :checkoutId AND cd.productId = :productId")
+    void updateAfterReturn(@Param("checkoutId") String checkoutId, 
+                           @Param("productId") String productId, 
+                           @Param("returnQuantity") int returnQuantity, 
+                           @Param("returnPrice") int returnPrice);
 
-    // 取消退貨並更新結帳明細（需要在服務層實現）
+    // 取消退貨並更新結帳明細
+    @Modifying
+    @Query("UPDATE CheckoutDetailsBean cd SET cd.numberOfCheckout = cd.numberOfCheckout + :returnQuantity, " +
+           "cd.checkoutPrice = cd.checkoutPrice + :returnPrice " +
+           "WHERE cd.checkoutId = :checkoutId AND cd.productId = :productId")
+    void cancelReturn(@Param("checkoutId") String checkoutId, 
+                      @Param("productId") String productId, 
+                      @Param("returnQuantity") int returnQuantity, 
+                      @Param("returnPrice") int returnPrice);
 }

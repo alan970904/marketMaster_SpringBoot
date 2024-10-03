@@ -29,7 +29,7 @@ public class CheckoutDetailsBean implements Serializable {
     @Column(name = "CHECKOUT_PRICE")
     private int checkoutPrice;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CHECKOUT_ID", insertable = false, updatable = false)
     private CheckoutBean checkout;
 
