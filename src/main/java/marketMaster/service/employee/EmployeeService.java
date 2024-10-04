@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,10 +54,25 @@ public class EmployeeService {
 		return employeeRepository.updatePassword(employeeId, newPassword) > 0;
 	}
 	
-	public boolean addEmployee(EmpBean emp) {
-		employeeRepository.save(emp);
-		return true;
-	}
+	public boolean addEmployee(EmpBean emp, MultipartFile file) {
+        try {
+            if (file != null && !file.isEmpty()) {
+                String imagePath = saveImage(file);
+                emp.setImagePath(imagePath);
+            }
+            
+            emp.setHiredate(LocalDate.now());
+            emp.setPassword("0000");
+            emp.setFirstLogin(true);
+            
+            employeeRepository.save(emp);
+            return true;
+        } catch (Exception e) {
+            // 記錄錯誤
+            e.printStackTrace();
+            return false;
+        }
+    }
 	
 	public boolean deleteEmployee(String employeeId) {
 		employeeRepository.deleteById(employeeId);
@@ -66,8 +84,8 @@ public class EmployeeService {
 				.orElseThrow(() -> new EmpDataAccessException("找不到員工"));
 	}
 	
-	public List<EmpBean> getAllEmployees(boolean showAll) {
-		return showAll ? employeeRepository.findAll() : employeeRepository.findByResigndateIsNull();
+	public Page<EmpBean> getAllEmployees(boolean showAll, Pageable pageable) {
+		return showAll ? employeeRepository.findAll(pageable) : employeeRepository.findByResigndateIsNull(pageable);
 	}
 	
 	public List<EmpBean> searchEmployees(String searchName, boolean showAll) {
@@ -155,6 +173,10 @@ public class EmployeeService {
 			throw new EmpDataAccessException("無法保存圖片", e);
 		}
 		return path.toString();
+	}
+
+	public List<RankLevelBean> getAllPositions() {
+	    return rankLevelRepository.findAll();
 	}
 	
 }

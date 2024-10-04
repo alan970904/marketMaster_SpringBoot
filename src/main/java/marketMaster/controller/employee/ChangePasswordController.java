@@ -17,17 +17,17 @@ public class ChangePasswordController {
     @Autowired
     private EmployeeService employeeService;
 
-    @GetMapping("/changePasswordPage")
+    @GetMapping("/employee/changePasswordPage")
     public String showChangePasswordPage() {
         return "employee/ChangePassword";
     }
 
-    @PostMapping("/empChangePassword")
+    @PostMapping("/employee/changePassword")
     public String changePassword(@RequestParam String newPassword, HttpSession session, Model model) {
         EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
 
         if (employee == null) {
-            return "redirect:/loginPage";
+            return "redirect:/employee/loginPage";
         }
 
         try {

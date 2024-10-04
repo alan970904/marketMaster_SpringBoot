@@ -18,12 +18,12 @@ public class LoginController {
 	@Autowired
 	private EmployeeService employeeService;
 	
-	@GetMapping("/loginPage")
+	@GetMapping("/employee/loginPage")
 	public String showLoginPage() {
 		return "employee/Login";
 	}
 	
-    @PostMapping("/empLogin")
+    @PostMapping("/employee/login")
     public String login(@RequestParam String employeeId, @RequestParam String password, 
                         HttpSession session, Model model) {
         try {
@@ -33,7 +33,7 @@ public class LoginController {
                 session.setAttribute("employee", employeeViewModel);
 
                 if (employee.isFirstLogin()) {
-                    return "redirect:/changePasswordPage";
+                    return "redirect:/employee/changePasswordPage";
                 } else {
                     return "redirect:/homePage";
                 }
@@ -47,10 +47,10 @@ public class LoginController {
         }
     }
 
-    @GetMapping("/emplogout")
+    @GetMapping("/employee/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/empLogin";
+        return "redirect:/employee/login";
     }
     
     @GetMapping("/homePage")

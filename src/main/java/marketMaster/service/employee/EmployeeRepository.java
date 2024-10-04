@@ -3,6 +3,8 @@ package marketMaster.service.employee;
 import marketMaster.DTO.employee.EmployeeInfoDTO;
 import marketMaster.bean.employee.EmpBean;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,7 +25,7 @@ public interface EmployeeRepository extends JpaRepository<EmpBean,String> {
 	@Query("UPDATE EmpBean e SET e.password =?2, e.isFirstLogin = false WHERE e.employeeId = ?1")
 	int updatePassword(String employeeId, String newPassword);
 	
-	List<EmpBean> findByResigndateIsNull();
+	Page<EmpBean> findByResigndateIsNull(Pageable pageable);
 	
 	List<EmpBean> findByEmployeeNameContainingAndResigndateIsNull(String name);
 	
