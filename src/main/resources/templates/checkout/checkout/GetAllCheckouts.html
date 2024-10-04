@@ -19,7 +19,6 @@
     </style>
 </head>
 <body>
-    <div th:replace="~{body/body :: body}"></div>
     <main>
         <div class="container mt-5">
             <h1 class="mb-4">所有結帳記錄</h1>
@@ -81,8 +80,7 @@
                     { checkoutId: checkoutId },
                     {
                         headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': /*[[${_csrf.token}]]*/ ''
+                            'Content-Type': 'application/json'
                         }
                     }
                 )
