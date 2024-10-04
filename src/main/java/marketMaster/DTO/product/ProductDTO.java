@@ -1,64 +1,29 @@
-package marketMaster.bean.product;
+package marketMaster.DTO.product;
 
-import jakarta.persistence.*;
-import marketMaster.bean.restock.RestockDetailsBean;
-import java.io.Serializable;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-@Entity
-@Table(name = "products")
-public class ProductBean implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@Column(name = "product_id")
+public class ProductDTO {
 	private String productId;
 
-	@Column(name = "product_category")
 	private String productCategory;
 
-	@Column(name = "product_name")
 	private String productName;
 
-	@Column(name = "product_price")
 	private int productPrice;
 
-	@Column(name = "product_safeinventory")
 	private int productSafeInventory;
 
-	@Column(name = "number_of_shelve")
 	private int numberOfShelve;
 
-	@Column(name = "number_of_inventory")
 	private int numberOfInventory;
 
-	@Column(name = "number_of_sale")
 	private int numberOfSale;
 
-	@Column(name = "number_of_exchange")
 	private int numberOfExchange;
 
-	@Column(name = "number_of_destruction")
 	private int numberOfDestruction;
 
-	@Column(name = "number_of_remove")
 	private int numberOfRemove;
-
-	@OneToMany(mappedBy = "product")
-	@JsonIgnore
-	private List<RestockDetailsBean> restockDetails;
-
-	// Constructors
-	public ProductBean() {
-		super();
-	}
-	// getters 和 setters
-
-	// 其他建構函數略
-
-	public ProductBean(String productId, String productCategory, String productName, int productPrice,
+	
+	public ProductDTO(String productId, String productCategory, String productName, int productPrice,
 			int productSafeInventory, int numberOfShelve, int numberOfInventory, int numberOfSale, int numberOfExchange,
 			int numberOfDestruction, int numberOfRemove) {
 		super();
@@ -75,34 +40,32 @@ public class ProductBean implements Serializable {
 		this.numberOfRemove = numberOfRemove;
 	}
 
-	public ProductBean(String productId, int numberOfShelve, int numberOfInventory) {
+	public ProductDTO(String productId, int numberOfShelve, int numberOfInventory) {
 		super();
 		this.productId = productId;
 		this.numberOfShelve = numberOfShelve;
 		this.numberOfInventory = numberOfInventory;
 	}
 
-	public ProductBean(String productId, String productName, String productCategory, int productPrice) {
+	public ProductDTO(String productId, String productName, String productCategory, int productPrice) {
 		this.productId = productId;
 		this.productName = productName;
 		this.productCategory = productCategory;
 		this.productPrice = productPrice;
 	}
 
-	public ProductBean(String productName) {
+	public ProductDTO(String productName) {
 		super();
 		this.productName = productName;
 	}
 
-	public List<RestockDetailsBean> getRestockDetails() {
-		return restockDetails;
+	public String getProductId() {
+		return productId;
 	}
 
-	public void setRestockDetails(List<RestockDetailsBean> restockDetails) {
-		this.restockDetails = restockDetails;
+	public void setProductId(String productId) {
+		this.productId = productId;
 	}
-
-	// Getters 和 Setters
 
 	public String getProductCategory() {
 		return productCategory;
@@ -183,13 +146,6 @@ public class ProductBean implements Serializable {
 	public void setNumberOfRemove(int numberOfRemove) {
 		this.numberOfRemove = numberOfRemove;
 	}
-
-	public String getProductId() {
-		return productId;
-	}
-
-	public void setProductId(String productId) {
-		this.productId = productId;
-	}
-
+	
+	
 }
