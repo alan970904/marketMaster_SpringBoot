@@ -357,9 +357,6 @@ select.form-control {
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script th:inline="javascript">
     $(document).ready(function() {
-        // 設置 Axios 默認配置
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = /*[[${_csrf.token}]]*/ '';
-
         // 自動生成結帳編號
         axios.get(/*[[@{/checkout/nextId}]]*/ '/checkout/nextId')
             .then(function (response) {
@@ -399,7 +396,7 @@ select.form-control {
             }
         });
         
-      // 如果沒有員工數據，則通過 Axios 獲取
+        // 如果沒有員工數據，則通過 Axios 獲取
         if ($('#employeeId option').length <= 1) {
             axios.get(/*[[@{/checkout/employees}]]*/ '/checkout/employees')
                 .then(function (response) {
@@ -416,7 +413,6 @@ select.form-control {
                 });
         }
         
-         
         // 商品名稱變更時更新商品編號和價格
         $('#product_name').change(function() {
             var selectedOption = $(this).find('option:selected');
@@ -449,25 +445,25 @@ select.form-control {
             
         // 添加商品按鈕點擊事件
         $("#addProduct").click(function() {
-    var productName = $("#product_name option:selected").text();
-    var productId = $("#product_id").val();
-    var quantity = $("#quantity").val();
-    var price = $("#product_price").val();
-    var subtotal = (parseFloat(quantity) * parseFloat(price)).toFixed(2);
+            var productName = $("#product_name option:selected").text();
+            var productId = $("#product_id").val();
+            var quantity = $("#quantity").val();
+            var price = $("#product_price").val();
+            var subtotal = (parseFloat(quantity) * parseFloat(price)).toFixed(2);
 
-    if (productName && quantity && price) {
-        var productHtml = '<p data-product-id="' + productId + '">' +
-            productName + ' - 數量: <span class="quantity">' + quantity + '</span> x ' +
-            '價格: $<span class="price">' + price + '</span> = ' +
-            '小計: $<span class="subtotal">' + subtotal + '</span>' +
-            '<button class="removeProduct">刪除</button></p>';
-        $("#productList").append(productHtml);
-        calculateTotal();
-        resetProductInputs();
-    } else {
-        alert('請填寫所有商品信息');
-    }
-});
+            if (productName && quantity && price) {
+                var productHtml = '<p data-product-id="' + productId + '">' +
+                    productName + ' - 數量: <span class="quantity">' + quantity + '</span> x ' +
+                    '價格: $<span class="price">' + price + '</span> = ' +
+                    '小計: $<span class="subtotal">' + subtotal + '</span>' +
+                    '<button class="removeProduct">刪除</button></p>';
+                $("#productList").append(productHtml);
+                calculateTotal();
+                resetProductInputs();
+            } else {
+                alert('請填寫所有商品信息');
+            }
+        });
 
         // 刪除商品事件（使用事件委託）
         $("#productList").on('click', '.removeProduct', function() {
@@ -496,11 +492,10 @@ select.form-control {
             $("#subtotal").val("");
         }
         
-
         // 設置紅利點數到期日 日期格式
         $("#pointsDueDateDisplay").val("yyyy/mm/dd");
          
-     // 計算紅利點數
+        // 計算紅利點數
         function calculateBonusPoints(total) {
             var points = Math.floor(total / 100);
             $("#bonusPoints").val(points);
@@ -521,60 +516,61 @@ select.form-control {
         }
             
         // 表單提交事件
-		$('#checkoutForm').submit(function(e) {
-		    e.preventDefault();
-		    
-		    if (!validateForm()) {
-		        return;
-		    }
-		    
-		    var products = [];
-		    $('#productList p').each(function() {
-		        var $product = $(this);
-		        products.push({
-		            productId: $product.data('product-id'),
-		            quantity: parseInt($product.find('.quantity').text()),
-		            price: parseFloat($product.find('.price').text()),
-		            subtotal: parseFloat($product.find('.subtotal').text())
-		        });
-		    });
-		
-		    if (products.length === 0) {
-		        alert('請至少添加一件商品');
-		        return;
-		    }
-		
-		 	var formData = {
-		        checkoutId: $('#checkoutId').val(),
-		        customerTel: $('#customerTel1').val() + $('#customerTel2').val(),
-		        employeeId: $('#employeeId').val(),
-		        totalAmount: parseFloat($('#totalAmount').val()),
-		        checkoutDate: $('#checkoutDate').val(),
-		        bonusPoints: parseInt($('#bonusPoints').val()),
-		        pointsDueDate: $('#pointsDueDate').val(),
-		        details: products
-		    };
+        $('#checkoutForm').submit(function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            var products = [];
+            $('#productList p').each(function() {
+                var $product = $(this);
+                products.push({
+                    productId: $product.data('product-id'),
+                    quantity: parseInt($product.find('.quantity').text()),
+                    price: parseFloat($product.find('.price').text()),
+                    subtotal: parseFloat($product.find('.subtotal').text())
+                });
+            });
 
-		    axios.post(/*[[@{/checkout/add}]]*/ '/checkout/add', formData, {
-		        headers: {
-		            'Content-Type': 'application/json'
-		        }
-		    })
-		    .then(function (response) {
-		        if (response.data.status === 'success') {
-		            alert('結帳記錄新增成功');
-		            window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
-		        } else {
-		            alert('結帳記錄新增失敗: ' + response.data.message);
-		        }
-		    })
-		    .catch(function (error) {
-		        console.error('AJAX error:', error);
-		        alert('發生錯誤，請稍後再試');
- 		   });
-		});
-	});
-     function validateForm() {
+            if (products.length === 0) {
+                alert('請至少添加一件商品');
+                return;
+            }
+
+            var formData = {
+                checkoutId: $('#checkoutId').val(),
+                customerTel: $('#customerTel1').val() + $('#customerTel2').val(),
+                employeeId: $('#employeeId').val(),
+                totalAmount: parseFloat($('#totalAmount').val()),
+                checkoutDate: $('#checkoutDate').val(),
+                bonusPoints: parseInt($('#bonusPoints').val()),
+                pointsDueDate: $('#pointsDueDate').val(),
+                details: products
+            };
+
+            axios.post(/*[[@{/checkout/add}]]*/ '/checkout/add', formData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(function (response) {
+                if (response.data.status === 'success') {
+                    alert('結帳記錄新增成功');
+                    window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
+                } else {
+                    alert('結帳記錄新增失敗: ' + response.data.message);
+                }
+            })
+            .catch(function (error) {
+                console.error('AJAX error:', error);
+                alert('發生錯誤，請稍後再試');
+            });
+        });
+    });
+
+    function validateForm() {
         var errorMessages = [];
         var errorMessageDiv = document.getElementById('errorMessages');
         errorMessageDiv.innerHTML = '';
