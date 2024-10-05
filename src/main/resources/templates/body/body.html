@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="body">
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar bg-light navbar-light">
+                <a th:href="@{/homePage}" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>超市後台系統</h3>
+                </a>
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" th:src="@{/resources/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0" th:text="${employee.employeeName}"></h6>
+                        <span th:text="${employee['class'].simpleName eq 'EmpBean' ? employee.positionId : employee.positionName}"></span>
+                    </div>
+                </div>
+                <div class="navbar-nav w-100">
+                    <!-- 人資系統 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>人資系統</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a th:href="@{/employee/empMain}" class="dropdown-item">員工資訊</a>
+                            <a th:href="@{/AskForLeaveCon/view}" class="dropdown-item">請假</a>
+                            <a th:href="@{/schedule}" class="dropdown-item">排班</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 商品資訊 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>商品資訊</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a th:href="@{/insertProduct}" class="dropdown-item">新增商品</a>
+                            <a th:href="@{/getPagesProduct}" class="dropdown-item">商品主頁</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 庫存系統 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>庫存系統</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a th:href="@{/restock/RestockMain}" class="dropdown-item">新增庫存</a>
+                            <a th:href="@{/restock/GetAllRestockDetailsDetail}" class="dropdown-item">庫存明細</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 訂單系統 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>訂單系統</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a th:href="@{/checkout/checkoutMain}" class="dropdown-item">訂單資訊</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 會員系統 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>會員系統</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a th:href="@{/customer/cusMain}" class="dropdown-item">會員資訊</a>
+                            <a th:href="@{/bonusExchange}" class="dropdown-item">紅利兌換查詢</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- 頂部導航欄 -->
+        <div class="content">
+            <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+                <a th:href="@{/homePage}" class="navbar-brand d-flex d-lg-none me-4">
+                    <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+                </a>
+                <a href="#" class="sidebar-toggler flex-shrink-0">
+                    <i class="fa fa-bars"></i>
+                </a>
+                <form class="d-none d-md-flex ms-4">
+                    <input class="form-control border-0" type="search" placeholder="搜尋">
+                </form>
+                <div class="navbar-nav align-items-center ms-auto">
+                    <!-- 消息下拉選單 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-envelope me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">消息</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <!-- 消息項目 -->
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" th:src="@{/resources/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">John 發送了一則訊息給您</h6>
+                                        <small>15 分鐘前</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item text-center">查看所有消息</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 通知下拉選單 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-bell me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">通知</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">個人資料已更新</h6>
+                                <small>15 分鐘前</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item text-center">查看所有通知</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 用戶下拉選單 -->
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img class="rounded-circle me-lg-2" th:src="@{/resources/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                            <span class="d-none d-lg-inline-flex" th:text="${session.employee.employeeName}"></span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <a th:href="@{/employee/details(employeeId=${session.employee.employeeId})}" class="dropdown-item">我的個人資料</a>
+                            <a th:href="@{/employee/update(employeeId=${session.employee.employeeId})}" class="dropdown-item">設定</a>
+                            <a th:href="@{/logout}" class="dropdown-item">登出</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>
