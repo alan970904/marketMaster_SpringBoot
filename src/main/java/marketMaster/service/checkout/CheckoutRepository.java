@@ -38,7 +38,7 @@ public interface CheckoutRepository extends JpaRepository<CheckoutBean, String> 
     List<String> getLastCheckoutId();
 
     // 獲取所有員工
-    @Query("FROM EmpBean")
+    @Query("SELECT e FROM EmpBean e")
     List<EmpBean> getAllEmployees();
 
     // 根據類別獲取產品名稱

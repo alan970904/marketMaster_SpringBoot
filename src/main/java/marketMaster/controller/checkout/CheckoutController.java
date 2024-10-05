@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
+import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.checkout.CheckoutService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -144,7 +145,11 @@ public class CheckoutController {
 
     @PostMapping("/delete")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> deleteCheckout(@RequestParam String checkoutId) {
+    public ResponseEntity<Map<String, String>> deleteCheckout(@RequestBody Map<String, String> request) {
+        String checkoutId = request.get("checkoutId");
+        if (checkoutId == null || checkoutId.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "checkoutId is required"));
+        }
         try {
             checkoutService.deleteCheckoutAndDetails(checkoutId);
             return ResponseEntity.ok(Map.of("status", "success", "message", "結帳記錄及其相關明細已成功刪除"));
@@ -203,14 +208,16 @@ public class CheckoutController {
     }
 
     @GetMapping("/employees")
-    public String getAllEmployees(Model model) {
+    @ResponseBody
+    public ResponseEntity<List<EmpBean>> getAllEmployees() {
         try {
-            model.addAttribute("employees", checkoutService.getAllEmployees());
-            return "employee/EmployeeList";
+            logger.info("開始獲取所有員工資料");
+            List<EmpBean> employees = checkoutService.getAllEmployees();
+            logger.info("成功獲取 " + employees.size() + " 名員工資料");
+            return ResponseEntity.ok(employees);
         } catch (DataAccessException e) {
             logger.severe("獲取所有員工資料失敗: " + e.getMessage());
-            model.addAttribute("error", "獲取員工資料失敗，請稍後再試");
-            return "error";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -227,11 +234,12 @@ public class CheckoutController {
 
     @PostMapping("/updateTotalAndBonus")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> updateTotalAndBonus(
-            @RequestParam String checkoutId,
-            @RequestParam BigDecimal totalAmount,
-            @RequestParam int bonusPoints) {
+    public ResponseEntity<Map<String, String>> updateTotalAndBonus(@RequestBody Map<String, Object> request) {
         try {
+            String checkoutId = (String) request.get("checkoutId");
+            BigDecimal totalAmount = new BigDecimal(request.get("totalAmount").toString());
+            int bonusPoints = Integer.parseInt(request.get("bonusPoints").toString());
+            
             checkoutService.updateTotalAndBonus(checkoutId, totalAmount, bonusPoints);
             return ResponseEntity.ok(Map.of("status", "success", "message", "總金額和紅利點數已更新"));
         } catch (DataAccessException e) {
@@ -250,20 +258,24 @@ public class CheckoutController {
             checkout.setCustomerTel((String) requestData.get("customerTel"));
             checkout.setEmployeeId((String) requestData.get("employeeId"));
             checkout.setCheckoutDate(new Date()); // 設置為當前日期，或從請求中獲取
-            // 設置其他必要的屬性...
+            checkout.setPointsDueDate(new Date());
         } catch (Exception e) {
             throw new InvalidCheckoutDataException("解析結帳基本資訊失敗: " + e.getMessage());
         }
         return checkout;
     }
 
-    private List<CheckoutDetailsBean> parseCheckoutDetails(Map<String, Object> requestData) throws InvalidCheckoutDataException {
-        try {
-            String detailsJson = objectMapper.writeValueAsString(requestData.get("details"));
-            return checkoutService.parseCheckoutDetails(detailsJson);
-        } catch (Exception e) {
-            throw new InvalidCheckoutDataException("解析結帳明細失敗: " + e.getMessage());
+    private List<CheckoutDetailsBean> parseCheckoutDetails(Map<String, Object> requestData) {
+        List<Map<String, Object>> detailsData = (List<Map<String, Object>>) requestData.get("details");
+        List<CheckoutDetailsBean> details = new ArrayList<>();
+        for (Map<String, Object> detailData : detailsData) {
+            CheckoutDetailsBean detail = new CheckoutDetailsBean();
+            detail.setProductId((String) detailData.get("productId"));
+            detail.setNumberOfCheckout((Integer) detailData.get("quantity"));
+            detail.setProductPrice((Integer) detailData.get("price"));
+            details.add(detail);
         }
+        return details;
     }
 
     private void validateCheckoutData(CheckoutBean checkout, List<CheckoutDetailsBean> details) throws InvalidCheckoutDataException {

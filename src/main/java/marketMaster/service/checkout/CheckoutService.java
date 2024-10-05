@@ -7,6 +7,7 @@ import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.product.ProductBean;
+import marketMaster.controller.checkout.CheckoutController;
 import marketMaster.service.checkout.CheckoutRepository;
 import marketMaster.service.checkout.CheckoutDetailsRepository;
 import marketMaster.exception.DataAccessException;
@@ -15,12 +16,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Service
 @Transactional
 public class CheckoutService {
+	
+	private static final Logger logger = Logger.getLogger(CheckoutService.class.getName());
+	
     @Autowired
     private CheckoutRepository checkoutRepository;
     
@@ -77,7 +83,14 @@ public class CheckoutService {
     }
 
     public List<EmpBean> getAllEmployees() throws DataAccessException {
-        return checkoutRepository.getAllEmployees();
+        try {
+            List<EmpBean> employees = checkoutRepository.getAllEmployees();
+            logger.info("從資料庫獲取到 " + employees.size() + " 名員工資料");
+            return employees;
+        } catch (Exception e) {
+            logger.severe("獲取所有員工資料時發生異常: " + e.getMessage());
+            throw new DataAccessException("獲取所有員工資料失敗", e);
+        }
     }
 
     public List<ProductBean> getProductNamesByCategory(String category) throws DataAccessException {
@@ -95,18 +108,26 @@ public class CheckoutService {
     @Transactional
     public boolean insertCheckoutWithDetails(CheckoutBean checkout, List<CheckoutDetailsBean> details) throws DataAccessException {
         try {
-            checkoutRepository.save(checkout);
+            int totalAmount = 0;
+            
+            checkoutRepository.save(checkout);  // 先保存 CheckoutBean
 
             for (CheckoutDetailsBean detail : details) {
                 detail.setCheckoutId(checkout.getCheckoutId());
+                detail.setCheckoutPrice(detail.getProductPrice() * detail.getNumberOfCheckout());
                 checkoutDetailsRepository.save(detail);
+                totalAmount += detail.getCheckoutPrice();
             }
 
-            BigDecimal totalAmount = calculateTotalAmount(details);
+            checkout.setCheckoutTotalPrice(totalAmount);
             int bonusPoints = calculateBonusPoints(totalAmount);
-            checkout.setCheckoutTotalPrice(totalAmount.intValue());
             checkout.setBonusPoints(bonusPoints);
-            checkoutRepository.save(checkout);
+
+            // 設置紅利點數到期日（一年後）
+            LocalDate pointsDueDate = LocalDate.now().plusYears(1);
+            checkout.setPointsDueDate(java.sql.Date.valueOf(pointsDueDate));
+
+            checkoutRepository.save(checkout);// 更新 CheckoutBean
 
             return true;
         } catch (Exception e) {
@@ -116,6 +137,9 @@ public class CheckoutService {
 
     @Transactional
     public void deleteCheckoutAndDetails(String checkoutId) throws DataAccessException {
+        if (checkoutId == null || checkoutId.isEmpty()) {
+            throw new DataAccessException("Invalid checkoutId");
+        }
         checkoutDetailsRepository.deleteByCheckoutId(checkoutId);
         checkoutRepository.deleteById(checkoutId);
     }
@@ -130,14 +154,19 @@ public class CheckoutService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public int calculateBonusPoints(BigDecimal totalAmount) {
-        return totalAmount.divide(new BigDecimal(100), 0, BigDecimal.ROUND_DOWN).intValue();
+    private int calculateBonusPoints(int totalAmount) {
+        return totalAmount / 100;
     }
 
     // 新增的方法，用於更新結帳總價
     @Transactional
     public void updateTotalPrice(String checkoutId) throws DataAccessException {
-        checkoutRepository.updateTotalPrice(checkoutId);
+        int totalPrice = checkoutDetailsService.calculateCheckoutTotal(checkoutId);
+        CheckoutBean checkout = checkoutRepository.findById(checkoutId)
+            .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
+        checkout.setCheckoutTotalPrice(totalPrice);
+        checkout.setBonusPoints(calculateBonusPoints(totalPrice));
+        checkoutRepository.save(checkout);
     }
 
     // 新增的方法，用於處理退貨

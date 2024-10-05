@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,8 +27,9 @@
 	rel="stylesheet">
 
 <!-- Custom CSS -->
-<link th:href="@{/static/CSS/style.css}" rel="stylesheet">
-<link th:href="@{/static/CSS/extra.css}" rel="stylesheet">
+
+<link th:href="@{/CSS/style.css}" rel="stylesheet">
+<link th:href="@{/CSS/extra.css}" rel="stylesheet">
 
 
 <style th:inline="css">
@@ -274,14 +275,15 @@ select.form-control {
                 </div>
             </div>
                         <div class="form-group">
-                            <label for="employeeId">員工編號:</label>
-                            <select id="employeeId" name="employeeId" class="form-control" required>
-                                <option value="">請選擇員工</option>
-                                <c:forEach var="emp" items="${employees}">
-                                    <option value="${emp.employeeId}">${emp.employeeId} - ${emp.employeeName}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
+    						<label for="employeeId">員工編號:</label>
+    						<select id="employeeId" name="employeeId" class="form-control" required>
+        						<option value="">請選擇員工</option>
+        						<option th:each="emp : ${employees}" 
+                						th:value="${emp.employeeId}" 
+                						th:text="${emp.employeeId + ' - ' + emp.employeeName}">
+        						</option>
+    						</select>
+						</div>
                         <div class="form-group">
                             <label for="productCategory">產品類別:</label>
                             <select id="product_category" name="productCategory" class="form-control" >
@@ -398,20 +400,20 @@ select.form-control {
         
         // 如果沒有員工數據，則通過 Axios 獲取
         if ($('#employeeId option').length <= 1) {
-            axios.get(/*[[@{/checkout/employees}]]*/ '/checkout/employees')
-                .then(function (response) {
-                    var employeeSelect = $('#employeeId');
-                    $.each(response.data, function(i, emp) {
-                        employeeSelect.append($('<option>')
-                            .text(emp.employeeId + ' - ' + emp.employeeName)
-                            .attr('value', emp.employeeId));
-                    });
-                })
-                .catch(function (error) {
-                    console.error('獲取員工資料失敗:', error);
-                    alert('獲取員工資料時出錯，請稍後再試');
-                });
-        }
+    		axios.get(/*[[@{/checkout/employees}]]*/ '/checkout/employees')
+        		.then(function (response) {
+            		var employeeSelect = $('#employeeId');
+           		 	$.each(response.data, function(i, emp) {
+                		employeeSelect.append($('<option>')
+                    		.text(emp.employeeId + ' - ' + emp.employeeName)
+                    		.attr('value', emp.employeeId));
+            		});
+        		})
+        		.catch(function (error) {
+            		console.error('獲取員工資料失敗:', error);
+            		alert('獲取員工資料時出錯，請稍後再試');
+        		});
+		}
         
         // 商品名稱變更時更新商品編號和價格
         $('#product_name').change(function() {
@@ -547,8 +549,14 @@ select.form-control {
                 checkoutDate: $('#checkoutDate').val(),
                 bonusPoints: parseInt($('#bonusPoints').val()),
                 pointsDueDate: $('#pointsDueDate').val(),
-                details: products
-            };
+                details: products.map(function(product) {
+        			return {
+            			productId: product.productId,
+            			quantity: product.quantity,
+            			price: product.price
+        			};
+    			})
+			};
 
             axios.post(/*[[@{/checkout/add}]]*/ '/checkout/add', formData, {
                 headers: {

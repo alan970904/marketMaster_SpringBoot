@@ -2,7 +2,7 @@ package marketMaster.bean.schedule;
 
 import java.io.Serializable;
 import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDate;
 
 import marketMaster.bean.employee.EmpBean;
 
@@ -28,7 +28,7 @@ public class ScheduleBean implements Serializable {
 	private EmpBean empBean;
 
 	@Column(name = "job_date")
-	private Date jobDate;
+	private LocalDate jobDate;
 
 	@Column(name = "start_time")
 	private Time startTime;
@@ -40,7 +40,7 @@ public class ScheduleBean implements Serializable {
 		super();
 	}
 
-	public ScheduleBean(String employeeId, EmpBean empBean, Date jobDate, Time startTime, Time endTime) {
+	public ScheduleBean(String employeeId, EmpBean empBean, LocalDate jobDate, Time startTime, Time endTime) {
 		super();
 		this.employeeId = employeeId;
 		this.empBean = empBean;
@@ -65,11 +65,11 @@ public class ScheduleBean implements Serializable {
 		this.empBean = empBean;
 	}
 
-	public Date getJobDate() {
+	public LocalDate getJobDate() {
 		return jobDate;
 	}
 
-	public void setJobDate(Date jobDate) {
+	public void setJobDate(LocalDate jobDate) {
 		this.jobDate = jobDate;
 	}
 

@@ -1,6 +1,7 @@
 package marketMaster.bean.bonus;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -25,7 +26,7 @@ public class PointsHistoryBean {
     private int pointsChange;
     
     @Column(name = "transaction_date")
-    private Date transactionDate;
+    private LocalDate transactionDate;
     
     @Column(name = "transaction_type")
     private String transactionType;
@@ -34,7 +35,7 @@ public class PointsHistoryBean {
     public PointsHistoryBean() {}
     
     public PointsHistoryBean(String customerTel, String checkoutId, String exchangeId, 
-                             int pointsChange, Date transactionDate, String transactionType) {
+                             int pointsChange, LocalDate transactionDate, String transactionType) {
         this.customerTel = customerTel;
         this.checkoutId = checkoutId;
         this.exchangeId = exchangeId;
@@ -59,8 +60,8 @@ public class PointsHistoryBean {
     public int getPointsChange() { return pointsChange; }
     public void setPointsChange(int pointsChange) { this.pointsChange = pointsChange; }
     
-    public Date getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(Date transactionDate) { this.transactionDate = transactionDate; }
+    public LocalDate getTransactionDate() { return transactionDate; }
+    public void setTransactionDate(LocalDate transactionDate) { this.transactionDate = transactionDate; }
     
     public String getTransactionType() { return transactionType; }
     public void setTransactionType(String transactionType) { this.transactionType = transactionType; }

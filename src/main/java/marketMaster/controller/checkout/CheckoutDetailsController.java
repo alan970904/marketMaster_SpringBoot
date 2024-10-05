@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.service.checkout.CheckoutDetailsService;
+import marketMaster.service.checkout.CheckoutService;
 import marketMaster.exception.DataAccessException;
 
 import java.util.List;
@@ -20,6 +21,9 @@ public class CheckoutDetailsController {
 
     @Autowired
     private CheckoutDetailsService checkoutDetailsService;
+    
+    @Autowired
+    private CheckoutService checkoutService;
 
     @GetMapping("/list")
     public String getAllCheckoutDetails(Model model) {
@@ -73,6 +77,7 @@ public class CheckoutDetailsController {
     public ResponseEntity<Map<String, String>> updateCheckoutDetails(@RequestBody CheckoutDetailsBean checkoutDetails) {
         try {
             checkoutDetailsService.updateCheckoutDetails(checkoutDetails);
+            checkoutService.updateTotalPrice(checkoutDetails.getCheckoutId());
             return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
         } catch (DataAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -82,9 +87,12 @@ public class CheckoutDetailsController {
 
     @PostMapping("/delete")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> deleteCheckoutDetails(@RequestParam String checkoutId, @RequestParam String productId) {
+    public ResponseEntity<Map<String, String>> deleteCheckoutDetails(@RequestBody Map<String, String> request) {
         try {
+            String checkoutId = request.get("checkoutId");
+            String productId = request.get("productId");
             checkoutDetailsService.deleteCheckoutDetails(checkoutId, productId);
+            checkoutService.updateTotalPrice(checkoutId);
             return ResponseEntity.ok(Map.of("status", "success", "message", "結帳明細已成功刪除"));
         } catch (DataAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
