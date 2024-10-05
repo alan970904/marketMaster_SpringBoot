@@ -2,26 +2,28 @@ package marketMaster.viewModel;
 
 import java.time.LocalDate;
 
-//EmployeeViewModel 類：用於在表現層展示豐富的員工信息
 public class EmployeeViewModel {
+
 	private String employeeId;
-	private String employeeName;
-	private String employeeTel;
-	private String employeeIdcard;
-	private String employeeEmail;
-	private String positionName; // 職位名稱替代職位編號
-	private String salaryLevel;
-	private LocalDate hiredate;
-	private LocalDate resigndate;
+    private String employeeName;
+    private String employeeTel;
+    private String employeeIdcard;
+    private String employeeEmail;
+    private String positionName;
+    private String salaryLevel;
+    private LocalDate hiredate;
+    private LocalDate resigndate;
     private String password;
     private String positionId;
+    private String imagePath;
 
-	public EmployeeViewModel() {
-	}
+    public EmployeeViewModel() {
+    }
 
 	public EmployeeViewModel(String employeeId, String employeeName, String employeeTel, String employeeIdcard,
 			String employeeEmail, String positionName, String salaryLevel, LocalDate hiredate, LocalDate resigndate,
-			String password, String positionId) {
+			String password, String positionId, String imagePath) {
+		super();
 		this.employeeId = employeeId;
 		this.employeeName = employeeName;
 		this.employeeTel = employeeTel;
@@ -31,8 +33,9 @@ public class EmployeeViewModel {
 		this.salaryLevel = salaryLevel;
 		this.hiredate = hiredate;
 		this.resigndate = resigndate;
-        this.password = password;
-        this.positionId = positionId;
+		this.password = password;
+		this.positionId = positionId;
+		this.imagePath = imagePath;
 	}
 
 	public String getEmployeeId() {
@@ -122,4 +125,13 @@ public class EmployeeViewModel {
 	public void setPositionId(String positionId) {
 		this.positionId = positionId;
 	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+    
 }
