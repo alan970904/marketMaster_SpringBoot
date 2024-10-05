@@ -132,12 +132,12 @@
                         {
                             data: 'productId',
                             type: 'dropdown',
-                            source: function (query, process) {
-                                const row = this.instance.getSelectedLast()[0];
+                            source: function () {
+                                const row = this.row;
                                 const supplierValue = this.instance.getDataAtRowProp(row, 'supplierId');
                                 const supplierId = supplierValue ? supplierValue.split(' - ')[0] : '';
                                 const products = productListMap[supplierId] || [];
-                                process(products.map(product => `${product.productId} - ${product.productName}`));
+                                return products.map(product => `${product.productId} - ${product.productName}`);
                             },
                             renderer: 'dropdown',
                             validator: (value, callback) => {
@@ -174,7 +174,7 @@
                 });
 
                 // 設置默認的進貨單號
-                hot.setDataAtRowProp(0, 'restockId', latestRestockId);
+                hot.setDataAtCell(0, 0, latestRestockId);
 
                 // 保存實例到數組
                 hotInstances.push(hot);
@@ -186,21 +186,16 @@
                             if (prop === 'supplierId') {
                                 const supplierId = newValue ? newValue.split(' - ')[0] : '';
 
-                                if (supplierId) {
-                                    // 每次都重新加載產品列表
+                                if (supplierId && !productListMap[supplierId]) {
                                     $.ajax({
                                         url: '/restock/getProducts',
                                         method: 'GET',
                                         data: { supplierId },
                                         success: (products) => {
                                             productListMap[supplierId] = products;
-
                                             // 更新當前行的產品下拉菜單
                                             hot.getCellMeta(row, 2).source = products.map(product => `${product.productId} - ${product.productName}`);
-                                            hot.setDataAtRowProp(row, 'productId', ''); // 清空商品欄位
-                                            hot.setDataAtRowProp(row, 'restockTotalPrice', null); // 清空進貨總價
-
-                                            hot.render(); // 渲染更新表格
+                                            hot.render(); // 使用 render 代替 updateSettings
                                         },
                                         error: () => {
                                             alert(`載入供應商 ${supplierId} 的商品失敗`);
@@ -222,12 +217,13 @@
                                         method: 'GET',
                                         data: { supplierId, productId },
                                         success: (productPrice) => {
+                                            // 存儲 productPrice
                                             productPriceMap[productId] = productPrice;
 
                                             // 自動計算 restockTotalPrice 如果 numberOfRestock 已輸入
                                             const numberOfRestock = hot.getDataAtRowProp(row, 'numberOfRestock') || 0;
                                             const restockTotalPrice = numberOfRestock * productPrice;
-                                            hot.setDataAtRowProp(row, 'restockTotalPrice', restockTotalPrice, 'auto-calculate');
+                                            hot.setDataAtCell(row, 4, restockTotalPrice, 'auto-calculate');
                                         },
                                         error: () => {
                                             alert(`無法取得供應商 ${supplierId} 和商品 ${productId} 的單價`);
@@ -243,7 +239,7 @@
                                 const numberOfRestock = newValue || 0;
                                 const productPrice = productPriceMap[productId] || 0;
                                 const restockTotalPrice = numberOfRestock * productPrice;
-                                hot.setDataAtRowProp(row, 'restockTotalPrice', restockTotalPrice, 'auto-calculate');
+                                hot.setDataAtCell(row, 4, restockTotalPrice, 'auto-calculate');
                             }
                         });
                     }

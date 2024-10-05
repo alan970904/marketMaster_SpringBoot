@@ -1,11 +1,12 @@
 package marketMaster.bean.product;
 
 import jakarta.persistence.*;
-import marketMaster.bean.restock.RestockDetailsBean;
+
 import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import marketMaster.bean.restock.RestockDetailsBean;
 
 @Entity
 @Table(name = "products")
@@ -46,9 +47,6 @@ public class ProductBean implements Serializable {
 	@Column(name = "number_of_remove")
 	private int numberOfRemove;
 
-	@OneToMany(mappedBy = "product")
-	@JsonIgnore
-	private List<RestockDetailsBean> restockDetails;
 
 	// Constructors
 	public ProductBean() {
@@ -94,13 +92,9 @@ public class ProductBean implements Serializable {
 		this.productName = productName;
 	}
 
-	public List<RestockDetailsBean> getRestockDetails() {
-		return restockDetails;
-	}
 
-	public void setRestockDetails(List<RestockDetailsBean> restockDetails) {
-		this.restockDetails = restockDetails;
-	}
+
+
 
 	// Getters 和 Setters
 

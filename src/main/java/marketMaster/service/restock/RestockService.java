@@ -1,43 +1,45 @@
 package marketMaster.service.restock;
 
+
 import marketMaster.DTO.employee.EmployeeInfoDTO;
-import marketMaster.DTO.product.ProductCategoryDTO;
-import marketMaster.DTO.product.ProductIdDTO;
-import marketMaster.DTO.product.ProductNameDTO;
-import marketMaster.DTO.restock.RestockDTO;
-import marketMaster.DTO.restock.RestockDetailViewDTO;
+import marketMaster.DTO.restock.restock.RestockDetailsInsertDTO;
+import marketMaster.DTO.restock.restock.RestockInsertDTO;
 import marketMaster.bean.employee.EmpBean;
-import marketMaster.bean.product.ProductBean;
-import marketMaster.bean.restock.RestockBean;
 import marketMaster.bean.restock.RestockDetailsBean;
-import marketMaster.bean.restock.RestockDetailsId;
+import marketMaster.bean.restock.RestocksBean;
+import marketMaster.bean.restock.SupplierProductsBean;
+import marketMaster.bean.restock.SuppliersBean;
 import marketMaster.service.employee.EmployeeRepository;
 import marketMaster.service.product.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class RestockService {
-
     @Autowired
-    private RestockRepository restockRepository;
+    private  RestocksRepository restocksRepository;
+    @Autowired
+    private ProductRepository productRepository;
     @Autowired
     private EmployeeRepository employeeRepository;
     @Autowired
-    private ProductRepository productRepository;
+    private RestockDetailService restockDetailService;
+    @Autowired
+    private SupplierProductsRepository supplierProductsRepository;
+    @Autowired
+    private SuppliersRepository suppliersRepository;
+    @Autowired
+    private RestockDetailsRepository restockDetailsRepository;
 
     @Autowired
-    private RestockDetailRepository restockDetailRepository;
-
-    /**
-     * 取得今天最新的進貨 ID
-     */
+    private SupplierAccountService supplierAccountService; ;
 
     public String getLatestRestockId() {
         // 取得當天的日期，格式為 YYYYMMDD
@@ -47,13 +49,13 @@ public class RestockService {
         String restockIdPattern = "%" + today + "%";
 
         // 從資料庫中查詢最新的進貨 ID
-        RestockBean latestRestock = restockRepository.findLatestRestockByDate(restockIdPattern).orElse(null);
+        RestocksBean latestRestock = restocksRepository.findLatestRestockByDate(restockIdPattern).orElse(null);
 
         String newId;
         if (latestRestock != null) {
             // 如果找到最新的進貨 ID，解析出序號並增加 1
-            String lastestId = latestRestock.getRestockId();
-            int sequence = Integer.parseInt(lastestId.substring(8)) + 1;  // 提取 ID 中的序號部分
+            String latestId = latestRestock.getRestockId();
+            int sequence = Integer.parseInt(latestId.substring(8)) + 1;  // 提取 ID 中的序號部分
             newId = String.format("%s%03d", today, sequence);  // 格式化新的 ID，序號保持三位
         } else {
             // 如果今天還沒有進貨 ID，則從 "001" 開始
@@ -70,98 +72,55 @@ public class RestockService {
         return employeeRepository.findAllEmployeeInfo();
     }
 
-    /**
-     * 取得所有產品類別
-     */
-    public List<ProductCategoryDTO> getProductCategory() {
-        return productRepository.findAllCategories();
-    }
 
-    /**
-     * 根據產品類別取得所有產品名稱
-     */
-    public List<ProductNameDTO> getAllProductNamesByCategory(String productCategory) {
-        return productRepository.findAllProductNamesByCategory(productCategory);
-    }
-
-    public List<ProductIdDTO> findAllProductIdByProductName(String productName) {
-        return productRepository.findAllProductIdByProductName(productName);
-    }
-
-    /**
-     * 插入進貨資料
-     */
+    //插入進貨資料 並且更新 Account total
     @Transactional
-    public void insertRestockData(RestockDTO restockDTO) {
-        // 根據 employeeId 獲取 EmpBean 對象
-        EmpBean employee = employeeRepository.findById(restockDTO.getEmployeeId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Employee ID: " + restockDTO.getEmployeeId()));
+    public void insertRestockData(RestockInsertDTO restockInsertDTO) {
+        EmpBean employeeId = employeeRepository.findById(restockInsertDTO.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Employee ID: " + restockInsertDTO.getEmployeeId()));
 
-        // 創建 RestockBean 對象
-        RestockBean restock = new RestockBean();
-        restock.setRestockId(restockDTO.getRestockId());
-        restock.setEmployee(employee);
-        restock.setRestockTotalPrice(restockDTO.getRestockTotalPrice());
-        restock.setRestockDate(restockDTO.getRestockDate());
+        RestocksBean insertDTO =   new RestocksBean();
+    insertDTO.setRestockId(restockInsertDTO.getRestockId());
+    insertDTO.setRestockTotalPrice(restockInsertDTO.getRestockTotalPrice());
+    insertDTO.setRestockDate(restockInsertDTO.getRestockDate());
+    insertDTO.setEmployee(employeeId);
+    restocksRepository.save(insertDTO);
 
-        // 處理 RestockDetailsBean
-        List<RestockDetailsBean> detailsList = restockDTO.getRestockDetails().stream().map(dto -> {
-            RestockDetailsId id = new RestockDetailsId(restockDTO.getRestockId(), dto.getProductId());
-            RestockDetailsBean details = new RestockDetailsBean();
-            details.setId(id);
+    for (RestockDetailsInsertDTO rd : restockInsertDTO.getRestockDetails()) {
+        RestockDetailsBean detail = new RestockDetailsBean();
 
-            // 從 productRepository 獲取 ProductBean 並設置
-            ProductBean product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid Product ID: " + dto.getProductId()));
-            details.setProduct(product);
+        SuppliersBean supplier = suppliersRepository.findById(rd.getSupplierId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Supplier ID: " + rd.getSupplierId()));
+        // 根据 supplierId 和 productId 查找 supplierProductId
+        Optional<SupplierProductsBean> optionalSupplierProduct = supplierProductsRepository.findBySupplier_SupplierIdAndProduct_ProductId(rd.getSupplierId(), rd.getProductId());
 
-            // 設置進貨詳細資訊
-            details.setRestock(restock);
-            details.setNumberOfRestock(dto.getNumberOfRestock());
-            details.setProductName(dto.getProductName());
-            details.setProductPrice(dto.getProductPrice());
-            details.setRestockTotalPrice(dto.getRestockTotalPrice());
-            details.setProductionDate(dto.getProductionDate());
-            details.setDueDate(dto.getDueDate());
-            details.setRestockDate(dto.getRestockDate());
+        SupplierProductsBean supplierProduct = optionalSupplierProduct
+                .orElseThrow(() -> new IllegalArgumentException("Invalid combination of Supplier ID: " + rd.getSupplierId() + " and Product ID: " + rd.getProductId()));
 
-            return details;
-        }).collect(Collectors.toList());
+        detail.setDetailId(restockDetailService.getLastedDetailId());
+        detail.setSupplier(supplier);
+        detail.setSupplierProduct(supplierProduct);
+        detail.setNumberOfRestock(rd.getNumberOfRestock());
+        detail.setRestockTotalPrice(rd.getRestockTotalPrice());
+        detail.setProductionDate(rd.getProductionDate());
+        detail.setDueDate(rd.getDueDate());
+        detail.setRestockDate(LocalDate.now());
+        detail.setRestock(insertDTO);
+        restockDetailsRepository.save(detail);
 
-        // 設置 RestockDetails
-        restock.setRestockDetails(detailsList);
 
-        // 保存 RestockBean（同時保存 RestockDetailsBean）
-        restockRepository.save(restock);
+        supplierAccountService.updateAccount(rd.getSupplierId(), rd.getRestockTotalPrice());
+
+    }
     }
 
-    public List<RestockDetailViewDTO> getAllRestockDetail() {
-        return restockDetailRepository.getAllRestockDetails();
+    public void deleteRestockData(@RequestParam String restockId) {
+        restocksRepository.deleteById(restockId);
+    }
 
     }
 
-    /*
-    刪除資料
-     */
-    public void delete(String restockId) {
-        restockRepository.deleteById(restockId);
-        System.out.println("Restock deleted: " + restockId);
-    }
 
 
-    public List<RestockDetailViewDTO> findRestockDetailsByDateRange(String startDate, String endDate) {
-        return restockDetailRepository.findRestockDetailsByDateRange(startDate, endDate);
-    }
 
-    public void updateRestockDetail(RestockDetailViewDTO restockDetailViewDTO) {
-        restockDetailRepository.updateRestockDetail(
-                restockDetailViewDTO.getRestockId(),
-                restockDetailViewDTO.getProductId(),
-                restockDetailViewDTO.getNumberOfRestock(),
-                restockDetailViewDTO.getProductPrice(),
-                restockDetailViewDTO.getProductionDate(),
-                restockDetailViewDTO.getDueDate()
-        );
 
-    }
-}
