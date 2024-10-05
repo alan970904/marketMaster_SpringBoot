@@ -1,7 +1,7 @@
 package marketMaster.bean.bonus;
 import java.time.LocalDate;
 
-import marketMaster.bean.employee.CustomerBean;
+import marketMaster.bean.customer.CustomerBean;
 import marketMaster.bean.product.ProductBean;
 
 import jakarta.persistence.Column;
