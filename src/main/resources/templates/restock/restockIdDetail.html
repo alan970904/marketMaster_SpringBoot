@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>進貨明細管理</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <!-- jQuery 和 jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+</head>
+<body>
+<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <h1 class="mb-4">進貨明細管理</h1>
+    <div class="row w-100">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <table id="restockDetailsTable" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>進貨編號</th>
+                    <th>進貨明細編號</th>
+                    <th>供應商</th>
+                    <th>商品</th>
+                    <th>進貨數量</th>
+                    <th>商品價格</th>
+                    <th>進貨總金額</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="details :${details}">
+                    <td th:text="${details.restockId}"></td>
+                    <td th:text="${details.detailId}"></td>
+                    <td th:text="${details.supplierId + ' - ' + details.supplierName}"></td>
+                    <td th:text="${details.productId + ' - ' + details.productName}"></td>
+                    <td th:text="${details.numberOfRestock}"></td>
+                    <td th:text="${details.productPrice}"></td>
+                    <td th:text="${details.restockTotalPrice}"></td>
+                    <td>
+                        <button class="btn btn-primary btn-update"
+                               th:data-restock-id="${details.restockId}"
+                                th:data-product-id="${details.productId}"
+                                th:data-number-of-restock="${details.numberOfRestock}"
+                                th:data-product-price="${details.productPrice}"
+                                th:data-production-date="${details.productionDate}"
+                                th:data-due-date="${details.dueDate}">
+                            更新
+                        </button>
+                        <button class="btn btn-danger btn-delete" th:data-detail-id="${details.detailId}">刪除</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 更新彈出視窗 -->
+<div id="updateDialog" title="更新進貨明細" style="display: none;">
+    <form id="updateForm">
+        <div class="form-group">
+            <label for="updateNumberOfRestock">進貨數量：</label>
+            <input type="number" id="updateNumberOfRestock" class="form-control" min="1">
+        </div>
+        <div class="form-group">
+            <label for="updateProductPrice">商品單價：</label>
+            <input type="number" id="updateProductPrice" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="form-group">
+            <label for="updateProductionDate">生產日期：</label>
+            <input type="date" id="updateProductionDate" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="updateDueDate">到期日期：</label>
+            <input type="date" id="updateDueDate" class="form-control">
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+    $(document).ready(function() {
+        bindTableActions();
+
+        function bindTableActions() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const detailId = button.getAttribute('data-detail-id');
+                    const userConfirmed = confirm("確定要刪除嗎？");
+
+                    if (userConfirmed) {
+                        console.log(`/restockDetail/deleteByRestockDetailId?detailId=${detailId}`);
+                        axios.delete(`/restockDetail/deleteByRestockDetailId?detailId=${detailId}`)
+                            .then(res => {
+                                if (res.data === "刪除成功並更新總金額！") {
+                                    console.log("刪除成功", res);
+                                    // 刪除成功後，從 DOM 中移除該行
+                                    const row = button.closest('tr');
+                                    row.remove();
+                                } else {
+                                    console.log("刪除失敗");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("刪除失敗", error);
+                            });
+                    }
+                });
+            });
+
+            const updateButtons = document.querySelectorAll('.btn-update');
+            updateButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const restockId = button.getAttribute('data-restock-id');
+                    const productId = button.getAttribute('data-product-id');
+                    const numberOfRestock = button.getAttribute('data-number-of-restock');
+                    const productPrice = button.getAttribute('data-product-price');
+                    const productionDate = button.getAttribute('data-production-date');
+                    const dueDate = button.getAttribute('data-due-date');
+
+                    $("#updateNumberOfRestock").val(numberOfRestock);
+                    $("#updateProductPrice").val(productPrice);
+                    $("#updateProductionDate").val(productionDate);
+                    $("#updateDueDate").val(dueDate);
+
+                    $("#updateDialog").dialog({
+                        modal: true,
+                        width: 400,
+                        buttons: {
+                            "保存": function () {
+                                const updatedNumberOfRestock = $("#updateNumberOfRestock").val();
+                                const updatedProductPrice = $("#updateProductPrice").val();
+                                const updatedProductionDate = $("#updateProductionDate").val();
+                                const updatedDueDate = $("#updateDueDate").val();
+
+                                axios.put('/restockDetail/update', {
+                                    restockId: restockId,
+                                    productId: productId,
+                                    numberOfRestock: updatedNumberOfRestock,
+                                    productPrice: updatedProductPrice,
+                                    productionDate: updatedProductionDate,
+                                    dueDate: updatedDueDate
+                                }).then(res => {
+                                    console.log("更新成功", res);
+                                    $(this).dialog("close");
+                                    // 不刷新整頁，更新該行內容
+                                    const row = button.closest('tr');
+                                    updateRow(row, res.data);  // 需要自行定義 updateRow 函數
+                                }).catch(error => {
+                                    console.error("更新失敗", error);
+                                });
+                            },
+                            "取消": function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // 假設你有一個 updateRow 函數來更新表格行的內容
+        function updateRow(row, data) {
+            // 更新行的內容，這裡要根據 data 的結構自行編寫
+            row.querySelector('td:nth-child(5)').textContent = data.numberOfRestock;
+            row.querySelector('td:nth-child(6)').textContent = data.productPrice;
+            row.querySelector('td:nth-child(7)').textContent = data.restockTotalPrice;
+        }
+    });
+</script>
+</body>
+</html>

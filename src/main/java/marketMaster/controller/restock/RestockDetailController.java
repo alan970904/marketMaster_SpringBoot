@@ -1,11 +1,12 @@
 package marketMaster.controller.restock;
 
-import marketMaster.DTO.restock.RestockDetailViewDTO;
-import marketMaster.DTO.restock.RestockDetailsDTO;
-import marketMaster.bean.restock.RestockDetailsId;
-import marketMaster.service.restock.RestockDetailRepository;
+import marketMaster.DTO.restock.restock.RestockDTO;
+import marketMaster.DTO.restock.restock.RestockDetailDTO;
+import marketMaster.service.restock.RestockDetailService;
+import marketMaster.service.restock.RestockDetailsRepository;
 import marketMaster.service.restock.RestockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,39 +20,69 @@ public class RestockDetailController {
     @Autowired
     private RestockService restockService;
     @Autowired
-    private RestockDetailRepository restockDetailRepository;
+    private RestockDetailService restockDetailService;
+    @Autowired
+    private RestockDetailsRepository restockDetailsRepository;
 
     @GetMapping("/restockDetail")
     public String restockDetail() {
-        return "/restock/restockDetailList";
+        return "restock/restockDetail";
     }
 
-    @GetMapping("/getAllRestockDetails")
+    //拿到所有進貨資資訊
+    @GetMapping("/getAllRestocks")
     @ResponseBody
-    public List<RestockDetailViewDTO> getAllRestockDetails() {
-
-        return restockService.getAllRestockDetail();
+    public List<RestockDTO> getAllRestocks() {
+        return restockDetailService.getAllRestocks();
     }
-
-    @DeleteMapping("/delete")
+    @DeleteMapping("/deleteByRestockId")
     @ResponseBody
-    public ResponseEntity<String> deleteRestockDetail(@RequestParam String restockId, @RequestParam String productId) {
-        RestockDetailsId id = new RestockDetailsId(restockId, productId);
-        restockDetailRepository.deleteById(id);
-        return ResponseEntity.ok("刪除成功！");
+    public void deleteByRestockId(@RequestParam String restockId){
+        restockService.deleteRestockData(restockId);
     }
 
-    @PutMapping("/update")
-    @ResponseBody
-    public void updateRestockDetail(@RequestBody RestockDetailViewDTO restockDetailViewDTO) {
-         restockService.updateRestockDetail(restockDetailViewDTO);
+    //透過進貨id拿到 進貨詳細資料
+
+    @GetMapping("/getAllRestockIdDetail")
+    public String getAllRestockIdDetail(@RequestParam String restockId, Model model) {
+    List<RestockDetailDTO> details=     restockDetailService.findRestockDetailByRestockId(restockId);
+    model.addAttribute("details", details);
+         return "restock/restockIdDetail";
     }
 
-    @GetMapping("/searchByDateRange")
-    @ResponseBody
-    public List<RestockDetailViewDTO> searchByDateRange(@RequestParam String startDate, @RequestParam String endDate) {
-        return restockService.findRestockDetailsByDateRange(startDate, endDate);
+    //刪除restockDetail中 detailId 並且更新restock表內 restockTotalPrice 金額
+    @DeleteMapping("/deleteByRestockDetailId")
+    public ResponseEntity<String> deleteByRestockDetailId(@RequestParam String detailId) {
+        try {
+            restockDetailService.deleteRestockDetailAndUpdateTotalPrice(detailId);
+            return ResponseEntity.ok("刪除成功並更新總金額！");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("刪除失敗！");
+        }
     }
+
+
+
+
+//    @DeleteMapping("/delete")
+//    @ResponseBody
+//    public ResponseEntity<String> deleteRestockDetail(@RequestParam String restockId, @RequestParam String productId) {
+//        RestockDetailsId id = new RestockDetailsId(restockId, productId);
+//        restockDetailRepository.deleteById(id);
+//        return ResponseEntity.ok("刪除成功！");
+//    }
+//
+//    @PutMapping("/update")
+//    @ResponseBody
+//    public void updateRestockDetail(@RequestBody RestockDetailDTO restockDetailDTO) {
+//         restockService.updateRestockDetail(restockDetailDTO);
+//    }
+//
+//    @GetMapping("/searchByDateRange")
+//    @ResponseBody
+//    public List<RestockDetailDTO> searchByDateRange(@RequestParam String startDate, @RequestParam String endDate) {
+//        return restockService.findRestockDetailsByDateRange(startDate, endDate);
+//    }
 
 
 }
