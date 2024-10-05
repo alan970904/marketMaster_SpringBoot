@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
@@ -26,6 +29,9 @@ public class EmployeeService {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
+	
+    @PersistenceContext
+    private EntityManager entityManager;
 	
 	@Autowired
 	private RankLevelRepository rankLevelRepository;
@@ -51,7 +57,18 @@ public class EmployeeService {
 	}
 	
 	public boolean updatePassword(String employeeId, String newPassword) {
-		return employeeRepository.updatePassword(employeeId, newPassword) > 0;
+	    try {
+	        EmpBean employee = employeeRepository.findById(employeeId).orElse(null);
+	        if (employee != null) {
+	            employee.setPassword(newPassword);
+	            employee.setFirstLogin(false);
+	            employeeRepository.save(employee);
+	            return true;
+	        }
+	        return false;
+	    } catch (Exception e) {
+	        return false;
+	    }
 	}
 	
 	public boolean addEmployee(EmpBean emp, MultipartFile file) {
@@ -178,5 +195,20 @@ public class EmployeeService {
 	public List<RankLevelBean> getAllPositions() {
 	    return rankLevelRepository.findAll();
 	}
+
+    public boolean validateEmployeeInfo(String employeeId, String idCardLast4) {
+        EmpBean employee = employeeRepository.findById(employeeId).orElse(null);
+        if (employee != null) {
+            String fullIdCard = employee.getEmployeeIdcard();
+            return fullIdCard.endsWith(idCardLast4);
+        }
+        return false;
+    }
 	
+    public String generateTempPassword() {
+        // 生成4位隨機數字密碼
+        Random random = new Random();
+        int number = 1000 + random.nextInt(9000);
+        return String.valueOf(number);
+    }
 }
