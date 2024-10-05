@@ -1,4 +1,4 @@
-package marketMaster.dao.checkout;
+package marketMaster.service.checkout;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.math.BigDecimal;
 
 @Repository
-public interface CheckoutDao extends JpaRepository<CheckoutBean, String> {
+public interface CheckoutRepository extends JpaRepository<CheckoutBean, String> {
 
     // 根據客戶電話搜索結帳記錄
     @Query("from CheckoutBean where customerTel like %:tel%")

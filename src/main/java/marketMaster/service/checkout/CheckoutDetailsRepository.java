@@ -1,4 +1,4 @@
-package marketMaster.dao.checkout;
+package marketMaster.service.checkout;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface CheckoutDetailsDao extends JpaRepository<CheckoutDetailsBean, CheckoutDetailsId> {
+public interface CheckoutDetailsRepository extends JpaRepository<CheckoutDetailsBean, CheckoutDetailsId> {
 
     // 獲取特定結帳ID的所有明細
     List<CheckoutDetailsBean> findByCheckoutId(String checkoutId);

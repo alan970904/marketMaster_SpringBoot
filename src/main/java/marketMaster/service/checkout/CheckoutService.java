@@ -7,8 +7,8 @@ import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.product.ProductBean;
-import marketMaster.dao.checkout.CheckoutDao;
-import marketMaster.dao.checkout.CheckoutDetailsDao;
+import marketMaster.service.checkout.CheckoutRepository;
+import marketMaster.service.checkout.CheckoutDetailsRepository;
 import marketMaster.exception.DataAccessException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,10 +22,10 @@ import java.util.Map;
 @Transactional
 public class CheckoutService {
     @Autowired
-    private CheckoutDao checkoutDao;
+    private CheckoutRepository checkoutRepository;
     
     @Autowired
-    private CheckoutDetailsDao checkoutDetailsDao;
+    private CheckoutDetailsRepository checkoutDetailsRepository;
     
     @Autowired
     private CheckoutDetailsService checkoutDetailsService;
@@ -33,41 +33,41 @@ public class CheckoutService {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public CheckoutBean getCheckout(String checkoutId) throws DataAccessException {
-        return checkoutDao.findById(checkoutId)
+        return checkoutRepository.findById(checkoutId)
                 .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
     }
 
     public List<CheckoutBean> getAllCheckouts() throws DataAccessException {
-        return checkoutDao.findAll();
+        return checkoutRepository.findAll();
     }
 
     public void addCheckout(CheckoutBean checkout) throws DataAccessException {
-        checkoutDao.save(checkout);
+        checkoutRepository.save(checkout);
     }
 
     public void deleteCheckout(String checkoutId) throws DataAccessException {
-        checkoutDao.deleteById(checkoutId);
+        checkoutRepository.deleteById(checkoutId);
     }
 
     public boolean updateCheckout(CheckoutBean checkout) throws DataAccessException {
-        checkoutDao.save(checkout);
+        checkoutRepository.save(checkout);
         return true;
     }
 
     public List<CheckoutBean> searchCheckoutsByTel(String customerTel) throws DataAccessException {
-        return checkoutDao.searchByTel(customerTel);
+        return checkoutRepository.searchByTel(customerTel);
     }
 
     public List<Map<String, Object>> getDailySalesReport() throws DataAccessException {
-        return checkoutDao.getDailySalesReport();
+        return checkoutRepository.getDailySalesReport();
     }
 
     public List<Map<String, Object>> getCheckoutSummary() throws DataAccessException {
-        return checkoutDao.getCheckoutSummary();
+        return checkoutRepository.getCheckoutSummary();
     }
 
     public String generateNextCheckoutId() throws DataAccessException {
-        List<String> lastIds = checkoutDao.getLastCheckoutId();
+        List<String> lastIds = checkoutRepository.getLastCheckoutId();
         String lastId = lastIds.isEmpty() ? "C00000000" : lastIds.get(0);
         if (!lastId.matches("C\\d{8}")) {
             return "C00000001";
@@ -77,11 +77,11 @@ public class CheckoutService {
     }
 
     public List<EmpBean> getAllEmployees() throws DataAccessException {
-        return checkoutDao.getAllEmployees();
+        return checkoutRepository.getAllEmployees();
     }
 
     public List<ProductBean> getProductNamesByCategory(String category) throws DataAccessException {
-        return checkoutDao.getProductNamesByCategory(category);
+        return checkoutRepository.getProductNamesByCategory(category);
     }
     
     public List<CheckoutDetailsBean> parseCheckoutDetails(String detailsJson) throws DataAccessException {
@@ -95,18 +95,18 @@ public class CheckoutService {
     @Transactional
     public boolean insertCheckoutWithDetails(CheckoutBean checkout, List<CheckoutDetailsBean> details) throws DataAccessException {
         try {
-            checkoutDao.save(checkout);
+            checkoutRepository.save(checkout);
 
             for (CheckoutDetailsBean detail : details) {
                 detail.setCheckoutId(checkout.getCheckoutId());
-                checkoutDetailsDao.save(detail);
+                checkoutDetailsRepository.save(detail);
             }
 
             BigDecimal totalAmount = calculateTotalAmount(details);
             int bonusPoints = calculateBonusPoints(totalAmount);
             checkout.setCheckoutTotalPrice(totalAmount.intValue());
             checkout.setBonusPoints(bonusPoints);
-            checkoutDao.save(checkout);
+            checkoutRepository.save(checkout);
 
             return true;
         } catch (Exception e) {
@@ -116,12 +116,12 @@ public class CheckoutService {
 
     @Transactional
     public void deleteCheckoutAndDetails(String checkoutId) throws DataAccessException {
-        checkoutDetailsDao.deleteByCheckoutId(checkoutId);
-        checkoutDao.deleteById(checkoutId);
+        checkoutDetailsRepository.deleteByCheckoutId(checkoutId);
+        checkoutRepository.deleteById(checkoutId);
     }
 
     public void updateTotalAndBonus(String checkoutId, BigDecimal totalAmount, int bonusPoints) throws DataAccessException {
-        checkoutDao.updateTotalAndBonus(checkoutId, totalAmount, bonusPoints);
+        checkoutRepository.updateTotalAndBonus(checkoutId, totalAmount, bonusPoints);
     }
 
     private BigDecimal calculateTotalAmount(List<CheckoutDetailsBean> details) {
@@ -137,7 +137,7 @@ public class CheckoutService {
     // 新增的方法，用於更新結帳總價
     @Transactional
     public void updateTotalPrice(String checkoutId) throws DataAccessException {
-        checkoutDao.updateTotalPrice(checkoutId);
+        checkoutRepository.updateTotalPrice(checkoutId);
     }
 
     // 新增的方法，用於處理退貨
