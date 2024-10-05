@@ -35,7 +35,7 @@ public class ChangePasswordController {
             if (success) {
                 EmployeeViewModel updatedEmployee = employeeService.getEmployeeViewModel(employee.getEmployeeId());
                 session.setAttribute("employee", updatedEmployee);
-                return "redirect:/homePage";
+                return "redirect:/employee/loginPage";
             } else {
                 model.addAttribute("errorMessage", "修改密碼失敗");
                 return "employee/ChangePassword";

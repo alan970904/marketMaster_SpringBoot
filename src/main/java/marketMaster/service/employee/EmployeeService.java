@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
@@ -26,6 +28,9 @@ public class EmployeeService {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
+	
+    @PersistenceContext
+    private EntityManager entityManager;
 	
 	@Autowired
 	private RankLevelRepository rankLevelRepository;
@@ -50,9 +55,16 @@ public class EmployeeService {
 		return employeeRepository.isFirstLogin(employeeId);
 	}
 	
-	public boolean updatePassword(String employeeId, String newPassword) {
-		return employeeRepository.updatePassword(employeeId, newPassword) > 0;
-	}
+    public boolean updatePassword(String employeeId, String newPassword) {
+        EmpBean employee = entityManager.find(EmpBean.class, employeeId);
+        if (employee != null) {
+            employee.setPassword(newPassword);
+            employee.setFirstLogin(false);
+            entityManager.merge(employee);
+            return true;
+        }
+        return false;
+    }
 	
 	public boolean addEmployee(EmpBean emp, MultipartFile file) {
         try {
