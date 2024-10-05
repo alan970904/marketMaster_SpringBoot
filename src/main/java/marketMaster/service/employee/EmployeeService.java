@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,16 +56,20 @@ public class EmployeeService {
 		return employeeRepository.isFirstLogin(employeeId);
 	}
 	
-    public boolean updatePassword(String employeeId, String newPassword) {
-        EmpBean employee = entityManager.find(EmpBean.class, employeeId);
-        if (employee != null) {
-            employee.setPassword(newPassword);
-            employee.setFirstLogin(false);
-            entityManager.merge(employee);
-            return true;
-        }
-        return false;
-    }
+	public boolean updatePassword(String employeeId, String newPassword) {
+	    try {
+	        EmpBean employee = employeeRepository.findById(employeeId).orElse(null);
+	        if (employee != null) {
+	            employee.setPassword(newPassword);
+	            employee.setFirstLogin(false);
+	            employeeRepository.save(employee);
+	            return true;
+	        }
+	        return false;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
 	
 	public boolean addEmployee(EmpBean emp, MultipartFile file) {
         try {
@@ -190,5 +195,20 @@ public class EmployeeService {
 	public List<RankLevelBean> getAllPositions() {
 	    return rankLevelRepository.findAll();
 	}
+
+    public boolean validateEmployeeInfo(String employeeId, String idCardLast4) {
+        EmpBean employee = employeeRepository.findById(employeeId).orElse(null);
+        if (employee != null) {
+            String fullIdCard = employee.getEmployeeIdcard();
+            return fullIdCard.endsWith(idCardLast4);
+        }
+        return false;
+    }
 	
+    public String generateTempPassword() {
+        // 生成4位隨機數字密碼
+        Random random = new Random();
+        int number = 1000 + random.nextInt(9000);
+        return String.valueOf(number);
+    }
 }

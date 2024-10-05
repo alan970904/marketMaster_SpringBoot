@@ -45,4 +45,24 @@ public class ChangePasswordController {
             return "employee/ChangePassword";
         }
     }
+    
+    @GetMapping("/employee/forgotPassword")
+    public String showForgotPasswordForm() {
+        return "employee/ForgotPassword";
+    }
+
+    @PostMapping("/employee/forgotPassword")
+    public String processForgotPassword(@RequestParam String employeeId, @RequestParam String idCardLast4, Model model) {
+        boolean isValid = employeeService.validateEmployeeInfo(employeeId, idCardLast4);
+        if (isValid) {
+            // 生成臨時密碼
+            String tempPassword = employeeService.generateTempPassword();
+            employeeService.updatePassword(employeeId, tempPassword);
+            model.addAttribute("message", "臨時密碼已生成，請使用臨時密碼登入後立即修改密碼。");
+            model.addAttribute("tempPassword", tempPassword);
+        } else {
+            model.addAttribute("error", "員工編號或身份證號碼後四位不正確。");
+        }
+        return "employee/ForgotPassword";
+    }
 }
