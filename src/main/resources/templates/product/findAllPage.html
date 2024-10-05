@@ -22,7 +22,8 @@
             <option value="30" th:selected="${size == 30}">30</option>
         </select> -->
 
-        <table id="productTable" class="table table-striped text-center">
+        <a class="btn btn-secondary" th:href="@{/product/addPage}">新增商品資訊</a>
+        <table class="table table-striped text-center">
             <thead class="table-dark">
                 <tr>
                     <th>商品編號</th>
@@ -41,7 +42,7 @@
                     <th>下架</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tbody">
                 <th:block th:each="product:${products.content}">
 
                     <tr>
@@ -51,30 +52,29 @@
                                 th:href="@{/product/findOne(productId=${product.productId})}"></a>
                         </td>
                         <td th:text="${product.productPrice}"></td>
-                        <td th:text="${product.productSafeInventory}"></td>
-                        <td th:text="${product.numberOfShelve}"></td>
-                        <td th:text="${product.numberOfInventory}" data-safe-inventory="${product.productSafeInventory}"
-                            class="inventory"></td>
+                        <td th:text="${product.productSafeInventory}" th:data-safeinventory="${product.productSafeInventory}"></td>
+                        <td th:text="${product.numberOfShelve}" th:data-shelve="${product.numberOfShelve}"></td>
+                        <td th:text="${product.numberOfInventory}" th:data-inventory="${product.numberOfInventory}"></td>
                         <td th:text="${product.numberOfSale}"></td>
                         <td th:text="${product.numberOfExchange}"></td>
                         <td th:text="${product.numberOfDestruction}"></td>
                         <td th:text="${product.numberOfRemove}"></td>
                         <td>
                             <form method="get" th:action="@{/product/getUpdate}">
-								<input type="hidden" th:value="${product.productId}" name="productId">
+                                <input type="hidden" th:value="${product.productId}" name="productId">
                                 <button type="submit" class="btn btn-secondary">修改</button>
                             </form>
                         </td>
                         <td>
                             <form method="get" th:action="@{/product/getShelve}">
-								<input type="hidden" th:value="${product.productId}" name="productId">
+                                <input type="hidden" th:value="${product.productId}" name="productId">
                                 <button type="submit" class="btn btn-warning">上架</button>
                             </form>
                         </td>
                         <td>
                             <form method="post" th:action="@{/product/remove}">
-								<input type="hidden" th:value="${product.productId}" name="productId">
-                                <button type="submit" class="btn btn-danger">下架</button>
+                                <input type="hidden" th:value="${product.productId}" name="productId">
+                                <button type="button" class="btn btn-danger removeBtn">下架</button>
                             </form>
                         </td>
                     </tr>
@@ -97,10 +97,60 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
-        // function changePageSize() {
-        //     const size = document.getElementById('size').value;
-        //     window.location.href = "@{/product/findAll(page=${aNumber},size=@{size})}";
-        // }
+        document.addEventListener('DOMContentLoaded', init)
+        
+        function init(){
+            safeInventory();
+            removeBtnDisabled();
+        }
+
+        function safeInventory(){
+            const rows = document.querySelectorAll('#tbody tr')
+
+           rows.forEach((row)=>{
+            const inventory = parseInt(row.querySelector('td[data-inventory]').getAttribute('data-inventory'))
+            const safeInventory = parseInt(row.querySelector('td[data-safeinventory]').getAttribute('data-safeinventory'))
+            const inventoryCell = row.querySelector('td:nth-child(6)')
+
+            if(inventory < safeInventory){
+                inventoryCell.style.color = 'red'
+            }
+           })
+        }
+
+        function removeBtnDisabled() {
+            const rows = document.querySelectorAll('#tbody tr')
+
+            rows.forEach((row) => {
+                const shelve = parseInt(row.querySelector('td[data-shelve]').getAttribute('data-shelve'))
+                const inventory = parseInt(row.querySelector('td[data-inventory]').getAttribute('data-inventory'))
+                const removeBtn = row.querySelector('.removeBtn')
+                console.log(shelve)
+                console.log(inventory)
+
+                if (shelve === 0 && inventory === 0) {
+                    removeBtn.disabled = true;
+
+                }
+            })
+        }
+        //下架商品確認 
+        const removeBtns = document.getElementsByClassName("removeBtn")
+
+        Array.from(removeBtns).forEach((removeBtn) => {
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const result = confirm("確認是否要下架商品")
+                if (result) {
+                    removeBtn.closest("form").submit()
+                }
+            })
+        })
+
+
+
+
+
 
     </script>
 

@@ -1,6 +1,5 @@
 package marketMaster.service.product;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import marketMaster.bean.product.ProductBean;
 
-
-
 @Service
 public class ProductService {
 
@@ -20,7 +17,20 @@ public class ProductService {
 	private ProductRepository productRepo;
 
 	public ProductBean addProduct(ProductBean product) {
-		return productRepo.save(product);
+		Optional<ProductBean> exist = productRepo.findById(product.getProductId());
+
+		if (!exist.isPresent()) {
+			product.setNumberOfShelve(0);
+			product.setNumberOfInventory(0);
+			product.setNumberOfSale(0);
+			product.setNumberOfExchange(0);
+			product.setNumberOfDestruction(0);
+			product.setNumberOfRemove(0);
+			return productRepo.save(product);
+		} else {
+			return null;
+		}
+
 	}
 
 	public ProductBean findOneProduct(String productId) {
@@ -32,8 +42,8 @@ public class ProductService {
 		return null;
 	}
 
-	public Page<ProductBean>  findAllProduct(Integer pageNumber, Integer pageSize) {
-		Pageable pgb = PageRequest.of(pageNumber-1,pageSize);
+	public Page<ProductBean> findAllProduct(Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
 		Page<ProductBean> page = productRepo.findAll(pgb);
 		return page;
 	}
@@ -68,7 +78,7 @@ public class ProductService {
 		}
 		return null;
 	}
-	
+
 	public ProductBean removeProduct(String productId) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
 

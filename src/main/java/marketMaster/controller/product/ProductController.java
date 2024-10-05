@@ -22,10 +22,20 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 	
+	@GetMapping("/product/addPage")
+	public String addProductPage() {
+		return "/product/insertProduct";
+	}
+	
+	@Transactional
 	@PostMapping("/product/add")
-	public String addProduct(@RequestBody ProductBean product) {
-		productService.addProduct(product);
-		return null;
+	public String addProduct(@ModelAttribute ProductBean product,Model model) {
+		ProductBean newProduct = productService.addProduct(product);
+		if (newProduct == null) {
+			return "/product/insertProduct";
+		}
+		model.addAttribute("product", newProduct);
+		return "/product/showChangePage";
 	}
 	
 	@GetMapping("/product/findOne")
