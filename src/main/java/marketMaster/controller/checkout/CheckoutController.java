@@ -11,6 +11,7 @@ import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.product.ProductBean;
+import marketMaster.service.checkout.CheckoutDetailsService;
 import marketMaster.service.checkout.CheckoutService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import marketMaster.exception.DataAccessException;
@@ -31,6 +32,9 @@ public class CheckoutController {
 
     @Autowired
     private CheckoutService checkoutService;
+    
+    @Autowired
+    private CheckoutDetailsService checkoutDetailsService;
     
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -126,18 +130,23 @@ public class CheckoutController {
             checkout.setCheckoutId(checkoutData.get("checkoutId"));
             checkout.setCustomerTel(checkoutData.get("customerTel"));
             checkout.setEmployeeId(checkoutData.get("employeeId"));
-            checkout.setCheckoutTotalPrice(Integer.parseInt(checkoutData.get("checkoutTotalPrice")));
             checkout.setCheckoutDate(dateFormat.parse(checkoutData.get("checkoutDate")));
-            checkout.setBonusPoints(Integer.parseInt(checkoutData.get("bonusPoints")));
             checkout.setPointsDueDate(dateFormat.parse(checkoutData.get("pointsDueDate")));
 
             boolean success = checkoutService.updateCheckout(checkout);
             if (success) {
-                return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
+                // 獲取更新後的結帳明細
+                List<CheckoutDetailsBean> updatedDetails = checkoutDetailsService.getPartCheckoutDetails(checkout.getCheckoutId());
+                return ResponseEntity.ok(Map.of(
+                    "status", "success", 
+                    "message", "更新成功",
+                    "details", objectMapper.writeValueAsString(updatedDetails)
+                ));
             } else {
                 return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "更新失敗"));
             }
         } catch (Exception e) {
+        	e.printStackTrace(); // 在伺服器日誌中打印詳細錯誤
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", "更新時發生錯誤: " + e.getMessage()));
         }
@@ -246,6 +255,10 @@ public class CheckoutController {
             logger.severe("更新總金額和紅利點數失敗: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", "更新失敗: " + e.getMessage()));
+        } catch (Exception e) {
+            logger.severe("未預期的錯誤: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "未預期的錯誤發生"));
         }
     }
     

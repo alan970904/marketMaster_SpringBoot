@@ -1,6 +1,7 @@
 package marketMaster.service.checkout;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -50,6 +51,7 @@ public interface CheckoutRepository extends JpaRepository<CheckoutBean, String> 
     // 刪除結帳記錄及其相關明細（需要在服務層實現）
 
     // 更新總金額和紅利點數
+    @Modifying
     @Query("UPDATE CheckoutBean c SET c.checkoutTotalPrice = :totalAmount, c.bonusPoints = :bonusPoints WHERE c.checkoutId = :checkoutId")
     void updateTotalAndBonus(@Param("checkoutId") String checkoutId, @Param("totalAmount") BigDecimal totalAmount, @Param("bonusPoints") int bonusPoints);
 }
