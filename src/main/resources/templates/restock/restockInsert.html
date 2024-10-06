@@ -53,7 +53,6 @@
         let productListMap = {}; // 用於存儲每個供應商的產品列表
         let productPriceMap = {}; // 用於存儲產品的價格
         let hotInstances = []; // 用於存儲每個表格的 Handsontable 實例
-
         // 加載供應商數據
         $.ajax({
             url: '/restock/getSupplier',
@@ -109,15 +108,17 @@
                 document.getElementById('tablesContainer').appendChild(container);
 
                 const hot = new Handsontable(container, {
-                    data: [],
+                    data: [
+                        { restockId: latestRestockId }
+                    ],
                     colHeaders: ['進貨單號', '供應商', '商品', '進貨數量', '進貨總價', '生產日期', '到期日期', '操作'],
                     columns: [
                         {
                             data: 'restockId',
-                            readOnly: true, // 設置為只讀
-                            renderer: (instance, td) => {
-                                td.innerHTML = latestRestockId;
-                            }
+                            // renderer: (instance, td) => {
+                            //     td.innerHTML = latestRestockId;
+                            // }
+
                         },
                         {
                             data: 'supplierId',
