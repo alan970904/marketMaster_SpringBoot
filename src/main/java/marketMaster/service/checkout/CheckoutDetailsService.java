@@ -80,4 +80,28 @@ public class CheckoutDetailsService {
     public void cancelReturn(String checkoutId, String productId, int returnQuantity, int returnPrice) throws DataAccessException {
         checkoutDetailsRepository.cancelReturn(checkoutId, productId, returnQuantity, returnPrice);
     }
+    
+ // 新增方法：更新或插入結帳明細
+    @Transactional
+    public void updateOrInsertDetail(CheckoutDetailsBean detailBean) throws DataAccessException {
+        try {
+            Optional<CheckoutDetailsBean> existingDetail = checkoutDetailsRepository.findById(
+                new CheckoutDetailsId(detailBean.getCheckoutId(), detailBean.getProductId())
+            );
+
+            if (existingDetail.isPresent()) {
+                // 如果明細已存在，更新數量和價格
+                CheckoutDetailsBean updateDetail = existingDetail.get();
+                updateDetail.setNumberOfCheckout(detailBean.getNumberOfCheckout());
+                updateDetail.setProductPrice(detailBean.getProductPrice());
+                checkoutDetailsRepository.save(updateDetail);
+            } else {
+                // 如果明細不存在，直接插入新的明細
+                checkoutDetailsRepository.save(detailBean);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("更新或插入結帳明細時發生錯誤: " + e.getMessage());
+        }
+    }
+    
 }

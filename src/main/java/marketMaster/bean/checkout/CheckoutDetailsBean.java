@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity 
 @Table(name = "checkout_details")
 @IdClass(CheckoutDetailsBean.CheckoutDetailsId.class)
@@ -31,6 +33,7 @@ public class CheckoutDetailsBean implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CHECKOUT_ID", insertable = false, updatable = false)
+    @JsonIgnore
     private CheckoutBean checkout;
 
     @OneToMany(mappedBy = "checkoutDetail", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
