@@ -1,4 +1,4 @@
-package marketMaster.bean.employee;
+package marketMaster.bean.customer;
 
 import java.time.LocalDate;
 
@@ -39,7 +39,6 @@ public class CustomerBean implements java.io.Serializable {
         this.totalPoints = totalPoints;
     }
 
-    // Getters and Setters
     public String getCustomerTel() {
         return customerTel;
     }
