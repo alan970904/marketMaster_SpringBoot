@@ -8,12 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <main class="container mt-4">
+    <div class="container mt-4">
         <h1 class="mb-4">新增員工</h1>
         <h2 class="mb-3">(員工編號 <span th:text="${newEmployeeId}"></span>)</h2>
         <form id="addEmployeeForm" th:action="@{/employee/empAdd}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             <input type="hidden" name="employeeId" th:value="${newEmployeeId}">
-            <table class="table table-bordered">
+            <table class="table table-bordered" style="width: 50%;">
                 <tr>
                     <th>姓名:</th>
                     <td><input type="text" name="employeeName" id="employeeName" required></td>
@@ -55,7 +55,7 @@
         </form>
         <div id="errorMessages" class="text-danger mt-3"></div>
         <a th:href="@{/employee/empList}" class="btn btn-secondary mt-3">返回員工列表</a>
-    </main>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

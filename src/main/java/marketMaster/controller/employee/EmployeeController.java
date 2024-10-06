@@ -32,11 +32,6 @@ public class EmployeeController {
 	@Autowired
 	private EmployeeService employeeService;
 	
-	@GetMapping("/empMain")
-	public String showEmployeeMain() {
-		return "employee/EmployeeMain";
-	}
-	
 	@GetMapping("/empList")
 	public String getAllEmployee(@RequestParam(defaultValue = "false") boolean showAll,
 								@RequestParam(defaultValue = "0") int page,
