@@ -15,37 +15,55 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container d-flex justify-content-center">
+        <div class="card w-50 mt-3">
+            <div class="card-header text-center fs-4">
+                新增商品資料
+            </div>
 
-        <form th:action="@{/product/add}" method="post">
+            <div class="card-body">
+                <div class="text-center text-danger">
+                    <h6 th:text="${errorMsg}"></h6>
+                </div>
+                <form th:action="@{/product/add}" method="post">
 
-            <table class="m-auto mt-3">
-                <tr>
-                    <td>商品編號:</td>
-                    <td><input type="text" name="productId" class="form-control bg-secondary bg-opacity-10 text-center"></td>
-                </tr>
-                <tr>
-                    <td>商品類別名稱:</td>
-                    <td><input type="text" name="productCategory" class="form-control bg-secondary bg-opacity-10 text-center"></td>
-                </tr>
-                <tr>
-                    <td>商品名稱:</td>
-                    <td><input type="text" name="productName" class="form-control bg-secondary bg-opacity-10 text-center"></td>
-                </tr>
-                <tr>
-                    <td>商品售價:</td>
-                    <td><input type="text" name="productPrice" class="form-control bg-secondary bg-opacity-10 text-center"></td>
-                </tr>
-                <tr>
-                    <td>安全庫存量:</td>
-                    <td><input type="text" name="productSafeInventory" class="form-control bg-secondary bg-opacity-10 text-center"></td>
-                </tr>
-                <tr>
-                    <td colspan="2" class="text-center pt-1"><input class="btn btn-primary" type="submit" value="送出"></td>
-                </tr>
-            </table>
-        </form>
-
+                    <table class="m-auto mt-3">
+                        <tr>
+                            <td>商品編號:</td>
+                            <td><input type="text" name="productId"
+                                    class="form-control bg-secondary bg-opacity-10 text-center"></td>
+                        </tr>
+                        <tr>
+                            <td>商品類別名稱:</td>
+                            <td><input type="text" name="productCategory"
+                                    class="form-control bg-secondary bg-opacity-10 text-center"></td>
+                        </tr>
+                        <tr>
+                            <td>商品名稱:</td>
+                            <td><input type="text" name="productName"
+                                    class="form-control bg-secondary bg-opacity-10 text-center"></td>
+                        </tr>
+                        <tr>
+                            <td>商品售價:</td>
+                            <td><input type="text" name="productPrice"
+                                    class="form-control bg-secondary bg-opacity-10 text-center"></td>
+                        </tr>
+                        <tr>
+                            <td>安全庫存量:</td>
+                            <td><input type="text" name="productSafeInventory"
+                                    class="form-control bg-secondary bg-opacity-10 text-center"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-center pt-1"><input class="btn btn-primary" type="submit"
+                                    value="送出"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="ms-2 mb-2">
+				<a type="button" class="btn btn-dark" th:href="@{/product/findAll}">返回商品庫存</a>
+        </div>
+        </div>
 
 
 

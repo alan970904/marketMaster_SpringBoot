@@ -29,12 +29,15 @@ public class ProductController {
 	
 	@Transactional
 	@PostMapping("/product/add")
-	public String addProduct(@ModelAttribute ProductBean product,Model model) {
+	public String addProduct(@ModelAttribute ProductBean product,Model m) {
 		ProductBean newProduct = productService.addProduct(product);
 		if (newProduct == null) {
+			m.addAttribute("errorMsg", "商品編號已存在");
 			return "/product/insertProduct";
 		}
-		model.addAttribute("product", newProduct);
+		m.addAttribute("message", "新增商品資料成功");
+
+		m.addAttribute("product", newProduct);
 		return "/product/showChangePage";
 	}
 	
@@ -70,6 +73,7 @@ public class ProductController {
 	public String updateProduct(@ModelAttribute ProductBean product, Model m) {
 		ProductBean newProduct = productService.updateProduct(product);
 		
+		m.addAttribute("message", "成功更新商品資料");
 		m.addAttribute("product", newProduct);
 		return "/product/showChangePage";
 	}
@@ -87,6 +91,7 @@ public class ProductController {
 	public String shelveProduct(@RequestParam String productId,@RequestParam Integer numberOfShelve, Model m) {
 		ProductBean newProduct = productService.shelveProduct(productId,numberOfShelve);
 		
+		m.addAttribute("message", "成功上架商品");
 		m.addAttribute("product", newProduct);
 		return "/product/showChangePage";
 	}
