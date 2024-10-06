@@ -47,5 +47,21 @@ public class CustomerService {
             return customerRepository.findAllByOrderByDateOfRegistrationDesc(pageable);
         }
     }
+
+	public boolean updateCustomer(CustomerBean customer, String originalTel) {
+		
+		if (!originalTel.equals(customer.getCustomerTel())) {
+			// 如果手機號碼被更改，檢查新號碼是否已存在
+			if (customerRepository.existsById(customer.getCustomerTel())) {
+				return false; // 新號碼已存在，更新失敗
+			}
+			// 刪除舊記錄
+			customerRepository.deleteById(originalTel);
+		}
+		// 保存新記錄
+		customerRepository.save(customer);
+		
+		return true;
+	}
 	
 }

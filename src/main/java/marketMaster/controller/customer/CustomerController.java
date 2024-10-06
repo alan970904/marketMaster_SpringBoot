@@ -78,4 +78,47 @@ public class CustomerController {
 	        return "customer/AddCustomer";
 	    }
 	}
+	
+	@GetMapping("/getUpdate")
+	public String showUpdateForm(@RequestParam String customerTel, Model model) {
+		Optional<CustomerBean> customerOptional = customerService.getCustomer(customerTel);
+		
+		if (customerOptional.isPresent()) {
+			model.addAttribute("customer", customerOptional.get());
+			model.addAttribute("originalTel", customerTel);
+			return "customer/UpdateCustomer";
+		} else {
+			return "redirect:/customer/cusList";
+		}
+	}
+	
+	@PostMapping("/cusUpdate")
+	public String updateCustomer(@ModelAttribute CustomerBean customer,
+	                             @RequestParam String originalTel,
+	                             RedirectAttributes redirectAttributes,
+	                             Model model) {
+	    Optional<CustomerBean> existingCustomerOpt = customerService.getCustomer(originalTel);
+	    if (existingCustomerOpt.isPresent()) {
+	        CustomerBean existingCustomer = existingCustomerOpt.get();
+	        // 保留原有的註冊日期和累積紅利點數
+	        customer.setDateOfRegistration(existingCustomer.getDateOfRegistration());
+	        customer.setTotalPoints(existingCustomer.getTotalPoints());
+	        
+	        boolean success = customerService.updateCustomer(customer, originalTel);
+	        if (success) {
+	            redirectAttributes.addFlashAttribute("message", "會員資料更新成功");
+	            return "redirect:/customer/cusList";
+	        } else {
+	            model.addAttribute("error", "會員資料更新失敗");
+	        }
+	    } else {
+	        model.addAttribute("error", "找不到該會員");
+	    }
+
+	    // 更新失敗時，保留用戶輸入的數據
+	    model.addAttribute("customer", customer);
+	    model.addAttribute("originalTel", originalTel);
+	    return "customer/UpdateCustomer";
+	}
+    
 }
