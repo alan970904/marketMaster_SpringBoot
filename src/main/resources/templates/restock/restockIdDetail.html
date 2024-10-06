@@ -41,12 +41,11 @@
                     <td th:text="${details.restockTotalPrice}"></td>
                     <td>
                         <button class="btn btn-primary btn-update"
-                               th:data-restock-id="${details.restockId}"
+                                th:data-restock-id="${details.restockId}"
+                                th:data-detail-id="${details.detailId}"
                                 th:data-product-id="${details.productId}"
                                 th:data-number-of-restock="${details.numberOfRestock}"
-                                th:data-product-price="${details.productPrice}"
-                                th:data-production-date="${details.productionDate}"
-                                th:data-due-date="${details.dueDate}">
+                                th:data-product-price="${details.productPrice}">
                             更新
                         </button>
                         <button class="btn btn-danger btn-delete" th:data-detail-id="${details.detailId}">刪除</button>
@@ -70,19 +69,14 @@
             <input type="number" id="updateProductPrice" class="form-control" step="0.01" min="0">
         </div>
         <div class="form-group">
-            <label for="updateProductionDate">生產日期：</label>
-            <input type="date" id="updateProductionDate" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="updateDueDate">到期日期：</label>
-            <input type="date" id="updateDueDate" class="form-control">
+            <label for="updateTotalPrice">進貨總金額：</label>
+            <input type="number" id="updateTotalPrice" class="form-control" step="0.01" min="0" readonly>
         </div>
     </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-
     $(document).ready(function() {
         bindTableActions();
 
@@ -116,18 +110,22 @@
             const updateButtons = document.querySelectorAll('.btn-update');
             updateButtons.forEach(button => {
                 button.addEventListener('click', function () {
+                    const detailId = button.getAttribute('data-detail-id');
                     const restockId = button.getAttribute('data-restock-id');
-                    const productId = button.getAttribute('data-product-id');
                     const numberOfRestock = button.getAttribute('data-number-of-restock');
                     const productPrice = button.getAttribute('data-product-price');
-                    const productionDate = button.getAttribute('data-production-date');
-                    const dueDate = button.getAttribute('data-due-date');
 
                     $("#updateNumberOfRestock").val(numberOfRestock);
                     $("#updateProductPrice").val(productPrice);
-                    $("#updateProductionDate").val(productionDate);
-                    $("#updateDueDate").val(dueDate);
+                    $("#updateTotalPrice").val(numberOfRestock * productPrice); // 自動計算總金額
 
+                    // 當用戶修改數量或單價時，重新計算總金額
+                    $("#updateNumberOfRestock, #updateProductPrice").off('input').on('input', function () {
+                        const updatedNumberOfRestock = $("#updateNumberOfRestock").val();
+                        const updatedProductPrice = $("#updateProductPrice").val();
+                        const updatedTotalPrice = updatedNumberOfRestock * updatedProductPrice;
+                        $("#updateTotalPrice").val(updatedTotalPrice);
+                    });
                     $("#updateDialog").dialog({
                         modal: true,
                         width: 400,
@@ -135,22 +133,19 @@
                             "保存": function () {
                                 const updatedNumberOfRestock = $("#updateNumberOfRestock").val();
                                 const updatedProductPrice = $("#updateProductPrice").val();
-                                const updatedProductionDate = $("#updateProductionDate").val();
-                                const updatedDueDate = $("#updateDueDate").val();
+                                const updatedTotalPrice = $("#updateTotalPrice").val();
 
-                                axios.put('/restockDetail/update', {
+                                axios.put('/restockDetail/updateRestockDetail', {
+                                    detailId: detailId,
                                     restockId: restockId,
-                                    productId: productId,
                                     numberOfRestock: updatedNumberOfRestock,
                                     productPrice: updatedProductPrice,
-                                    productionDate: updatedProductionDate,
-                                    dueDate: updatedDueDate
+                                    restockTotalPrice: updatedTotalPrice,
                                 }).then(res => {
                                     console.log("更新成功", res);
                                     $(this).dialog("close");
-                                    // 不刷新整頁，更新該行內容
                                     const row = button.closest('tr');
-                                    updateRow(row, res.data);  // 需要自行定義 updateRow 函數
+                                    updateRow(row, res.data);
                                 }).catch(error => {
                                     console.error("更新失敗", error);
                                 });
@@ -160,6 +155,7 @@
                             }
                         }
                     });
+
                 });
             });
         }

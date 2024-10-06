@@ -52,18 +52,42 @@ public class RestockDetailService {
         return restockDetailsRepository.findRestockDetailByRestockId(restockId);
     }
 
-    //刪除restockDetail中 detailId 並且更新restock表內 restockTotalPrice 金額
-    public  void deleteRestockDetailAndUpdateTotalPrice(@RequestParam String detailId){
-      RestockDetailsBean restockDetail = restockDetailsRepository.getById(detailId);
-      RestocksBean restocks=restockDetail.getRestock();
-      restockDetailsRepository.deleteById(detailId);
-      int newTotalPrice=0;
-      for (RestockDetailsBean detail:restocks.getRestockDetails()){
-          newTotalPrice+=detail.getRestockTotalPrice();
-      }
-      restocks.setRestockTotalPrice(newTotalPrice);
-      restocksRepository.save(restocks);
+    // 更新進貨明細並更新進貨總金額
+    public void updateRestockDetailAndTotalPrice(RestockDetailDTO restockDetailDTO) {
+        // 1. 更新進貨明細
+        restockDetailsRepository.updateRestockNumberAndPrice(
+                restockDetailDTO.getNumberOfRestock(),
+                restockDetailDTO.getProductPrice(),
+                restockDetailDTO.getRestockTotalPrice(),
+                restockDetailDTO.getDetailId()
+        );
+
+        // 2. 更新總金額
+        updateRestockTotalPrice(restockDetailDTO.getRestockId());
     }
 
+    // 刪除明細並更新總金額
+    public void deleteRestockDetailAndUpdateTotalPrice(String detailId) {
+        // 1. 查找進貨明細
+        RestockDetailsBean restockDetail = restockDetailsRepository.getById(detailId);
+        String restockId = restockDetail.getRestock().getRestockId();
 
+        // 2. 刪除進貨明細
+        restockDetailsRepository.deleteById(detailId);
+
+        // 3. 更新進貨總金額
+        updateRestockTotalPrice(restockId);
+    }
+
+    // 根據進貨編號更新總金額
+    private void updateRestockTotalPrice(String restockId) {
+        // 1. 查找所有該進貨編號的明細，計算新的總金額
+        List<RestockDetailsBean> details = restockDetailsRepository.findByRestock_RestockId(restockId);
+        int newTotalPrice = details.stream().mapToInt(RestockDetailsBean::getRestockTotalPrice).sum();
+
+        // 2. 更新進貨表的總金額
+        restocksRepository.updateRestocksTotalPrice(restockId, newTotalPrice);
+    }
 }
+
+

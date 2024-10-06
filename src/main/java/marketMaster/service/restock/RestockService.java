@@ -76,15 +76,20 @@ public class RestockService {
     //插入進貨資料 並且更新 Account total
     @Transactional
     public void insertRestockData(RestockInsertDTO restockInsertDTO) {
-        EmpBean employeeId = employeeRepository.findById(restockInsertDTO.getEmployeeId())
+        EmpBean employee = employeeRepository.findById(restockInsertDTO.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Employee ID: " + restockInsertDTO.getEmployeeId()));
-
-        RestocksBean insertDTO =   new RestocksBean();
-    insertDTO.setRestockId(restockInsertDTO.getRestockId());
-    insertDTO.setRestockTotalPrice(restockInsertDTO.getRestockTotalPrice());
-    insertDTO.setRestockDate(restockInsertDTO.getRestockDate());
-    insertDTO.setEmployee(employeeId);
-    restocksRepository.save(insertDTO);
+        RestocksBean existingRestock =restocksRepository.findById(restockInsertDTO.getRestockId()).orElse(null);
+        if (existingRestock != null) {
+            existingRestock.setRestockTotalPrice(existingRestock.getRestockTotalPrice() + restockInsertDTO.getRestockTotalPrice());
+            existingRestock.setEmployee(employee);
+        } else {
+            existingRestock = new RestocksBean();
+            existingRestock.setRestockId(restockInsertDTO.getRestockId());
+            existingRestock.setRestockTotalPrice(restockInsertDTO.getRestockTotalPrice());
+            existingRestock.setRestockDate(restockInsertDTO.getRestockDate());
+            existingRestock.setEmployee(employee);
+        }
+        restocksRepository.save(existingRestock);
 
     for (RestockDetailsInsertDTO rd : restockInsertDTO.getRestockDetails()) {
         RestockDetailsBean detail = new RestockDetailsBean();
@@ -105,7 +110,7 @@ public class RestockService {
         detail.setProductionDate(rd.getProductionDate());
         detail.setDueDate(rd.getDueDate());
         detail.setRestockDate(LocalDate.now());
-        detail.setRestock(insertDTO);
+        detail.setRestock(existingRestock);
         restockDetailsRepository.save(detail);
 
 

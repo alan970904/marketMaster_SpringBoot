@@ -64,79 +64,85 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script th:inline="javascript">
     $(document).ready(function() {
-        var originalCustomerTel = /*[[${checkout.customerTel}]]*/ '';
-        var totalPrice = parseFloat($("#checkoutTotalPrice").val());
-
-        // 初始化時分割並填充電話號碼
-        if (originalCustomerTel) {
-            $("#customerTel1").val(originalCustomerTel.substring(0, 4));
-            $("#customerTel2").val(originalCustomerTel.substring(4));
-        }
-
-        function updateBonusAndDueDate() {
-            var customerTel = $("#customerTel1").val() + $("#customerTel2").val();
-            var checkoutDate = $("#checkoutDate").val();
-
-            if (customerTel) {
-                var bonusPoints = Math.floor(totalPrice / 100);
-                $("#bonusPoints").val(bonusPoints);
-
-                var dueDate = new Date(checkoutDate);
-                dueDate.setFullYear(dueDate.getFullYear() + 1);
-                $("#pointsDueDate").val(dueDate.toISOString().split('T')[0]);
-            } else {
-                $("#bonusPoints").val("");
-                $("#pointsDueDate").val("");
-            }
-        }
-
-        $("#customerTel1, #customerTel2, #checkoutDate").on('change', updateBonusAndDueDate);
-
-        // 顧客手機號碼自動跳轉
-        $("#customerTel1").on('input', function() {
-            if (this.value.length === 4) {
-                $("#customerTel2").focus();
-            }
-        });
-
-        $("#updateForm").submit(function(e) {
-            e.preventDefault();
-            var formData = {
-                checkoutId: $("#checkoutId").val(),
-                customerTel: $("#customerTel1").val() + $("#customerTel2").val(),
-                employeeId: $("#employeeId").val(),
-                checkoutTotalPrice: $("#checkoutTotalPrice").val(),
-                checkoutDate: $("#checkoutDate").val(),
-                bonusPoints: $("#bonusPoints").val(),
-                pointsDueDate: $("#pointsDueDate").val()
-            };
-            
-            axios.post(/*[[@{/checkout/update}]]*/ '/checkout/update', formData, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(function (response) {
-                if (response.data.status === 'success') {
-                    alert('更新成功');
-                    window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
-                } else {
-                    alert('更新失敗: ' + response.data.message);
-                }
-            })
-            .catch(function (error) {
-                console.error("AJAX 錯誤:", error);
-                alert('發生錯誤，請查看控制台以獲取詳細信息');
-            });
-        });
-
-        $('#back').click(function() {
-            window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
-        });
-
-        // 初始化時更新紅利點數和到期日
-        updateBonusAndDueDate();
-    });
+	    var originalCustomerTel = /*[[${checkout.customerTel}]]*/ '';
+	    var totalPrice = parseFloat($("#checkoutTotalPrice").val());
+	
+	    // 初始化時分割並填充電話號碼
+	    if (originalCustomerTel) {
+	        $("#customerTel1").val(originalCustomerTel.substring(0, 4));
+	        $("#customerTel2").val(originalCustomerTel.substring(4));
+	    }
+	
+	    function updateBonusAndDueDate() {
+	        var customerTel = ($("#customerTel1").val() + $("#customerTel2").val()).trim();
+	        var checkoutDate = $("#checkoutDate").val();
+	
+	        if (customerTel) {
+	            var bonusPoints = Math.floor(totalPrice / 100);
+	            $("#bonusPoints").val(bonusPoints);
+	
+	            var dueDate = new Date(checkoutDate);
+	            dueDate.setFullYear(dueDate.getFullYear() + 1);
+	            $("#pointsDueDate").val(dueDate.toISOString().split('T')[0]);
+	        } else {
+	            $("#bonusPoints").val(0);
+	            $("#pointsDueDate").val("");
+	        }
+	        console.log("updateBonusAndDueDate called. CustomerTel:", customerTel, "BonusPoints:", $("#bonusPoints").val(), "PointsDueDate:", $("#pointsDueDate").val());
+	    }
+	
+	    $("#customerTel1, #customerTel2, #checkoutDate").on('change', updateBonusAndDueDate);
+	
+	    // 顧客手機號碼自動跳轉
+	    $("#customerTel1").on('input', function() {
+	        if (this.value.length === 4) {
+	            $("#customerTel2").focus();
+	        }
+	    });
+	
+	    $("#updateForm").submit(function(e) {
+		    e.preventDefault();
+		    updateBonusAndDueDate(); // 確保在提交前再次更新
+		    var customerTel = ($("#customerTel1").val() + $("#customerTel2").val()).trim();
+		    var formData = {
+		        checkoutId: $("#checkoutId").val(),
+		        customerTel: customerTel,
+		        employeeId: $("#employeeId").val(),
+		        checkoutTotalPrice: $("#checkoutTotalPrice").val(),
+		        checkoutDate: $("#checkoutDate").val(),
+		        bonusPoints: customerTel ? $("#bonusPoints").val() : "0",
+		        pointsDueDate: customerTel ? $("#pointsDueDate").val() : null
+		    };
+		    
+		    console.log("Submitting form data:", formData);
+		    
+		    axios.post(/*[[@{/checkout/update}]]*/ '/checkout/update', formData, {
+		        headers: {
+		            'Content-Type': 'application/json'
+		        }
+		    })
+		    .then(function (response) {
+		        console.log("Server response:", response.data);
+		        if (response.data.status === 'success') {
+		            alert('更新成功');
+		            window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
+		        } else {
+		            alert('更新失敗: ' + response.data.message);
+		        }
+		    })
+		    .catch(function (error) {
+		        console.error("AJAX 錯誤:", error);
+		        alert('發生錯誤，請查看控制台以獲取詳細信息');
+		    });
+		});
+	
+	    $('#back').click(function() {
+	        window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
+	    });
+	
+	    // 初始化時更新紅利點數和到期日
+	    updateBonusAndDueDate();
+	});
     </script>
 </body>
 </html>

@@ -61,6 +61,17 @@ public class RestockDetailController {
         }
     }
 
+    //更新進貨明細的進貨數量跟進貨價格
+    @PutMapping("/updateRestockDetail")
+    public ResponseEntity<String> updateRestockDetail(@RequestBody RestockDetailDTO restockDetailDTO) {
+        try {
+            restockDetailService.updateRestockDetailAndTotalPrice(restockDetailDTO);
+            return ResponseEntity.ok("更新成功！");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("更新失敗！");
+        }
+    }
+
 
 
 

@@ -11,13 +11,17 @@ import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.product.ProductBean;
+import marketMaster.service.checkout.CheckoutDetailsService;
 import marketMaster.service.checkout.CheckoutService;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import marketMaster.exception.DataAccessException;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,9 @@ public class CheckoutController {
 
     @Autowired
     private CheckoutService checkoutService;
+    
+    @Autowired
+    private CheckoutDetailsService checkoutDetailsService;
     
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -122,27 +129,68 @@ public class CheckoutController {
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateCheckout(@RequestBody Map<String, String> checkoutData) {
         try {
-            CheckoutBean checkout = new CheckoutBean();
-            checkout.setCheckoutId(checkoutData.get("checkoutId"));
-            checkout.setCustomerTel(checkoutData.get("customerTel"));
-            checkout.setEmployeeId(checkoutData.get("employeeId"));
-            checkout.setCheckoutTotalPrice(Integer.parseInt(checkoutData.get("checkoutTotalPrice")));
-            checkout.setCheckoutDate(dateFormat.parse(checkoutData.get("checkoutDate")));
-            checkout.setBonusPoints(Integer.parseInt(checkoutData.get("bonusPoints")));
-            checkout.setPointsDueDate(dateFormat.parse(checkoutData.get("pointsDueDate")));
+            logger.info("Received update request for checkout: " + checkoutData.get("checkoutId"));
+            String checkoutId = checkoutData.get("checkoutId");
+            CheckoutBean existingCheckout = checkoutService.getCheckout(checkoutId);
+            if (existingCheckout == null) {
+                logger.warning("Checkout not found: " + checkoutId);
+                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "找不到指定的結帳記錄"));
+            }
 
-            boolean success = checkoutService.updateCheckout(checkout);
-            if (success) {
-                return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
+            String customerTel = checkoutData.get("customerTel");
+            existingCheckout.setCustomerTel(customerTel);
+            existingCheckout.setEmployeeId(checkoutData.get("employeeId"));
+
+            String checkoutDateStr = checkoutData.get("checkoutDate");
+            if (checkoutDateStr != null && !checkoutDateStr.isEmpty()) {
+                existingCheckout.setCheckoutDate(dateFormat.parse(checkoutDateStr));
+            }
+
+            // 處理客戶電話為空的情況
+            if (customerTel == null || customerTel.trim().isEmpty()) {
+                logger.info("Customer tel is empty, setting bonus points to 0 for checkout: " + checkoutId);
+                existingCheckout.setBonusPoints(0);
+                existingCheckout.setPointsDueDate(null);
             } else {
+                logger.info("Customer tel is not empty for checkout: " + checkoutId);
+                String bonusPointsStr = checkoutData.get("bonusPoints");
+                if (bonusPointsStr != null && !bonusPointsStr.isEmpty()) {
+                    existingCheckout.setBonusPoints(Integer.parseInt(bonusPointsStr));
+                }
+                
+                String pointsDueDateStr = checkoutData.get("pointsDueDate");
+                if (pointsDueDateStr != null && !pointsDueDateStr.isEmpty()) {
+                    existingCheckout.setPointsDueDate(dateFormat.parse(pointsDueDateStr));
+                }
+            }
+
+            boolean success = checkoutService.updateCheckout(existingCheckout);
+            if (success) {
+                // 更新結帳明細
+                updateCheckoutDetails(checkoutId, checkoutData);
+                
+                // 獲取更新後的結帳明細
+                List<CheckoutDetailsBean> latestDetails = checkoutDetailsService.getPartCheckoutDetails(checkoutId);
+                
+                logger.info("Checkout updated successfully: " + checkoutId);
+                return ResponseEntity.ok(Map.of(
+                    "status", "success", 
+                    "message", "更新成功",
+                    "details", objectMapper.writeValueAsString(latestDetails)
+                ));
+            } else {
+                logger.warning("Failed to update checkout: " + checkoutId);
                 return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "更新失敗"));
             }
         } catch (Exception e) {
+            logger.severe("Error updating checkout: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", "更新時發生錯誤: " + e.getMessage()));
         }
     }
-
+    
+    
     @PostMapping("/delete")
     @ResponseBody
     public ResponseEntity<Map<String, String>> deleteCheckout(@RequestBody Map<String, String> request) {
@@ -246,6 +294,10 @@ public class CheckoutController {
             logger.severe("更新總金額和紅利點數失敗: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", "更新失敗: " + e.getMessage()));
+        } catch (Exception e) {
+            logger.severe("未預期的錯誤: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "未預期的錯誤發生"));
         }
     }
     
@@ -300,5 +352,24 @@ public class CheckoutController {
             super(message);
         }
     }
+    
+    private void updateCheckoutDetails(String checkoutId, Map<String, String> checkoutData) throws Exception {
+        String detailsJson = checkoutData.get("checkoutDetails");
+        if (detailsJson != null && !detailsJson.isEmpty()) {
+            List<Map<String, Object>> detailsList = objectMapper.readValue(detailsJson, new TypeReference<List<Map<String, Object>>>() {});
+            
+            for (Map<String, Object> detail : detailsList) {
+                CheckoutDetailsBean detailBean = new CheckoutDetailsBean();
+                detailBean.setCheckoutId(checkoutId);
+                detailBean.setProductId((String) detail.get("productId"));
+                detailBean.setNumberOfCheckout((Integer) detail.get("quantity"));
+                detailBean.setProductPrice((Integer) detail.get("price"));
+                
+                // 調用 service 方法來更新或插入明細
+                checkoutDetailsService.updateOrInsertDetail(detailBean);
+            }
+        }
+    }
+    
 
 }

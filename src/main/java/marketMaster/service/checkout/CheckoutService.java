@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -55,9 +56,46 @@ public class CheckoutService {
         checkoutRepository.deleteById(checkoutId);
     }
 
+    @Transactional
     public boolean updateCheckout(CheckoutBean checkout) throws DataAccessException {
-        checkoutRepository.save(checkout);
-        return true;
+        try {
+            logger.info("Updating checkout: " + checkout.getCheckoutId());
+            
+            // 獲取原有的結帳資訊
+            CheckoutBean existingCheckout = checkoutRepository.findById(checkout.getCheckoutId())
+                    .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
+
+            // 更新結帳基本資訊
+            existingCheckout.setEmployeeId(checkout.getEmployeeId());
+            existingCheckout.setCheckoutDate(checkout.getCheckoutDate());
+            
+            // 處理客戶電話
+            String customerTel = checkout.getCustomerTel();
+            existingCheckout.setCustomerTel(customerTel);
+            
+            if (customerTel == null || customerTel.trim().isEmpty()) {
+                logger.info("Customer tel is empty, setting bonus points to 0");
+                existingCheckout.setBonusPoints(0);
+                existingCheckout.setPointsDueDate(null);
+            } else {
+                logger.info("Customer tel is not empty, setting bonus points and due date");
+                existingCheckout.setBonusPoints(checkout.getBonusPoints());
+                existingCheckout.setPointsDueDate(checkout.getPointsDueDate());
+            }
+
+            // 保存更新後的結帳資訊
+            checkoutRepository.save(existingCheckout);
+
+            // 更新總金額
+            updateTotalPrice(existingCheckout.getCheckoutId());
+
+            logger.info("Checkout updated successfully: " + existingCheckout.getCheckoutId());
+            return true;
+        } catch (Exception e) {
+            logger.severe("更新結帳記錄失敗: " + e.getMessage());
+            e.printStackTrace();
+            throw new DataAccessException("更新結帳記錄失敗: " + e.getMessage());
+        }
     }
 
     public List<CheckoutBean> searchCheckoutsByTel(String customerTel) throws DataAccessException {
@@ -144,8 +182,38 @@ public class CheckoutService {
         checkoutRepository.deleteById(checkoutId);
     }
 
-    public void updateTotalAndBonus(String checkoutId, BigDecimal totalAmount, int bonusPoints) throws DataAccessException {
-        checkoutRepository.updateTotalAndBonus(checkoutId, totalAmount, bonusPoints);
+    @Transactional
+    public void updateTotalAndBonus(String checkoutId, BigDecimal totalAmount, int bonusPoints)
+            throws DataAccessException {
+        try {
+            if (checkoutId == null || checkoutId.trim().isEmpty()) {
+                throw new IllegalArgumentException("checkoutId 不能為空");
+            }
+            logger.info("Updating total and bonus for checkout: " + checkoutId);
+            CheckoutBean checkout = checkoutRepository.findById(checkoutId)
+                    .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
+            
+            checkout.setCheckoutTotalPrice(totalAmount.intValue());
+            
+            String customerTel = checkout.getCustomerTel();
+            if (customerTel == null || customerTel.trim().isEmpty()) {
+                logger.info("Customer tel is empty, setting bonus points to 0");
+                checkout.setBonusPoints(0);
+                checkout.setPointsDueDate(null);
+            } else {
+                logger.info("Customer tel is not empty, setting bonus points: " + bonusPoints);
+                checkout.setBonusPoints(bonusPoints);
+                // 設置紅利點數到期日（一年後）
+                LocalDate pointsDueDate = LocalDate.now().plusYears(1);
+                checkout.setPointsDueDate(java.sql.Date.valueOf(pointsDueDate));
+            }
+            
+            checkoutRepository.save(checkout);
+            logger.info("Total and bonus updated successfully for checkout: " + checkoutId);
+        } catch (Exception e) {
+            logger.severe("更新總金額和紅利點數失敗: " + e.getMessage());
+            throw new DataAccessException("更新總金額和紅利點數失敗", e);
+        }
     }
 
     private BigDecimal calculateTotalAmount(List<CheckoutDetailsBean> details) {
@@ -182,4 +250,29 @@ public class CheckoutService {
         checkoutDetailsService.cancelReturn(checkoutId, productId, returnQuantity, returnPrice);
         updateTotalPrice(checkoutId);
     }
+    
+    private List<CheckoutDetailsBean> updateCheckoutDetails(String checkoutId, Map<String, String> checkoutData) throws Exception {
+        List<CheckoutDetailsBean> updatedDetails = new ArrayList<>();
+        
+        // 假設結帳明細數據以 JSON 字符串的形式存在於 checkoutData 中
+        String detailsJson = checkoutData.get("checkoutDetails");
+        if (detailsJson != null && !detailsJson.isEmpty()) {
+            List<Map<String, Object>> detailsList = objectMapper.readValue(detailsJson, new TypeReference<List<Map<String, Object>>>() {});
+            
+            for (Map<String, Object> detail : detailsList) {
+                CheckoutDetailsBean detailBean = new CheckoutDetailsBean();
+                detailBean.setCheckoutId(checkoutId);
+                detailBean.setProductId((String) detail.get("productId"));
+                detailBean.setNumberOfCheckout((Integer) detail.get("quantity"));
+                detailBean.setProductPrice((Integer) detail.get("price"));
+                
+                // 調用 service 方法來更新或插入明細
+                checkoutDetailsService.updateOrInsertDetail(detailBean);
+                updatedDetails.add(detailBean);
+            }
+        }
+        
+        return updatedDetails;
+    }
+    
 }
