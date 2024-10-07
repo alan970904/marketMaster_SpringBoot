@@ -15,32 +15,32 @@
     <link th:href="@{/CSS/extra.css}" rel="stylesheet">
     
     <!-- 自定義樣式 -->
-    <style th:inline="css">
-        main .card {
+    <style>
+        .content main .card {
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border: none;
             background-color: #fff;
         }
-        main .card-header {
+        .content main .card-header {
             background-color: #4e73df;
             color: white;
             font-weight: 500;
             border-bottom: none;
         }
-        main .btn-primary {
+        .content main .btn-primary {
             background-color: #4e73df;
             border-color: #4e73df;
         }
-        main .btn-primary:hover {
+        .content main .btn-primary:hover {
             background-color: #2e59d9;
             border-color: #2e59d9;
         }
-        main .form-control:focus {
+        .content main .form-control:focus {
             border-color: #4e73df;
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
-        main .input-group-text {
+        .content main .input-group-text {
             background-color: #4e73df;
             color: white;
             border-color: #4e73df;
@@ -48,9 +48,16 @@
     </style>
 </head>
 <body>
-  <!--   <div th:replace="~{body/body :: body}"></div>--> 
+ <div th:replace="~{body/body :: body}"></div>
+  
+  <div class="content">
     <main class="container mt-5">
         <h1 class="mb-4">超市訂單系統</h1>
+        
+        <!-- 添加員工資訊顯示，包含空值檢查 -->
+            <div th:if="${employee != null}">
+                <p>歡迎，<span th:text="${employee.employeeName}">員工姓名</span></p>
+            </div>
         
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4">
@@ -98,6 +105,7 @@
             </div>
         </div>
     </main>
+</div>
 
     <!-- JavaScript 引用 -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

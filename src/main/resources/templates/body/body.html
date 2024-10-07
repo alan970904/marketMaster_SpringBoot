@@ -13,9 +13,9 @@
                         <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                     </div>
                     <div class="ms-3">
-                        <h6 class="mb-0" th:text="${employee.employeeName}"></h6>
-                        <span th:text="${employee['class'].simpleName eq 'EmpBean' ? employee.positionId : employee.positionName}"></span>
-                    </div>
+                    	<h6 class="mb-0" th:text="${employee != null ? employee.employeeName : '未登錄用戶'}"></h6>
+                    	<span th:if="${employee != null}" th:text="${employee['class'].simpleName eq 'EmpBean' ? employee.positionId : employee.positionName}"></span>
+                	</div>
                 </div>
                 <div class="navbar-nav w-100">
                     <!-- 人資系統 -->
@@ -76,14 +76,14 @@
                     <i class="fa fa-bars"></i>
                 </a>
                 <form class="d-none d-md-flex ms-4">
-                    <input class="form-control border-0" type="search" placeholder="搜尋">
+                    <input class="form-control border-0" type="search" placeholder="Search">
                 </form>
                 <div class="navbar-nav align-items-center ms-auto">
                     <!-- 消息下拉選單 -->
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <i class="fa fa-envelope me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">消息</span>
+                            <span class="d-none d-lg-inline-flex">Message</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                             <!-- 消息項目 -->
@@ -91,13 +91,13 @@
                                 <div class="d-flex align-items-center">
                                     <img class="rounded-circle" th:src="@{/resources/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
                                     <div class="ms-2">
-                                        <h6 class="fw-normal mb-0">John 發送了一則訊息給您</h6>
-                                        <small>15 分鐘前</small>
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
                                     </div>
                                 </div>
                             </a>
                             <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">查看所有消息</a>
+                            <a href="#" class="dropdown-item text-center">See all message</a>
                         </div>
                     </div>
                     
@@ -105,15 +105,15 @@
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <i class="fa fa-bell me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">通知</span>
+                            <span class="d-none d-lg-inline-flex">Notificatin</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                             <a href="#" class="dropdown-item">
-                                <h6 class="fw-normal mb-0">個人資料已更新</h6>
-                                <small>15 分鐘前</small>
+                                <h6 class="fw-normal mb-0">Profile updated</h6>
+                                <small>15minutes ago</small>
                             </a>
                             <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">查看所有通知</a>
+                            <a href="#" class="dropdown-item text-center">See all notifications</a>
                         </div>
                     </div>
                     
@@ -124,9 +124,9 @@
                             <span class="d-none d-lg-inline-flex" th:text="${session.employee.employeeName}"></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a th:href="@{/employee/details(employeeId=${session.employee.employeeId})}" class="dropdown-item">我的個人資料</a>
-                            <a th:href="@{/employee/update(employeeId=${session.employee.employeeId})}" class="dropdown-item">設定</a>
-                            <a th:href="@{/logout}" class="dropdown-item">登出</a>
+                            <a th:href="@{/employee/details(employeeId=${session.employee.employeeId})}" class="dropdown-item">My Profile</a>
+                            <a th:href="@{/employee/update(employeeId=${session.employee.employeeId})}" class="dropdown-item">Settings</a>
+                            <a th:href="@{/logout}" class="dropdown-item">Log Out</a>
                         </div>
                     </div>
                 </div>
