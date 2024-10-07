@@ -16,8 +16,6 @@ import marketMaster.service.checkout.CheckoutService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.http.HttpSession;
 import marketMaster.exception.DataAccessException;
 
 import java.math.BigDecimal;
@@ -47,21 +45,7 @@ public class CheckoutController {
     private ObjectMapper objectMapper;
 
     @GetMapping("/checkoutMain")
-    public String showCheckoutMain(Model model, HttpSession session) {
-        // 從 session 中獲取 employee 對象
-        EmpBean employee = (EmpBean) session.getAttribute("employee");
-        
-        if (employee == null) {
-            // 如果 session 中沒有 employee，可以設置一個默認值或者重定向到登錄頁面
-            employee = new EmpBean();  // 創建一個空的 EmpBean 對象
-            employee.setEmployeeName("未登錄用戶");
-            // 將這個默認的 employee 對象放入 session 中
-            session.setAttribute("employee", employee);
-        }
-        
-        // 將 employee 對象添加到模型中
-        model.addAttribute("employee", employee);
-        
+    public String showCheckoutMain() {
         return "checkout/checkout/index";
     }
 
