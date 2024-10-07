@@ -7,10 +7,7 @@ import marketMaster.service.restock.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,14 +31,33 @@ public class SupplierController {
         return supplierService.getAllSuppliersWithAccounts();
     }
 
-
-
     @GetMapping("/findProductsBySupplierId")
     public String findProductsBySupplierId(@RequestParam("supplierId") String supplierId, Model model) {
         supplierProductsService.findProductsBySupplierId(supplierId);
         model.addAttribute("supplierProducts", supplierProductsService.findProductsBySupplierId(supplierId));
         return "/restock/supplierProducts";
     }
+
+
+    @PutMapping("/updateSupplier")
+    @ResponseBody
+    public String updateSupplier(@RequestBody SupplierInfoDTO supplierInfoDTO) {
+        supplierService.updateSupplierBySupplierId(supplierInfoDTO);
+        return "redirect:/restock/supplier";
+    }
+
+
+    @PostMapping("/addSupplier")
+    @ResponseBody
+    public String addSupplier(@RequestBody SuppliersBean suppliersBean) {
+        supplierService.saveSupplier(suppliersBean);
+        return "redirect:/restock/supplier";
+    }
+
+
+
+
+
 
 
 
