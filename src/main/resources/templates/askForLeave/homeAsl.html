@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +15,8 @@
 <link
 	href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap"
 	rel="stylesheet">
-<link href="/CSS/style.css" rel="stylesheet">
-<link href="/CSS/extra.css" rel="stylesheet">
+<!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/CSS/style.css}">
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script
@@ -27,6 +27,8 @@
 	src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 </head>
 <body>
+<div th:replace="~{body/body :: body}"></div>
+<main>
 	<div th:fragment="bodyContent">
 
 		<div class="container mt-5">
@@ -61,6 +63,8 @@
 			</div>
 		</div>
 	</div>
+</main>
+	
 	<script src="/resources/js/main.js"></script>
 	
 </body>

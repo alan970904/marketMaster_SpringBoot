@@ -11,10 +11,12 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../../static/CSS/style.css">
+    <link rel="stylesheet" th:href="@{/CSS/style.css}">
 </head>
 
 <body>
+<div th:replace="~{body/body :: body}"></div>
+<main>
     <div class="container mt-3">
         <!-- <select name="size" id="size" onchange="changePageSize()">
             <option value="5" th:selected="${size == 5}">5</option>
@@ -93,6 +95,7 @@
         </div>
 
     </div>
+</main>    
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>

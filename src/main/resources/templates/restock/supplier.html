@@ -9,10 +9,12 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../static/CSS/style.css">
+  <link th:href="@{/CSS/style.css}" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+<div th:replace="~{body/body :: body}"></div>
+    <main>
 <div class="row w-100">
   <div class="col-lg-10 col-md-12 mx-auto">
     <table id="supplierProductTable" class="table table-bordered table-striped">
@@ -170,6 +172,7 @@
     </div>
   </div>
 </div>
+</main>
 
 <!-- Bootstrap JS 和依賴庫 -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
