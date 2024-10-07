@@ -50,7 +50,7 @@ public class EmpBean implements java.io.Serializable {
     @Column(name = "image_path")
     private String imagePath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "position_id", referencedColumnName = "position_id", insertable = false, updatable = false)
     private RankLevelBean rankLevel;
 

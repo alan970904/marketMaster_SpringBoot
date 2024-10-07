@@ -16,31 +16,31 @@
     
     <!-- 自定義樣式 -->
     <style>
-        .content main .card {
+        main .card {
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border: none;
             background-color: #fff;
         }
-        .content main .card-header {
+        main .card-header {
             background-color: #4e73df;
             color: white;
             font-weight: 500;
             border-bottom: none;
         }
-        .content main .btn-primary {
+        main .btn-primary {
             background-color: #4e73df;
             border-color: #4e73df;
         }
-        .content main .btn-primary:hover {
+        main .btn-primary:hover {
             background-color: #2e59d9;
             border-color: #2e59d9;
         }
-        .content main .form-control:focus {
+        main .form-control:focus {
             border-color: #4e73df;
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
-        .content main .input-group-text {
+        main .input-group-text {
             background-color: #4e73df;
             color: white;
             border-color: #4e73df;
@@ -50,7 +50,6 @@
 <body>
  <div th:replace="~{body/body :: body}"></div>
   
-  <div class="content">
     <main class="container mt-5">
         <h1 class="mb-4">超市訂單系統</h1>
         
@@ -105,7 +104,6 @@
             </div>
         </div>
     </main>
-</div>
 
     <!-- JavaScript 引用 -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

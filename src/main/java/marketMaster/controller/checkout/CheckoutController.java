@@ -55,6 +55,8 @@ public class CheckoutController {
             // 如果 session 中沒有 employee，可以設置一個默認值或者重定向到登錄頁面
             employee = new EmpBean();  // 創建一個空的 EmpBean 對象
             employee.setEmployeeName("未登錄用戶");
+            // 將這個默認的 employee 對象放入 session 中
+            session.setAttribute("employee", employee);
         }
         
         // 將 employee 對象添加到模型中

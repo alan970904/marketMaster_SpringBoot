@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
-<body>
     <div th:fragment="body">
         <div class="sidebar pe-4 pb-3">
             <nav class="navbar bg-light navbar-light">
@@ -8,21 +7,28 @@
                     <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>超市後台系統</h3>
                 </a>
                 <div class="d-flex align-items-center ms-4 mb-4">
-                    <div class="position-relative">
-                        <img class="rounded-circle" th:src="@{/resources/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
-                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
-                    </div>
-                    <div class="ms-3">
-                    	<h6 class="mb-0" th:text="${employee != null ? employee.employeeName : '未登錄用戶'}"></h6>
-                    	<span th:if="${employee != null}" th:text="${employee['class'].simpleName eq 'EmpBean' ? employee.positionId : employee.positionName}"></span>
-                	</div>
-                </div>
+  				  <div class="position-relative">
+  				      <img class="rounded-circle" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+  				      <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+  				  </div>
+  				  <div class="ms-3">
+  				      <h6 class="mb-0" th:text="${session.employee != null ? session.employee.employeeName : '未登錄用戶'}"></h6>
+  				      <span th:if="${session.employee != null}">
+  				          <th:block th:if="${session.employee['class'].simpleName == 'EmpBean'}" 
+  				                    th:text="${session.employee.rankLevel != null ? session.employee.rankLevel.positionName : session.employee.positionId}">
+  				          </th:block>
+ 				           <th:block th:if="${session.employee['class'].simpleName == 'EmployeeViewModel'}" 
+  				                    th:text="${session.employee.positionName}">
+ 				           </th:block>
+ 				       </span>
+ 				   </div>
+				</div>
                 <div class="navbar-nav w-100">
                     <!-- 人資系統 -->
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>人資系統</a>
                         <div class="dropdown-menu bg-transparent border-0">
-                            <a th:href="@{/employee/empMain}" class="dropdown-item">員工資訊</a>
+                 <!--          <a th:href="@{/employee/empMain}" class="dropdown-item">員工資訊</a>-->   
                             <a th:href="@{/AskForLeaveCon/view}" class="dropdown-item">請假</a>
                             <a th:href="@{/schedule}" class="dropdown-item">排班</a>
                         </div>
@@ -63,8 +69,9 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </nav>
-        </div>
+        
         
         <!-- 頂部導航欄 -->
         <div class="content">
@@ -89,7 +96,7 @@
                             <!-- 消息項目 -->
                             <a href="#" class="dropdown-item">
                                 <div class="d-flex align-items-center">
-                                    <img class="rounded-circle" th:src="@{/resources/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                                    <img class="rounded-circle" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
                                     <div class="ms-2">
                                         <h6 class="fw-normal mb-0">Jhon send you a message</h6>
                                         <small>15 minutes ago</small>
@@ -120,9 +127,9 @@
                     <!-- 用戶下拉選單 -->
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <img class="rounded-circle me-lg-2" th:src="@{/resources/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
-                            <span class="d-none d-lg-inline-flex" th:text="${session.employee.employeeName}"></span>
-                        </a>
+                			<img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                			<span class="d-none d-lg-inline-flex" th:text="${session.employee != null ? session.employee.employeeName : '未登錄用戶'}"></span>
+           				</a>
                         <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                             <a th:href="@{/employee/details(employeeId=${session.employee.employeeId})}" class="dropdown-item">My Profile</a>
                             <a th:href="@{/employee/update(employeeId=${session.employee.employeeId})}" class="dropdown-item">Settings</a>
@@ -131,7 +138,5 @@
                     </div>
                 </div>
             </nav>
-        </div>
-    </div>
-</body>
+            </div>
 </html>
