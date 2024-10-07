@@ -18,5 +18,8 @@ public interface SuppliersRepository extends JpaRepository<SuppliersBean, String
             "FROM SuppliersBean s LEFT JOIN SupplierAccountsBean sa ON s.supplierId = sa.supplier.supplierId")
     List<SupplierInfoDTO> findAllSuppliersWithAccounts();
 
+    //找到最大的supplierId
+    @Query("SELECT MAX(s.supplierId) FROM SuppliersBean s")
+    String getLastSupplierId();
 
 }

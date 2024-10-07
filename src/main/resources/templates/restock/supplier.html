@@ -38,15 +38,114 @@
     </table>
   </div>
 </div>
+<!-- 新增供應商的模態框 -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+  <!-- 模態框頭部 -->
+  <div class="modal-header">
+  <h5 class="modal-title" id="addSupplierModalLabel">新增供應商</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <!-- 模態框內容 -->
+  <div class="modal-body">
+    <form id="addSupplierForm">
+      <!-- 供應商ID將自動生成，故不需要用戶輸入 -->
+      <div class="mb-3">
+        <label for="addSupplierName" class="form-label">供應商名稱</label>
+        <input type="text" class="form-control" id="addSupplierName" required>
+      </div>
+      <div class="mb-3">
+        <label for="addAddress" class="form-label">供應商地址</label>
+        <input type="text" class="form-control" id="addAddress" required>
+      </div>
+      <div class="mb-3">
+        <label for="addTaxNumber" class="form-label">統一編號</label>
+        <input type="text" class="form-control" id="addTaxNumber" required>
+      </div>
+      <div class="mb-3">
+        <label for="addContactPerson" class="form-label">聯絡人</label>
+        <input type="text" class="form-control" id="addContactPerson" required>
+      </div>
+      <div class="mb-3">
+        <label for="addPhone" class="form-label">聯絡電話</label>
+        <input type="text" class="form-control" id="addPhone" required>
+      </div>
+      <div class="mb-3">
+        <label for="addEmail" class="form-label">聯絡電子郵件</label>
+        <input type="text" class="form-control" id="addEmail" required>
+      </div>
+      <div class="mb-3">
+        <label for="addBankAccount" class="form-label">銀行帳號</label>
+        <input type="text" class="form-control" id="addBankAccount" required>
+      </div>
+    </form>
+  </div>
+  <!-- 模態框底部 -->
+  <div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" id="saveNewSupplierBtn">保存</button>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+    </div>
+  </div>
+</div>
+</div>
+</div>
 
-<!-- Modal for order details -->
+<!-- 編輯供應商資訊的模態框 -->
+<div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="editSupplierModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- 模態框頭部 -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editSupplierModalLabel">編輯供應商資訊</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <!-- 模態框內容 -->
+      <div class="modal-body">
+        <form id="editSupplierForm">
+          <input type="hidden" id="editSupplierId">
+          <div class="mb-3">
+            <label for="editSupplierName" class="form-label">供應商名稱</label>
+            <input type="text" class="form-control" id="editSupplierName">
+          </div>
+          <div class="mb-3">
+            <label for="editAddress" class="form-label">供應商地址</label>
+            <input type="text" class="form-control" id="editAddress">
+          </div>
+          <div class="mb-3">
+            <label for="editContactPerson" class="form-label">聯絡人</label>
+            <input type="text" class="form-control" id="editContactPerson">
+          </div>
+          <div class="mb-3">
+            <label for="editPhone" class="form-label">聯絡電話</label>
+            <input type="text" class="form-control" id="editPhone">
+          </div>
+          <div class="mb-3">
+            <label for="editEmail" class="form-label">聯絡電子郵件</label>
+            <input type="email" class="form-control" id="editEmail">
+          </div>
+        </form>
+      </div>
+      <!-- 模態框底部 -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="saveSupplierBtn">保存</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 訂單付款細節的模態框 -->
 <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
+      <!-- 模態框頭部 -->
       <div class="modal-header">
         <h5 class="modal-title" id="orderDetailsModalLabel">訂單付款細節</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+      <!-- 模態框內容 -->
       <div class="modal-body">
         <table id="orderDetailsTable" class="table table-bordered">
           <thead>
@@ -63,6 +162,7 @@
           <tbody></tbody>
         </table>
       </div>
+      <!-- 模態框底部 -->
       <div class="modal-footer">
         <button id="paySelected" class="btn btn-success">一次結清所選訂單</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
@@ -71,9 +171,10 @@
   </div>
 </div>
 
-<!-- Bootstrap JS and dependencies -->
+<!-- Bootstrap JS 和依賴庫 -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+<!-- Axios 庫 -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
@@ -81,7 +182,7 @@
     loadSuppliers();
 
     function loadSuppliers() {
-      // Load suppliers data
+      // 加載供應商資料
       axios.get("/supplier/AllSuppliers").then(res => {
         renderTable(res.data);
       }).catch(err => {
@@ -96,80 +197,149 @@
       data.forEach(detail => {
         const row = document.createElement('tr');
         row.innerHTML = `
-                <td><input type="checkbox" class="selectSupplier" value="${detail.supplierId}"></td>
-                <td>${detail.supplierId}</td>
-                <td>${detail.supplierName}</td>
-                <td>${detail.address}</td>
-                <td>${detail.contactPerson}</td>
-                <td>${detail.phone}</td>
-                <td>${detail.email}</td>
-                <td>${detail.totalAmount}</td>
-                <td>${detail.paidAmount}</td>
-                <td>${detail.unpaidAmount}</td>
-                <td><button class="btn btn-primary order-details-btn" data-supplier-id="${detail.supplierId}">訂單付款細節</button></td>
-                <td><button class="btn btn-warning">更新資料</button></td>
-            `;
+          <td><input type="checkbox" class="selectSupplier" value="${detail.supplierId}"></td>
+          <td>${detail.supplierId}</td>
+          <td>${detail.supplierName}</td>
+          <td>${detail.address}</td>
+          <td>${detail.contactPerson}</td>
+          <td>${detail.phone}</td>
+          <td>${detail.email}</td>
+          <td>${detail.totalAmount}</td>
+          <td>${detail.paidAmount}</td>
+          <td>${detail.unpaidAmount}</td>
+          <td>
+            <button class="btn btn-primary order-details-btn" data-supplier-id="${detail.supplierId}">訂單付款細節</button>
+          </td>
+          <td>
+            <button class="btn btn-warning btn-update"
+              data-supplier-id="${detail.supplierId}"
+              data-supplier-name="${detail.supplierName}"
+              data-address="${detail.address}"
+              data-contact-person="${detail.contactPerson}"
+              data-phone="${detail.phone}"
+              data-email="${detail.email}">
+              更新資料
+            </button>
+          </td>
+        `;
         tableBody.appendChild(row);
       });
 
-      // Attach click event to "訂單付款細節" buttons
-      $('.order-details-btn').click(function () {
-        const supplierId = $(this).data('supplier-id');
-        loadOrderDetails(supplierId);
-        $('#orderDetailsModal').modal('show');
+      // 為"更新資料"按鈕添加點擊事件
+      attachUpdateEvent();
+      // 為"訂單付款細節"按鈕添加點擊事件
+    }
+
+    function attachUpdateEvent() {
+      const updateBtns = document.querySelectorAll('.btn-update');
+      updateBtns.forEach(button => {
+        button.addEventListener('click', () => {
+          // 獲取供應商資訊
+          const supplierId = button.getAttribute('data-supplier-id');
+          const supplierName = button.getAttribute('data-supplier-name');
+          const address = button.getAttribute('data-address');
+          const contactPerson = button.getAttribute('data-contact-person');
+          const phone = button.getAttribute('data-phone');
+          const email = button.getAttribute('data-email');
+
+          // 填充模態框中的表單資料
+          document.getElementById('editSupplierId').value = supplierId;
+          document.getElementById('editSupplierName').value = supplierName;
+          document.getElementById('editAddress').value = address;
+          document.getElementById('editContactPerson').value = contactPerson;
+          document.getElementById('editPhone').value = phone;
+          document.getElementById('editEmail').value = email;
+
+          // 顯示模態框
+          const editModal = new bootstrap.Modal(document.getElementById('editSupplierModal'));
+          editModal.show();
+        });
       });
     }
 
-    function loadOrderDetails(supplierId) {
-      axios.get(`/supplier/${supplierId}/paymentDetails`).then(res => {
-        renderOrderDetailsTable(res.data);
-      }).catch(err => {
-        console.log('加載訂單明細失敗', err);
-      });
-    }
+    // 保存更新後的供應商資訊
+    document.getElementById('saveSupplierBtn').addEventListener('click', () => {
+      // 獲取更新後的供應商資訊
+      const supplierId = document.getElementById('editSupplierId').value;
+      const supplierName = document.getElementById('editSupplierName').value;
+      const address = document.getElementById('editAddress').value;
+      const contactPerson = document.getElementById('editContactPerson').value;
+      const phone = document.getElementById('editPhone').value;
+      const email = document.getElementById('editEmail').value;
 
-    function renderOrderDetailsTable(data) {
-      const tableBody = document.querySelector('#orderDetailsTable tbody');
-      tableBody.innerHTML = '';
+      // 構建供應商資訊對象
+      const supplierInfo = {
+        supplierId,
+        supplierName,
+        address,
+        contactPerson,
+        phone,
+        email
+      };
 
-      data.forEach(detail => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-                <td><input type="checkbox" class="selectOrder" value="${detail.detailId}" ${detail.paymentStatus === '已付款' ? 'disabled' : ''}></td>
-                <td>${detail.detailId}</td>
-                <td>${detail.restockId}</td>
-                <td>${detail.supplierProductId}</td>
-                <td>${detail.numberOfRestock}</td>
-                <td>${detail.restockTotalPrice}</td>
-                <td>${detail.paymentStatus}</td>
-            `;
-        tableBody.appendChild(row);
-      });
-    }
-
-    // Pay selected orders
-    $('#paySelected').click(function () {
-      const selectedIds = [];
-      $('.selectOrder:checked').each(function () {
-        selectedIds.push($(this).val());
-      });
-
-      if (selectedIds.length === 0) {
-        alert('請選擇要付款的訂單');
-        return;
-      }
-
-      // AJAX call to pay all selected orders
-      axios.post('/payments/payAll', { detailIds: selectedIds })
-              .then(res => {
-                alert('所選訂單已付款！');
-                $('#orderDetailsModal').modal('hide');
+      // 發送PUT請求到後端
+      axios.put('/supplier/updateSupplier', supplierInfo)
+              .then(response => {
+                alert('供應商資訊更新成功');
+                // 隱藏模態框
+                const editModal = bootstrap.Modal.getInstance(document.getElementById('editSupplierModal'));
+                editModal.hide();
+                // 重新加載供應商列表
+                loadSuppliers();
               })
-              .catch(err => {
-                console.log('付款失敗', err);
+              .catch(error => {
+                console.error('更新供應商資訊失敗', error);
+                alert('更新供應商資訊失敗');
               });
     });
+
+    document.getElementById('addSupplier').addEventListener('click', () => {
+      const addModal = new bootstrap.Modal(document.getElementById('addSupplierModal'));
+      addModal.show();
+    });
+
+// 保存新增的供應商資訊
+    document.getElementById('saveNewSupplierBtn').addEventListener('click', () => {
+      // 獲取表單中的資料
+      const supplierName = document.getElementById('addSupplierName').value;
+      const address = document.getElementById('addAddress').value;
+      const taxNumber = document.getElementById('addTaxNumber').value;
+      const contactPerson = document.getElementById('addContactPerson').value;
+      const phone = document.getElementById('addPhone').value;
+      const email = document.getElementById('addEmail').value;
+      const bankAccount = document.getElementById('addBankAccount').value;
+
+      // 構建供應商資訊對象
+      const supplierInfo = {
+        supplierName,
+        address,
+        taxNumber,
+        contactPerson,
+        phone,
+        email,
+        bankAccount
+      };
+
+      // 發送POST請求到後端
+      axios.post('/supplier/addSupplier', supplierInfo)
+              .then(response => {
+                alert('供應商新增成功');
+                // 隱藏模態框
+                const addModal = bootstrap.Modal.getInstance(document.getElementById('addSupplierModal'));
+                addModal.hide();
+                // 重新加載供應商列表
+                loadSuppliers();
+                // 清空表單
+                document.getElementById('addSupplierForm').reset();
+              })
+              .catch(error => {
+                console.error('新增供應商失敗', error);
+                alert('新增供應商失敗');
+              });
+    });
+
   });
+
 </script>
 </body>
 </html>
