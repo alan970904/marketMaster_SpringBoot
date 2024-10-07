@@ -16,9 +16,13 @@
 
 <body>
     <div class="container mt-3">
+        <div class="d-flex justify-content-between">
 
-        <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
-        <input type="text" id="inputName">
+            <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
+            <!-- <input type="text" id="inputName"> -->
+            <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋">
+        </div>
+
         <table class="table table-striped text-center mt-2">
             <thead class="table-dark">
                 <tr>
@@ -126,9 +130,8 @@
         function init() {
             safeInventory();
             removeBtnDisabled();
+            removeProductDoubleCheck();
         }
-        const trCount = document.querySelectorAll("tbody tr")
-        console.log(trCount.length)
 
         function safeInventory() {
             const rows = document.querySelectorAll('#tbody tr')
@@ -159,28 +162,33 @@
             })
         }
         //      下架商品確認 
-        const removeBtns = document.getElementsByClassName("removeBtn")
+        function removeProductDoubleCheck() {
+            const removeBtns = document.getElementsByClassName("removeBtn")
 
-        Array.from(removeBtns).forEach((removeBtn) => {
-            removeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const result = confirm("確認是否要下架商品")
-                if (result) {
-                    removeBtn.closest("form").submit()
-                }
+            Array.from(removeBtns).forEach((removeBtn) => {
+                removeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const result = confirm("確認是否要下架商品")
+                    if (result) {
+                        removeBtn.closest("form").submit()
+                    }
+                })
             })
-        })
+        }
+
         //      模糊搜尋
         document.getElementById('inputName').addEventListener('change', function () {
             const productName = document.getElementById('inputName').value
             let jsObject = {
                 productName: productName,
+                pageNumber: 1
             }
             axios.post(findByPageUrl, jsObject)
                 .then(res => {
-                    console.log(res);
                     htmlMaker(res.data);
-                    pageMaker(res.data);
+                    pageMaker(res.data)
+                    init();
+
                 })
                 .catch(err => {
                     console.error(err);
@@ -192,24 +200,9 @@
             const tbody = document.getElementById("tbody")
             tbody.innerHTML = ""
             for (let i = 0; i < data.numberOfElements; i++) {
-                console.log(data.content[i])
                 tbody.innerHTML += createProductRow(data.content[i])
-                // tbody.innerHTML += `<tr><td>${data[i].productId}</td>
-                // <td>${data[i].productCategory}</td>
-                // <td>${data[i].productName}</td>
-                // <td>${data[i].productPrice}</td>
-                // <td>${data[i].productSafeInventory}</td>
-                // <td>${data[i].numberOfShelve}</td>
-                // <td>${data[i].numberOfInventory}</td>
-                // <td>${data[i].numberOfSale}</td>
-                // <td>${data[i].numberOfExchange}</td>
-                // <td>${data[i].numberOfDestruction}</td>
-                // <td>${data[i].numberOfRemove}</td></tr>`
             }
 
-            // data.content.forEach(element => {
-            //     console.log(element)
-            // });
             tbody.append();
         }
 
@@ -255,16 +248,34 @@
     </tr> `;
 
         }
-        function pageMaker(pages) {
+
+        function pageMaker(data) {
             const ul = document.getElementById("pageUl")
-            ul.innerHTML="";
-            for (let i = 1; i < pages.totalPages; i++) {
+            ul.innerHTML = "";  // 清空之前的分頁按鈕
 
-                ul.innerHTML += `<form action="${findByPageUrl}" method="post"><li><button name="page" value="${i}">${i}</button></li></form>`
+            for (let i = 1; i <= data.totalPages; i++) {  // 根據回傳的總頁數來生成按鈕
+                const li = document.createElement("li");
+                const btn = document.createElement("button");
+                btn.className = "page-link"
+                btn.textContent = i;
+                btn.addEventListener('click', function () {
+                    const productName = document.getElementById('inputName').value
+                    axios.post(findByPageUrl, {
+                        productName: productName,
+                        pageNumber: i
+                    })  // 傳遞 productName 和頁碼
+                        .then(res => {
+                            htmlMaker(res.data);  // 更新產品表格
+                            init();
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                });
+                li.appendChild(btn);
+                ul.appendChild(li);
             }
-
         }
-
 
     </script>
 
