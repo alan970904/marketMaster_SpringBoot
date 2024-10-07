@@ -2,7 +2,16 @@
 
     import com.fasterxml.jackson.annotation.JsonIgnore;
     import jakarta.persistence.*;
+    import lombok.AllArgsConstructor;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
+    import lombok.Setter;
 
+    import java.util.Set;
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     @Entity
     @Table(name = "supplier_accounts")
     public class SupplierAccountsBean {
@@ -16,6 +25,11 @@
         @JsonIgnore
         private SuppliersBean supplier;
 
+        @OneToMany(mappedBy = "supplierAccounts", cascade = CascadeType.ALL)
+        @JsonIgnore
+        private Set<PaymentsBean> payments;
+
+
         @Column(name = "total_amount")
         private int totalAmount;
 
@@ -24,60 +38,6 @@
 
         @Column(name = "unpaid_amount")
         private int unpaidAmount;
-
-        // Getter 和 Setter 方法省略
-
-        // Constructors
-        public SupplierAccountsBean() {
-        }
-
-        public SupplierAccountsBean(String accountId, SuppliersBean supplier, int totalAmount, int paidAmount, int unpaidAmount) {
-            this.accountId = accountId;
-            this.supplier = supplier;
-            this.totalAmount = totalAmount;
-            this.paidAmount = paidAmount;
-            this.unpaidAmount = unpaidAmount;
-        }
-
-        public String getAccountId() {
-            return accountId;
-        }
-
-        public void setAccountId(String accountId) {
-            this.accountId = accountId;
-        }
-
-        public SuppliersBean getSupplier() {
-            return supplier;
-        }
-
-        public void setSupplier(SuppliersBean supplier) {
-            this.supplier = supplier;
-        }
-
-        public int getTotalAmount() {
-            return totalAmount;
-        }
-
-        public void setTotalAmount(int totalAmount) {
-            this.totalAmount = totalAmount;
-        }
-
-        public int getPaidAmount() {
-            return paidAmount;
-        }
-
-        public void setPaidAmount(int paidAmount) {
-            this.paidAmount = paidAmount;
-        }
-
-        public int getUnpaidAmount() {
-            return unpaidAmount;
-        }
-
-        public void setUnpaidAmount(int unpaidAmount) {
-            this.unpaidAmount = unpaidAmount;
-        }
 
         @Override
         public String toString() {
