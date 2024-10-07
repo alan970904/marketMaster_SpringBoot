@@ -1,65 +1,30 @@
 package marketMaster.DTO.product;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-
-import marketMaster.bean.product.ProductBean;
-
 public class ProductPageDTO {
-    private List<ProductBean> content;
-    private int pageNumber;
-    private int pageSize;
-    private long totalElements;
-    private int totalPages;
 
-    // Constructor
-    public ProductPageDTO(Page<ProductBean> page) {
-        this.content = page.getContent();
-        this.pageNumber = page.getNumber();
-        this.pageSize = page.getSize();
-        this.totalElements = page.getTotalElements();
-        this.totalPages = page.getTotalPages();
-    }
+	private String productName;
 
-    // Getters and setters
-    public List<ProductBean> getContent() {
-        return content;
-    }
+	private int pageNumber;
 
-    public void setContent(List<ProductBean> content) {
-        this.content = content;
-    }
+	public ProductPageDTO(String productName, int pageNumber) {
+		this.productName = productName;
+		this.pageNumber = pageNumber;
+	}
 
-    public int getPageNumber() {
-        return pageNumber;
-    }
+	public String getProductName() {
+		return productName;
+	}
 
-    public void setPageNumber(int pageNumber) {
-        this.pageNumber = pageNumber;
-    }
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
 
-    public int getPageSize() {
-        return pageSize;
-    }
+	public int getPageNumber() {
+		return pageNumber;
+	}
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
+	public void setPageNumber(int pageNumber) {
+		this.pageNumber = pageNumber;
+	}
 
-    public long getTotalElements() {
-        return totalElements;
-    }
-
-    public void setTotalElements(long totalElements) {
-        this.totalElements = totalElements;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
-    }
-
-    public void setTotalPages(int totalPages) {
-        this.totalPages = totalPages;
-    }
 }

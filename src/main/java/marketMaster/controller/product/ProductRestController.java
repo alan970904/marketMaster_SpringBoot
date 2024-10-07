@@ -5,14 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import marketMaster.DTO.product.ProductDTO;
+import marketMaster.DTO.product.ProductNameDTO;
 import marketMaster.DTO.product.ProductPageDTO;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.ProductService;
@@ -39,6 +38,17 @@ public class ProductRestController {
 
 		return product;
 	}
+	
+	@PostMapping("/product/findProductByLike/json")
+	public Page<ProductBean> getProductsByLike(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
+			 @RequestBody ProductNameDTO searchName){
+		String productName = searchName.getProductName();
+		Page<ProductBean> products = productService.findProductByLike(productName,pageNumber);
+		
+		return products;
+	}
+	
+	
 
 	@PostMapping("/product/update/json")
 	public ProductBean  updateProduct(@RequestBody ProductBean product) {

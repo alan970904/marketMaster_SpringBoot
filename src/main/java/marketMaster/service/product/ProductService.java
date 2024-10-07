@@ -1,5 +1,6 @@
 package marketMaster.service.product;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,21 @@ public class ProductService {
 		Page<ProductBean> page = productRepo.findAll(pgb);
 		return page;
 	}
+	
+	public Page<ProductBean> findProductByLike(String productName,Integer pageNumber) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
+//		String productNameQuery = "%"+productName+"%";
+		Page<ProductBean> products = productRepo.findByProductNameContaining(productName,pgb);
+		
+		return products;
+	}
+	
+//	public List<ProductBean> findProductByLike(String productName) {
+//		String productNameQuery = "%"+productName+"%";
+//		List<ProductBean> products = productRepo.findProductByProductNameLike(productNameQuery);
+//		
+//		return products;
+//	}
 
 	public ProductBean shelveProduct(String productId, Integer newShelveNumber) {
 		Optional<ProductBean> optional = productRepo.findById(productId);

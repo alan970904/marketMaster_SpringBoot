@@ -55,6 +55,7 @@ public class ProductController {
 		Page<ProductBean> products = productService.findAllProduct(pageNumber,pageSize);
 		
 		m.addAttribute("products", products);
+		m.addAttribute("pages", products);
 		
 		return "product/findAllPage";
 	}
