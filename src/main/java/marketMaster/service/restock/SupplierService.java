@@ -28,7 +28,7 @@ public class SupplierService {
     public SuppliersBean findSupplierById(String supplierId) {
         return suppliersRepository.findById(supplierId).orElse(null);
     }
-    //插入新的供應商
+    //新增 新的供應商
     public SuppliersBean saveSupplier(SuppliersBean suppliersBean) {
         return suppliersRepository.save(suppliersBean);
     }
@@ -56,6 +56,8 @@ public class SupplierService {
         suppliersRepository.deleteById(supplierId);
     }
 
+
+    //拿到所有供應商資訊
     public List<SupplierInfoDTO> getAllSuppliersWithAccounts() {
         return suppliersRepository.findAllSuppliersWithAccounts();
     }
@@ -66,6 +68,19 @@ public class SupplierService {
     }
 
 
+    //更新供應商詳細資料但是稅務號碼沒改
+    @Transactional
+    @Modifying
+    public void updateSupplierBySupplierId(SupplierInfoDTO supplierInfoDTO) {
+         String supplierID = supplierInfoDTO.getSupplierId();
+         SuppliersBean supplierBean = findSupplierById(supplierID);
+         supplierBean.setSupplierName(supplierInfoDTO.getSupplierName());
+         supplierBean.setAddress(supplierInfoDTO.getAddress());
+         supplierBean.setContactPerson(supplierInfoDTO.getContactPerson());
+         supplierBean.setPhone(supplierInfoDTO.getPhone());
+         supplierBean.setEmail(supplierInfoDTO.getEmail());
+         suppliersRepository.save(supplierBean);
+    }
 
 
 }

@@ -83,8 +83,10 @@ public class RestockDetailService {
     private void updateRestockTotalPrice(String restockId) {
         // 1. 查找所有該進貨編號的明細，計算新的總金額
         List<RestockDetailsBean> details = restockDetailsRepository.findByRestock_RestockId(restockId);
-        int newTotalPrice = details.stream().mapToInt(RestockDetailsBean::getRestockTotalPrice).sum();
-
+        int newTotalPrice = 0;
+        for (RestockDetailsBean detail : details) {
+            newTotalPrice += detail.getRestockTotalPrice();
+        }
         // 2. 更新進貨表的總金額
         restocksRepository.updateRestocksTotalPrice(restockId, newTotalPrice);
     }
