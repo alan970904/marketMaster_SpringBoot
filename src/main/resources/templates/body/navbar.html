@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>導航欄模板</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success" th:fragment="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">MarketMaster後台管理</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/dashboard}">儀表板</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employee/empList}">員工管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/restock}">進貨管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/products}">商品管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/checkout}">結帳管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">退貨管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/customer/cusList}">會員管理</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+				        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+				           <span th:text="'歡迎，' + ${session.employee.employeeName}">歡迎，使用者</span>
+				        </a>
+                        <ul class="dropdown-menu dropdown-menu-end bg-warning" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" th:href="@{/employee/details(employeeId=${session.employee.employeeId})}">個人資料</a></li>
+                            <li><a class="dropdown-item" th:href="@{/employee/changePasswordPage}">修改密碼</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" th:href="@{/employee/loginPage}">登出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

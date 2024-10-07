@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+	<div th:replace="~{body/navbar :: navbar}"></div>
     <main class="container mt-4">
         <h1 class="mb-4">更新員工資訊</h1>
         <form th:action="@{/employee/empUpdate}" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
