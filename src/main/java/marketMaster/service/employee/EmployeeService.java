@@ -51,15 +51,20 @@ public class EmployeeService {
 		}
 	}
 	
-	public EmpBean login(String employeeId, String password) {
-		EmpBean employee = employeeRepository.findByEmployeeId(employeeId).orElseThrow(
-				() -> new EmpDataAccessException("驗證員工失敗"));
-		
-		if (passwordEncoder.matches(password, employee.getPassword())) {
-			return employee;
-		} else {
-			throw new EmpDataAccessException("驗證員工失敗");
-		}
+	public EmpBean login(String employeeId, String rawPassword) {
+	    EmpBean employee = employeeRepository.findByEmployeeId(employeeId)
+	        .orElseThrow(() -> new EmpDataAccessException("驗證員工失敗"));
+	    
+	    if (passwordEncoder.matches(rawPassword, employee.getPassword())) {
+	        return employee;
+	    } else if (rawPassword.equals(employee.getPassword())) {
+	        // 如果明文密碼匹配，更新為加密密碼
+	        employee.setPassword(passwordEncoder.encode(rawPassword));
+	        employeeRepository.save(employee);
+	        return employee;
+	    } else {
+	        throw new EmpDataAccessException("驗證員工失敗");
+	    }
 	}
 	
 	public boolean isFirstLogin(String employeeId) {
