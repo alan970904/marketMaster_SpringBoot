@@ -4,6 +4,7 @@ import marketMaster.DTO.restock.restock.RestockDTO;
 import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.bean.restock.RestockDetailsBean;
 import marketMaster.bean.restock.RestocksBean;
+import marketMaster.bean.restock.SupplierAccountsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,8 @@ public class RestockDetailService {
     private RestockDetailsRepository restockDetailsRepository;
     @Autowired
     private RestocksRepository restocksRepository;
+    @Autowired
+    private SupplierAccountsRepository accountsRepository;
 
     //  拿到最新DetailId
     public String getLastedDetailId() {
@@ -64,6 +67,9 @@ public class RestockDetailService {
 
         // 2. 更新總金額
         updateRestockTotalPrice(restockDetailDTO.getRestockId());
+        //3.更新進貨商總應付金額
+        updateSupplierTotalAmount(restockDetailDTO.getDetailId());
+
     }
 
     // 刪除明細並更新總金額
@@ -77,6 +83,8 @@ public class RestockDetailService {
 
         // 3. 更新進貨總金額
         updateRestockTotalPrice(restockId);
+        //4.更新進貨商總應付金額
+        updateSupplierTotalAmount(detailId);
     }
 
     // 根據進貨編號更新總金額
@@ -89,7 +97,25 @@ public class RestockDetailService {
         }
         // 2. 更新進貨表的總金額
         restocksRepository.updateRestocksTotalPrice(restockId, newTotalPrice);
+
     }
+
+    //根據 供應商id將進貨明細中的restockTotalPrice 加入供應商供應商的totalAmount
+    private void updateSupplierTotalAmount(String detailId){
+        System.out.println(detailId);
+      String supplierId=  restockDetailsRepository.findSupplierIdByDetailId(detailId);
+        System.out.println(supplierId);
+        List<RestockDetailsBean> details = restockDetailsRepository.findByRestock_SupplierId(supplierId);
+        int newTotalAmount = 0;
+            for(RestockDetailsBean list :details){
+                newTotalAmount += list.getRestockTotalPrice();
+            }
+        System.out.println("newTotalAmount = " + newTotalAmount);
+            accountsRepository.updateSupplierTotalAmount(supplierId,newTotalAmount);
+
+    }
+
+
 }
 
 
