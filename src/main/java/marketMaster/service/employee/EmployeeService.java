@@ -226,4 +226,9 @@ public class EmployeeService {
         int number = 1000 + random.nextInt(9000);
         return String.valueOf(number);
     }
+    
+    public List<EmpBean> findAllEmp() {
+        return employeeRepository.findAll();
+    }
+
 }
