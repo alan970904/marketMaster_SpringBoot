@@ -7,9 +7,10 @@
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
-	<div th:replace="~{body/navbar :: navbar}"></div>
-    <main class="container mt-3">
-        <h2>會員列表</h2>
+	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+	<div th:fragment="content">
+    <main class="container mt-4">
+        <h1>會員列表</h1>
         
         <div id="successMessage" th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         
@@ -69,13 +70,15 @@
         </nav>
         
     </main>
+    </div>
+    </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 	<script>
     $(document).ready(function() {
         // 檢查是否存在成功消息
         if ($('#successMessage').length > 0) {
-            // 2秒後淡出並移除消息
+            // 1秒後淡出並移除消息
             setTimeout(function() {
                 $('#successMessage').fadeOut('slow', function() {
                     $(this).remove();
