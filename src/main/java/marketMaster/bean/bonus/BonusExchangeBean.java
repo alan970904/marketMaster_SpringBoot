@@ -82,4 +82,3 @@ public class BonusExchangeBean implements java.io.Serializable {
     }
     
 }
-
