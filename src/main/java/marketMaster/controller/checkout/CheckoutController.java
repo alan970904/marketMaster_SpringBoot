@@ -96,6 +96,12 @@ public class CheckoutController {
             List<CheckoutDetailsBean> details = parseCheckoutDetails(requestData);
             validateCheckoutData(checkout, details);
 
+         // 處理非會員結帳（顧客手機為空）的情況
+            if (checkout.getCustomerTel() == null || checkout.getCustomerTel().isEmpty()) {
+                checkout.setBonusPoints(0);
+                checkout.setPointsDueDate(null);
+            }
+            
             boolean success = checkoutService.insertCheckoutWithDetails(checkout, details);
 
             if (success) {
@@ -334,9 +340,7 @@ public class CheckoutController {
         if (checkout.getCheckoutId() == null || checkout.getCheckoutId().isEmpty()) {
             throw new InvalidCheckoutDataException("結帳 ID 不能為空");
         }
-        if (checkout.getCustomerTel() == null || checkout.getCustomerTel().isEmpty()) {
-            throw new InvalidCheckoutDataException("顧客電話不能為空");
-        }
+        
         if (checkout.getEmployeeId() == null || checkout.getEmployeeId().isEmpty()) {
             throw new InvalidCheckoutDataException("員工 ID 不能為空");
         }
