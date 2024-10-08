@@ -46,7 +46,7 @@ public class ChangePasswordController {
         }
     }
     
-    @GetMapping("/employee/forgotPassword")
+    @GetMapping("/employee/forgotPasswordPage")
     public String showForgotPasswordForm() {
         return "employee/ForgotPassword";
     }
