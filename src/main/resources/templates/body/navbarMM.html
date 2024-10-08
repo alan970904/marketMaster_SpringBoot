@@ -19,25 +19,6 @@
             height: 100%;
         }
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-        }
-
-        .sidebar-sticky {
-            position: relative;
-            top: 0;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
         .nav-link {
             font-weight: 500;
             color: #333;
@@ -55,16 +36,12 @@
             font-size: 2.5rem;
             color: #84fab0;
         }
-
-        main {
-            min-height: 100vh;
-        }
     </style>
 </head>
 
 <body>
     <div th:fragment="navbarMM">
-        <nav class="navbar navbar-expand-lg navbar-light bg-success bg-opacity-25">
+        <nav class="navbar navbar-expand-lg navbar-light bg-success bg-opacity-60 fixed-top">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="#">
                 	<i class="fas fa-leaf login-logo me-2"></i>
@@ -74,12 +51,12 @@
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                <span th:text="'歡迎，' + ${session.employee.employeeName}">歡迎，使用者</span>
+                                <span th:text="'歡迎，' + ${session.employee.employeeName}" style="color: white;">歡迎，使用者</span>
                                 <img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt=""
                                     style="width: 40px; height: 40px;">
                             </a>
@@ -100,9 +77,9 @@
         </nav>
 
         <div class="container-fluid">
-            <div class="row" style="min-height: 100vh;">
-                <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-success bg-opacity-25 sidebar">
-                    <div class="sidebar-sticky pt-3">
+            <div class="row">
+                <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-success bg-opacity-25 sidebar" style="position: fixed; top: 56px; bottom: 0; left: 0; z-index: 100; padding: 10px 0 0; box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);">
+                    <div class="pt-3">
                         <ul class="nav flex-column">
                             <li class="nav-item mb-3">
                                 <a class="nav-link" th:href="@{/dashboard}">
@@ -278,7 +255,7 @@
                     </div>
                 </nav>
 
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 56px; margin-left: 16.666667%;">
                     <!-- 這裡將插入 其他html 的內容 -->
                     <div th:replace="${content}"></div>
                 </main>
