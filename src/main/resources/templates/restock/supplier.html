@@ -10,9 +10,11 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../static/CSS/style.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
+<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+<div th:fragment="content">
 <div class="row w-100">
   <div class="col-lg-10 col-md-12 mx-auto">
     <table id="supplierProductTable" class="table table-bordered table-striped">
@@ -171,6 +173,9 @@
   </div>
 </div>
 
+</div>
+</div>
+
 <!-- Bootstrap JS 和依賴庫 -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
@@ -183,7 +188,7 @@
 
     function loadSuppliers() {
       // 加載供應商資料
-      axios.get("/supplier/AllSuppliers").then(res => {
+      axios.get("/marketMaster/supplier/AllSuppliers").then(res => {
         renderTable(res.data);
       }).catch(err => {
         console.log('加載供應商資料失敗', err);
@@ -278,7 +283,7 @@
       };
 
       // 發送PUT請求到後端
-      axios.put('/supplier/updateSupplier', supplierInfo)
+      axios.put('/marketMaster/supplier/updateSupplier', supplierInfo)
               .then(response => {
                 alert('供應商資訊更新成功');
                 // 隱藏模態框
@@ -321,7 +326,7 @@
       };
 
       // 發送POST請求到後端
-      axios.post('/supplier/addSupplier', supplierInfo)
+      axios.post('/marketMaster/supplier/addSupplier', supplierInfo)
               .then(response => {
                 alert('供應商新增成功');
                 // 隱藏模態框

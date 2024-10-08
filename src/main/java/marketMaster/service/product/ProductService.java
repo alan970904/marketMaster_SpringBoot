@@ -9,9 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.bean.product.ProductBean;
-
-
 
 @Service
 public class ProductService {
@@ -20,7 +19,20 @@ public class ProductService {
 	private ProductRepository productRepo;
 
 	public ProductBean addProduct(ProductBean product) {
-		return productRepo.save(product);
+		Optional<ProductBean> exist = productRepo.findById(product.getProductId());
+
+		if (!exist.isPresent()) {
+			product.setNumberOfShelve(0);
+			product.setNumberOfInventory(0);
+			product.setNumberOfSale(0);
+			product.setNumberOfExchange(0);
+			product.setNumberOfDestruction(0);
+			product.setNumberOfRemove(0);
+			return productRepo.save(product);
+		} else {
+			return null;
+		}
+
 	}
 
 	public ProductBean findOneProduct(String productId) {
@@ -32,11 +44,26 @@ public class ProductService {
 		return null;
 	}
 
-	public Page<ProductBean>  findAllProduct(Integer pageNumber, Integer pageSize) {
-		Pageable pgb = PageRequest.of(pageNumber-1,pageSize);
+	public Page<ProductBean> findAllProduct(Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
 		Page<ProductBean> page = productRepo.findAll(pgb);
 		return page;
 	}
+	
+	public Page<ProductBean> findProductByLike(String productName,Integer pageNumber) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
+//		String productNameQuery = "%"+productName+"%";
+		Page<ProductBean> products = productRepo.findByProductNameContaining(productName,pgb);
+		
+		return products;
+	}
+	
+//	public List<ProductBean> findProductByLike(String productName) {
+//		String productNameQuery = "%"+productName+"%";
+//		List<ProductBean> products = productRepo.findProductByProductNameLike(productNameQuery);
+//		
+//		return products;
+//	}
 
 	public ProductBean shelveProduct(String productId, Integer newShelveNumber) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
@@ -68,7 +95,7 @@ public class ProductService {
 		}
 		return null;
 	}
-	
+
 	public ProductBean removeProduct(String productId) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
 
@@ -83,5 +110,10 @@ public class ProductService {
 			return product;
 		}
 		return null;
+	}
+	
+	public List<ProductCategoryDTO> findProductCategory() {
+		return productRepo.findAllCategories();
+		
 	}
 }

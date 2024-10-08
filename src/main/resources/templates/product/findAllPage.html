@@ -10,19 +10,20 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../../static/CSS/style.css">
 </head>
-
 <body>
+	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+	<div th:fragment="content">
+	<main>
     <div class="container mt-3">
-        <!-- <select name="size" id="size" onchange="changePageSize()">
-            <option value="5" th:selected="${size == 5}">5</option>
-            <option value="10" th:selected="${size == 10}">10</option>
-            <option value="30" th:selected="${size == 30}">30</option>
-        </select> -->
+        <div class="d-flex justify-content-between">
 
-        <table id="productTable" class="table table-striped text-center">
+            <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
+            <!-- <input type="text" id="inputName"> -->
+            <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋商品名稱">
+        </div>
+
+        <table class="table table-striped text-center mt-2">
             <thead class="table-dark">
                 <tr>
                     <th>商品編號</th>
@@ -41,7 +42,7 @@
                     <th>下架</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tbody">
                 <th:block th:each="product:${products.content}">
 
                     <tr>
@@ -51,30 +52,31 @@
                                 th:href="@{/product/findOne(productId=${product.productId})}"></a>
                         </td>
                         <td th:text="${product.productPrice}"></td>
-                        <td th:text="${product.productSafeInventory}"></td>
-                        <td th:text="${product.numberOfShelve}"></td>
-                        <td th:text="${product.numberOfInventory}" data-safe-inventory="${product.productSafeInventory}"
-                            class="inventory"></td>
+                        <td th:text="${product.productSafeInventory}"
+                            th:data-safeinventory="${product.productSafeInventory}"></td>
+                        <td th:text="${product.numberOfShelve}" th:data-shelve="${product.numberOfShelve}"></td>
+                        <td th:text="${product.numberOfInventory}" th:data-inventory="${product.numberOfInventory}">
+                        </td>
                         <td th:text="${product.numberOfSale}"></td>
                         <td th:text="${product.numberOfExchange}"></td>
                         <td th:text="${product.numberOfDestruction}"></td>
                         <td th:text="${product.numberOfRemove}"></td>
                         <td>
                             <form method="get" th:action="@{/product/getUpdate}">
-								<input type="hidden" th:value="${product.productId}" name="productId">
+                                <input type="hidden" th:value="${product.productId}" name="productId">
                                 <button type="submit" class="btn btn-secondary">修改</button>
                             </form>
                         </td>
                         <td>
                             <form method="get" th:action="@{/product/getShelve}">
-								<input type="hidden" th:value="${product.productId}" name="productId">
+                                <input type="hidden" th:value="${product.productId}" name="productId">
                                 <button type="submit" class="btn btn-warning">上架</button>
                             </form>
                         </td>
                         <td>
                             <form method="post" th:action="@{/product/remove}">
-								<input type="hidden" th:value="${product.productId}" name="productId">
-                                <button type="submit" class="btn btn-danger">下架</button>
+                                <input type="hidden" th:value="${product.productId}" name="productId">
+                                <button type="button" class="btn btn-danger removeBtn">下架</button>
                             </form>
                         </td>
                     </tr>
@@ -82,28 +84,204 @@
             </tbody>
         </table>
         <div id="page">
-            <ul class="pagination">
-                <th:block th:each="aNumber : ${#numbers.sequence(1,products.totalPages)}">
+            <ul class="pagination" id="pageUl">
+                <th:block th:switch="${pages.number + 1 == 1}">
 
-                    <li class="page-item"><a class="page-link" th:href='@{/product/findAll(page=${aNumber})}'><span
-                                th:text="${aNumber}"></span></a></li>
+                    <li th:case="${true}" class="page-item disabled">
+                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}' th:text="上一頁"></a>
+                    </li>
+                    <li th:case="${false}" class="page-item">
+                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}' th:text="上一頁"></a>
+                    </li>
+                </th:block>
 
+                <th:block th:each="aNumber : ${#numbers.sequence(1,pages.totalPages)}">
+                    <th:block th:switch="${pages.number + 1 == aNumber}">
+                        <li th:case="${true}" class="page-item disabled">
+                            <a class="page-link" th:href='@{/product/findAll(page=${aNumber})}'><span
+                                    th:text="${aNumber}"></span></a>
+                        </li>
+                        <li th:case="${false}" class="page-item"><a class="page-link"
+                                th:href='@{/product/findAll(page=${aNumber})}'><span th:text="${aNumber}"></span></a>
+                        </li>
+
+                    </th:block>
+                </th:block>
+                <th:block th:switch="${pages.number + 1 == pages.totalPages}">
+
+                    <li th:case="${true}" class="page-item disabled">
+                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}' th:text="下一頁"></a>
+                    </li>
+                    <li th:case="${false}" class="page-item">
+                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}' th:text="下一頁"></a>
+                    </li>
                 </th:block>
             </ul>
         </div>
-
+	</div>
+    </main>
+    </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
-        // function changePageSize() {
-        //     const size = document.getElementById('size').value;
-        //     window.location.href = "@{/product/findAll(page=${aNumber},size=@{size})}";
-        // }
+        const findByPageUrl = 'http://localhost:8080/marketMaster/product/findProductByLike/json'
+
+        document.addEventListener('DOMContentLoaded', init)
+
+        function init() {
+            safeInventory();
+            removeBtnDisabled();
+            removeProductDoubleCheck();
+        }
+
+        function safeInventory() {
+            const rows = document.querySelectorAll('#tbody tr')
+
+            rows.forEach((row) => {
+                const inventory = parseInt(row.querySelector('td[data-inventory]').getAttribute('data-inventory'))
+                const safeInventory = parseInt(row.querySelector('td[data-safeinventory]').getAttribute('data-safeinventory'))
+                const inventoryCell = row.querySelector('td:nth-child(7)')
+
+                if (inventory < safeInventory) {
+                    inventoryCell.style.color = 'red'
+                }
+            })
+        }
+
+        function removeBtnDisabled() {
+            const rows = document.querySelectorAll('#tbody tr')
+
+            rows.forEach((row) => {
+                const shelve = parseInt(row.querySelector('td[data-shelve]').getAttribute('data-shelve'))
+                const inventory = parseInt(row.querySelector('td[data-inventory]').getAttribute('data-inventory'))
+                const removeBtn = row.querySelector('.removeBtn')
+
+                if (shelve === 0 && inventory === 0) {
+                    removeBtn.disabled = true;
+
+                }
+            })
+        }
+        //      下架商品確認 
+        function removeProductDoubleCheck() {
+            const removeBtns = document.getElementsByClassName("removeBtn")
+
+            Array.from(removeBtns).forEach((removeBtn) => {
+                removeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const result = confirm("確認是否要下架商品")
+                    if (result) {
+                        removeBtn.closest("form").submit()
+                    }
+                })
+            })
+        }
+
+        //      模糊搜尋
+        document.getElementById('inputName').addEventListener('change', function () {
+            const productName = document.getElementById('inputName').value
+            let jsObject = {
+                productName: productName,
+                pageNumber: 1
+            }
+            axios.post(findByPageUrl, jsObject)
+                .then(res => {
+                    htmlMaker(res.data);
+                    pageMaker(res.data)
+                    init();
+
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+
+        })
+
+        function htmlMaker(data) {
+            const tbody = document.getElementById("tbody")
+            tbody.innerHTML = ""
+            for (let i = 0; i < data.numberOfElements; i++) {
+                tbody.innerHTML += createProductRow(data.content[i])
+            }
+
+            tbody.append();
+        }
+
+
+        // 解析為應用的上下文路徑 目前會 http://localhost:8080/
+
+        const baseUrl = /*[[@{/}]]*/ '/marketMaster';
+
+
+        function createProductRow(product) {
+
+            return `
+    <tr>
+        <td>${product.productId}</td>
+        <td>${product.productCategory}</td>
+        <td><a class="page-link" href="${baseUrl}/product/findOne?productId=${product.productId}">${product.productName}</a></td>
+        <td>${product.productPrice}</td>
+        <td data-safeinventory="${product.productSafeInventory}">${product.productSafeInventory}</td>
+        <td data-shelve="${product.numberOfShelve}">${product.numberOfShelve}</td>
+        <td data-inventory="${product.numberOfInventory}">${product.numberOfInventory}</td>
+        <td>${product.numberOfSale}</td>
+        <td>${product.numberOfExchange}</td>
+        <td>${product.numberOfDestruction}</td>
+        <td>${product.numberOfRemove}</td>
+        <td>
+            <form method="get" action="${baseUrl}/product/getUpdate">
+                <input type="hidden" value="${product.productId}" name="productId">
+                <button type="submit" class="btn btn-secondary">修改</button>
+            </form>
+        </td>
+        <td>
+            <form method="get" action="${baseUrl}/product/getShelve">
+                <input type="hidden" value="${product.productId}" name="productId">
+                <button type="submit" class="btn btn-warning">上架</button>
+            </form>
+        </td>
+        <td>
+            <form method="post" action="${baseUrl}/product/remove">
+                <input type="hidden" value="${product.productId}" name="productId">
+                <button type="button" class="btn btn-danger removeBtn">下架</button>
+            </form>
+        </td>
+    </tr> `;
+
+        }
+
+        function pageMaker(data) {
+            const ul = document.getElementById("pageUl")
+            ul.innerHTML = "";  // 清空之前的分頁按鈕
+
+            for (let i = 1; i <= data.totalPages; i++) {  // 根據回傳的總頁數來生成按鈕
+                const li = document.createElement("li");
+                const btn = document.createElement("button");
+                btn.className = "page-link"
+                btn.textContent = i;
+                btn.addEventListener('click', function () {
+                    const productName = document.getElementById('inputName').value
+                    axios.post(findByPageUrl, {
+                        productName: productName,
+                        pageNumber: i
+                    })  // 傳遞 productName 和頁碼
+                        .then(res => {
+                            htmlMaker(res.data);  // 更新產品表格
+                            init();
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                });
+                li.appendChild(btn);
+                ul.appendChild(li);
+            }
+        }
 
     </script>
-
+</main>
 </body>
 
 </html>
