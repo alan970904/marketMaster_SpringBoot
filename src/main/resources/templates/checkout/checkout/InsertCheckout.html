@@ -591,10 +591,6 @@ select.form-control {
             errorMessages.push("請至少添加一件商品");
         }
 
-        if (!$('#customerTel1').val() || !$('#customerTel2').val()) {
-            errorMessages.push("請輸入完整的顧客手機號碼");
-        }
-
         if (errorMessages.length > 0) {
             errorMessageDiv.innerHTML = errorMessages.join('<br>');
             return false;
