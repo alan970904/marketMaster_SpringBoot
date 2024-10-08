@@ -58,13 +58,6 @@ public class ProductService {
 		return products;
 	}
 	
-//	public List<ProductBean> findProductByLike(String productName) {
-//		String productNameQuery = "%"+productName+"%";
-//		List<ProductBean> products = productRepo.findProductByProductNameLike(productNameQuery);
-//		
-//		return products;
-//	}
-
 	public ProductBean shelveProduct(String productId, Integer newShelveNumber) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
 
