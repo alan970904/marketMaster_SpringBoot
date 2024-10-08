@@ -89,7 +89,7 @@
 
                     if (userConfirmed) {
                         console.log(`/restockDetail/deleteByRestockDetailId?detailId=${detailId}`);
-                        axios.delete(`/restockDetail/deleteByRestockDetailId?detailId=${detailId}`)
+                        axios.delete(`/marketMaster/restockDetail/deleteByRestockDetailId?detailId=${detailId}`)
                             .then(res => {
                                 if (res.data === "刪除成功並更新總金額！") {
                                     console.log("刪除成功", res);
@@ -135,7 +135,7 @@
                                 const updatedProductPrice = $("#updateProductPrice").val();
                                 const updatedTotalPrice = $("#updateTotalPrice").val();
 
-                                axios.put('/restockDetail/updateRestockDetail', {
+                                axios.put('/marketMaster/restockDetail/updateRestockDetail', {
                                     detailId: detailId,
                                     restockId: restockId,
                                     numberOfRestock: updatedNumberOfRestock,
