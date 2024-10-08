@@ -18,12 +18,10 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <link th:href="@{/CSS/style.css}" rel="stylesheet">
-    <link th:href="@{/CSS/extra.css}" rel="stylesheet">
-
 </head>
 <body>
+<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+	<div th:fragment="content">
     <!-- <div th:replace="~{body/body :: body}"></div> -->
     <main class="container mt-5">
         <h1 class="mb-4">結帳明細詳情</h1>
@@ -57,6 +55,9 @@
             <a th:href="@{/checkout/checkoutDetails/list}" class="btn btn-secondary">返回列表</a>
         </div>
     </main>
+</div>
+</div>    
+    
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
