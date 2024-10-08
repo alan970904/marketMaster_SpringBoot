@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface EmployeeRepository extends JpaRepository<EmpBean,String> {
 
-	Optional<EmpBean> findByEmployeeIdAndPassword(String employeeId, String password);
+	Optional<EmpBean> findByEmployeeId(String employeeId);
 	
 	@Query("SELECT e.isFirstLogin FROM EmpBean e WHERE e.employeeId = ?1")
 	boolean isFirstLogin(String employeeId);
