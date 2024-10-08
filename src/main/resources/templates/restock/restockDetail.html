@@ -110,7 +110,7 @@
 
         // 加載所有進貨ID
         function loadRestockId() {
-            axios.get('/restockDetail/getAllRestocks').then(res => {
+            axios.get('/marketMaster/restockDetail/getAllRestocks').then(res => {
                 console.log(res.data)
                 renderTable(res.data);
             }).catch(error => {
@@ -120,7 +120,7 @@
 
         document.getElementById("addRestock").addEventListener('click', function () {
             // 當按下 "新增進貨" 按鈕時，導航到 "/restockInsert"
-            window.location.href = '/restock/restockInsert';
+            window.location.href = '/marketMaster/restock/restockInsert';
         });
 
         // 查詢進貨明細
@@ -129,7 +129,7 @@
             const formattedStartDate = startDate.replace(/-/g, '');
             const formattedEndDate = endDate.replace(/-/g, '');
 
-            axios.get('/restockDetail/searchByDateRange', {
+            axios.get('/marketMaster/restockDetail/searchByDateRange', {
                 params: {
                     startDate: formattedStartDate,
                     endDate: formattedEndDate
@@ -149,7 +149,7 @@
             data.forEach(detail => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><a href="/restockDetail/getAllRestockIdDetail?restockId=${detail.restockId}" >${detail.restockId}</a> </td>
+                    <td><a href="/marketMaster/restockDetail/getAllRestockIdDetail?restockId=${detail.restockId}" >${detail.restockId}</a> </td>
                     <td>${detail.employeeId+'-'+detail.employeeName}</td>
                     <td>${detail.restockDate}</td>
                     <td>${detail.restockTotalPrice}</td>
