@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>個人請假表</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col text-center">
+                <h1>個人請假表</h1>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col text-start">
+                <a class="btn btn-secondary" th:href="@{/askForLeave/home}">返回</a>
+                <a class="btn btn-primary" th:href="@{/askForLeave/add(employeeId=${empBean.employeeId})}">建立請假單</a>
+            </div>
+        </div>
+
+        <hr>
+
+        <div th:if="${leaves != null and not #lists.isEmpty(leaves)}">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>請假編號</th>
+                        <th>員工編號</th>
+                        <th>員工姓名</th>
+                        <th>開始時間</th>
+                        <th>結束時間</th>
+                        <th>請假類別</th>
+                        <th>請假原因</th>
+                        <th>批准狀態</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="leave : ${leaves}">
+                        <td th:text="${leave.leaveId}"></td>
+                        <td th:text="${leave.empBean.employeeId}"></td>
+                        <td th:text="${leave.empBean.employeeName}"></td>
+                        <td th:text="${#temporals.format(leave.starTime, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td th:text="${#temporals.format(leave.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td th:text="${leave.leaveType}"></td>
+                        <td th:text="${leave.reasonLeave}"></td>
+                        <td th:text="${leave.approvedStatus}"></td>
+                        <td>
+                        	<div style="display: inline-block;">
+        					<a class="btn btn-warning btn-sm" th:href="@{/askForLeave/edit/{id}(id=${leave.leaveId})}">編輯</a>
+       							 <button class="btn btn-danger btn-sm delete-btn" th:data-leave-id="${leave.leaveId}">刪除</button>
+    							</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-info" th:if="${leaves == null or #lists.isEmpty(leaves)}">
+            找不到符合條件的請假記錄。
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+    $(document).ready(function() {
+        $('.delete-btn').click(function() {
+            var leaveId = $(this).data('leave-id');
+            if (confirm('確定要刪除這筆請假記錄嗎？')) {
+                $.ajax({
+                    url: '/marketMaster/askForLeave/delete/' + leaveId,
+                    type: 'DELETE',
+                    success: function(result) {
+                        alert('刪除成功');
+                        location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('刪除失敗: ' + xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+    </script>
+</body>
+</html>
