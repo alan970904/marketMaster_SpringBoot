@@ -163,21 +163,34 @@
                                 </ul>
                             </li>
                             <li class="nav-item mb-3">
-                                <a class="nav-link" th:href="@{/products}">
+                                <a class="nav-link" href="#productsSubmenu" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="productsSubmenu">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round" class="feather feather-box">
-                                        <path
-                                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                                        </path>
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
                                     </svg>
                                     商品管理
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-chevron-down">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
                                 </a>
+                                <ul class="nav flex-column collapse" id="productsSubmenu">
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/product/findAll}">商品列表</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/supplier/supplier}">XXX</a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="nav-item mb-3">
-                                <a class="nav-link" th:href="@{/checkout}">
+                                <a class="nav-link" href="#checkoutSubmenu" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="checkoutSubmenu">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round" class="feather feather-credit-card">
@@ -185,23 +198,50 @@
                                         <line x1="1" y1="10" x2="23" y2="10"></line>
                                     </svg>
                                     結帳管理
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-chevron-down">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
                                 </a>
+                                <ul class="nav flex-column collapse" id="checkoutSubmenu">
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/checkout/checkoutMain}">結帳主頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/checkout}">XXX</a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="nav-item mb-3">
-                                <a class="nav-link" th:href="@{/}">
+                                <a class="nav-link" href="#Submenu" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="Submenu">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round" class="feather feather-refresh-cw">
                                         <polyline points="23 4 23 10 17 10"></polyline>
                                         <polyline points="1 20 1 14 7 14"></polyline>
-                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15">
-                                        </path>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                                     </svg>
                                     退貨管理
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-chevron-down">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
                                 </a>
+                                <ul class="nav flex-column collapse" id="Submenu">
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/}">退貨主頁</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/checkout}">XXX</a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="nav-item mb-3">
-                                <a class="nav-link" th:href="@{/customer/cusList}">
+                                <a class="nav-link" href="#customersSubmenu" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="customersSubmenu">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round" class="feather feather-user">
@@ -209,7 +249,20 @@
                                         <circle cx="12" cy="7" r="4"></circle>
                                     </svg>
                                     會員管理
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-chevron-down">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
                                 </a>
+                                <ul class="nav flex-column collapse" id="customersSubmenu">
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/customer/cusList}">會員列表</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/checkout}">XXX</a>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </div>

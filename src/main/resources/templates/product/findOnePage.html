@@ -10,13 +10,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../../static/CSS/style.css">
 </head>
 
 <body>
-    <div class="container">
-
+	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+	<div th:fragment="content">
+    <main class="container">
+	<h1 class="mb-4">商品詳細資料</h1>
         <table class="m-auto mt-3">
             <tr>
                 <td>商品編號:</td>
@@ -68,6 +68,8 @@
 
 
 
+    </main>
+    </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
