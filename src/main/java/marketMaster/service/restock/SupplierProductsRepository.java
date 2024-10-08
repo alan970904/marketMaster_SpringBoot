@@ -32,6 +32,7 @@ public interface SupplierProductsRepository extends JpaRepository<SupplierProduc
     @Query("SELECT s.productPrice FROM SupplierProductsBean s WHERE s.product.productId = :productId")
     Integer findProductPriceByProductId(@Param("productId") String productId);
 
+
     Optional<SupplierProductsBean> findBySupplier_SupplierIdAndProduct_ProductId(String supplierId, String productId);
 
     // 新增的方法：根据 supplierId 和 productId 查询 productPrice

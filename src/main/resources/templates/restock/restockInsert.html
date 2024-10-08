@@ -61,7 +61,7 @@
         let hotInstances = []; // 用於存儲每個表格的 Handsontable 實例
         // 加載供應商數據
         $.ajax({
-            url: '/restock/getSupplier',
+            url: '/marketMaster/restock/getSupplier',
             method: 'GET',
             success: (suppliers) => {
                 console.log('Suppliers List:', suppliers);
@@ -77,7 +77,7 @@
 
         // 加載員工數據
         $.ajax({
-            url: '/restock/getEmployeeInfo',
+            url: '/marketMaster/restock/getEmployeeInfo',
             method: 'GET',
             success: (employees) => {
                 console.log('Employees List:', employees);
@@ -94,7 +94,7 @@
         // 獲取最新的進貨單號
         function getLatestRestockId(callback) {
             $.ajax({
-                url: '/restock/getLatestRestockId',
+                url: '/marketMaster/restock/getLatestRestockId',
                 method: 'GET',
                 success: (latestRestockId) => {
                     callback(latestRestockId);
@@ -196,7 +196,7 @@
                                 if (supplierId) {
                                     // 每次都重新加載產品列表
                                     $.ajax({
-                                        url: '/restock/getProducts',
+                                        url: '/marketMaster/restock/getProducts',
                                         method: 'GET',
                                         data: { supplierId },
                                         success: (products) => {
@@ -225,7 +225,7 @@
                                 if (supplierId && productId) {
                                     // 調用後端獲取 productPrice
                                     $.ajax({
-                                        url: '/restock/getProductPrice',
+                                        url: '/marketMaster/restock/getProductPrice',
                                         method: 'GET',
                                         data: { supplierId, productId },
                                         success: (productPrice) => {
@@ -328,7 +328,7 @@
 
             // 發送數據到服務器
             $.ajax({
-                url: '/restock/InsertRestock',
+                url: '/marketMaster/restock/InsertRestock',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(allRestockInsertDTOs),
