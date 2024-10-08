@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link th:href="@{/CSS/style.css}" rel="stylesheet">
-    <link th:href="@{/CSS/extra.css}" rel="stylesheet">
+    
     <style>
         .dataTables_length select { 
             padding-right: 30px !important; 
@@ -19,6 +18,8 @@
     </style>
 </head>
 <body>
+<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+	<div th:fragment="content">
     <main>
         <div class="container mt-5">
             <h1 class="mb-4">所有結帳記錄</h1>
@@ -58,6 +59,8 @@
             </div>
         </div>
     </main>
+</div>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
