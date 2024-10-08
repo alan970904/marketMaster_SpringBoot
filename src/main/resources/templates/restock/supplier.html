@@ -183,7 +183,7 @@
 
     function loadSuppliers() {
       // 加載供應商資料
-      axios.get("/supplier/AllSuppliers").then(res => {
+      axios.get("/marketMaster/supplier/AllSuppliers").then(res => {
         renderTable(res.data);
       }).catch(err => {
         console.log('加載供應商資料失敗', err);
@@ -278,7 +278,7 @@
       };
 
       // 發送PUT請求到後端
-      axios.put('/supplier/updateSupplier', supplierInfo)
+      axios.put('/marketMaster/supplier/updateSupplier', supplierInfo)
               .then(response => {
                 alert('供應商資訊更新成功');
                 // 隱藏模態框
@@ -321,7 +321,7 @@
       };
 
       // 發送POST請求到後端
-      axios.post('/supplier/addSupplier', supplierInfo)
+      axios.post('/marketMaster/supplier/addSupplier', supplierInfo)
               .then(response => {
                 alert('供應商新增成功');
                 // 隱藏模態框
