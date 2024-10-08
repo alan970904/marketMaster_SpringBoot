@@ -64,11 +64,13 @@ public class RestockDetailService {
                 restockDetailDTO.getRestockTotalPrice(),
                 restockDetailDTO.getDetailId()
         );
+        String detailId = restockDetailDTO.getDetailId();
+        String supplierId= restockDetailsRepository.findSupplierIdByDetailId(detailId);
 
         // 2. 更新總金額
         updateRestockTotalPrice(restockDetailDTO.getRestockId());
         //3.更新進貨商總應付金額
-        updateSupplierTotalAmount(restockDetailDTO.getDetailId());
+        updateSupplierTotalAmount(supplierId);
 
     }
 
@@ -77,6 +79,7 @@ public class RestockDetailService {
         // 1. 查找進貨明細
         RestockDetailsBean restockDetail = restockDetailsRepository.getById(detailId);
         String restockId = restockDetail.getRestock().getRestockId();
+        String supplierId = restockDetail.getSupplier().getSupplierId(); // 在刪除之前先保存 supplierId
 
         // 2. 刪除進貨明細
         restockDetailsRepository.deleteById(detailId);
@@ -84,7 +87,7 @@ public class RestockDetailService {
         // 3. 更新進貨總金額
         updateRestockTotalPrice(restockId);
         //4.更新進貨商總應付金額
-        updateSupplierTotalAmount(detailId);
+        updateSupplierTotalAmount(supplierId);
     }
 
     // 根據進貨編號更新總金額
@@ -100,18 +103,17 @@ public class RestockDetailService {
 
     }
 
-    //根據 供應商id將進貨明細中的restockTotalPrice 加入供應商供應商的totalAmount
-    private void updateSupplierTotalAmount(String detailId){
-        System.out.println(detailId);
-      String supplierId=  restockDetailsRepository.findSupplierIdByDetailId(detailId);
+
+     //根據 供應商id將進貨明細中的restockTotalPrice 加入供應商供應商的totalAmount
+    private void updateSupplierTotalAmount(String supplierId){
         System.out.println(supplierId);
         List<RestockDetailsBean> details = restockDetailsRepository.findByRestock_SupplierId(supplierId);
         int newTotalAmount = 0;
-            for(RestockDetailsBean list :details){
-                newTotalAmount += list.getRestockTotalPrice();
-            }
+        for(RestockDetailsBean list :details){
+            newTotalAmount += list.getRestockTotalPrice();
+        }
         System.out.println("newTotalAmount = " + newTotalAmount);
-            accountsRepository.updateSupplierTotalAmount(supplierId,newTotalAmount);
+        accountsRepository.updateSupplierTotalAmount(supplierId,newTotalAmount);
 
     }
 
