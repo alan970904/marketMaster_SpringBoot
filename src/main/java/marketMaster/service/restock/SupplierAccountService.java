@@ -28,4 +28,6 @@ public class SupplierAccountService {
         // 保存更新後的供應商帳戶資料
         repository.save(supplierAccount);
     }
+
+    //根據進貨明細金額
 }

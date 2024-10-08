@@ -31,6 +31,25 @@ public interface RestockDetailsRepository extends JpaRepository<RestockDetailsBe
     //查找所有屬於特定進貨編號的明細
     List<RestockDetailsBean> findByRestock_RestockId(String restockId);
 
+    //通過detailId 找到supplierId
+    @Query("SELECT r.supplier.supplierId FROM RestockDetailsBean r where r.detailId=:detailId")
+    String findSupplierIdByDetailId(@Param("detailId")String detailId);
+
+    //通過supplierId 查找所有restockTotalPrice
+    @Query("SELECT r FROM RestockDetailsBean r where r.supplier.supplierId =:supplierId")
+    List<RestockDetailsBean> findByRestock_SupplierId(@Param("supplierId") String supplierId);
+
+    //根據restockId 找到所有關聯的detailId
+    @Query("select r.detailId FROM RestockDetailsBean r where r.restock.restockId=:restockId")
+    List<String> findDetailIdByRestockId(String restockId);
+
+    //根據detail找到所有supplierId跟restockTotalPrice
+    @Query("SELECT r.supplier.supplierId, r.restockTotalPrice FROM RestockDetailsBean r WHERE r.detailId IN :detailIds")
+    List<Object[]> findSupplierIdAndTotalPriceByDetailIds(@Param("detailIds") List<String> detailIds);
+    //根據supplierId 查找所有關聯的進貨明細
+    @Query("SELECT r FROM RestockDetailsBean r WHERE r.supplier.supplierId = :supplierId")
+    List<RestockDetailsBean> findBySupplierId(@Param("supplierId") String supplierId);
+
 }
 
 

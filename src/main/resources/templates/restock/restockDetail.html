@@ -65,6 +65,9 @@
 
     <div class="row w-100">
         <div class="col-lg-10 col-md-12 mx-auto">
+            <div class="d-flex justify-content-end mb-2">
+                <button type="button" id="addRestock" class="btn btn-primary" style="color: white">➕新增進貨</button>
+            </div>
             <table id="restockDetailsTable" class="table table-bordered table-striped">
                 <thead>
                 <tr>
@@ -81,30 +84,29 @@
     </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     $(document).ready(function() {
         // 初始化日期選擇器
-        // $("#startDate, #endDate").datepicker({
-        //     dateFormat: "yy-mm-dd"
-        // });
-        //
+        $("#startDate, #endDate").datepicker({
+            dateFormat: "yy-mm-dd"
+        });
+
         // 載入所有進貨明細
         loadRestockId();
-        //
-        // // 查詢按鈕點擊事件
-        // $("#searchButton").on('click', function() {
-        //     const startDate = $("#startDate").val();
-        //     const endDate = $("#endDate").val();
-        //
-        //     // 判斷日期是否填寫
-        //     if (startDate && endDate) {
-        //         searchRestockDetails(startDate, endDate);
-        //     } else {
-        //         alert("請選擇開始和結束日期！");
-        //     }
-        // });
+
+        // 查詢按鈕點擊事件
+        $("#searchButton").on('click', function() {
+            const startDate = $("#startDate").val();
+            const endDate = $("#endDate").val();
+
+            // 判斷日期是否填寫
+            if (startDate && endDate) {
+                searchRestockDetails(startDate, endDate);
+            } else {
+                alert("請選擇開始和結束日期！");
+            }
+        });
 
         // 加載所有進貨ID
         function loadRestockId() {
@@ -116,23 +118,28 @@
             });
         }
 
-        // // 查詢進貨明細
-        // function searchRestockDetails(startDate, endDate) {
-        //     // 將日期轉換為 YYYYMMDD 格式
-        //     const formattedStartDate = startDate.replace(/-/g, '');
-        //     const formattedEndDate = endDate.replace(/-/g, '');
-        //
-        //     axios.get('/restockDetail/searchByDateRange', {
-        //         params: {
-        //             startDate: formattedStartDate,
-        //             endDate: formattedEndDate
-        //         }
-        //     }).then(res => {
-        //         renderTable(res.data);
-        //     }).catch(error => {
-        //         console.error('查詢失敗:', error);
-        //     });
-        // }
+        document.getElementById("addRestock").addEventListener('click', function () {
+            // 當按下 "新增進貨" 按鈕時，導航到 "/restockInsert"
+            window.location.href = '/restock/restockInsert';
+        });
+
+        // 查詢進貨明細
+        function searchRestockDetails(startDate, endDate) {
+            // 將日期轉換為 YYYYMMDD 格式
+            const formattedStartDate = startDate.replace(/-/g, '');
+            const formattedEndDate = endDate.replace(/-/g, '');
+
+            axios.get('/restockDetail/searchByDateRange', {
+                params: {
+                    startDate: formattedStartDate,
+                    endDate: formattedEndDate
+                }
+            }).then(res => {
+                renderTable(res.data);
+            }).catch(error => {
+                console.error('查詢失敗:', error);
+            });
+        }
 
         // 渲染表格
         function renderTable(data) {
@@ -184,60 +191,6 @@
                     }
                 });
             });
-
-            // const updateButtons = document.querySelectorAll('.btn-update');
-            // updateButtons.forEach(button => {
-            //     button.addEventListener('click', function () {
-            //         const restockId = button.getAttribute('data-restock-id');
-            //         const productId = button.getAttribute('data-product-id');
-            //
-            //         // 獲取當前數據
-            //         const numberOfRestock = button.getAttribute('data-number-of-restock');
-            //         const productPrice = button.getAttribute('data-product-price');
-            //         const productionDate = button.getAttribute('data-production-date');
-            //         const dueDate = button.getAttribute('data-due-date');
-            //
-            //         // 設定彈出視窗中的值
-            //         $("#updateNumberOfRestock").val(numberOfRestock);
-            //         $("#updateProductPrice").val(productPrice);
-            //         $("#updateProductionDate").val(productionDate);
-            //         $("#updateDueDate").val(dueDate);
-            //
-            //         // 顯示更新彈出視窗
-            //         $("#updateDialog").dialog({
-            //             modal: true,
-            //             width: 400,
-            //             buttons: {
-            //                 "保存": function() {
-            //                     // 獲取新的值
-            //                     const updatedNumberOfRestock = $("#updateNumberOfRestock").val();
-            //                     const updatedProductPrice = $("#updateProductPrice").val();
-            //                     const updatedProductionDate = $("#updateProductionDate").val();
-            //                     const updatedDueDate = $("#updateDueDate").val();
-            //
-            //                     // 發送更新請求
-            //                     axios.put('/restockDetail/update', {
-            //                         restockId: restockId,
-            //                         productId: productId,
-            //                         numberOfRestock: updatedNumberOfRestock,
-            //                         productPrice: updatedProductPrice,
-            //                         productionDate: updatedProductionDate,
-            //                         dueDate: updatedDueDate
-            //                     }).then(res => {
-            //                         console.log("更新成功", res);
-            //                         $(this).dialog("close");
-            //                         window.location.reload();
-            //                     }).catch(error => {
-            //                         console.error("更新失敗", error);
-            //                     });
-            //                 },
-            //                 "取消": function() {
-            //                     $(this).dialog("close");
-            //                 }
-            //             }
-            //         });
-            //     });
-            // });
         }
     });
 </script>

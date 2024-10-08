@@ -35,6 +35,7 @@ public class RestockDetailController {
     public List<RestockDTO> getAllRestocks() {
         return restockDetailService.getAllRestocks();
     }
+    //刪除進貨編號
     @DeleteMapping("/deleteByRestockId")
     @ResponseBody
     public void deleteByRestockId(@RequestParam String restockId){
@@ -74,26 +75,6 @@ public class RestockDetailController {
 
 
 
-
-//    @DeleteMapping("/delete")
-//    @ResponseBody
-//    public ResponseEntity<String> deleteRestockDetail(@RequestParam String restockId, @RequestParam String productId) {
-//        RestockDetailsId id = new RestockDetailsId(restockId, productId);
-//        restockDetailRepository.deleteById(id);
-//        return ResponseEntity.ok("刪除成功！");
-//    }
-//
-//    @PutMapping("/update")
-//    @ResponseBody
-//    public void updateRestockDetail(@RequestBody RestockDetailDTO restockDetailDTO) {
-//         restockService.updateRestockDetail(restockDetailDTO);
-//    }
-//
-//    @GetMapping("/searchByDateRange")
-//    @ResponseBody
-//    public List<RestockDetailDTO> searchByDateRange(@RequestParam String startDate, @RequestParam String endDate) {
-//        return restockService.findRestockDetailsByDateRange(startDate, endDate);
-//    }
 
 
 }
