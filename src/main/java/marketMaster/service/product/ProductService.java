@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.bean.product.ProductBean;
 
 @Service
@@ -109,5 +110,10 @@ public class ProductService {
 			return product;
 		}
 		return null;
+	}
+	
+	public List<ProductCategoryDTO> findProductCategory() {
+		return productRepo.findAllCategories();
+		
 	}
 }

@@ -31,6 +31,7 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     //JPA 自帶的模糊查詢
     Page<ProductBean> findByProductNameContaining(@Param("productName")String productName ,Pageable pgb);
     
+    
 //    @Query("from ProductBean where productName LIKE :productName")
 //    Page<ProductBean> findProductByProductNameLike(@Param("productName")String productName ,Pageable pgb);
 

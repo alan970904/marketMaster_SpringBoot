@@ -13,14 +13,14 @@
     <!-- Custom CSS -->
     <!-- <link rel="stylesheet" href="../../static/CSS/style.css"> -->
 </head>
-
 <body>
+<main>
     <div class="container mt-3">
         <div class="d-flex justify-content-between">
 
             <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
             <!-- <input type="text" id="inputName"> -->
-            <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋">
+            <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋商品名稱">
         </div>
 
         <table class="table table-striped text-center mt-2">
@@ -139,7 +139,7 @@
             rows.forEach((row) => {
                 const inventory = parseInt(row.querySelector('td[data-inventory]').getAttribute('data-inventory'))
                 const safeInventory = parseInt(row.querySelector('td[data-safeinventory]').getAttribute('data-safeinventory'))
-                const inventoryCell = row.querySelector('td:nth-child(6)')
+                const inventoryCell = row.querySelector('td:nth-child(7)')
 
                 if (inventory < safeInventory) {
                     inventoryCell.style.color = 'red'
@@ -278,7 +278,7 @@
         }
 
     </script>
-
+</main>
 </body>
 
 </html>

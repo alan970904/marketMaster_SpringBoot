@@ -1,5 +1,7 @@
 package marketMaster.controller.product;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.ProductService;
 
@@ -22,8 +25,14 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 	
+	@Autowired
+	private ProductRestController productRestController;
+	
 	@GetMapping("/product/addPage")
-	public String addProductPage() {
+	public String addProductPage(Model m) {
+		List<ProductCategoryDTO> productCategory = productRestController.getProductCategory();
+
+		m.addAttribute("categorys", productCategory);
 		return "/product/insertProduct";
 	}
 	
@@ -31,8 +40,10 @@ public class ProductController {
 	@PostMapping("/product/add")
 	public String addProduct(@ModelAttribute ProductBean product,Model m) {
 		ProductBean newProduct = productService.addProduct(product);
+		System.out.println(product.getProductCategory());
 		if (newProduct == null) {
 			m.addAttribute("errorMsg", "商品編號已存在");
+			
 			return "/product/insertProduct";
 		}
 		m.addAttribute("message", "新增商品資料成功");
