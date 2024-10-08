@@ -12,8 +12,12 @@
     import java.util.Optional;
 
     public interface RestocksRepository extends JpaRepository<RestocksBean, String> {
-        // 查詢最新的 Restock ID 並排序
-        @Query(value = "SELECT * FROM restocks WHERE restock_id LIKE CONCAT(:restockIdPattern, '%') ORDER BY restock_id DESC LIMIT 1", nativeQuery = true)
+        // 查詢最新的 Restock ID 並排序 mysql
+//        @Query(value = "SELECT * FROM restocks WHERE restock_id LIKE CONCAT(:restockIdPattern, '%') ORDER BY restock_id DESC LIMIT 1", nativeQuery = true)
+//        Optional<RestocksBean> findLatestRestockByDate(@Param("restockIdPattern") String restockIdPattern);
+
+//        sqlServer
+        @Query(value = "SELECT TOP 1 * FROM restocks WHERE restock_id LIKE :restockIdPattern + '%' ORDER BY restock_id DESC", nativeQuery = true)
         Optional<RestocksBean> findLatestRestockByDate(@Param("restockIdPattern") String restockIdPattern);
 
         //找到所有進貨Id並計算內明細的家總金額

@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -37,6 +39,8 @@ public class RestockService {
     private SuppliersRepository suppliersRepository;
     @Autowired
     private RestockDetailsRepository restockDetailsRepository;
+    @Autowired
+    private SupplierAccountsRepository accountsRepository;
 
     @Autowired
     private SupplierAccountService supplierAccountService; ;
@@ -118,10 +122,38 @@ public class RestockService {
 
     }
     }
-
+    //刪除RestockId 並更新supplierTotalAmount
+    @Transactional
     public void deleteRestockData(@RequestParam String restockId) {
+        //透過restock找到detailId
+        List<String> detailIds =restockDetailsRepository.findDetailIdByRestockId(restockId);
+        //透過detailId找 supplier and restockTotalPrice
+        List<Object[]> supplierData=restockDetailsRepository.findSupplierIdAndTotalPriceByDetailIds(detailIds);
         restocksRepository.deleteById(restockId);
+        restocksRepository.deleteById(restockId); // 確保刪除操作先執行
+        //記錄每個供應商的總金額
+        Map<String,Integer>supplierAmountMap=new HashMap<>();
+        for (Object[] data : supplierData) {
+            String supplierId = (String) data[0];
+            int restockTotalPrice = (Integer) data[1];
+            supplierAmountMap.put(supplierId, supplierAmountMap.getOrDefault(supplierId, 0) + restockTotalPrice);
+        }
+        //更新每個供應商的進貨總金額
+        for (String supplierId : supplierAmountMap.keySet()) {
+            int newTotalAmount =0;
+            List<RestockDetailsBean>details=restockDetailsRepository.findBySupplierId(supplierId);
+            for (RestockDetailsBean detail : details) {
+                newTotalAmount += detail.getRestockTotalPrice();
+            }
+            System.out.println("Supplier ID: " + supplierId + " New Total Amount: " + newTotalAmount);
+            accountsRepository.updateSupplierTotalAmount(supplierId, newTotalAmount);
+        }
+
+
     }
+
+
+
 
     }
 
