@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,9 @@ import marketMaster.viewModel.EmployeeViewModel;
 @Transactional
 public class EmployeeService {
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	@Autowired
 	private EmployeeRepository employeeRepository;
 	
@@ -47,9 +51,20 @@ public class EmployeeService {
 		}
 	}
 	
-	public EmpBean login(String employeeId, String password) {
-		return employeeRepository.findByEmployeeIdAndPassword(employeeId, password)
-				.orElseThrow(() -> new EmpDataAccessException("驗證員工失敗"));
+	public EmpBean login(String employeeId, String rawPassword) {
+	    EmpBean employee = employeeRepository.findByEmployeeId(employeeId)
+	        .orElseThrow(() -> new EmpDataAccessException("驗證員工失敗"));
+	    
+	    if (passwordEncoder.matches(rawPassword, employee.getPassword())) {
+	        return employee;
+	    } else if (rawPassword.equals(employee.getPassword())) {
+	        // 如果明文密碼匹配，更新為加密密碼
+	        employee.setPassword(passwordEncoder.encode(rawPassword));
+	        employeeRepository.save(employee);
+	        return employee;
+	    } else {
+	        throw new EmpDataAccessException("驗證員工失敗");
+	    }
 	}
 	
 	public boolean isFirstLogin(String employeeId) {
@@ -60,7 +75,7 @@ public class EmployeeService {
 	    try {
 	        EmpBean employee = employeeRepository.findById(employeeId).orElse(null);
 	        if (employee != null) {
-	            employee.setPassword(newPassword);
+	            employee.setPassword(passwordEncoder.encode(newPassword));
 	            employee.setFirstLogin(false);
 	            employeeRepository.save(employee);
 	            return true;
@@ -79,7 +94,7 @@ public class EmployeeService {
             }
             
             emp.setHiredate(LocalDate.now());
-            emp.setPassword("0000");
+            emp.setPassword(passwordEncoder.encode("0000"));
             emp.setFirstLogin(true);
             
             employeeRepository.save(emp);

@@ -10,9 +10,11 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../static/CSS/style.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
+<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+<div th:fragment="content">
 <div class="row w-100">
   <div class="col-lg-10 col-md-12 mx-auto">
     <table id="supplierProductTable" class="table table-bordered table-striped">
@@ -169,6 +171,9 @@
       </div>
     </div>
   </div>
+</div>
+
+</div>
 </div>
 
 <!-- Bootstrap JS 和依賴庫 -->
