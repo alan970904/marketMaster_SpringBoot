@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org" xmlns:svg="http://www.w3.org/2000/svg">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +11,11 @@
             font-family: Arial, sans-serif;
             height: 100%;
         }
-        html{
-			height: 100%;
-		}
+
+        html {
+            height: 100%;
+        }
+
         .sidebar {
             position: fixed;
             top: 0;
@@ -22,6 +25,7 @@
             padding: 48px 0 0;
             box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
         }
+
         .sidebar-sticky {
             position: relative;
             top: 0;
@@ -30,108 +34,195 @@
             overflow-x: hidden;
             overflow-y: auto;
         }
+
         .nav-link {
             font-weight: 500;
             color: #333;
         }
+
         .nav-link:hover {
             background-color: #f8f9fa;
         }
+
         .nav-link.active {
             color: #007bff;
         }
+
         main {
             padding-top: 48px;
             min-height: 100vh;
         }
-
     </style>
 </head>
-<body>
-<div th:fragment="navbarMM">
-    <nav class="navbar navbar-expand-lg navbar-light bg-success bg-opacity-25">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">MarketMaster後台管理</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        	<span th:text="'歡迎，' + ${session.employee.employeeName}">歡迎，使用者</span>
-                        	<img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
-                        </a>
-                        <ul class="dropdown-menu bg-warning" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" th:href="@{/employee/details(employeeId=${session.employee.employeeId})}">個人資料</a></li>
-                            <li><a class="dropdown-item" th:href="@{/employee/changePasswordPage}">修改密碼</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" th:href="@{/employee/loginPage}">登出</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <div class="container-fluid">
-        <div class="row" style="min-height: 100vh;">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-success bg-opacity-25 sidebar">
-                <div class="sidebar-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item mb-3">
-                            <a class="nav-link" th:href="@{/dashboard}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                                儀表板
+<body>
+    <div th:fragment="navbarMM">
+        <nav class="navbar navbar-expand-lg navbar-light bg-success bg-opacity-25">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">MarketMaster後台管理</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span th:text="'歡迎，' + ${session.employee.employeeName}">歡迎，使用者</span>
+                                <img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt=""
+                                    style="width: 40px; height: 40px;">
                             </a>
-                        </li>
-                        <li class="nav-item mb-3">
-                            <a class="nav-link" th:href="@{/employee/empList}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                員工管理
-                            </a>
-                        </li>
-                        <li class="nav-item mb-3">
-                            <a class="nav-link" th:href="@{/restock}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                                進貨管理
-                            </a>
-                        </li>
-                        <li class="nav-item mb-3">
-                            <a class="nav-link" th:href="@{/products}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                                商品管理
-                            </a>
-                        </li>
-                        <li class="nav-item mb-3">
-                            <a class="nav-link" th:href="@{/checkout}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                                結帳管理
-                            </a>
-                        </li>
-                        <li class="nav-item mb-3">
-                            <a class="nav-link" th:href="@{/}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                                退貨管理
-                            </a>
-                        </li>
-                        <li class="nav-item mb-3">
-                            <a class="nav-link" th:href="@{/customer/cusList}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                會員管理
-                            </a>
+                            <ul class="dropdown-menu bg-warning" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item"
+                                        th:href="@{/employee/details(employeeId=${session.employee.employeeId})}">個人資料</a>
+                                </li>
+                                <li><a class="dropdown-item" th:href="@{/employee/changePasswordPage}">修改密碼</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" th:href="@{/employee/loginPage}">登出</a></li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
-            </nav>
-            
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <!-- 這裡將插入 其他html 的內容 -->
-                <div th:replace="${content}"></div>
-            </main>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row" style="min-height: 100vh;">
+                <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-success bg-opacity-25 sidebar">
+                    <div class="sidebar-sticky pt-3">
+                        <ul class="nav flex-column">
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" th:href="@{/dashboard}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-home">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
+                                    儀表板
+                                </a>
+                            </li>
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" href="#employeeSubmenu" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="employeeSubmenu">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-users">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                    員工管理
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-chevron-down">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </a>
+                                <ul class="nav flex-column collapse" id="employeeSubmenu">
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/employee/empList}">員工列表</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/employee/leave}">請假</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/employee/schedule}">排班</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" href="#restockSubmenu" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="restockSubmenu">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-shopping-cart">
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                    </svg>
+                                    進貨管理
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-chevron-down">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </a>
+                                <ul class="nav flex-column collapse" id="restockSubmenu">
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/restockDetail/restockDetail}">進貨明細列表</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1" th:href="@{/supplier/supplier}">供應商</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" th:href="@{/products}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-box">
+                                        <path
+                                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                        </path>
+                                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                    </svg>
+                                    商品管理
+                                </a>
+                            </li>
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" th:href="@{/checkout}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-credit-card">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                                    </svg>
+                                    結帳管理
+                                </a>
+                            </li>
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" th:href="@{/}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-refresh-cw">
+                                        <polyline points="23 4 23 10 17 10"></polyline>
+                                        <polyline points="1 20 1 14 7 14"></polyline>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15">
+                                        </path>
+                                    </svg>
+                                    退貨管理
+                                </a>
+                            </li>
+                            <li class="nav-item mb-3">
+                                <a class="nav-link" th:href="@{/customer/cusList}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-user">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    會員管理
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <!-- 這裡將插入 其他html 的內容 -->
+                    <div th:replace="${content}"></div>
+                </main>
+            </div>
         </div>
     </div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
