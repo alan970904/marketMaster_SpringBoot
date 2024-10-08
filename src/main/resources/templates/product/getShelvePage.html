@@ -15,6 +15,9 @@
 </head>
 
 <body>
+	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+	<div th:fragment="content">
+	<main>
     <div class="container">
         <div class="card w-50 mt-3 mx-auto">
             <div class="card-header text-center fs-4">
@@ -107,6 +110,9 @@
                 </div>
             </div>
         </div>
+    </div>
+    </main>
+    </div>
     </div>
     <!------------ Modal ------------>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
