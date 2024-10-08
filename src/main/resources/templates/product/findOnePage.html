@@ -16,7 +16,10 @@
 
 <body>
     <div class="container">
-
+<div class="card mt-3 w-50 mx-auto">
+  <div class="card-header text-center fs-4">
+    商品
+  </div>
         <table class="m-auto mt-3">
             <tr>
                 <td>商品編號:</td>
@@ -63,8 +66,10 @@
                 <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled th:value="${product.numberOfRemove}"></td>
             </tr>
         </table>
-
-
+        <div class="ms-2 my-2 d-flex justify-content-center">
+				<a type="button" class="btn btn-dark" th:href="@{/product/findAll}">返回商品庫存</a>
+        </div>
+</div>
 
 
 
