@@ -11,6 +11,11 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+<style>
+    td {
+        vertical-align: middle;
+    }
+</style>
 <body>
 	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
 	<div th:fragment="content">
@@ -42,11 +47,11 @@
                     <th>下架</th>
                 </tr>
             </thead>
-            <tbody id="tbody">
+            <tbody id="tbody" class="my-auto">
                 <th:block th:each="product:${products.content}">
 
                     <tr>
-                        <td th:text="${product.productId}"></td>
+                        <td class="my-auto" th:text="${product.productId}"></td>
                         <td th:text="${product.productCategory}"></td>
                         <td><a class="page-link" th:text="${product.productName}"
                                 th:href="@{/product/findOne(productId=${product.productId})}"></a>

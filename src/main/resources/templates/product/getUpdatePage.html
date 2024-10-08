@@ -132,6 +132,7 @@ document.addEventListener('DOMContentLoaded', getProductCategory)
                 
             } else {
                 input.classList.add("hidden");
+                input.removeAttribute("name");
                 select.setAttribute("name","productCategory")
             }
         })
