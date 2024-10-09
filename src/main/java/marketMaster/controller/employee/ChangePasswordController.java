@@ -18,7 +18,15 @@ public class ChangePasswordController {
     private EmployeeService employeeService;
 
     @GetMapping("/employee/changePasswordPage")
-    public String showChangePasswordPage() {
+    public String showChangePasswordPage(HttpSession session, Model model) {
+        EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
+        if (employee == null) {
+            return "redirect:/employee/loginPage";
+        }
+        
+        boolean isFirstLogin = employeeService.isFirstLogin(employee.getEmployeeId());
+        model.addAttribute("isFirstLogin", isFirstLogin);
+        
         return "employee/ChangePassword";
     }
 
@@ -46,7 +54,7 @@ public class ChangePasswordController {
         }
     }
     
-    @GetMapping("/employee/forgotPassword")
+    @GetMapping("/employee/forgotPasswordPage")
     public String showForgotPasswordForm() {
         return "employee/ForgotPassword";
     }
