@@ -1,15 +1,20 @@
 package marketMaster.service.employee;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import marketMaster.bean.employee.EmpBean;
@@ -26,7 +32,7 @@ import marketMaster.viewModel.EmployeeViewModel;
 
 @Service
 @Transactional
-public class EmployeeServiceImpl implements EmployeeService{
+public class EmployeeServiceImpl implements EmploeeService{
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -40,16 +46,17 @@ public class EmployeeServiceImpl implements EmployeeService{
 	@Autowired
 	private RankLevelRepository rankLevelRepository;
 	
-	private final Path root = Paths.get("uploads");
+	@Value("${upload.path}")
+	private String uploadPath;
 	
-	public EmployeeServiceImpl() {
-		
-		try {
-			Files.createDirectories(root);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    @PostConstruct
+    public void init() {
+        try {
+            Files.createDirectories(Paths.get(uploadPath));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create upload directory!", e);
+        }
+    }
 	
 	@Override
 	public EmpBean login(String employeeId, String rawPassword) {
@@ -93,8 +100,8 @@ public class EmployeeServiceImpl implements EmployeeService{
 	public boolean addEmployee(EmpBean emp, MultipartFile file) {
         try {
             if (file != null && !file.isEmpty()) {
-                String imagePath = saveImage(file);
-                emp.setImagePath(imagePath);
+                String fileName = saveImage(file);
+                emp.setImagePath(fileName);
             }
             
             emp.setHiredate(LocalDate.now());
@@ -173,7 +180,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 		return String.format("E%03d", numPart);
 	}
 	
-    @Override
+	@Override
 	public boolean updateEmployee(EmpBean emp, MultipartFile file) throws EmpDataAccessException {
         try {
             // 檢查員工是否存在
@@ -191,41 +198,66 @@ public class EmployeeServiceImpl implements EmployeeService{
 
             // 如果有新的圖片上傳，處理圖片
             if (file != null && !file.isEmpty()) {
-                String imagePath = saveImage(file);
-                existingEmp.setImagePath(imagePath);
+                // 刪除舊圖片
+                if (existingEmp.getImagePath() != null) {
+                    deleteImage(existingEmp.getImagePath());
+                }
+                // 保存新圖片
+                String fileName = saveImage(file);
+                existingEmp.setImagePath(fileName);
             }
 
             // 保存更新後的員工信息
             employeeRepository.save(existingEmp);
             return true;
-        } catch (EmpDataAccessException e) {
-            throw e;
         } catch (Exception e) {
             throw new EmpDataAccessException("更新員工失敗", e);
         }
     }
 	
-	@Override
-	public String saveImage(MultipartFile file) {
-		if (file.isEmpty()) {
-			throw new EmpDataAccessException("圖片為空");
-		}
-		String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-		Path path = this.root.resolve(filename);
-		try {
-			Files.copy(file.getInputStream(), path);
-		} catch (IOException e) {
-			throw new EmpDataAccessException("無法保存圖片", e);
-		}
-		return path.toString();
-	}
+    private String saveImage(MultipartFile file) throws IOException {
+        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        Path filepath = Paths.get(uploadPath, fileName);
+        Files.copy(file.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
+        return fileName;
+    }
+
+    private void deleteImage(String fileName) {
+        try {
+            Path filepath = Paths.get(uploadPath, fileName);
+            Files.deleteIfExists(filepath);
+        } catch (IOException e) {
+            // 記錄錯誤，但不中斷流程
+            e.printStackTrace();
+        }
+    }
+    
+    @Override
+	public Resource getEmployeePhoto(String employeeId) {
+        EmpBean employee = employeeRepository.findById(employeeId)
+            .orElseThrow(() -> new EmpDataAccessException("員工不存在"));
+        
+        if (employee.getImagePath() != null) {
+            try {
+                Path file = Paths.get(uploadPath).resolve(employee.getImagePath());
+                Resource resource = new UrlResource(file.toUri());
+                if (resource.exists() || resource.isReadable()) {
+                    return resource;
+                }
+            } catch (MalformedURLException e) {
+                throw new EmpDataAccessException("無法讀取圖片", e);
+            }
+        }
+        
+        return null;
+    }
 
 	@Override
 	public List<RankLevelBean> getAllPositions() {
 	    return rankLevelRepository.findAll();
 	}
 
-    @Override
+	@Override
 	public boolean validateEmployeeInfo(String employeeId, String idCardLast4) {
         EmpBean employee = employeeRepository.findById(employeeId).orElse(null);
         if (employee != null) {
@@ -235,7 +267,7 @@ public class EmployeeServiceImpl implements EmployeeService{
         return false;
     }
 	
-    @Override
+	@Override
 	public String generateTempPassword() {
         // 生成4位隨機數字密碼
         Random random = new Random();
@@ -243,7 +275,7 @@ public class EmployeeServiceImpl implements EmployeeService{
         return String.valueOf(number);
     }
     
-    @Override
+	@Override
 	public List<EmpBean> findAllEmp() {
         return employeeRepository.findAll();
     }

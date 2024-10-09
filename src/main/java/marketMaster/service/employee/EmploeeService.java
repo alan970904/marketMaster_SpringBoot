@@ -2,6 +2,7 @@ package marketMaster.service.employee;
 
 import java.util.List;
 
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +12,7 @@ import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
 import marketMaster.viewModel.EmployeeViewModel;
 
-public interface EmployeeService {
+public interface EmploeeService {
 
 	EmpBean login(String employeeId, String rawPassword);
 
@@ -37,7 +38,7 @@ public interface EmployeeService {
 
 	boolean updateEmployee(EmpBean emp, MultipartFile file) throws EmpDataAccessException;
 
-	String saveImage(MultipartFile file);
+	Resource getEmployeePhoto(String employeeId);
 
 	List<RankLevelBean> getAllPositions();
 
