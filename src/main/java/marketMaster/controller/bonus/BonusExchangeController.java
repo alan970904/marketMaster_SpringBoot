@@ -30,7 +30,6 @@ public class BonusExchangeController {
 
     @GetMapping
     public String showBonusExchangeInput(HttpSession session) {
-    	// 防止session中客戶電話號碼丟失
     	session.removeAttribute("currentCustomerTel");
         return "bonus/BonusExchangeInput";
     }
@@ -42,7 +41,6 @@ public class BonusExchangeController {
             CustomerPointsDTO customerPoints = bonusExchangeService.getCustomerPoints(customerTel);
             model.addAttribute("exchangeableProducts", exchangeableProducts);
             model.addAttribute("customerPoints", customerPoints);
-            // 將 customerTel 存儲在會話中，而不是直接傳遞給視圖
             session.setAttribute("currentCustomerTel", customerTel);
             model.addAttribute("customerTel", customerTel);
             return "bonus/BonusExchangeList";
@@ -83,12 +81,10 @@ public class BonusExchangeController {
             CustomerPointsDTO customerPoints = bonusExchangeService.getCustomerPoints(customerTel);
             model.addAttribute("exchangeRecords", exchangeRecords);
             model.addAttribute("customerPoints", customerPoints);
-            //model.addAttribute("customerTel", customerTel);
             return "bonus/BonusExchangeRecord";
         } catch (DataAccessException e) {
             model.addAttribute("errorMessage", "獲取兌換記錄失敗: " + e.getMessage());
-            //return "bonus/BonusExchangeInput";
-            return "redirect:/bonusExchange";  // 改為 redirect
+            return "redirect:/bonusExchange";  
         }
     }
 
