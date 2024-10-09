@@ -177,7 +177,7 @@
                     const userConfirmed = confirm("確定要刪除嗎？");
 
                     if (userConfirmed) {
-                        axios.delete(`/restockDetail/deleteByRestockId?restockId=${restockId}`)
+                        axios.delete(`/marketMaster/restockDetail/deleteByRestockId?restockId=${restockId}`)
                             .then(res => {
                                 if (res.data === "刪除成功！") {
                                     console.log("刪除成功", res);
