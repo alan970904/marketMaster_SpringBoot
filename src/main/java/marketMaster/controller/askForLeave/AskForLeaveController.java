@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import marketMaster.bean.askForLeave.AskForLeave;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.service.askForLeave.AskForLeaveService;
-import marketMaster.service.employee.EmployeeService;
+import marketMaster.service.employee.EmployeeServiceImpl;
 
 @Controller
 public class AskForLeaveController {
@@ -28,7 +28,7 @@ public class AskForLeaveController {
 	private AskForLeaveService aslService;
 
 	@Autowired
-	private EmployeeService empService;
+	private EmployeeServiceImpl empService;
 
 	@GetMapping("/askForLeave/home")
 	public String homePage() {

@@ -16,6 +16,18 @@
 	    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
     
         <h1 class="mb-4">員工詳細資訊</h1>
+        	<div class="col-md-4 text-center mb-4">
+            	<img th:if="${employee.imagePath}" 
+                	th:src="@{'/employee/photo/' + ${employee.employeeId}}"
+                	alt="員工照片" 
+                	class="img-fluid rounded-circle" 
+                	style="width: 200px; height: 200px; object-fit: cover;">
+                <img th:unless="${employee.imagePath}" 
+                	src="../img/user.jpg" 
+                	alt="預設照片" 
+                	class="img-fluid rounded-circle" 
+                	style="width: 200px; height: 200px; object-fit: cover;">
+            </div>
         <table class="table table-bordered" style="width: 60%;">
             <tr>
                 <th  style="width: 30%;">員工編號:</th>
