@@ -13,6 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
 </head>
 <body>
+<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+<div th:fragment="content">
     <div class="container mt-5">
         <h2 class="mb-4">新增請假表單</h2>
         <form th:action="@{/askForLeave/addpost}" method="post" enctype="multipart/form-data">
@@ -54,10 +56,16 @@
                 <input type="file" class="form-control" id="proofImage" name="proofImage" accept="image/*">
             </div>
             <input type="hidden" name="approvedStatus" value="待審核">
-            <button type="submit" class="btn btn-primary">提交</button>
-            <a th:href="@{/askForLeave/search(id=${employeeId})}" class="btn btn-secondary">取消</a>
+            <div class="d-flex justify-content-center">
+       		 <button type="submit" class="btn btn-primary mx-2">提交</button>
+       		 <a th:href="@{/askForLeave/search(id=${employeeId})}" class="btn btn-secondary mx-2">取消</a>
+    		</div>
         </form>
     </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
