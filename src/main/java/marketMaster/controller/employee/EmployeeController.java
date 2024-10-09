@@ -20,7 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
-import marketMaster.service.employee.EmployeeService;
+import marketMaster.service.employee.EmployeeServiceImpl;
 import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class EmployeeController {
 
 	@Autowired
-	private EmployeeService employeeService;
+	private EmployeeServiceImpl employeeService;
 	
 	@GetMapping("/empList")
 	public String getAllEmployee(@RequestParam(defaultValue = "false") boolean showAll,
