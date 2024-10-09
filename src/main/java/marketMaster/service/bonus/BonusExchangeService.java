@@ -23,17 +23,13 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class BonusExchangeService {
-
     @Autowired
     private BonusExchangeRepository bonusExchangeRepository;
-    
     @Autowired
     private BonusProductRepository productRepository;
-    
     @Autowired
     private BonusCustomerRepository customerRepository;
-
-    // 轉換方法
+    
     private ProductExchangeDTO convertToProductExchangeDTO(ProductBean product) {
         return new ProductExchangeDTO(
             product.getProductId(),
@@ -43,7 +39,6 @@ public class BonusExchangeService {
             product.getNumberOfInventory()
         );
     }
-
     private BonusExchangeDTO convertToBonusExchangeDTO(BonusExchangeBean bean) {
         return new BonusExchangeDTO(
             bean.getExchangeId(),
@@ -55,7 +50,6 @@ public class BonusExchangeService {
             bean.getExchangeDate()
         );
     }
-
     public List<ProductExchangeDTO> getExchangeableProducts(String customerTel) throws DataAccessException {
         try {
             int customerPoints = customerRepository.getCustomerPoints(customerTel);
@@ -65,7 +59,6 @@ public class BonusExchangeService {
             throw new DataAccessException("獲取可兌換商品失敗: " + e.getMessage(), e);
         }
     }
-
     public List<BonusExchangeDTO> getExchangeRecords(String customerTel) throws DataAccessException {
         try {
             List<BonusExchangeBean> records = bonusExchangeRepository.findByCustomerTel(customerTel);
@@ -74,7 +67,6 @@ public class BonusExchangeService {
             throw new DataAccessException("獲取兌換記錄失敗: " + e.getMessage(), e);
         }
     }
-
     public CustomerPointsDTO getCustomerPoints(String customerTel) throws DataAccessException {
         try {
             CustomerBean customer = customerRepository.findById(customerTel)
@@ -88,7 +80,6 @@ public class BonusExchangeService {
             throw new DataAccessException("獲取客戶積分失敗: " + e.getMessage(), e);
         }
     }
-
     public List<ProductExchangeDTO> getProductsByCategory(String category) throws DataAccessException {
         try {
             List<ProductBean> products = productRepository.findByProductCategory(category);
@@ -97,7 +88,6 @@ public class BonusExchangeService {
             throw new DataAccessException("獲取商品列表失敗: " + e.getMessage(), e);
         }
     }
-
     public ProductExchangeDTO getProductById(String productId) throws DataAccessException {
         try {
             ProductBean product = productRepository.findById(productId)
@@ -107,7 +97,7 @@ public class BonusExchangeService {
             throw new DataAccessException("獲取商品詳細信息失敗: " + e.getMessage(), e);
         }
     }
-
+    
     @Transactional
     public void executeExchange(String customerTel, String productId, int exchangeQuantity) throws DataAccessException {
         try {
