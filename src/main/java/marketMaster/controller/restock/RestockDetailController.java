@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/restockdetail")
+@RequestMapping("/restockDetail")
 public class RestockDetailController {
     @Autowired
     private RestockService restockService;
@@ -24,7 +24,7 @@ public class RestockDetailController {
     @Autowired
     private RestockDetailsRepository restockDetailsRepository;
 
-    @GetMapping("/restockdetail")
+    @GetMapping("/restockDetail")
     public String restockDetail() {
         return "restock/restockDetail";
     }

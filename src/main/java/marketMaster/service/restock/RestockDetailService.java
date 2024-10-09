@@ -1,10 +1,13 @@
 package marketMaster.service.restock;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import marketMaster.DTO.restock.restock.RestockDTO;
 import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.bean.restock.RestockDetailsBean;
 import marketMaster.bean.restock.RestocksBean;
 import marketMaster.bean.restock.SupplierAccountsBean;
+import marketMaster.bean.restock.SupplierProductsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +24,8 @@ public class RestockDetailService {
     private RestocksRepository restocksRepository;
     @Autowired
     private SupplierAccountsRepository accountsRepository;
+    @Autowired
+    private SupplierProductsRepository supplierProductRepository;
 
     //  拿到最新DetailId
     public String getLastedDetailId() {
@@ -56,22 +61,28 @@ public class RestockDetailService {
     }
 
     // 更新進貨明細並更新進貨總金額
+    @Transactional
     public void updateRestockDetailAndTotalPrice(RestockDetailDTO restockDetailDTO) {
         // 1. 更新進貨明細
         restockDetailsRepository.updateRestockNumberAndPrice(
                 restockDetailDTO.getNumberOfRestock(),
-                restockDetailDTO.getProductPrice(),
                 restockDetailDTO.getRestockTotalPrice(),
                 restockDetailDTO.getDetailId()
         );
-        String detailId = restockDetailDTO.getDetailId();
-        String supplierId= restockDetailsRepository.findSupplierIdByDetailId(detailId);
 
-        // 2. 更新總金額
+        // 2. 更新 SupplierProduct 的價格
+        RestockDetailsBean detail = restockDetailsRepository.findById(restockDetailDTO.getDetailId())
+                .orElseThrow(() -> new EntityNotFoundException("RestockDetail not found"));
+        SupplierProductsBean supplierProduct = detail.getSupplierProduct();
+        supplierProduct.setProductPrice(restockDetailDTO.getProductPrice());
+        supplierProductRepository.save(supplierProduct);
+
+        // 3. 更新總金額
         updateRestockTotalPrice(restockDetailDTO.getRestockId());
-        //3.更新進貨商總應付金額
-        updateSupplierTotalAmount(supplierId);
 
+        // 4. 更新進貨商總應付金額
+        String supplierId = detail.getSupplier().getSupplierId();
+        updateSupplierTotalAmount(supplierId);
     }
 
     // 刪除明細並更新總金額
