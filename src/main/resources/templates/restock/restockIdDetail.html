@@ -38,8 +38,8 @@
                     <td th:text="${details.detailId}"></td>
                     <td th:text="${details.supplierId + ' - ' + details.supplierName}"></td>
                     <td th:text="${details.productId + ' - ' + details.productName}"></td>
-                    <td th:text="${details.numberOfRestock}"></td>
                     <td th:text="${details.productPrice}"></td>
+                    <td th:text="${details.numberOfRestock}"></td>
                     <td th:text="${details.restockTotalPrice}"></td>
                     <td>
                         <button class="btn btn-primary btn-update"
@@ -61,17 +61,16 @@
 </div>
 </div>
 
-
 <!-- 更新彈出視窗 -->
 <div id="updateDialog" title="更新進貨明細" style="display: none;">
     <form id="updateForm">
         <div class="form-group">
-            <label for="updateNumberOfRestock">進貨數量：</label>
-            <input type="number" id="updateNumberOfRestock" class="form-control" min="1">
+            <label for="updateProductPrice">商品價格：</label>
+            <input type="number" id="updateProductPrice" class="form-control" step="0.01" min="0">
         </div>
         <div class="form-group">
-            <label for="updateProductPrice">商品單價：</label>
-            <input type="number" id="updateProductPrice" class="form-control" step="0.01" min="0">
+            <label for="updateNumberOfRestock">進貨數量：</label>
+            <input type="number" id="updateNumberOfRestock" class="form-control" min="1">
         </div>
         <div class="form-group">
             <label for="updateTotalPrice">進貨總金額：</label>
@@ -79,7 +78,6 @@
         </div>
     </form>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
@@ -121,8 +119,8 @@
                     const numberOfRestock = button.getAttribute('data-number-of-restock');
                     const productPrice = button.getAttribute('data-product-price');
 
-                    $("#updateNumberOfRestock").val(numberOfRestock);
                     $("#updateProductPrice").val(productPrice);
+                    $("#updateNumberOfRestock").val(numberOfRestock);
                     $("#updateTotalPrice").val(numberOfRestock * productPrice); // 自動計算總金額
 
                     // 當用戶修改數量或單價時，重新計算總金額
@@ -154,6 +152,12 @@
                                     updateRow(row, res.data);
                                 }).catch(error => {
                                     console.error("更新失敗", error);
+                                    if (error.response) {
+                                        console.error("錯誤詳情：", error.response.data);
+                                        alert("更新失敗：" + (error.response.data.message || "未知錯誤"));
+                                    } else {
+                                        alert("更新失敗：無法連接到服務器");
+                                    }
                                 });
                             },
                             "取消": function () {
@@ -166,11 +170,9 @@
             });
         }
 
-        // 假設你有一個 updateRow 函數來更新表格行的內容
         function updateRow(row, data) {
-            // 更新行的內容，這裡要根據 data 的結構自行編寫
-            row.querySelector('td:nth-child(5)').textContent = data.numberOfRestock;
-            row.querySelector('td:nth-child(6)').textContent = data.productPrice;
+            row.querySelector('td:nth-child(5)').textContent = data.productPrice;
+            row.querySelector('td:nth-child(6)').textContent = data.numberOfRestock;
             row.querySelector('td:nth-child(7)').textContent = data.restockTotalPrice;
         }
     });
