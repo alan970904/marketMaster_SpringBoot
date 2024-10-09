@@ -40,7 +40,7 @@ public class BonusExchangeBean implements java.io.Serializable {
     private int numberOfExchange;
 
     @Column(name="exchange_date")
-    private LocalDate exchangeDate;  // 將類型從 Date 改為 LocalDate
+    private LocalDate exchangeDate;  
     
     
  // Constructors, Getters, and Setters
