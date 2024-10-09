@@ -137,6 +137,15 @@ document.addEventListener('DOMContentLoaded', getProductCategory)
             }
         })
 
+document.querySelector('form').addEventListener('submit', function(event) {
+            const select = document.getElementById("select");
+            const input = document.getElementById("inputCategory");
+            
+            if (select.value === "" || (select.value === "custom" && input.value.trim() === "")||select.value === "請選擇商品類別") {
+                event.preventDefault();  // Prevent form submission
+                alert("請選擇或輸入有效的商品類別");  // Alert the user
+            }
+        });
     </script>
 
 </body>
