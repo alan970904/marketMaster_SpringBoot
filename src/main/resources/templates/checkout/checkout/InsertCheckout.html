@@ -26,11 +26,6 @@
 	href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap"
 	rel="stylesheet">
 
-<!-- Custom CSS -->
-
-<link th:href="@{/CSS/style.css}" rel="stylesheet">
-<link th:href="@{/CSS/extra.css}" rel="stylesheet">
-
 
 <style th:inline="css">
 main{
@@ -252,6 +247,8 @@ select.form-control {
 </style>
 </head>
 <body>
+<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+	<div th:fragment="content">
   <!--   <div th:replace="~{body/body :: body}"></div>--> 
     <main>
    
@@ -346,6 +343,9 @@ select.form-control {
         </section>
    
     </main>
+</div>
+</div>    
+    
     <!-- jQuery -->
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -589,10 +589,6 @@ select.form-control {
 
         if ($('#productList').children().length === 0) {
             errorMessages.push("請至少添加一件商品");
-        }
-
-        if (!$('#customerTel1').val() || !$('#customerTel2').val()) {
-            errorMessages.push("請輸入完整的顧客手機號碼");
         }
 
         if (errorMessages.length > 0) {

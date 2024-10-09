@@ -158,12 +158,21 @@ public class CheckoutService {
             }
 
             checkout.setCheckoutTotalPrice(totalAmount);
-            int bonusPoints = calculateBonusPoints(totalAmount);
-            checkout.setBonusPoints(bonusPoints);
 
-            // 設置紅利點數到期日（一年後）
-            LocalDate pointsDueDate = LocalDate.now().plusYears(1);
-            checkout.setPointsDueDate(java.sql.Date.valueOf(pointsDueDate));
+            // 處理會員和非會員結帳
+            if (checkout.getCustomerTel() != null && !checkout.getCustomerTel().isEmpty()) {
+                // 會員結帳
+                int bonusPoints = calculateBonusPoints(totalAmount);
+                checkout.setBonusPoints(bonusPoints);
+
+                // 設置紅利點數到期日（一年後）
+                LocalDate pointsDueDate = LocalDate.now().plusYears(1);
+                checkout.setPointsDueDate(java.sql.Date.valueOf(pointsDueDate));
+            } else {
+                // 非會員結帳
+                checkout.setBonusPoints(0);
+                checkout.setPointsDueDate(null);
+            }
 
             checkoutRepository.save(checkout);// 更新 CheckoutBean
 

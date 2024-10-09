@@ -8,12 +8,14 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <!-- jQuery 和 jQuery UI -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
 </head>
 <body>
-<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+<div th:fragment="content">
+<main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
     <h1 class="mb-4">進貨明細管理</h1>
     <div class="row w-100">
         <div class="col-lg-10 col-md-12 mx-auto">
@@ -55,7 +57,10 @@
             </table>
         </div>
     </div>
+</main>
 </div>
+</div>
+
 
 <!-- 更新彈出視窗 -->
 <div id="updateDialog" title="更新進貨明細" style="display: none;">
@@ -74,6 +79,7 @@
         </div>
     </form>
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
