@@ -11,7 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import marketMaster.bean.customer.CustomerBean;
-import marketMaster.service.customer.CustomerService;
+import marketMaster.service.customer.CustomerServiceImpl;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class CustomerController {
 
 	@Autowired
-	private CustomerService customerService;
+	private CustomerServiceImpl customerService;
 	
 	@GetMapping("/cusList")
 	public String getAllCustomer(@RequestParam(required = false) String searchTel,
