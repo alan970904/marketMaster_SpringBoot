@@ -25,9 +25,11 @@ public interface RestockDetailsRepository extends JpaRepository<RestockDetailsBe
     //跟新進貨明細表 商品數量價格 跟總金額
     @Transactional
     @Modifying
-    @Query("UPDATE RestockDetailsBean rd set rd.numberOfRestock=:numberOfRestock ,rd.supplierProduct.productPrice=:productPrice,rd.restockTotalPrice=:restockTotalPrice WHERE rd.detailId=:detailId")
-    void updateRestockNumberAndPrice (@Param("numberOfRestock")int numberOfRestock,@Param("productPrice")int productPrice,@Param("restockTotalPrice")int restockTotalPrice,@Param("detailId")String detailId);
-
+    @Query("UPDATE RestockDetailsBean rd SET rd.numberOfRestock = :numberOfRestock, " +
+            "rd.restockTotalPrice = :restockTotalPrice WHERE rd.detailId = :detailId")
+    void updateRestockNumberAndPrice(@Param("numberOfRestock") int numberOfRestock,
+                                     @Param("restockTotalPrice") int restockTotalPrice,
+                                     @Param("detailId") String detailId);
     //查找所有屬於特定進貨編號的明細
     List<RestockDetailsBean> findByRestock_RestockId(String restockId);
 
