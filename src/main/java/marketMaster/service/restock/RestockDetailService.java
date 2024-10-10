@@ -67,15 +67,13 @@ public class RestockDetailService {
         restockDetailsRepository.updateRestockNumberAndPrice(
                 restockDetailDTO.getNumberOfRestock(),
                 restockDetailDTO.getRestockTotalPrice(),
+                restockDetailDTO.getPriceAtRestock(),
                 restockDetailDTO.getDetailId()
         );
 
         // 2. 更新 SupplierProduct 的價格
         RestockDetailsBean detail = restockDetailsRepository.findById(restockDetailDTO.getDetailId())
                 .orElseThrow(() -> new EntityNotFoundException("RestockDetail not found"));
-        SupplierProductsBean supplierProduct = detail.getSupplierProduct();
-        supplierProduct.setProductPrice(restockDetailDTO.getProductPrice());
-        supplierProductRepository.save(supplierProduct);
 
         // 3. 更新總金額
         updateRestockTotalPrice(restockDetailDTO.getRestockId());
