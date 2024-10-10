@@ -16,19 +16,31 @@ public interface RestockDetailsRepository extends JpaRepository<RestockDetailsBe
     Optional<RestockDetailsBean> findTopByOrderByDetailIdDesc();
 
     // 根據 restock 的 restockId 查詢 RestockDetailsBean
-    @Query("SELECT new marketMaster.DTO.restock.restock.RestockDetailDTO( r.restock.restockId,r.detailId,r.supplier.supplierId,r.supplier.supplierName,r.supplierProduct.product.productId,r.supplierProduct.product.productName,r.supplierProduct.productPrice,r.numberOfRestock,r.restockTotalPrice ) "+
-            "FROM RestockDetailsBean r "+
-            "WHERE r.restock.restockId= :restockId")
+    @Query("SELECT new marketMaster.DTO.restock.restock.RestockDetailDTO( " +
+            "r.restock.restockId, " +
+            "r.detailId, " +
+            "r.supplier.supplierId, " +
+            "r.supplier.supplierName, " +
+            "r.supplierProduct.product.productId, " +
+            "r.supplierProduct.product.productName, " +
+            "r.numberOfRestock, " +
+            "r.priceAtRestock, " +
+            "r.supplierProduct.productPrice, " +
+            "r.restockTotalPrice ) " +
+            "FROM RestockDetailsBean r " +
+            "WHERE r.restock.restockId = :restockId")
     List<RestockDetailDTO> findRestockDetailByRestockId(@Param("restockId") String restockId);
 
 
-    //跟新進貨明細表 商品數量價格 跟總金額
+
+    //跟新進貨明細表 商品數量價格 商品進貨價格 跟總金額
     @Transactional
     @Modifying
     @Query("UPDATE RestockDetailsBean rd SET rd.numberOfRestock = :numberOfRestock, " +
-            "rd.restockTotalPrice = :restockTotalPrice WHERE rd.detailId = :detailId")
+            "rd.priceAtRestock=:priceAtRestock, rd.restockTotalPrice = :restockTotalPrice WHERE rd.detailId = :detailId")
     void updateRestockNumberAndPrice(@Param("numberOfRestock") int numberOfRestock,
                                      @Param("restockTotalPrice") int restockTotalPrice,
+                                     @Param("priceAtRestock") int priceAtRestock,
                                      @Param("detailId") String detailId);
     //查找所有屬於特定進貨編號的明細
     List<RestockDetailsBean> findByRestock_RestockId(String restockId);

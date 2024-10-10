@@ -14,63 +14,63 @@
 </head>
 <body>
 <div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
-<div th:fragment="content">
-<main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
-    <h1 class="mb-4">進貨明細管理</h1>
-    <div class="row w-100">
-        <div class="col-lg-10 col-md-12 mx-auto">
-            <table id="restockDetailsTable" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>進貨編號</th>
-                    <th>進貨明細編號</th>
-                    <th>供應商</th>
-                    <th>商品</th>
-                    <th>進貨數量</th>
-                    <th>商品價格</th>
-                    <th>進貨總金額</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="details :${details}">
-                    <td th:text="${details.restockId}"></td>
-                    <td th:text="${details.detailId}"></td>
-                    <td th:text="${details.supplierId + ' - ' + details.supplierName}"></td>
-                    <td th:text="${details.productId + ' - ' + details.productName}"></td>
-                    <td th:text="${details.productPrice}"></td>
-                    <td th:text="${details.numberOfRestock}"></td>
-                    <td th:text="${details.restockTotalPrice}"></td>
-                    <td>
-                        <button class="btn btn-primary btn-update"
-                                th:data-restock-id="${details.restockId}"
-                                th:data-detail-id="${details.detailId}"
-                                th:data-product-id="${details.productId}"
-                                th:data-number-of-restock="${details.numberOfRestock}"
-                                th:data-product-price="${details.productPrice}">
-                            更新
-                        </button>
-                        <button class="btn btn-danger btn-delete" th:data-detail-id="${details.detailId}">刪除</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+    <div th:fragment="content">
+        <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+            <h1 class="mb-4">進貨明細管理</h1>
+            <div class="row w-100">
+                <div class="col-lg-10 col-md-12 mx-auto">
+                    <table id="restockDetailsTable" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>進貨編號</th>
+                            <th>進貨明細編號</th>
+                            <th>供應商</th>
+                            <th>商品</th>
+                            <th>進貨數量</th>
+                            <th>商品價格</th>
+                            <th>進貨總金額</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="details :${details}">
+                            <td th:text="${details.restockId}"></td>
+                            <td th:text="${details.detailId}"></td>
+                            <td th:text="${details.supplierId + ' - ' + details.supplierName}"></td>
+                            <td th:text="${details.productId + ' - ' + details.productName}"></td>
+                            <td th:text="${details.numberOfRestock}"></td> <!-- 顯示進貨數量 -->
+                            <td th:text="${details.priceAtRestock}"></td>  <!-- 顯示商品價格 -->
+                            <td th:text="${details.restockTotalPrice}"></td>
+                            <td>
+                                <button class="btn btn-primary btn-update"
+                                        th:data-restock-id="${details.restockId}"
+                                        th:data-detail-id="${details.detailId}"
+                                        th:data-product-id="${details.productId}"
+                                        th:data-number-of-restock="${details.numberOfRestock}"
+                                        th:data-product-price="${details.priceAtRestock}">
+                                    更新
+                                </button>
+                                <button class="btn btn-danger btn-delete" th:data-detail-id="${details.detailId}">刪除</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
-</main>
-</div>
 </div>
 
 <!-- 更新彈出視窗 -->
 <div id="updateDialog" title="更新進貨明細" style="display: none;">
     <form id="updateForm">
         <div class="form-group">
-            <label for="updateProductPrice">進貨數量：</label>
-            <input type="number" id="updateProductPrice" class="form-control" step="0.01" min="0">
+            <label for="updateNumberOfRestock">進貨數量：</label> <!-- 更改：進貨數量欄位 -->
+            <input type="number" id="updateNumberOfRestock" class="form-control" min="1"> <!-- ID 和 label 重新對應 -->
         </div>
         <div class="form-group">
-            <label for="updateNumberOfRestock">商品價格：</label>
-            <input type="number" id="updateNumberOfRestock" class="form-control" min="1">
+            <label for="updateProductPrice">商品價格：</label> <!-- 更改：商品價格欄位 -->
+            <input type="number" id="updateProductPrice" class="form-control" step="0.01" min="0"> <!-- ID 和 label 重新對應 -->
         </div>
         <div class="form-group">
             <label for="updateTotalPrice">進貨總金額：</label>
@@ -119,8 +119,9 @@
                     const numberOfRestock = button.getAttribute('data-number-of-restock');
                     const productPrice = button.getAttribute('data-product-price');
 
-                    $("#updateProductPrice").val(productPrice);
-                    $("#updateNumberOfRestock").val(numberOfRestock);
+                    // 正確對應進貨數量和商品價格
+                    $("#updateNumberOfRestock").val(numberOfRestock); // 更改：填充進貨數量
+                    $("#updateProductPrice").val(productPrice); // 更改：填充商品價格
                     $("#updateTotalPrice").val(numberOfRestock * productPrice); // 自動計算總金額
 
                     // 當用戶修改數量或單價時，重新計算總金額
@@ -142,8 +143,8 @@
                                 axios.put('/marketMaster/restockDetail/updateRestockDetail', {
                                     detailId: detailId,
                                     restockId: restockId,
-                                    numberOfRestock: updatedNumberOfRestock,
-                                    productPrice: updatedProductPrice,
+                                    numberOfRestock: updatedNumberOfRestock, // 更改：更新進貨數量
+                                    priceAtRestock: updatedProductPrice, // 更改：更新商品價格
                                     restockTotalPrice: updatedTotalPrice,
                                 }).then(res => {
                                     console.log("更新成功", res);
@@ -171,10 +172,12 @@
         }
 
         function updateRow(row, data) {
-            row.querySelector('td:nth-child(5)').textContent = data.productPrice;
-            row.querySelector('td:nth-child(6)').textContent = data.numberOfRestock;
-            row.querySelector('td:nth-child(7)').textContent = data.restockTotalPrice;
+            row.querySelector('td:nth-child(5)').textContent = data.numberOfRestock; // 更新進貨數量
+            row.querySelector('td:nth-child(6)').textContent = data.priceAtRestock;  // 更新商品價格
+            row.querySelector('td:nth-child(7)').textContent = data.restockTotalPrice; // 更新總金額
         }
+
+
     });
 </script>
 </body>

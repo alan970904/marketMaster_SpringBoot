@@ -16,6 +16,7 @@ public class RestockDetailDTO {
     private String productId;
     private String productName;
     private int numberOfRestock;
+    private int priceAtRestock;
     private int productPrice;
     private int restockTotalPrice;
 }
