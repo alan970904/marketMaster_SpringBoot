@@ -22,9 +22,9 @@ public interface EmployeeRepository extends JpaRepository<EmpBean,String> {
 	
 	Page<EmpBean> findByResigndateIsNull(Pageable pageable);
 	
-	List<EmpBean> findByEmployeeNameContainingAndResigndateIsNull(String name);
+	Page<EmpBean> findByEmployeeNameContainingAndResigndateIsNull(String name, Pageable pageable);
 	
-	List<EmpBean> findByEmployeeNameContaining(String name);
+	Page<EmpBean> findByEmployeeNameContaining(String name, Pageable pageable);
 	
 	@Query("SELECT e.employeeId FROM EmpBean e ORDER BY e.employeeId DESC")
 	List<String> findLastEmployeeId();

@@ -14,8 +14,9 @@
         <h1>員工列表</h1>
         <div class="row mb-3">
             <div class="col-md-6">
-                <a th:href="@{/employee/empAddForm}" class="btn btn-primary">新增員工</a>
-                <button class="btn btn-secondary" th:onclick="'window.location.href=\'' + @{/employee/empList(showAll=${!showAll})} + '\''">
+                <a th:if="${currentAuthority >= 2}" th:href="@{/employee/empAddForm}" class="btn btn-primary">新增員工</a>
+                <button th:if="${currentAuthority >= 2}" class="btn btn-secondary"
+                	th:onclick="'window.location.href=\'' + @{/employee/empList(showAll=${!showAll})} + '\''">
                     <span th:text="${showAll ? '顯示所有員工' : '顯示在職員工'}"></span>
                 </button>
             </div>
@@ -34,10 +35,10 @@
                     <th>員工編號</th>
                     <th>姓名</th>
                     <th>職位</th>
-                    <th>手機號碼</th>
-                    <th>電子郵件</th>
+                    <th th:if="${currentAuthority >= 2}">手機號碼</th>
+                    <th th:if="${currentAuthority >= 2}">電子郵件</th>
                     <th>入職日期</th>
-                    <th>離職日期</th>
+                    <th th:if="${currentAuthority >= 2}">離職日期</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -46,14 +47,17 @@
                     <td th:text="${employee.employeeId}"></td>
                     <td th:text="${employee.employeeName}"></td>
                     <td th:text="${employee.rankLevel.positionName}"></td>
-                    <td th:text="${employee.employeeTel}"></td>
-                    <td th:text="${employee.employeeEmail}"></td>
+                    <td th:if="${currentAuthority >= 2}" th:text="${employee.employeeTel}"></td>
+                    <td th:if="${currentAuthority >= 2}" th:text="${employee.employeeEmail}"></td>
                     <td th:text="${#temporals.format(employee.hiredate, 'yyyy-MM-dd')}"></td>
-                    <td th:text="${employee.resigndate != null ? #temporals.format(employee.resigndate, 'yyyy-MM-dd') : '-'}"></td>
+                    <td th:if="${currentAuthority >= 2}" th:text="${employee.resigndate != null ? #temporals.format(employee.resigndate, 'yyyy-MM-dd') : '-'}"></td>
                     <td>
-                        <a th:href="@{/employee/details(employeeId=${employee.employeeId})}" class="btn btn-sm btn-info">詳情</a>
-                        <a th:href="@{/employee/getUpdate(employeeId=${employee.employeeId})}" class="btn btn-sm btn-warning">修改</a>
-                        <a th:href="@{/employee/delete(employeeId=${employee.employeeId})}" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除此員工嗎？')">刪除</a>
+                        <a th:if="${currentAuthority >= 2 or employee.employeeId == session.employee.employeeId}"
+                        	th:href="@{/employee/details(employeeId=${employee.employeeId})}" class="btn btn-sm btn-info">詳情</a>
+                        <a th:if="${(currentAuthority >= 2 or employee.employeeId == session.employee.employeeId) and employee.resigndate == null}"
+                        	th:href="@{/employee/getUpdate(employeeId=${employee.employeeId})}" class="btn btn-sm btn-warning">修改</a>
+                        <a th:if="${currentAuthority >= 2 and employee.resigndate == null}"
+                        	th:href="@{/employee/delete(employeeId=${employee.employeeId})}" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除此員工嗎？')">刪除</a>
                     </td>
                 </tr>
             </tbody>
@@ -74,7 +78,7 @@
             </ul>
         </nav>
         
-        <div th:if="${not isSearchResult}">
+        <div th:if="${currentAuthority >= 2 and not isSearchResult}">
             <h2>職級列表</h2>
             <table class="table table-striped table-hover">
                 <thead>
