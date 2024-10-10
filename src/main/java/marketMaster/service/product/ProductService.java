@@ -1,5 +1,6 @@
 package marketMaster.service.product;
 
+import java.beans.Transient;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.bean.product.ProductBean;
@@ -110,7 +112,18 @@ public class ProductService {
 		
 	}
 	
-	public void name() {
+
+	@Transactional
+	public void updateRestockProduct(String productId, Integer numberOfRestock) {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+		
+		if (optional.isPresent()) {
+			
+			ProductBean product = optional.get();
+			
+			product.setNumberOfInventory(product.getNumberOfInventory()+numberOfRestock);
+//			productRepo.save(product);
+		}
 		
 	}
 }
