@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -135,10 +137,10 @@ public class EmployeeServiceImpl implements EmploeeService{
 	}
 	
 	@Override
-	public List<EmpBean> searchEmployees(String searchName, boolean showAll) {
+	public Page<EmpBean> searchEmployees(String searchName, boolean showAll, Pageable pageable) {
 		return showAll
-				? employeeRepository.findByEmployeeNameContaining(searchName)
-				: employeeRepository.findByEmployeeNameContainingAndResigndateIsNull(searchName);
+				? employeeRepository.findByEmployeeNameContaining(searchName, pageable)
+				: employeeRepository.findByEmployeeNameContainingAndResigndateIsNull(searchName, pageable);
 	}
 	
 	@Override
@@ -156,7 +158,7 @@ public class EmployeeServiceImpl implements EmploeeService{
 	@Override
 	public EmployeeViewModel getEmployeeViewModel(String employeeId) {
         EmpBean emp = getEmployee(employeeId);
-        return new EmployeeViewModel(
+        EmployeeViewModel viewModel = new EmployeeViewModel(
             emp.getEmployeeId(),
             emp.getEmployeeName(),
             emp.getEmployeeTel(),
@@ -170,6 +172,8 @@ public class EmployeeServiceImpl implements EmploeeService{
             emp.getPositionId(),
             emp.getImagePath()
         );
+        viewModel.setAuthority(emp.getAuthority());
+        return viewModel;
 	}
 	
 	@Override
@@ -279,5 +283,12 @@ public class EmployeeServiceImpl implements EmploeeService{
 	public List<EmpBean> findAllEmp() {
         return employeeRepository.findAll();
     }
+
+	@Override
+	public Page<EmpBean> getEmployeeById(String employeeId, Pageable pageable) {
+		EmpBean employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EmpDataAccessException("找不到員工"));
+        return new PageImpl<>(Collections.singletonList(employee), pageable, 1);
+	}
 
 }

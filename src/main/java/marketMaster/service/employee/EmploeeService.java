@@ -28,7 +28,7 @@ public interface EmploeeService {
 
 	Page<EmpBean> getAllEmployees(boolean showAll, Pageable pageable);
 
-	List<EmpBean> searchEmployees(String searchName, boolean showAll);
+	Page<EmpBean> searchEmployees(String searchName, boolean showAll, Pageable pageable);
 
 	List<RankLevelBean> getRankList();
 
@@ -48,4 +48,5 @@ public interface EmploeeService {
 
 	List<EmpBean> findAllEmp();
 
+	Page<EmpBean> getEmployeeById(String employeeId, Pageable pageable);
 }

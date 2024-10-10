@@ -16,6 +16,7 @@ public class EmployeeViewModel {
     private String password;
     private String positionId;
     private String imagePath;
+    private int authority;
 
     public EmployeeViewModel() {
     }
@@ -132,6 +133,14 @@ public class EmployeeViewModel {
 
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
+	}
+
+	public int getAuthority() {
+		return authority;
+	}
+
+	public void setAuthority(int authority) {
+		this.authority = authority;
 	}
     
 }
