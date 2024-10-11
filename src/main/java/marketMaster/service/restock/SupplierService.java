@@ -90,5 +90,7 @@ public class SupplierService {
         return supplierID;
     }
 
+    //拿到所有有關於該供應商所有的有關的訂單細節
+
 
 }

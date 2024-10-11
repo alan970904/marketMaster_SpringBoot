@@ -23,8 +23,8 @@ public class PaymentRecordsBean {
     private PaymentsBean payment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restock_id")
-    private RestocksBean restock;
+    @JoinColumn(name = "detail_Id")
+    private RestockDetailsBean restockDetails;
 
     @Column(name = "payment_amount")
     private int paymentAmount;
@@ -34,7 +34,7 @@ public class PaymentRecordsBean {
         return "PaymentRecordsBean{" +
                 "recordId='" + recordId + '\'' +
                 ", paymentId=" + (payment != null ? payment.getPaymentId() : "null") +
-                ", restockId=" + (restock != null ? restock.getRestockId() : "null") +
+                ", restockId=" + (restockDetails != null ? restockDetails.getDetailId() : "null") +
                 ", paymentAmount=" + paymentAmount +
                 '}';
     }

@@ -20,7 +20,6 @@
     <table id="supplierProductTable" class="table table-bordered table-striped">
       <thead>
       <button id="addSupplier" class="btn btn-success">新增供應商</button>
-      <button id="deleteSelected" class="btn btn-danger">刪除選擇的供應商</button>
       <tr>
         <th><input type="checkbox" id="selectAll"></th>
         <th>供應商ID</th>
@@ -229,11 +228,26 @@
         `;
         tableBody.appendChild(row);
       });
+      // 為"訂單付款細節"按鈕添加點擊事件
+      attachOrderDetailsEvent();
 
       // 為"更新資料"按鈕添加點擊事件
       attachUpdateEvent();
       // 為"訂單付款細節"按鈕添加點擊事件
     }
+    function attachOrderDetailsEvent() {
+      const orderDetailsBtns = document.querySelectorAll('.order-details-btn');
+      orderDetailsBtns.forEach(button => {
+        button.addEventListener('click', () => {
+          // 獲取供應商ID
+          const supplierId = button.getAttribute('data-supplier-id');
+
+          // 進行頁面跳轉，將 supplierId 傳遞到後端
+          window.location.href = `/marketMaster/supplier/supplierPayments?supplierId=${supplierId}`;
+        });
+      });
+    }
+
 
     function attachUpdateEvent() {
       const updateBtns = document.querySelectorAll('.btn-update');
