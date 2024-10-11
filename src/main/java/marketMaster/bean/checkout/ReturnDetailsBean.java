@@ -34,6 +34,12 @@ public class ReturnDetailsBean implements Serializable {
     @Column(name = "return_price")
     private Integer returnPrice;
 
+    @Column(name = "return_status")
+    private String returnStatus;
+
+    @Column(name = "return_photo")
+    private String returnPhoto;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
         @JoinColumn(name = "checkout_id", referencedColumnName = "CHECKOUT_ID", insertable = false, updatable = false),
@@ -51,7 +57,8 @@ public class ReturnDetailsBean implements Serializable {
     }
 
     public ReturnDetailsBean(String returnId, String checkoutId, String productId, String reasonForReturn,
-                             Integer numberOfReturn, Integer productPrice, Integer returnPrice) {
+                             Integer numberOfReturn, Integer productPrice, Integer returnPrice, 
+                             String returnStatus, String returnPhoto) {
         this.returnId = returnId;
         this.checkoutId = checkoutId;
         this.productId = productId;
@@ -59,6 +66,8 @@ public class ReturnDetailsBean implements Serializable {
         this.numberOfReturn = numberOfReturn;
         this.productPrice = productPrice;
         this.returnPrice = returnPrice;
+        this.returnStatus = returnStatus;
+        this.returnPhoto = returnPhoto;
     }
 
     // Getters and setters
@@ -118,6 +127,22 @@ public class ReturnDetailsBean implements Serializable {
         this.returnPrice = returnPrice;
     }
 
+    public String getReturnStatus() {
+        return returnStatus;
+    }
+
+    public void setReturnStatus(String returnStatus) {
+        this.returnStatus = returnStatus;
+    }
+
+    public String getReturnPhoto() {
+        return returnPhoto;
+    }
+
+    public void setReturnPhoto(String returnPhoto) {
+        this.returnPhoto = returnPhoto;
+    }
+
     public CheckoutDetailsBean getCheckoutDetail() {
         return checkoutDetail;
     }
@@ -160,14 +185,16 @@ public class ReturnDetailsBean implements Serializable {
                ", numberOfReturn=" + numberOfReturn +
                ", productPrice=" + productPrice +
                ", returnPrice=" + returnPrice +
+               ", returnStatus='" + returnStatus + '\'' +
+               ", returnPhoto='" + returnPhoto + '\'' +
                '}';
     }
 
     // 內部類定義複合主鍵
     public static class ReturnDetailsId implements Serializable {
-		private static final long serialVersionUID = 1L;
-		
-		private String returnId;
+        private static final long serialVersionUID = 1L;
+        
+        private String returnId;
         private String checkoutId;
         private String productId;
 
