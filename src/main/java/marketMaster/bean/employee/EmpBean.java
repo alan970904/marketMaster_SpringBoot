@@ -1,7 +1,7 @@
 package marketMaster.bean.employee;
 
 import java.time.LocalDate;
-
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -53,7 +54,13 @@ public class EmpBean implements java.io.Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id", referencedColumnName = "position_id", insertable = false, updatable = false)
     private RankLevelBean rankLevel;
+    
+    @OneToMany(mappedBy = "fromEmployee", fetch = FetchType.LAZY)
+    private List<ChatMessage> sentMessages;
 
+    @OneToMany(mappedBy = "toEmployee", fetch = FetchType.LAZY)
+    private List<ChatMessage> receivedMessages;
+    
     //獲取員工的權限等級
     public int getAuthority() {
 		return this.rankLevel.getLimitsOfAuthority();
@@ -174,6 +181,26 @@ public class EmpBean implements java.io.Serializable {
 
 	public void setRankLevel(RankLevelBean rankLevel) {
 		this.rankLevel = rankLevel;
+	}
+
+	public List<ChatMessage> getSentMessages() {
+		return sentMessages;
+	}
+
+	public void setSentMessages(List<ChatMessage> sentMessages) {
+		this.sentMessages = sentMessages;
+	}
+
+	public List<ChatMessage> getReceivedMessages() {
+		return receivedMessages;
+	}
+
+	public void setReceivedMessages(List<ChatMessage> receivedMessages) {
+		this.receivedMessages = receivedMessages;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }
