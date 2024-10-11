@@ -17,4 +17,8 @@ public interface SupplierAccountsRepository extends JpaRepository<SupplierAccoun
     @Query("UPDATE SupplierAccountsBean s SET s.totalAmount = :newTotalAmount WHERE s.supplier.supplierId = :supplierId")
     void updateSupplierTotalAmount(@Param("supplierId") String supplierId, @Param("newTotalAmount") int newTotalAmount);
 
+
+        //透過supplierId找到accountId
+        @Query("SELECT sa.accountId FROM SupplierAccountsBean sa where sa.supplier.supplierId=:supplierId")
+        String findAccountIdBySupplierId(@Param("supplierId")String supplierId);
 }

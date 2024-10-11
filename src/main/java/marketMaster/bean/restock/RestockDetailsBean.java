@@ -5,6 +5,7 @@
     import lombok.Setter;
 
     import java.time.LocalDate;
+    import java.util.Set;
 
     @Setter
     @Getter
@@ -45,6 +46,10 @@
 
         @Column(name = "restock_date")
         private LocalDate restockDate;
+
+        // 與 PaymentRecordsBean 的一對多關係
+        @OneToMany(mappedBy = "restockDetails")
+        private Set<PaymentRecordsBean> paymentRecords;
 
         // Getter 和 Setter 方法省略
 
