@@ -1,5 +1,6 @@
 package marketMaster.service.checkout;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Modifying;
@@ -56,4 +57,22 @@ public interface CheckoutDetailsRepository extends JpaRepository<CheckoutDetails
                       @Param("productId") String productId, 
                       @Param("returnQuantity") int returnQuantity, 
                       @Param("returnPrice") int returnPrice);
+    
+ // 新增方法：獲取特定結帳ID和商品ID的結帳明細
+    @Query("FROM CheckoutDetailsBean cd WHERE cd.checkoutId = :checkoutId AND cd.productId = :productId")
+    CheckoutDetailsBean findByCheckoutIdAndProductId(@Param("checkoutId") String checkoutId, @Param("productId") String productId);
+
+    // 新增方法：獲取特定商品的總銷售量
+    @Query("SELECT SUM(cd.numberOfCheckout) FROM CheckoutDetailsBean cd WHERE cd.productId = :productId")
+    Integer getTotalSalesByProduct(@Param("productId") String productId);
+
+    // 新增方法：獲取銷售量最高的前N個商品
+    @Query("SELECT cd.productId, SUM(cd.numberOfCheckout) as totalSales " +
+           "FROM CheckoutDetailsBean cd " +
+           "GROUP BY cd.productId " +
+           "ORDER BY totalSales DESC")
+    List<Map<String, Object>> getTopSellingProducts(Pageable pageable);
+    
+    
+    
 }
