@@ -94,8 +94,19 @@ public class PaymentService {
             // 保存 PaymentRecord
             paymentRecordsRepository.save(paymentRecords);
         }
-    }
+        updatePaidAmount(supplierId);
 
+    }
+    //  更新paidAmount
+    @Transactional
+    public void updatePaidAmount(String supplierId) {
+        Integer newPaidAmount = supplierAccountsRepository.calculatePaidAmount(supplierId);
+        if (newPaidAmount == null) {
+            newPaidAmount = 0;
+        }
+        System.out.println(newPaidAmount);
+        supplierAccountsRepository.updatePaidAmount(supplierId, newPaidAmount);
+    }
 
 
 
@@ -128,4 +139,6 @@ public class PaymentService {
         int idNum = Integer.parseInt(lastId.substring(3)) + 1;
         return "REC" + String.format("%03d", idNum);
     }
+
+
 }
