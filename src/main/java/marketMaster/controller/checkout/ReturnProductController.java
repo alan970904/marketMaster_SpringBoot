@@ -17,12 +17,17 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/checkout/returnProduct")
+@RequestMapping("/returnProduct")
 public class ReturnProductController {
 
     @Autowired
     private ReturnProductService returnProductService;
 
+    @GetMapping("/returnMain")
+    public String showCheckoutMain() {
+        return "checkout/returnProduct/index";
+    }
+    
     @GetMapping("/list")
     public String getAllReturnProducts(Model model) {
         model.addAttribute("returnProducts", returnProductService.getAllReturnProducts());
@@ -43,7 +48,7 @@ public class ReturnProductController {
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("returnProduct", new ReturnProductBean());
-        return "checkout/returnProduct/AddReturnProduct";
+        return "checkout/returnProduct/InsertReturnProduct";
     }
 
     @PostMapping("/add")

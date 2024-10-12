@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>新增退貨記錄</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+
+<!-- DataTables CSS -->
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+
+<!-- Font Awesome -->
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+	rel="stylesheet">
+
+<!-- Google Fonts -->
+<link
+	href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap"
+	rel="stylesheet">
+	
+<style th:inline="css">
+main{
+/* 全局樣式 */
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 卡片樣式 */
+.card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    margin: 2rem auto;
+    max-width: 800px;
+}
+
+.card h2 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 表單網格布局 */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+/* 表單组樣式 */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.7rem;
+    color: #34495e;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* 電話號碼输入框樣式 */
+.phone-group .phone-inputs {
+    display: flex;
+    align-items: center;
+}
+
+.phone-group .form-control {
+    flex: 1;
+}
+
+.phone-separator {
+    margin: 0 10px;
+    color: #34495e;
+    font-weight: bold;
+}
+
+/* 下拉選單樣式 */
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2334495e' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 12px;
+    padding-right: 2.5rem;
+}
+
+/* 按鈕樣式 */
+.btn {
+    background-color: #3498db;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+}
+
+#addProduct {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: #2ecc71;
+}
+
+#addProduct:hover {
+    background-color: #27ae60;
+}
+
+/* 產品列表樣式 */
+.product-list {
+    margin-top: 1.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+}
+
+.product-list p {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.product-list p:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.removeProduct {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.removeProduct:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+}
+
+/* 錯誤消息樣式（已移除） */
+.error-message {
+    display: none;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+/* 返回按鈕樣式 */
+#back {
+    background-color: #95a5a6;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 1.5rem;
+    margin-bottom: 0; 
+}
+
+#back:hover {
+    background-color: #7f8c8d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(149, 165, 166, 0.3);
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .card {
+        padding: 1.5rem;
+    }
+    
+    .btn, #back {
+        width: 100%;
+    }
+}
+
+}
+</style>	
+</head>
+<body>
+    <div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+        <div th:fragment="content">
+            <div role="main">
+                <div id="returnProduct" class="section active">
+                    <div class="error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">新增退貨記錄</h2>
+
+                            <form id="returnProductForm" th:action="@{/returnProduct/add}" th:object="${returnProduct}" method="post">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="returnId">退貨編號:</label>
+                                        <input type="text" class="form-control" id="returnId" th:field="*{returnId}" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="checkoutId">結帳編號:</label>
+                                        <input type="text" class="form-control" id="checkoutId" th:field="*{checkoutId}" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="returnDate">退貨日期:</label>
+                                        <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="employeeId">處理員工:</label>
+                                        <select class="form-control" id="employeeId" th:field="*{employeeId}" required>
+                                            <option value="">請選擇員工</option>
+                                            <!-- 這裡需要添加員工列表 -->
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="reason">退貨原因:</label>
+                                        <textarea class="form-control" id="reason" th:field="*{reason}" rows="3" required></textarea>
+                                    </div>
+                                </div>
+
+                                <h3 class="mt-4">退貨商品明細</h3>
+                                <div id="returnDetails">
+                                    <div class="form-row mb-3">
+                                        <div class="col">
+                                            <input type="text" class="form-control" name="returnDetails[0].productId" placeholder="商品編號" required>
+                                        </div>
+                                        <div class="col">
+                                            <input type="number" class="form-control" name="returnDetails[0].quantity" placeholder="退貨數量" required>
+                                        </div>
+                                        <div class="col">
+                                            <input type="number" step="0.01" class="form-control" name="returnDetails[0].returnAmount" placeholder="退貨金額" required>
+                                        </div>
+                                        <div class="col">
+                                            <select class="form-control" name="returnDetails[0].status" required>
+                                                <option value="">選擇狀態</option>
+                                                <option value="待處理">待處理</option>
+                                                <option value="已退款">已退款</option>
+                                                <option value="已入庫">已入庫</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary mb-3" onclick="addReturnDetail()">添加商品</button>
+
+                                <div class="form-group">
+                                    <label for="totalPrice">總退貨金額:</label>
+                                    <input type="number" step="0.01" class="form-control" id="totalPrice" th:field="*{totalPrice}" readonly>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">新增退貨記錄</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <a class="btn btn-secondary mt-3" th:href="@{/returnProduct/list}">返回退貨列表</a>
+
+                    <div id="errorMessages" class="error-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:inline="javascript">
+        let detailCount = 1;
+
+        function addReturnDetail() {
+            const newDetail = `
+                <div class="form-row mb-3">
+                    <div class="col">
+                        <input type="text" class="form-control" name="returnDetails[${detailCount}].productId" placeholder="商品編號" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" name="returnDetails[${detailCount}].quantity" placeholder="退貨數量" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" step="0.01" class="form-control" name="returnDetails[${detailCount}].returnAmount" placeholder="退貨金額" required>
+                    </div>
+                    <div class="col">
+                        <select class="form-control" name="returnDetails[${detailCount}].status" required>
+                            <option value="">選擇狀態</option>
+                            <option value="待處理">待處理</option>
+                            <option value="已退款">已退款</option>
+                            <option value="已入庫">已入庫</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-danger" onclick="removeReturnDetail(this)">刪除</button>
+                    </div>
+                </div>
+            `;
+            $('#returnDetails').append(newDetail);
+            detailCount++;
+            updateTotalPrice();
+        }
+
+        function removeReturnDetail(button) {
+            $(button).closest('.form-row').remove();
+            updateTotalPrice();
+        }
+
+        function updateTotalPrice() {
+            let total = 0;
+            $('input[name$=".returnAmount"]').each(function() {
+                total += parseFloat($(this).val()) || 0;
+            });
+            $('#totalPrice').val(total.toFixed(2));
+        }
+
+        $(document).on('input', 'input[name$=".returnAmount"]', updateTotalPrice);
+
+        $(document).ready(function() {
+            $.get("/returnProduct/nextId", function(data) {
+                $("#returnId").val(data);
+            });
+        });
+    </script>
+</body>
+</html>

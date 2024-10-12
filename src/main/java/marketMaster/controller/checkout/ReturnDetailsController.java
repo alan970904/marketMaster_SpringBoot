@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/checkout/returnDetails")
+@RequestMapping("/returnProduct/returnDetails")
 public class ReturnDetailsController {
 
     @Autowired
