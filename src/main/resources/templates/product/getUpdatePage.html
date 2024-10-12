@@ -39,7 +39,7 @@
                 修改商品資料
             </div>
             <div class="card-body">
-        <form th:action="@{/product/update}" method="post">
+        <form th:action="@{/product/update}" method="post"  enctype="multipart/form-data">
         <table class="m-auto mt-3">
             <tr>
                 <td>商品編號:</td>
@@ -63,6 +63,10 @@
                 <td>安全庫存量:</td>
                 <td><input type="number" class="form-control bg-secondary bg-opacity-10 text-center" th:value="${product.productSafeInventory}" name="productSafeInventory"></td>
             </tr>
+            <tr>
+                                        <td>選擇檔案:</td>
+                                        <td><input type="file" name="photo"></td>
+                                    </tr>
             <tr>
    			    <td colspan="2" class="text-center pt-1"><input class="btn btn-primary" type="submit"
                                     value="送出"></td>

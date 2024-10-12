@@ -1,6 +1,7 @@
 package marketMaster.service.product;
 
 import java.beans.Transient;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.bean.product.ProductBean;
@@ -30,6 +32,8 @@ public class ProductService {
 			product.setNumberOfExchange(0);
 			product.setNumberOfDestruction(0);
 			product.setNumberOfRemove(0);
+			product.setProductAvailable(true);
+			product.setPerishable(false);
 			return productRepo.save(product);
 		} else {
 			return null;
@@ -86,6 +90,7 @@ public class ProductService {
 			product.setProductCategory(newProduct.getProductCategory());
 			product.setProductSafeInventory(newProduct.getProductSafeInventory());
 			product.setProductPrice(newProduct.getProductPrice());
+			product.setProductPhoto(newProduct.getProductPhoto());
 			return product;
 		}
 		return null;
@@ -125,5 +130,16 @@ public class ProductService {
 //			productRepo.save(product);
 		}
 		
+	
+	}
+	@Transactional
+	public void updateProductPhoto(String productId ,MultipartFile photo) throws IOException {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+		
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			
+			product.setProductPhoto(photo.getBytes());
+		}
 	}
 }
