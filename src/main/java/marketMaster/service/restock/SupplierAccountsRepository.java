@@ -21,4 +21,13 @@ public interface SupplierAccountsRepository extends JpaRepository<SupplierAccoun
         //透過supplierId找到accountId
         @Query("SELECT sa.accountId FROM SupplierAccountsBean sa where sa.supplier.supplierId=:supplierId")
         String findAccountIdBySupplierId(@Param("supplierId")String supplierId);
+
+        //更新paid_amount
+        @Modifying
+        @Query("UPDATE SupplierAccountsBean sa set sa.paidAmount=:newPaidAmount ,sa.unpaidAmount = sa.totalAmount - :newPaidAmount  WHERE sa.supplier.supplierId=:supplierId")
+        void updatePaidAmount(@Param("supplierId") String supplierId, @Param("newPaidAmount") int newPaidAmount);
+
+        //加總所有supplierId下的付款總金額
+        @Query("SELECT SUM(pr.paymentAmount) FROM PaymentRecordsBean pr WHERE pr.restockDetails.supplier.supplierId=:supplierId")
+        Integer calculatePaidAmount(@Param("supplierId") String supplierId);
 }
