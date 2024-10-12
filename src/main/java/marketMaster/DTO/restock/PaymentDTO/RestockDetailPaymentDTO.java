@@ -1,22 +1,19 @@
-package marketMaster.DTO.restock.restock;
+package marketMaster.DTO.restock.PaymentDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RestockDetailsInsertDTO {
-    private String supplierId;
+public class RestockDetailPaymentDTO {
+    private String detailId;
     private String supplierProductId;
     private int numberOfRestock;
     private int priceAtRestock;
     private int restockTotalPrice;
-    private LocalDate productionDate;
-    private LocalDate dueDate;
-    private String productId;
-
+    private int paidAmount;
+    private String supplierId;
 
 }

@@ -54,6 +54,11 @@ public class EmpBean implements java.io.Serializable {
     @JoinColumn(name = "position_id", referencedColumnName = "position_id", insertable = false, updatable = false)
     private RankLevelBean rankLevel;
 
+    //獲取員工的權限等級
+    public int getAuthority() {
+		return this.rankLevel.getLimitsOfAuthority();
+	}
+    
     public EmpBean() {
     }
 

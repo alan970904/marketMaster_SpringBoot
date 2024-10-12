@@ -32,6 +32,10 @@ public class LoginController {
                 EmployeeViewModel employeeViewModel = employeeService.getEmployeeViewModel(employeeId);
                 session.setAttribute("employee", employeeViewModel);
 
+                // 添加權限級別的訊息
+                int authority = employee.getAuthority();
+                session.setAttribute("userAuthority", authority);
+                
                 if (employee.isFirstLogin()) {
                     return "redirect:/employee/changePasswordPage";
                 } else {

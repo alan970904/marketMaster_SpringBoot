@@ -2,9 +2,12 @@
 
     import jakarta.persistence.*;
     import lombok.Getter;
+    import lombok.Setter;
 
     import java.time.LocalDate;
+    import java.util.Set;
 
+    @Setter
     @Getter
     @Entity
     @Table(name = "restock_details")
@@ -29,6 +32,9 @@
         @Column(name = "number_of_restock")
         private int numberOfRestock;
 
+        @Getter
+        @Column(name = "price_at_restock")
+        private int priceAtRestock;
         @Column(name = "restock_total_price")
         private int restockTotalPrice;
 
@@ -41,6 +47,10 @@
         @Column(name = "restock_date")
         private LocalDate restockDate;
 
+        // 與 PaymentRecordsBean 的一對多關係
+        @OneToMany(mappedBy = "restockDetails")
+        private Set<PaymentRecordsBean> paymentRecords;
+
         // Getter 和 Setter 方法省略
 
         // Constructors
@@ -49,53 +59,19 @@
 
         public RestockDetailsBean(String detailId, RestocksBean restock, SuppliersBean supplier,
                                   SupplierProductsBean supplierProduct, int numberOfRestock,
-                                  int restockTotalPrice, LocalDate productionDate, LocalDate dueDate, LocalDate restockDate) {
+                                  int priceAtRestock, int restockTotalPrice, LocalDate productionDate, LocalDate dueDate, LocalDate restockDate) {
             this.detailId = detailId;
             this.restock = restock;
             this.supplier = supplier;
             this.supplierProduct = supplierProduct;
             this.numberOfRestock = numberOfRestock;
+            this.priceAtRestock = priceAtRestock;
             this.restockTotalPrice = restockTotalPrice;
             this.productionDate = productionDate;
             this.dueDate = dueDate;
             this.restockDate = restockDate;
         }
 
-        public void setDetailId(String detailId) {
-            this.detailId = detailId;
-        }
-
-        public void setRestock(RestocksBean restock) {
-            this.restock = restock;
-        }
-
-        public void setSupplier(SuppliersBean supplier) {
-            this.supplier = supplier;
-        }
-
-        public void setSupplierProduct(SupplierProductsBean supplierProduct) {
-            this.supplierProduct = supplierProduct;
-        }
-
-        public void setNumberOfRestock(int numberOfRestock) {
-            this.numberOfRestock = numberOfRestock;
-        }
-
-        public void setRestockTotalPrice(int restockTotalPrice) {
-            this.restockTotalPrice = restockTotalPrice;
-        }
-
-        public void setProductionDate(LocalDate productionDate) {
-            this.productionDate = productionDate;
-        }
-
-        public void setDueDate(LocalDate dueDate) {
-            this.dueDate = dueDate;
-        }
-
-        public void setRestockDate(LocalDate restockDate) {
-            this.restockDate = restockDate;
-        }
 
         @Override
         public String toString() {
@@ -105,6 +81,7 @@
                     ", supplier=" + supplier +
                     ", supplierProduct=" + supplierProduct +
                     ", numberOfRestock=" + numberOfRestock +
+                    ", priceAtRestock=" + priceAtRestock +
                     ", restockTotalPrice=" + restockTotalPrice +
                     ", productionDate=" + productionDate +
                     ", dueDate=" + dueDate +

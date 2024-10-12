@@ -110,6 +110,7 @@ public class RestockService {
         detail.setSupplier(supplier);
         detail.setSupplierProduct(supplierProduct);
         detail.setNumberOfRestock(rd.getNumberOfRestock());
+        detail.setPriceAtRestock(rd.getPriceAtRestock());
         detail.setRestockTotalPrice(rd.getRestockTotalPrice());
         detail.setProductionDate(rd.getProductionDate());
         detail.setDueDate(rd.getDueDate());

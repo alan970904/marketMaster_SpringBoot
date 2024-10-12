@@ -1,8 +1,12 @@
 package marketMaster.controller.restock;
 
+import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
+import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierInfoDTO;
+import marketMaster.DTO.restock.restock.RestockInsertDTO;
 import marketMaster.bean.restock.SupplierAccountsBean;
 import marketMaster.bean.restock.SuppliersBean;
+import marketMaster.service.restock.PaymentService;
 import marketMaster.service.restock.SupplierAccountsRepository;
 import marketMaster.service.restock.SupplierProductsService;
 import marketMaster.service.restock.SupplierService;
@@ -23,6 +27,9 @@ public class SupplierController {
     private SupplierProductsService supplierProductsService;
     @Autowired
     private SupplierAccountsRepository supplierAccountsRepository;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @GetMapping("/supplier")
     public String supplier(){
@@ -76,6 +83,32 @@ public class SupplierController {
     public String getSupplierId(){
       return   supplierService.getLastSupplierId();
     }
+
+    @DeleteMapping
+    @ResponseBody
+    public void deleteSupplier(@RequestParam("supplierId") String supplierId) {
+        supplierService.deleteSupplier(supplierId);
+    }
+    //  跳轉到 supplier 付款
+    @GetMapping("/supplierPayments")
+    public String getAllSuppliersPaymentBySupplierId(@RequestParam("supplierId") String supplierId, Model model){
+     List<RestockDetailPaymentDTO> dto=   paymentService.getPaymentDetailsBySupplierId(supplierId);
+        model.addAttribute("supplierPayments", dto);
+        return "/restock/supplierPayments";
+    }
+
+    //插入付款＆付款明細
+    @PostMapping("/insertPayment")
+    @ResponseBody
+    public void insertRestockData(@RequestBody List<PaymentInsertDTO> PaymentInsertDTOList, @RequestParam("supplierId") String supplierId) {
+        System.out.println("有進來");
+        System.out.println(supplierId);
+        for (PaymentInsertDTO dto : PaymentInsertDTOList) {
+            paymentService.insertPayment(dto, supplierId);
+        }
+    }
+
+
 
 
 

@@ -35,9 +35,6 @@
                 @OneToMany(mappedBy = "restock", cascade = CascadeType.ALL)
                 private Set<RestockDetailsBean> restockDetails;
 
-                // 與 PaymentRecordsBean 的一對多關係
-                @OneToMany(mappedBy = "restock")
-                private Set<PaymentRecordsBean> paymentRecords;
 
                 @Override
                 public String toString() {
@@ -47,7 +44,6 @@
                             ", restockDate=" + restockDate +
                             ", employee=" + employee +
                             ", restockDetails=" + restockDetails +
-                            ", paymentRecords=" + paymentRecords +
                             '}';
                 }
             }
