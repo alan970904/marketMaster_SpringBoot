@@ -38,8 +38,8 @@ public interface ReturnDetailsRepository extends JpaRepository<ReturnDetailsBean
 
     // 更新退貨狀態
     @Modifying
-    @Query("UPDATE ReturnDetailsBean rd SET rd.returnStatus = :status WHERE rd.returnId = :returnId AND rd.productId = :productId")
-    void updateReturnStatus(@Param("returnId") String returnId, @Param("productId") String productId, @Param("status") String status);
+    @Query("UPDATE ReturnDetailsBean rd SET rd.returnStatus = :status WHERE rd.returnId = :returnId AND rd.checkoutId = :checkoutId AND rd.productId = :productId")
+    void updateReturnStatus(@Param("returnId") String returnId, @Param("checkoutId") String checkoutId, @Param("productId") String productId, @Param("status") String status);
 
     // 計算退貨總金額
     @Query("SELECT COALESCE(SUM(rd.returnPrice), 0) FROM ReturnDetailsBean rd WHERE rd.returnId = :returnId")
