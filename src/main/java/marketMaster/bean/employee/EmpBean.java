@@ -3,6 +3,8 @@ package marketMaster.bean.employee;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -55,9 +57,11 @@ public class EmpBean implements java.io.Serializable {
     @JoinColumn(name = "position_id", referencedColumnName = "position_id", insertable = false, updatable = false)
     private RankLevelBean rankLevel;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "fromEmployee", fetch = FetchType.LAZY)
     private List<ChatMessage> sentMessages;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "toEmployee", fetch = FetchType.LAZY)
     private List<ChatMessage> receivedMessages;
     

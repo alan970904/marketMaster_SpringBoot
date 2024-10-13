@@ -15,6 +15,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Intege
 	@Query("SELECT cm FROM ChatMessage cm WHERE " +
 	           "(cm.fromUser = :user1 AND cm.toUser = :user2) OR " +
 	           "(cm.fromUser = :user2 AND cm.toUser = :user1) " +
-	           "ORDER BY cm.timestamp DESC")
+	           "ORDER BY cm.timestamp")
 	List<ChatMessage> findConversation(@Param("user1") String user1, @Param("user2") String user2, Pageable pageable);
 }
