@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import marketMaster.bean.checkout.ReturnProductBean;
+import marketMaster.bean.employee.EmpBean;
+import marketMaster.bean.product.ProductBean;
 import marketMaster.service.checkout.ReturnProductService;
 import marketMaster.exception.DataAccessException;
 
@@ -162,4 +164,54 @@ public class ReturnProductController {
                     .body(Map.of("status", "error", "message", "更新退貨總金額失敗: " + e.getMessage()));
         }
     }
+    
+    @GetMapping("/employees")
+    public String getAllEmployees(Model model) {
+        try {
+            List<EmpBean> employees = returnProductService.getAllEmployees();
+            model.addAttribute("employees", employees);
+            return "checkout/returnProduct/EmployeeList";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取員工列表失敗：" + e.getMessage());
+            return "checkout/returnProduct/Error";
+        }
+    }
+
+    @GetMapping("/products")
+    public String getProductsByCategory(@RequestParam String category, Model model) {
+        try {
+            List<ProductBean> products = returnProductService.getProductNamesByCategory(category);
+            model.addAttribute("products", products);
+            return "checkout/returnProduct/ProductList";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取產品列表失敗：" + e.getMessage());
+            return "checkout/returnProduct/Error";
+        }
+    }
+
+    @GetMapping("/dailyTotal")
+    public String getDailyReturnTotal(@RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date date, Model model) {
+        try {
+            Integer total = returnProductService.getDailyReturnTotal(date);
+            model.addAttribute("dailyTotal", total);
+            model.addAttribute("date", date);
+            return "checkout/returnProduct/DailyReturnTotal";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取每日退貨總額失敗：" + e.getMessage());
+            return "checkout/returnProduct/Error";
+        }
+    }
+
+    @GetMapping("/topReturnRates")
+    public String getTopReturnRateProducts(@RequestParam(defaultValue = "10") int n, Model model) {
+        try {
+            List<Map<String, Object>> topProducts = returnProductService.getTopReturnRateProducts(n);
+            model.addAttribute("topProducts", topProducts);
+            return "checkout/returnProduct/TopReturnRateProducts";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取高退貨率產品失敗：" + e.getMessage());
+            return "checkout/returnProduct/Error";
+        }
+    }
+    
 }

@@ -128,4 +128,42 @@ public class ReturnDetailsController {
                     .body(Map.of("status", "error", "message", "更新失敗: " + e.getMessage()));
         }
     }
+    
+    @GetMapping("/byCheckoutAndProduct")
+    public String getReturnDetailsByCheckoutAndProduct(@RequestParam String checkoutId, @RequestParam String productId, Model model) {
+        try {
+            List<ReturnDetailsBean> returnDetails = returnDetailsService.findByCheckoutIdAndProductId(checkoutId, productId);
+            model.addAttribute("returnDetails", returnDetails);
+            return "checkout/returnDetails/ReturnDetailsByCheckoutAndProduct";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取退貨明細失敗：" + e.getMessage());
+            return "checkout/returnDetails/Error";
+        }
+    }
+
+    @GetMapping("/totalReturnsByProduct")
+    public String getTotalReturnsByProduct(@RequestParam String productId, Model model) {
+        try {
+            Integer totalReturns = returnDetailsService.getTotalReturnsByProduct(productId);
+            model.addAttribute("productId", productId);
+            model.addAttribute("totalReturns", totalReturns);
+            return "checkout/returnDetails/TotalReturnsByProduct";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取商品總退貨量失敗：" + e.getMessage());
+            return "checkout/returnDetails/Error";
+        }
+    }
+
+    @GetMapping("/returnReasons")
+    public String getReturnReasonStatistics(Model model) {
+        try {
+            List<Map<String, Object>> statistics = returnDetailsService.getReturnReasonStatistics();
+            model.addAttribute("statistics", statistics);
+            return "checkout/returnDetails/ReturnReasonStatistics";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取退貨原因統計失敗：" + e.getMessage());
+            return "checkout/returnDetails/Error";
+        }
+    }
+    
 }

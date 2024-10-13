@@ -1,9 +1,12 @@
 package marketMaster.service.checkout;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import marketMaster.bean.checkout.ReturnProductBean;
+import marketMaster.bean.employee.EmpBean;
+import marketMaster.bean.product.ProductBean;
 import marketMaster.exception.DataAccessException;
 
 import java.util.Date;
@@ -66,9 +69,6 @@ public class ReturnProductService {
     public String generateNextReturnId() throws DataAccessException {
         List<String> lastIds = returnProductRepository.getLastReturnId();
         String lastId = lastIds.isEmpty() ? "R00000000" : lastIds.get(0);
-        if (!lastId.matches("R\\d{8}")) {
-            return "R00000001";
-        }
         int nextNumber = Integer.parseInt(lastId.substring(1)) + 1;
         return String.format("R%08d", nextNumber);
     }
@@ -76,5 +76,25 @@ public class ReturnProductService {
     // 根據員工ID獲取退貨記錄
     public List<ReturnProductBean> getReturnsByEmployeeId(String employeeId) throws DataAccessException {
         return returnProductRepository.findByEmployeeId(employeeId);
+    }
+
+    // 獲取所有員工
+    public List<EmpBean> getAllEmployees() throws DataAccessException {
+        return returnProductRepository.getAllEmployees();
+    }
+
+    // 根據類別獲取產品名稱
+    public List<ProductBean> getProductNamesByCategory(String category) throws DataAccessException {
+        return returnProductRepository.getProductNamesByCategory(category);
+    }
+
+    // 獲取特定日期的退貨總額
+    public Integer getDailyReturnTotal(Date date) throws DataAccessException {
+        return returnProductRepository.getDailyReturnTotal(date);
+    }
+
+    // 獲取退貨率最高的前N個商品
+    public List<Map<String, Object>> getTopReturnRateProducts(int n) throws DataAccessException {
+        return returnProductRepository.getTopReturnRateProducts(PageRequest.of(0, n));
     }
 }

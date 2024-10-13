@@ -76,4 +76,19 @@ public class ReturnDetailsService {
     public void deleteReturnDetailsById(String returnId) throws DataAccessException {
         returnDetailsRepository.deleteByReturnId(returnId);
     }
+
+    // 獲取特定結帳ID和商品ID的退貨明細
+    public List<ReturnDetailsBean> findByCheckoutIdAndProductId(String checkoutId, String productId) throws DataAccessException {
+        return returnDetailsRepository.findByCheckoutIdAndProductId(checkoutId, productId);
+    }
+
+    // 獲取特定商品的總退貨量
+    public Integer getTotalReturnsByProduct(String productId) throws DataAccessException {
+        return returnDetailsRepository.getTotalReturnsByProduct(productId);
+    }
+
+    // 獲取退貨原因統計
+    public List<Map<String, Object>> getReturnReasonStatistics() throws DataAccessException {
+        return returnDetailsRepository.getReturnReasonStatistics();
+    }
 }
