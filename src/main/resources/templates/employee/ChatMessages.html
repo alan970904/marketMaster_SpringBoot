@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天室</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            display: flex;
+            height: 100%;
+        }
+        .user-list {
+            width: 250px;
+            background-color: #f0f2f5;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .chat-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            background-color: #ffffff;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e4e6eb;
+        }
+        .messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        .message {
+            margin-bottom: 10px;
+            max-width: 70%;
+        }
+        .message-content {
+            padding: 10px;
+            border-radius: 18px;
+            display: inline-block;
+        }
+        .message.sent {
+            margin-left: auto;
+        }
+        .message.sent .message-content {
+            background-color: #0084ff;
+            color: white;
+        }
+        .message.received .message-content {
+            background-color: #e4e6eb;
+            color: black;
+        }
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #f0f2f5;
+        }
+        .input-area input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        .input-area button {
+            background-color: #0084ff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #ccc;
+        }
+        .user-name {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="user-list">
+            <h2>在線用戶</h2>
+            <!-- 這裡使用 Thymeleaf 迭代顯示在線用戶列表 -->
+            <div th:each="user : ${onlineUsers}" class="user-item" th:data-user-id="${user.employeeId}" th:data-user-name="${user.employeeName}">
+                <div class="user-avatar"></div>
+                <div class="user-name" th:text="${user.employeeName}"></div>
+            </div>
+        </div>
+        <div class="chat-area">
+            <div class="chat-header">
+                <h2 id="currentChatUser">選擇一個聊天對象</h2>
+            </div>
+            <div class="messages" id="messageContainer">
+                <!-- 這裡使用 Thymeleaf 迭代顯示消息 -->
+                <div th:each="message : ${messages}" 
+                     th:class="${message.fromUser == session.employee.employeeId ? 'message sent' : 'message received'}">
+                    <div class="message-content" th:text="${message.content}"></div>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="輸入訊息...">
+                <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var currentUserId = /*[[${currentEmployee.employeeId}]]*/ '';
+        var currentUserName = /*[[${currentEmployee.employeeName}]]*/ '';
+        var selectedUserId = '';
+        var selectedUserName = '';
+
+        $(document).ready(function() {
+            $('.user-item').click(function() {
+                selectedUserId = $(this).data('user-id');
+                selectedUserName = $(this).data('user-name');
+                $('#currentChatUser').text('與 ' + selectedUserName + ' 聊天中');
+                loadChatHistory();
+            });
+
+            $('#sendButton').click(sendMessage);
+
+            function loadChatHistory() {
+                $.ajax({
+                    url: '/marketMaster/chat/history',
+                    method: 'GET',
+                    data: { otherUser: selectedUserId },
+                    success: function(messages) {
+                        $('#messageContainer').empty();
+                        messages.forEach(function(message) {
+                            var messageClass = message.fromUser === currentUserId ? 'sent' : 'received';
+                            var messageHtml = '<div class="message ' + messageClass + '">' +
+                                '<div class="message-content">' + message.content + '</div>' +
+                                '</div>';
+                            $('#messageContainer').append(messageHtml);
+                        });
+                        scrollToBottom();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('載入歷史訊息失敗:', error);
+                        console.error('狀態碼:', xhr.status);
+			            console.error('回應文本:', xhr.responseText);
+			            alert('載入歷史訊息失敗，請稍後再試。錯誤信息: ' + error);
+                    }
+                });
+            }
+
+            function sendMessage() {
+                var content = $('#messageInput').val().trim();
+                if (content && selectedUserId) {
+                    $.ajax({
+                        url: '/marketMaster/chat/send',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            fromUser: currentUserId,
+                            toUser: selectedUserId,
+                            content: content
+                        }),
+                        success: function() {
+                            $('#messageInput').val('');
+                            loadChatHistory();
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('發送訊息失敗:', error);
+                        }
+                    });
+                }
+            }
+
+            function scrollToBottom() {
+                var messageContainer = document.getElementById('messageContainer');
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>
