@@ -1,6 +1,7 @@
 package marketMaster.service.restock;
 
 import marketMaster.DTO.restock.SupplierDTO.SupplierProductDTO;
+import marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO;
 import marketMaster.bean.restock.SupplierProductsBean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +17,8 @@ public interface SupplierProductsRepository extends JpaRepository<SupplierProduc
             "WHERE s.supplier.supplierId = :supplierId")
     List<SupplierProductDTO> findProductsBySupplierId(@Param("supplierId") String supplierId);
 
+    @Query("SELECT new marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO(s.supplierProductId,s.product.productId,s.product.productName,s.productPrice,s.status)FROM SupplierProductsBean s WHERE s.supplier.supplierId = :supplierId")
+    List<SupplierProductDetailDTO> findAllBySupplierId(@Param("supplierId") String supplierId);
 
     // 檢查供應商商品是否存在
     boolean existsBySupplier_SupplierIdAndProduct_ProductId(String supplierId, String productId);

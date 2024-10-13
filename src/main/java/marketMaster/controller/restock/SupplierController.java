@@ -3,7 +3,7 @@ package marketMaster.controller.restock;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierInfoDTO;
-import marketMaster.DTO.restock.restock.RestockInsertDTO;
+import marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO;
 import marketMaster.bean.restock.SupplierAccountsBean;
 import marketMaster.bean.restock.SuppliersBean;
 import marketMaster.service.restock.PaymentService;
@@ -106,6 +106,13 @@ public class SupplierController {
         for (PaymentInsertDTO dto : PaymentInsertDTOList) {
             paymentService.insertPayment(dto, supplierId);
         }
+    }
+
+    @GetMapping("/getAllSupplierProduct")
+    public String getAllSupplierProductBySupplierId(@RequestParam("supplierId") String supplierId, Model model) {
+     List<SupplierProductDetailDTO> list=  supplierProductsService.getAllSupplierProductBySupplierId(supplierId);
+     model.addAttribute("productList",list);
+       return "/restock/supplierProducts";
     }
 
 
