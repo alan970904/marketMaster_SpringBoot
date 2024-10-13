@@ -42,8 +42,9 @@ public class ProductController {
 	
 	@Transactional
 	@PostMapping("/product/add")
-	public String addProduct(@ModelAttribute ProductBean product,Model m) {
-		ProductBean newProduct = productService.addProduct(product);
+	public String addProduct(@ModelAttribute ProductBean product,@RequestParam MultipartFile photo,Model m) throws IOException{
+
+		ProductBean newProduct = productService.addProduct(product,photo);
 		System.out.println(product.getProductCategory());
 		if (newProduct == null) {
 			m.addAttribute("errorMsg", "商品編號已存在");
@@ -75,6 +76,27 @@ public class ProductController {
 		m.addAttribute("product",product);
 		return "product/findOnePage";
 	}
+	
+	@GetMapping("/product/findProductAvailable") //測試中 先預設false
+	public String getProductAvailable(@RequestParam(defaultValue = "false") boolean available, @RequestParam(value = "page",defaultValue = "1")Integer pageNumber,@RequestParam(value = "size",defaultValue = "10") Integer pageSize , Model m) {
+				
+		Page<ProductBean> products = productService.findProductAvailable(available,pageNumber,pageSize);
+		
+		m.addAttribute("products", products);
+		m.addAttribute("pages", products);
+		
+		return "product/findAllPage";
+	}
+	
+	@GetMapping("/product/findProductInventoryNotEnough")
+	public String getProductInventoryNotEnough(@RequestParam(value = "page",defaultValue = "1")Integer pageNumber,@RequestParam(value = "size",defaultValue = "10") Integer pageSize, Model m) {
+		Page<ProductBean> products = productService.findProductNotEnough(pageNumber,pageSize);
+		
+		m.addAttribute("products", products);
+		m.addAttribute("pages", products);
+		return "product/findAllPage";
+	}
+	
 	
 	@GetMapping("/product/findAll")
 	public String getAllProduct(@RequestParam(value = "page",defaultValue = "1")Integer pageNumber,@RequestParam(value = "size",defaultValue = "10") Integer pageSize , Model m) {

@@ -22,7 +22,9 @@ public class ProductService {
 	@Autowired
 	private ProductRepository productRepo;
 
-	public ProductBean addProduct(ProductBean product) {
+	
+// ===================== 新增商品 =====================
+	public ProductBean addProduct(ProductBean product,MultipartFile photo) throws IOException {
 		Optional<ProductBean> exist = productRepo.findById(product.getProductId());
 
 		if (!exist.isPresent()) {
@@ -34,13 +36,14 @@ public class ProductService {
 			product.setNumberOfRemove(0);
 			product.setProductAvailable(true);
 			product.setPerishable(false);
+			product.setProductPhoto(photo.getBytes());
 			return productRepo.save(product);
 		} else {
 			return null;
 		}
 
 	}
-
+// ===================== 查詢商品 ========================
 	public ProductBean findOneProduct(String productId) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
 
@@ -58,12 +61,28 @@ public class ProductService {
 	
 	public Page<ProductBean> findProductByLike(String productName,Integer pageNumber) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
-//		String productNameQuery = "%"+productName+"%";
 		Page<ProductBean> products = productRepo.findByProductNameContaining(productName,pgb);
 		
 		return products;
 	}
 	
+	public Page<ProductBean> findProductAvailable(boolean isAvailable,Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
+		Page<ProductBean> products = productRepo.findByProductAvailable(isAvailable,pgb);
+		return products;
+	}
+	
+	public Page<ProductBean> findProductNotEnough(Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
+		Page<ProductBean> products = productRepo.findInventoryNotEnough(pgb);
+		return products;
+	}
+	
+	public List<ProductCategoryDTO> findProductCategory() {
+		return productRepo.findAllCategories();
+		
+	}
+// =================== 更新商品 ==================
 	public ProductBean shelveProduct(String productId, Integer newShelveNumber) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
 
@@ -112,12 +131,22 @@ public class ProductService {
 		return null;
 	}
 	
-	public List<ProductCategoryDTO> findProductCategory() {
-		return productRepo.findAllCategories();
+
+	
+	@Transactional
+	public void updateProductPhoto(String productId ,MultipartFile photo) throws IOException {
+		Optional<ProductBean> optional = productRepo.findById(productId);
 		
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			
+			product.setProductPhoto(photo.getBytes());
+		}
 	}
 	
+	
 
+// ==============  進貨數量更新 ==============	
 	@Transactional
 	public void updateRestockProduct(String productId, Integer numberOfRestock) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
@@ -132,14 +161,5 @@ public class ProductService {
 		
 	
 	}
-	@Transactional
-	public void updateProductPhoto(String productId ,MultipartFile photo) throws IOException {
-		Optional<ProductBean> optional = productRepo.findById(productId);
-		
-		if (optional.isPresent()) {
-			ProductBean product = optional.get();
-			
-			product.setProductPhoto(photo.getBytes());
-		}
-	}
+
 }

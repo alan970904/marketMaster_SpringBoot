@@ -42,7 +42,7 @@
                 <div class="text-center text-danger">
                     <h6 th:text="${errorMsg}"></h6>
                 </div>
-                <form th:action="@{/product/add}" method="post">
+                <form th:action="@{/product/add}" method="post" enctype="multipart/form-data">
 
                     <table class="m-auto mt-3">
                         <tr>
@@ -73,6 +73,10 @@
                             <td><input type="text" name="productSafeInventory"
                                     class="form-control bg-secondary bg-opacity-10 text-center"></td>
                         </tr>
+                               <tr>
+                                        <td>選擇檔案:</td>
+                                        <td><input type="file" name="photo"></td>
+                                    </tr>
                         <tr>
                             <td colspan="2" class="text-center pt-1"><input class="btn btn-primary" type="submit"
                                     value="送出"></td>
