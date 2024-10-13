@@ -203,7 +203,7 @@
         row.innerHTML = `
           <td><input type="checkbox" class="selectSupplier" value="${detail.supplierId}"></td>
           <td>${detail.supplierId}</td>
-          <td>${detail.supplierName}</td>
+      <td><a href="/marketMaster/supplier/getAllSupplierProduct?supplierId=${detail.supplierId}">${detail.supplierName}</a></td>
           <td>${detail.address}</td>
           <td>${detail.contactPerson}</td>
           <td>${detail.phone}</td>
