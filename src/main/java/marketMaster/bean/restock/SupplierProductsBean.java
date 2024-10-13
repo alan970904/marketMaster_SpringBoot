@@ -1,99 +1,97 @@
-    package marketMaster.bean.restock;
+package marketMaster.bean.restock;
 
-    import com.fasterxml.jackson.annotation.JsonIgnore;
-    import jakarta.persistence.*;
-    import lombok.Getter;
-    import lombok.Setter;
-    import marketMaster.bean.product.ProductBean;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import marketMaster.bean.product.ProductBean;
 
+@Setter
+@Getter
+@Entity
+@Table(name = "supplier_products")
+public class SupplierProductsBean {
 
-    @Entity
-    @Table(name = "supplier_products")
-    public class SupplierProductsBean {
+    @Id
+    @Column(name = "supplier_product_id")
+    private String supplierProductId;
 
-        @Id
-        @Column(name = "supplier_product_id")
-        private String supplierProductId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id")
+    @JsonIgnore
+    private SuppliersBean supplier;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "supplier_id")
-        @JsonIgnore
-        private SuppliersBean supplier;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    @JsonIgnore
+    private ProductBean product;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "product_id")
-        @JsonIgnore
-        private ProductBean product;
+    @Column(name = "product_price")
+    private int productPrice;
 
-        @Column(name = "product_price")
-        private int productPrice;
+    @Column(name = "status")
+    private int status;
 
-        @Column(name = "status")
-        private int status;
+    // 添加临时字段
+    @Transient
+    private String supplierId;
 
-        // Getter 和 Setter 方法省略
+    @Transient
+    private String productId;
 
-        public String getSupplierProductId() {
-            return supplierProductId;
+    // Getter 和 Setter 方法
+
+    public String getSupplierId() {
+        if (supplier != null) {
+            return supplier.getSupplierId();
         }
-
-        public void setSupplierProductId(String supplierProductId) {
-            this.supplierProductId = supplierProductId;
-        }
-
-        public SuppliersBean getSupplier() {
-            return supplier;
-        }
-
-        public void setSupplier(SuppliersBean supplier) {
-            this.supplier = supplier;
-        }
-
-        public ProductBean getProduct() {
-            return product;
-        }
-
-        public void setProduct(ProductBean product) {
-            this.product = product;
-        }
-
-        public int getProductPrice() {
-            return productPrice;
-        }
-
-        public void setProductPrice(int productPrice) {
-            this.productPrice = productPrice;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-        // Constructors
-        public SupplierProductsBean() {
-        }
-
-        public SupplierProductsBean(String supplierProductId, SuppliersBean supplier, ProductBean product,
-                                    int productPrice, int status) {
-            this.supplierProductId = supplierProductId;
-            this.supplier = supplier;
-            this.product = product;
-            this.productPrice = productPrice;
-            this.status = status;
-        }
-
-        @Override
-        public String toString() {
-            return "SupplierProductsBean{" +
-                    "supplierProductId='" + supplierProductId + '\'' +
-                    ", supplierId=" + (supplier != null ? supplier.getSupplierId() : "null") +
-                    ", productId=" + (product != null ? product.getProductId() : "null") +
-                    ", productPrice=" + productPrice +
-                    ", status=" + status +
-                    '}';
-        }
+        return supplierId;
     }
+
+    public void setSupplierId(String supplierId) {
+        this.supplierId = supplierId;
+        if (this.supplier == null) {
+            this.supplier = new SuppliersBean();
+        }
+        this.supplier.setSupplierId(supplierId);
+    }
+
+    public String getProductId() {
+        if (product != null) {
+            return product.getProductId();
+        }
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+        if (this.product == null) {
+            this.product = new ProductBean();
+        }
+        this.product.setProductId(productId);
+    }
+
+    // Constructors
+    public SupplierProductsBean() {
+    }
+
+    public SupplierProductsBean(String supplierProductId, SuppliersBean supplier, ProductBean product,
+                                int productPrice, int status) {
+        this.supplierProductId = supplierProductId;
+        this.supplier = supplier;
+        this.product = product;
+        this.productPrice = productPrice;
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "SupplierProductsBean{" +
+                "supplierProductId='" + supplierProductId + '\'' +
+                ", supplierId='" + getSupplierId() + '\'' +
+                ", productId='" + getProductId() + '\'' +
+                ", productPrice=" + productPrice +
+                ", status=" + status +
+                '}';
+    }
+}

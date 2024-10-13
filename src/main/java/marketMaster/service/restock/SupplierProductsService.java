@@ -1,6 +1,7 @@
 package marketMaster.service.restock;
 
 import marketMaster.DTO.restock.SupplierDTO.SupplierProductDTO;
+import marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO;
 import marketMaster.bean.restock.SupplierProductsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,11 @@ import java.util.Optional;
 public class SupplierProductsService {
     @Autowired
     private SupplierProductsRepository supplierProductsRepository;
-
+    @Transactional
+    //獲取所有供應商可提供商品
+    public List<SupplierProductDetailDTO>getAllSupplierProductBySupplierId(String supplierId) {
+        return supplierProductsRepository.findAllBySupplierId(supplierId);
+    }
 //    透過供應商id找尋該id所有的商品
 public List<SupplierProductDTO>findProductsBySupplierId(String supplierId) {
      return supplierProductsRepository.findProductsBySupplierId(supplierId);
@@ -21,14 +26,14 @@ public List<SupplierProductDTO>findProductsBySupplierId(String supplierId) {
 
     // 新增供應商提供的商品
     public SupplierProductsBean addSupplierProduct(SupplierProductsBean supplierProductsBean) {
+        String supplierProductId =generateNewSupplierProductId();
         String supplierId = supplierProductsBean.getSupplier().getSupplierId();
         String productId = supplierProductsBean.getProduct().getProductId();
-
+        supplierProductsBean.setSupplierProductId(supplierProductId);
         // 檢查商品是否已存在
         if (supplierProductsRepository.existsBySupplier_SupplierIdAndProduct_ProductId(supplierId, productId)) {
             throw new RuntimeException("該供應商已經提供了此商品，無法重複添加。");
         }
-
         // 保存新商品
         return supplierProductsRepository.save(supplierProductsBean);
     }
@@ -43,10 +48,10 @@ public List<SupplierProductDTO>findProductsBySupplierId(String supplierId) {
 
     }
 
-    //   批量刪除供應商商品
+    //   刪除供應商商品
     @Transactional
-        public void deleteSupplierProduct(List<String> supplierProductId) {
-            supplierProductsRepository.deleteAllById(supplierProductId);
+        public void deleteSupplierProduct(String supplierProductId) {
+            supplierProductsRepository.deleteById(supplierProductId);
         }
 
     // 根據商品查詢有哪些供應商
@@ -55,7 +60,7 @@ public List<SupplierProductDTO>findProductsBySupplierId(String supplierId) {
     }
 
     // 生成新的 supplier_product_id
-    public String generateNewSupplierProductId() {
+    private String generateNewSupplierProductId() {
         // 查詢當前最大的 supplier_product_id
         String latestId = supplierProductsRepository.findLatestSupplierProductId();
 
@@ -81,4 +86,8 @@ public List<SupplierProductDTO>findProductsBySupplierId(String supplierId) {
     public Optional<Integer> getProductPrice(String supplierId, String productId) {
         return supplierProductsRepository.findProductPriceBySupplierIdAndProductId(supplierId, productId);
     }
+
+
+
+
 }
