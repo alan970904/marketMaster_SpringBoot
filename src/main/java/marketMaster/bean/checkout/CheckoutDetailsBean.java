@@ -15,20 +15,20 @@ public class CheckoutDetailsBean implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
-    @Column(name = "CHECKOUT_ID")
+    @Column(name = "checkout_id")
     private String checkoutId;
 
     @Id
-    @Column(name = "PRODUCT_ID")
+    @Column(name = "product_id")
     private String productId;
     
-    @Column(name = "NUMBER_OF_CHECKOUT")
+    @Column(name = "number_of_checkout")
     private int numberOfCheckout;
     
-    @Column(name = "PRODUCT_PRICE")
+    @Column(name = "product_price")
     private int productPrice;
     
-    @Column(name = "CHECKOUT_PRICE")
+    @Column(name = "checkout_price")
     private int checkoutPrice;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
