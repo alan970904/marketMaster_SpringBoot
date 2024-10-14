@@ -2,6 +2,8 @@ package marketMaster.service.restock;
 
 
 import marketMaster.DTO.employee.EmployeeInfoDTO;
+import marketMaster.DTO.restock.restock.RestockDTO;
+import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.DTO.restock.restock.RestockDetailsInsertDTO;
 import marketMaster.DTO.restock.restock.RestockInsertDTO;
 import marketMaster.bean.employee.EmpBean;
@@ -12,6 +14,8 @@ import marketMaster.bean.restock.SuppliersBean;
 import marketMaster.service.employee.EmployeeRepository;
 import marketMaster.service.product.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -154,7 +158,10 @@ public class RestockService {
     }
 
 
-
+    //根據日期區間查詢
+    public Page<RestockDTO> getRestockDetailsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate,pageable);
+    }
 
     }
 

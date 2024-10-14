@@ -9,10 +9,14 @@ import marketMaster.bean.restock.RestocksBean;
 import marketMaster.bean.restock.SupplierAccountsBean;
 import marketMaster.bean.restock.SupplierProductsBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -51,8 +55,8 @@ public class RestockDetailService {
     }
 
     //拿到所有進貨id資訊
-    public List<RestockDTO> getAllRestocks() {
-        return restocksRepository.findAllRestocks();
+    public Page<RestockDTO> getAllRestocks(Pageable pageable) {
+        return restocksRepository.findAllRestocks(pageable);
     }
 
     //透過進貨id拿到所有進貨明細
@@ -99,6 +103,10 @@ public class RestockDetailService {
         updateSupplierTotalAmount(supplierId);
     }
 
+
+
+
+
     // 根據進貨編號更新總金額
     private void updateRestockTotalPrice(String restockId) {
         // 1. 查找所有該進貨編號的明細，計算新的總金額
@@ -125,6 +133,7 @@ public class RestockDetailService {
         accountsRepository.updateSupplierTotalAmount(supplierId,newTotalAmount);
 
     }
+
 
 
 }
