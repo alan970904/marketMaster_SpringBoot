@@ -34,7 +34,7 @@ import marketMaster.viewModel.EmployeeViewModel;
 
 @Service
 @Transactional
-public class EmployeeServiceImpl implements EmploeeService{
+public class EmployeeServiceImpl implements EmployeeService{
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
