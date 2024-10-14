@@ -129,7 +129,8 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <button type="button" class="btn btn-success add-payment-to-list-btn">新增到列表</button>
+                <!-- 移除「新增到列表」按鈕 -->
+                <!-- <button type="button" class="btn btn-success add-payment-to-list-btn">新增到列表</button> -->
                 <button type="button" class="btn btn-danger cancel-payment-btn">取消</button>
               </div>
             </form>
@@ -141,49 +142,6 @@
       $(this).closest('tr').after(formHtml);
     });
 
-    // 將付款記錄加入到列表中
-    $(document).on('click', '.add-payment-to-list-btn', function() {
-      var $form = $(this).closest('.payment-form');
-      var detailId = $form.find('input[name="detailId"]').val();
-      var paymentAmount = parseInt($form.find('.paymentAmount').val());
-      var paymentMethod = $form.find('.paymentMethod').val();
-
-      // 驗證付款金額是否為正數
-      if (isNaN(paymentAmount) || paymentAmount <= 0) {
-        alert('請輸入有效的付款金額。');
-        return;
-      }
-
-      // 驗證付款方式是否選擇
-      if (!paymentMethod) {
-        alert('請選擇付款方式。');
-        return;
-      }
-
-      // 設置 paymentMethod 一旦選擇
-      if (!paymentInsertDTO.paymentMethod) {
-        paymentInsertDTO.paymentMethod = paymentMethod;
-      } else {
-        if (paymentInsertDTO.paymentMethod !== paymentMethod) {
-          alert('所有付款必須使用相同的付款方式。');
-          return;
-        }
-      }
-
-      // 將付款記錄加入到 paymentInsertDTO
-      paymentInsertDTO.paymentRecords.push({
-        detailId: detailId,
-        paymentAmount: paymentAmount
-      });
-
-      // 計算並更新 totalAmount
-      paymentInsertDTO.totalAmount += paymentAmount;
-
-      alert('付款記錄已加入列表');
-      // 移除表單
-      $form.closest('.payment-form-row').remove();
-    });
-
     // 取消付款操作
     $(document).on('click', '.cancel-payment-btn', function() {
       $(this).closest('.payment-form-row').remove();
@@ -191,17 +149,65 @@
 
     // 最後提交所有付款
     $('#finalSubmitBtn').on('click', function() {
+      // 收集所有未添加到列表的付款表單
+      var formsValid = true;
+
+      // 重置 paymentInsertDTO
+      paymentInsertDTO.paymentMethod = null;
+      paymentInsertDTO.totalAmount = 0;
+      paymentInsertDTO.paymentRecords = [];
+
+      $('.payment-form').each(function() {
+        var $form = $(this);
+        var detailId = $form.find('input[name="detailId"]').val();
+        var paymentAmount = parseFloat($form.find('.paymentAmount').val());
+        var paymentMethod = $form.find('.paymentMethod').val();
+
+        // 驗證付款金額是否為正數
+        if (isNaN(paymentAmount) || paymentAmount <= 0) {
+          alert('請輸入有效的付款金額。');
+          formsValid = false;
+          return false; // 中斷each循環
+        }
+
+        // 驗證付款方式是否選擇
+        if (!paymentMethod) {
+          alert('請選擇付款方式。');
+          formsValid = false;
+          return false;
+        }
+
+        // 設置 paymentMethod 一旦選擇
+        if (!paymentInsertDTO.paymentMethod) {
+          paymentInsertDTO.paymentMethod = paymentMethod;
+        } else {
+          if (paymentInsertDTO.paymentMethod !== paymentMethod) {
+            alert('所有付款必須使用相同的付款方式。');
+            formsValid = false;
+            return false;
+          }
+        }
+
+        // 將付款記錄加入到 paymentInsertDTO
+        paymentInsertDTO.paymentRecords.push({
+          detailId: detailId,
+          paymentAmount: paymentAmount
+        });
+
+        // 更新 totalAmount
+        paymentInsertDTO.totalAmount += paymentAmount;
+      });
+
+      if (!formsValid) {
+        return;
+      }
+
+      // 檢查是否有付款記錄
       if (paymentInsertDTO.paymentRecords.length === 0) {
         alert('請先新增付款記錄');
         return;
       }
-
-      // 確保 paymentMethod 已經設置
-      if (!paymentInsertDTO.paymentMethod) {
-        alert('請選擇付款方式。');
-        return;
-      }
-
+      console.log(paymentInsertDTO)
       // 透過AJAX將數據傳送到後端
       $.ajax({
         url: '/marketMaster/supplier/insertPayment?supplierId=' + encodeURIComponent(supplierId),
