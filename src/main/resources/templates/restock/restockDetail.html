@@ -1,202 +1,303 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>進貨明細</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- jQuery 和 jQuery UI -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+	<meta charset="UTF-8">
+	<title>進貨明細</title>
+	<!-- Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<!-- jQuery 和 jQuery UI -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
 </head>
 
 <style>
-    /* Compact Design */
-    .date-picker-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
+	/* 簡潔設計 */
+	.date-picker-group {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 10px;
+	}
 
-    .date-picker-group input {
-        width: 130px; /* Smaller width for input fields */
-        padding: 5px; /* Smaller padding */
-        font-size: 0.9rem; /* Smaller font size */
-    }
+	.date-picker-group input {
+		width: 130px; /* 較小的輸入框寬度 */
+		padding: 5px; /* 較小的內距 */
+		font-size: 0.9rem; /* 較小的字體大小 */
+	}
 
-    .date-picker-group button {
-        padding: 5px 10px; /* Smaller button */
-        font-size: 0.9rem; /* Smaller font size */
-    }
+	.date-picker-group button {
+		padding: 5px 10px; /* 較小的按鈕 */
+		font-size: 0.9rem; /* 較小的字體大小 */
+	}
 
-    /* Styling for table */
-    .restock-table-container {
-        width: 100%;
-    }
+	/* 表格樣式 */
+	.restock-table-container {
+		width: 100%;
+	}
 
-    #restockDetailsTable th, #restockDetailsTable td {
-        vertical-align: middle;
-        text-align: center;
-    }
+	#restockDetailsTable th, #restockDetailsTable td {
+		vertical-align: middle;
+		text-align: center;
+	}
 
+	/* 過濾狀態顯示 */
+	#filterStatus {
+		margin-bottom: 10px;
+	}
 </style>
 <body>
 <div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
-<div th:fragment="content">
-	<main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
-	    <h1 class="mb-4">進貨管理明細</h1>
-	    <!-- 日期區間選擇 -->
-	    <div class="date-picker-group">
-	        <div>
-	            <label for="startDate" class="form-label">開始日期：</label>
-	            <input type="text" id="startDate" class="form-control" placeholder="開始日期">
-	        </div>
-	        <div>
-	            <label for="endDate" class="form-label">結束日期：</label>
-	            <input type="text" id="endDate" class="form-control" placeholder="結束日期">
-	        </div>
-	        <button id="searchButton" class="btn btn-primary"><i class="fas fa-search"></i> 查詢</button>
-	    </div>
-	
-	    <div class="row w-100">
-	        <div class="col-lg-10 col-md-12 mx-auto">
-	            <div class="d-flex justify-content-end mb-2">
-	                <button type="button" id="addRestock" class="btn btn-primary" style="color: white">➕新增進貨</button>
-	            </div>
-	            <table id="restockDetailsTable" class="table table-bordered table-striped">
-	                <thead>
-	                <tr>
-	                    <th>進貨編號</th>
-	                    <th>進貨員工</th>
-	                    <th>進貨日期</th>
-	                    <th>進貨總金額</th>
-	                    <th>操作</th>
-	                </tr>
-	                </thead>
-	                <tbody></tbody>
-	            </table>
-	        </div>
-	    </div>
-	</main>
-</div>
+	<div th:fragment="content">
+		<main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+			<h1 class="mb-4">進貨管理明細</h1>
+			<!-- 日期區間選擇 -->
+			<div class="date-picker-group">
+				<div>
+					<label for="startDate" class="form-label">開始日期：</label>
+					<input type="text" id="startDate" class="form-control" placeholder="開始日期">
+				</div>
+				<div>
+					<label for="endDate" class="form-label">結束日期：</label>
+					<input type="text" id="endDate" class="form-control" placeholder="結束日期">
+				</div>
+				<button id="searchButton" class="btn btn-primary"><i class="fas fa-search"></i> 查詢</button>
+				<button id="resetButton" class="btn btn-secondary"><i class="fas fa-undo"></i> 重置搜尋</button> <!-- 新增重置按鈕 -->
+			</div>
+
+			<!-- 過濾狀態顯示 -->
+			<div id="filterStatus" class="mb-3">
+				<span class="badge bg-secondary">顯示所有數據</span>
+			</div>
+
+			<div class="row w-100">
+				<div class="col-lg-10 col-md-12 mx-auto">
+					<div class="d-flex justify-content-end mb-2">
+						<button type="button" id="addRestock" class="btn btn-primary" style="color: white">➕新增進貨</button>
+					</div>
+					<table id="restockDetailsTable" class="table table-bordered table-striped">
+						<thead>
+						<tr>
+							<th>進貨編號</th>
+							<th>進貨員工</th>
+							<th>進貨日期</th>
+							<th>進貨總金額</th>
+							<th>操作</th>
+						</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+					<!-- 分頁按鈕 -->
+					<div class="d-flex justify-content-center">
+						<nav aria-label="Page navigation">
+							<ul class="pagination" id="pagination">
+								<!-- 分頁按鈕會動態生成 -->
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // 初始化日期選擇器
-        $("#startDate, #endDate").datepicker({
-            dateFormat: "yy-mm-dd"
-        });
+	$(document).ready(function () {
+		// 初始化日期選擇器
+		$("#startDate, #endDate").datepicker({
+			dateFormat: "yy-mm-dd"
+		});
 
-        // 載入所有進貨明細
-        loadRestockId();
+		let isFiltered = false;
+		let currentPage = 0; // 初始化頁碼
+		const pageSize = 10; // 每頁顯示的記錄數
+		let currentStartDate = '';
+		let currentEndDate = '';
 
-        // 查詢按鈕點擊事件
-        $("#searchButton").on('click', function() {
-            const startDate = $("#startDate").val();
-            const endDate = $("#endDate").val();
+		// 載入當前頁面的進貨明細
+		loadRestockId();
 
-            // 判斷日期是否填寫
-            if (startDate && endDate) {
-                searchRestockDetails(startDate, endDate);
-            } else {
-                alert("請選擇開始和結束日期！");
-            }
-        });
+		// 查詢按鈕點擊事件
+		$("#searchButton").on('click', function () {
+			const startDate = $("#startDate").val();
+			const endDate = $("#endDate").val();
 
-        // 加載所有進貨ID
-        function loadRestockId() {
-            axios.get('/marketMaster/restockDetail/getAllRestocks').then(res => {
-                console.log(res.data)
-                renderTable(res.data);
-            }).catch(error => {
-                console.error('載入進貨明細失敗:', error);
-            });
-        }
+			// 判斷日期是否填寫
+			if (startDate && endDate) {
+				isFiltered = true;
+				currentStartDate = startDate;
+				currentEndDate = endDate;
+				currentPage = 0; // 重置頁碼
+				loadByDateRange(startDate, endDate, currentPage);
+			} else {
+				alert("請選擇開始和結束日期！");
+			}
+		});
 
-        document.getElementById("addRestock").addEventListener('click', function () {
-            // 當按下 "新增進貨" 按鈕時，導航到 "/restockInsert"
-            window.location.href = '/marketMaster/restock/restockInsert';
-        });
+		// 重置搜尋按鈕點擊事件
+		$("#resetButton").on('click', function () {
+			isFiltered = false;
+			currentStartDate = '';
+			currentEndDate = '';
+			currentPage = 0;
+			$("#startDate").val('');
+			$("#endDate").val('');
+			loadRestockId(currentPage);
+		});
 
-        // 查詢進貨明細
-        function searchRestockDetails(startDate, endDate) {
-            // 將日期轉換為 YYYYMMDD 格式
-            const formattedStartDate = startDate.replace(/-/g, '');
-            const formattedEndDate = endDate.replace(/-/g, '');
+		function loadByDateRange(startDate, endDate, page = 0) {
+			axios.get('/marketMaster/restockDetail/getRestockDetailsByDateRange', {
+				params: {
+					startDate: startDate,
+					endDate: endDate,
+					page: page,
+					size: pageSize
+				}
+			}).then(res => {
+				console.log(res.data);
+				renderTable(res.data.content); // 分頁數據在 content 中
+				setupPagination(res.data.totalPages);
+				updateFilterStatus(); // 更新過濾狀態
+			}).catch(error => {
+				console.error('載入進貨明細失敗:', error);
+				alert("載入進貨明細失敗，請稍後再試！");
+			});
+		}
 
-            axios.get('/marketMaster/restockDetail/searchByDateRange', {
-                params: {
-                    startDate: formattedStartDate,
-                    endDate: formattedEndDate
-                }
-            }).then(res => {
-                renderTable(res.data);
-            }).catch(error => {
-                console.error('查詢失敗:', error);
-            });
-        }
+		// 加載所有進貨ID
+		function loadRestockId(page = 0) {
+			axios.get('/marketMaster/restockDetail/getAllRestocks', {
+				params: {
+					page: page,
+					size: pageSize
+				}
+			}).then(res => {
+				console.log(res.data);
+				renderTable(res.data.content); // 分頁數據在 content 中
+				setupPagination(res.data.totalPages); // 設置分頁
+				updateFilterStatus(); // 更新過濾狀態
+			}).catch(error => {
+				console.error('載入進貨明細失敗:', error);
+				alert("載入進貨明細失敗，請稍後再試！");
+			});
+		}
 
-        // 渲染表格
-        function renderTable(data) {
-            const tableBody = document.querySelector('#restockDetailsTable tbody');
-            tableBody.innerHTML = ''; // 清空表格內容
+		document.getElementById("addRestock").addEventListener('click', function () {
+			// 當按下 "新增進貨" 按鈕時，導航到 "/restockInsert"
+			window.location.href = '/marketMaster/restock/restockInsert';
+		});
 
-            data.forEach(detail => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><a href="/marketMaster/restockDetail/getAllRestockIdDetail?restockId=${detail.restockId}" >${detail.restockId}</a> </td>
-                    <td>${detail.employeeId+'-'+detail.employeeName}</td>
-                    <td>${detail.restockDate}</td>
-                    <td>${detail.restockTotalPrice}</td>
+		// 渲染表格
+		function renderTable(data) {
+			const tableBody = document.querySelector('#restockDetailsTable tbody');
+			tableBody.innerHTML = ''; // 清空表格內容
+
+			if (data.length === 0) {
+				const row = document.createElement('tr');
+				row.innerHTML = `<td colspan="5" class="text-center">無符合條件的數據</td>`;
+				tableBody.appendChild(row);
+				return;
+			}
+
+			data.forEach(detail => {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+                    <td><a href="/marketMaster/restockDetail/getAllRestockIdDetail?restockId=${detail.restockId}" >${detail.restockId}</a></td>
+                    <td>${detail.employeeId ? detail.employeeId : 'N/A'} - ${detail.employeeName ? detail.employeeName : 'N/A'}</td>
+                    <td>${detail.restockDate ? detail.restockDate : 'N/A'}</td>
+                    <td>${detail.restockTotalPrice ? detail.restockTotalPrice : '0'}</td>
                     <td>
                         <button class="btn btn-danger btn-delete" data-restock-id="${detail.restockId}">刪除</button>
                     </td>
                 `;
-                tableBody.appendChild(row);
-            });
+				tableBody.appendChild(row);
+			});
 
-            // 綁定刪除和更新按鈕事件
-            bindTableActions();
-        }
+			// 綁定刪除按鈕事件
+			bindTableActions();
+		}
 
-        // 綁定刪除和更新按鈕事件
-        function bindTableActions() {
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const restockId = button.getAttribute('data-restock-id');
-                    const userConfirmed = confirm("確定要刪除嗎？");
+		// 綁定刪除按鈕事件
+		function bindTableActions() {
+			const deleteButtons = document.querySelectorAll('.btn-delete');
+			deleteButtons.forEach(button => {
+				button.addEventListener('click', function () {
+					const restockId = button.getAttribute('data-restock-id');
+					const userConfirmed = confirm("確定要刪除嗎？");
 
-                    if (userConfirmed) {
-                        axios.delete(`/marketMaster/restockDetail/deleteByRestockId?restockId=${restockId}`)
-                            .then(res => {
-                                if (res.data === "刪除成功！") {
-                                    console.log("刪除成功", res);
-                                    // 刪除成功後，從 DOM 中移除該行
-                                    const row = button.closest('tr');
-                                    row.remove();
+					if (userConfirmed) {
+						axios.delete(`/marketMaster/restockDetail/deleteByRestockId?restockId=${restockId}`)
+								.then(res => {
+									if (res.data === "刪除成功！" || res.data === "删除成功！") {
+										console.log("刪除成功", res);
+										// 刪除成功後，重新載入當前頁面的數據
+										if (isFiltered) {
+											loadByDateRange(currentStartDate, currentEndDate, currentPage);
+										} else {
+											loadRestockId(currentPage);
+										}
+									} else {
+										console.log("刪除失敗");
+										alert("刪除失敗！");
+									}
+								})
+								.catch(error => {
+									console.error("刪除失敗", error);
+									alert("刪除失敗！");
+								});
+					}
+				});
+			});
+		}
 
-                                } else {
-                                    console.log("刪除失敗");
-                                }
-                            })
-                            .catch(error => {
-                                console.error("刪除失敗", error);
-                            });
-                    }
-                });
-            });
-        }
-    });
+		// 設置分頁按鈕
+		function setupPagination(totalPages) {
+			const pagination = document.getElementById('pagination');
+			pagination.innerHTML = ''; // 清空舊的分頁按鈕
+
+			for (let i = 0; i < totalPages; i++) {
+				const li = document.createElement('li');
+				li.classList.add('page-item');
+				if (i === currentPage) {
+					li.classList.add('active');
+				}
+
+				const a = document.createElement('a');
+				a.classList.add('page-link');
+				a.href = "#";
+				a.textContent = i + 1;
+
+				a.addEventListener('click', function (e) {
+					e.preventDefault();
+					currentPage = i; // 更新當前頁碼
+					if (isFiltered) {
+						loadByDateRange(currentStartDate, currentEndDate, currentPage);
+					} else {
+						loadRestockId(currentPage);
+					}
+				});
+
+				li.appendChild(a);
+				pagination.appendChild(li);
+			}
+		}
+
+		// 更新過濾狀態顯示
+		function updateFilterStatus() {
+			const statusDiv = document.getElementById('filterStatus');
+			if (isFiltered) {
+				statusDiv.innerHTML = `<span class="badge bg-info">篩選中：${currentStartDate} 至 ${currentEndDate}</span>`;
+			} else {
+				statusDiv.innerHTML = `<span class="badge bg-secondary">顯示所有數據</span>`;
+			}
+		}
+	});
 </script>
 </body>
 </html>

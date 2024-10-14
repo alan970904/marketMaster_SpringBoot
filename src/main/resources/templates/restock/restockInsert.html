@@ -56,6 +56,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
     document.addEventListener('DOMContentLoaded', () => {
         let supplierList = []; // 用於存儲供應商列表
         let productListMap = {}; // 用於存儲每個供應商的產品列表
@@ -139,20 +140,55 @@
                             }
                         },
                         {
+                            // 表格中的商品 ID 欄位
                             data: 'productId',
+
+                            // 使用下拉選單作為輸入類型
                             type: 'dropdown',
+
+                            // 下拉選單的資料來源
                             source: function (query, process) {
-                                const row = this.instance.getSelectedLast()[0];
-                                const supplierValue = this.instance.getDataAtRowProp(row, 'supplierId');
-                                const supplierId = supplierValue ? supplierValue.split(' - ')[0] : '';
-                                const products = productListMap[supplierId] || [];
-                                process(products.map(product => `${product.productId} - ${product.productName}`));
+                                // 取得當前選中的行
+                                const selectedRow = this.instance.getSelectedLast();
+                                const rowIndex = selectedRow[0];
+
+                                // 取得該行的供應商 ID
+                                const supplierValue = this.instance.getDataAtRowProp(rowIndex, 'supplierId');
+
+                                // 根據供應商值來提取供應商 ID，並處理沒有供應商選擇的情況
+                                let supplierId = '';
+                                if (supplierValue) {
+                                    supplierId = supplierValue.split(' - ')[0];  // 提取供應商 ID
+                                }
+
+                                // 查找該供應商的商品列表，如果不存在則返回空陣列
+                                let productsForSupplier = [];
+                                if (supplierId && productListMap[supplierId]) {
+                                    productsForSupplier = productListMap[supplierId];
+                                }
+
+                                // 格式化商品列表為 "商品ID - 商品名稱" 形式
+                                const formattedProducts = [];
+                                for (let i = 0; i < productsForSupplier.length; i++) {
+                                    const product = productsForSupplier[i];
+                                    formattedProducts.push(product.productId + ' - ' + product.productName);
+                                }
+
+                                // 將商品選項列表提供給 Handsontable 顯示
+                                process(formattedProducts);
                             },
+
+                            // 使用下拉選單來渲染這一列
                             renderer: 'dropdown',
-                            validator: (value, callback) => {
-                                callback(!!value);
+
+                            // 驗證用戶選擇的值是否合法
+                            validator: function (value, callback) {
+                                // 確認用戶有選擇值
+                                const isValid = !!value;
+                                callback(isValid);  // 回傳驗證結果
                             }
-                        },
+                        }
+                        ,
                         { data: 'numberOfRestock', type: 'numeric', numericFormat: { pattern: '0,0' } },
                         {
                             data: 'restockTotalPrice',

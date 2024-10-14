@@ -1,12 +1,8 @@
 package marketMaster.bean.product;
 
 import jakarta.persistence.*;
-
 import java.io.Serializable;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import marketMaster.bean.restock.RestockDetailsBean;
 
 @Entity
 @Table(name = "products")
@@ -46,19 +42,25 @@ public class ProductBean implements Serializable {
 
 	@Column(name = "number_of_remove")
 	private int numberOfRemove;
+	
+	@Column(name = "product_available")
+	private boolean productAvailable;
+	
+	@Column(name = "is_perishable")
+	private boolean isPerishable;
 
+	@Lob
+	@Column(name = "product_photo")
+	private byte[] productPhoto;
 
-	// Constructors
 	public ProductBean() {
 		super();
 	}
-	// getters 和 setters
-
-	// 其他建構函數略
 
 	public ProductBean(String productId, String productCategory, String productName, int productPrice,
 			int productSafeInventory, int numberOfShelve, int numberOfInventory, int numberOfSale, int numberOfExchange,
-			int numberOfDestruction, int numberOfRemove) {
+			int numberOfDestruction, int numberOfRemove, boolean productAvailable, boolean isPerishable,
+			byte[] productPhoto) {
 		super();
 		this.productId = productId;
 		this.productCategory = productCategory;
@@ -71,32 +73,18 @@ public class ProductBean implements Serializable {
 		this.numberOfExchange = numberOfExchange;
 		this.numberOfDestruction = numberOfDestruction;
 		this.numberOfRemove = numberOfRemove;
+		this.productAvailable = productAvailable;
+		this.isPerishable = isPerishable;
+		this.productPhoto = productPhoto;
 	}
 
-	public ProductBean(String productId, int numberOfShelve, int numberOfInventory) {
-		super();
+	public String getProductId() {
+		return productId;
+	}
+
+	public void setProductId(String productId) {
 		this.productId = productId;
-		this.numberOfShelve = numberOfShelve;
-		this.numberOfInventory = numberOfInventory;
 	}
-
-	public ProductBean(String productId, String productName, String productCategory, int productPrice) {
-		this.productId = productId;
-		this.productName = productName;
-		this.productCategory = productCategory;
-		this.productPrice = productPrice;
-	}
-
-	public ProductBean(String productName) {
-		super();
-		this.productName = productName;
-	}
-
-
-
-
-
-	// Getters 和 Setters
 
 	public String getProductCategory() {
 		return productCategory;
@@ -178,12 +166,35 @@ public class ProductBean implements Serializable {
 		this.numberOfRemove = numberOfRemove;
 	}
 
-	public String getProductId() {
-		return productId;
+	public boolean isProductAvailable() {
+		return productAvailable;
 	}
 
-	public void setProductId(String productId) {
-		this.productId = productId;
+	public void setProductAvailable(boolean productAvailable) {
+		this.productAvailable = productAvailable;
 	}
+
+	public boolean isPerishable() {
+		return isPerishable;
+	}
+
+	public void setPerishable(boolean isPerishable) {
+		this.isPerishable = isPerishable;
+	}
+
+	public byte[] getProductPhoto() {
+		return productPhoto;
+	}
+
+	public void setProductPhoto(byte[] productPhoto) {
+		this.productPhoto = productPhoto;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+
+	
 
 }
