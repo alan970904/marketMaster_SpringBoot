@@ -1,7 +1,7 @@
 package marketMaster.service.product;
 
-import java.beans.Transient;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,17 +14,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
+import marketMaster.DTO.product.ProductSupplierDTO;
 import marketMaster.bean.product.ProductBean;
+import marketMaster.bean.restock.RestockDetailsBean;
+import marketMaster.service.restock.RestockDetailsRepository;
 
 @Service
 public class ProductService {
 
 	@Autowired
 	private ProductRepository productRepo;
-
 	
+	@Autowired
+	private RestockDetailsRepository restockDetailsRepo;
+
 // ===================== 新增商品 =====================
-	public ProductBean addProduct(ProductBean product,MultipartFile photo) throws IOException {
+	public ProductBean addProduct(ProductBean product, MultipartFile photo) throws IOException {
 		Optional<ProductBean> exist = productRepo.findById(product.getProductId());
 
 		if (!exist.isPresent()) {
@@ -36,13 +41,16 @@ public class ProductService {
 			product.setNumberOfRemove(0);
 			product.setProductAvailable(true);
 			product.setPerishable(false);
-			product.setProductPhoto(photo.getBytes());
+			if (photo != null) {
+				product.setProductPhoto(photo.getBytes());
+			}
 			return productRepo.save(product);
 		} else {
 			return null;
 		}
 
 	}
+
 // ===================== 查詢商品 ========================
 	public ProductBean findOneProduct(String productId) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
@@ -58,30 +66,42 @@ public class ProductService {
 		Page<ProductBean> page = productRepo.findAll(pgb);
 		return page;
 	}
-	
-	public Page<ProductBean> findProductByLike(String productName,Integer pageNumber) {
+
+	public Page<ProductBean> findProductByLike(String productName, Integer pageNumber) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
-		Page<ProductBean> products = productRepo.findByProductNameContaining(productName,pgb);
-		
+		Page<ProductBean> products = productRepo.findByProductNameContaining(productName, pgb);
+
 		return products;
 	}
-	
-	public Page<ProductBean> findProductAvailable(boolean isAvailable,Integer pageNumber, Integer pageSize) {
+
+	public Page<ProductBean> findProductAvailable(boolean isAvailable, Integer pageNumber, Integer pageSize) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
-		Page<ProductBean> products = productRepo.findByProductAvailable(isAvailable,pgb);
+		Page<ProductBean> products = productRepo.findByProductAvailable(isAvailable, pgb);
 		return products;
 	}
-	
+
 	public Page<ProductBean> findProductNotEnough(Integer pageNumber, Integer pageSize) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
 		Page<ProductBean> products = productRepo.findInventoryNotEnough(pgb);
 		return products;
 	}
-	
+
 	public List<ProductCategoryDTO> findProductCategory() {
 		return productRepo.findAllCategories();
-		
+
 	}
+	
+//	public List<LocalDate> test(String productId) {
+//		return productRepo.findProductionDatesByProductId(productId);
+//	}
+	
+	public List<ProductSupplierDTO> findRestockDetails(String supplierId) {
+		
+		List<ProductSupplierDTO> restockDetails = productRepo.findBySupplierId(supplierId);
+		
+		return restockDetails;
+	}
+
 // =================== 更新商品 ==================
 	public ProductBean shelveProduct(String productId, Integer newShelveNumber) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
@@ -97,7 +117,7 @@ public class ProductService {
 		return null;
 	}
 
-	public ProductBean updateProduct(ProductBean newProduct) {
+	public ProductBean updateProduct(ProductBean newProduct, MultipartFile photo) throws IOException {
 
 		String productId = newProduct.getProductId();
 		Optional<ProductBean> optional = productRepo.findById(productId);
@@ -109,7 +129,11 @@ public class ProductService {
 			product.setProductCategory(newProduct.getProductCategory());
 			product.setProductSafeInventory(newProduct.getProductSafeInventory());
 			product.setProductPrice(newProduct.getProductPrice());
-			product.setProductPhoto(newProduct.getProductPhoto());
+			if (photo != null) {
+				product.setProductPhoto(photo.getBytes());
+			} else {
+				product.setProductPhoto(product.getProductPhoto());
+			}
 			return product;
 		}
 		return null;
@@ -126,40 +150,37 @@ public class ProductService {
 			product.setNumberOfInventory(0);
 			product.setNumberOfShelve(0);
 			product.setNumberOfRemove(remove + shelve + inventory);
+			product.setProductAvailable(false);
 			return product;
 		}
 		return null;
 	}
-	
 
-	
 	@Transactional
-	public void updateProductPhoto(String productId ,MultipartFile photo) throws IOException {
+	public void updateProductPhoto(String productId, MultipartFile photo) throws IOException {
 		Optional<ProductBean> optional = productRepo.findById(productId);
-		
+
 		if (optional.isPresent()) {
 			ProductBean product = optional.get();
-			
+
 			product.setProductPhoto(photo.getBytes());
 		}
 	}
-	
-	
 
 // ==============  進貨數量更新 ==============	
 	@Transactional
 	public void updateRestockProduct(String productId, Integer numberOfRestock) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
-		
+
 		if (optional.isPresent()) {
-			
+
 			ProductBean product = optional.get();
-			
-			product.setNumberOfInventory(product.getNumberOfInventory()+numberOfRestock);
-//			productRepo.save(product);
+
+			product.setNumberOfInventory(product.getNumberOfInventory() + numberOfRestock);
 		}
-		
-	
+
 	}
+	
+	
 
 }
