@@ -3,6 +3,7 @@ package marketMaster.bean.bonus;
 import java.time.LocalDate;
 
 import jakarta.persistence.*;
+import marketMaster.bean.customer.CustomerBean;
 
 @Entity
 @Table(name = "points_history")
@@ -31,7 +32,10 @@ public class PointsHistoryBean {
     @Column(name = "transaction_type")
     private String transactionType;
     
-    // Constructors, getters, and setters
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_tel", referencedColumnName = "customer_tel", insertable = false, updatable = false)
+    private CustomerBean customer;
+    
     public PointsHistoryBean() {}
     
     public PointsHistoryBean(String customerTel, String checkoutId, String exchangeId, 
@@ -44,7 +48,6 @@ public class PointsHistoryBean {
         this.transactionType = transactionType;
     }
     
-    // Getters and setters
     public int getPointsHistoryId() { return pointsHistoryId; }
     public void setPointsHistoryId(int pointsHistoryId) { this.pointsHistoryId = pointsHistoryId; }
     
@@ -65,4 +68,6 @@ public class PointsHistoryBean {
     
     public String getTransactionType() { return transactionType; }
     public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
+    public CustomerBean getCustomer() {  return customer; }
+    public void setCustomer(CustomerBean customer) { this.customer = customer; }
 }

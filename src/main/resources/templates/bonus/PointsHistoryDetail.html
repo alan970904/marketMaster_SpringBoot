@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>會員紅利點數紀錄</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">會員紅利點數紀錄</h1>
+        <h3>會員電話：<span th:text="${customerTel}"></span></h3>
+        <h4>總點數：<span th:text="${totalPoints}"></span></h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>紅利紀錄ID</th>
+                    <th>日期</th>
+                    <th>類型</th>
+                    <th>點數變動</th>
+                    <th>結帳ID</th>
+                    <th>兌換ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="history : ${histories}">
+                    <td th:text="${history.pointsHistoryId}"></td>
+                    <td th:text="${#temporals.format(history.transactionDate, 'yyyy-MM-dd')}"></td>
+                    <td th:text="${history.transactionType}"></td>
+                    <td th:text="${history.pointsChange}"></td>
+                    <td th:text="${history.checkoutId}"></td>
+                    <td th:text="${history.exchangeId}"></td>
+                </tr>
+            </tbody>
+        </table>
+        <a th:href="@{/pointsHistory/members}" class="btn btn-secondary">返回會員列表</a>
+<!--         <a href="/pointsHistory/search" class="btn btn-primary">返回會員搜尋</a> -->
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
