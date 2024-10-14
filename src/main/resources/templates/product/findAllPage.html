@@ -22,10 +22,18 @@
 	<main>
     <div class="container mt-3">
         <div class="d-flex justify-content-between">
+            <div>
 
-            <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
-            <!-- <input type="text" id="inputName"> -->
+                <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
+                <a class="btn btn-primary" th:href="@{/product/findProductAvailable(available=${true})}">查詢在銷售商品</a>
+                <a class="btn btn-primary" th:href="@{/product/findProductAvailable(available=${false})}">查詢已下架商品</a>
+                <a class="btn btn-primary" th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
+            </div>
+
+            
             <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋商品名稱">
+            
+            
         </div>
 
         <table class="table table-striped text-center mt-2">
@@ -42,12 +50,11 @@
                     <th>兌換數量</th>
                     <th>銷毀數量</th>
                     <th>下架數量</th>
-                    <th>修改</th>
-                    <th>上架</th>
-                    <th>下架</th>
+                    <th>操作</th>
+                  
                 </tr>
             </thead>
-            <tbody id="tbody" class="my-auto">
+            <tbody id="tbody" class="my-auto ">
                 <th:block th:each="product:${products.content}">
 
                     <tr>
@@ -66,19 +73,17 @@
                         <td th:text="${product.numberOfExchange}"></td>
                         <td th:text="${product.numberOfDestruction}"></td>
                         <td th:text="${product.numberOfRemove}"></td>
-                        <td>
+                        <td class="d-flex justify-content-evenly">
                             <form method="get" th:action="@{/product/getUpdate}">
                                 <input type="hidden" th:value="${product.productId}" name="productId">
                                 <button type="submit" class="btn btn-secondary">修改</button>
                             </form>
-                        </td>
-                        <td>
+                        
                             <form method="get" th:action="@{/product/getShelve}">
                                 <input type="hidden" th:value="${product.productId}" name="productId">
                                 <button type="submit" class="btn btn-warning">上架</button>
                             </form>
-                        </td>
-                        <td>
+                        
                             <form method="post" th:action="@{/product/remove}">
                                 <input type="hidden" th:value="${product.productId}" name="productId">
                                 <button type="button" class="btn btn-danger removeBtn">下架</button>
