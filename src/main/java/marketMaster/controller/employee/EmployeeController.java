@@ -214,6 +214,12 @@ public class EmployeeController {
 		if (!authService.hasPermission(authority, "delete", "employee")) {
 			return "redirect:/unauthorized";
 		}
+		
+		// 添加額外檢查，確保權限2不能刪除權限3的用戶
+	    EmpBean employeeToDelete = employeeService.getEmployee(employeeId);
+	    if (authority == 2 && employeeToDelete.getAuthority() == 3) {
+	        return "redirect:/unauthorized";
+	    }
 
 		boolean deleted = employeeService.deleteEmployee(employeeId);
 		if (deleted) {
