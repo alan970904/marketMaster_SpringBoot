@@ -25,4 +25,10 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorMessage", "發生未知錯誤：" + ex.getMessage());
         return "error/generalError";
     }
+    
+    @ExceptionHandler(SecurityException.class)
+    public String handleSecurityException(SecurityException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error/unauthorized";
+    }
 }
