@@ -12,35 +12,31 @@ import jakarta.persistence.*;
 public class CheckoutBean implements Serializable  {
 	private static final long serialVersionUID = 1L;
 	
-	@Id
-    @Column(name = "checkout_id")
-    private String checkoutId;
-    
-    @Column(name = "customer_tel")
-    private String customerTel;
-    
-    @Column(name = "employee_id")
-    private String employeeId;
-    
-    @Column(name = "checkout_total_price")
-    private int checkoutTotalPrice;
-    
-    @Temporal(TemporalType.DATE)
-    @Column(name = "checkout_date")
-    private Date checkoutDate;
-    
-    @Column(name = "bonus_points")
-    private Integer bonusPoints;
-    
-    @Temporal(TemporalType.DATE)
-    @Column(name = "points_due_date")
-    private Date pointsDueDate;
-    
-    @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+	@Id @Column(name = "CHECKOUT_ID")
+	private String checkoutId;
+	
+	@Column(name = "CUSTOMER_TEL")
+	private String customerTel;
+	
+	@Column(name = "EMPLOYEE_ID")
+	private String employeeId;
+	
+	@Column(name = "CHECKOUT_TOTAL_PRICE")
+	private int checkoutTotalPrice;
+	
+	@Temporal(TemporalType.DATE)
+    @Column(name = "CHECKOUT_DATE")
+	private Date checkoutDate;
+	
+	@Column(name = "BONUS_POINTS")
+	private int bonusPoints;
+	
+	@Temporal(TemporalType.DATE)
+    @Column(name = "POINTS_DUE_DATE")
+	private Date pointsDueDate;
+	
+	@OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CheckoutDetailsBean> checkoutDetails = new ArrayList<>();
-
-    @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ReturnProductBean> returnProducts = new ArrayList<>();
 
 	// Constructors, Getters, and Setters
 
@@ -132,15 +128,6 @@ public class CheckoutBean implements Serializable  {
 		checkoutDetails.add(detail);
 		detail.setCheckout(this);
 	}
-	
-	// 新增addReturnProduct方法
-    public void addReturnProduct(ReturnProductBean returnProduct) {
-        if (returnProducts == null) {
-            returnProducts = new ArrayList<>();
-        }
-        returnProducts.add(returnProduct);
-        returnProduct.setCheckout(this);
-    }
 	
 	// 添加 equals 和 hashCode 方法
     @Override
