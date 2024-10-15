@@ -18,15 +18,17 @@
             </thead>
             <tbody>
                 <tr th:each="entry : ${memberTotalPoints}">
-                    <td th:text="${entry.value.customerName}"></td>
-                    <td th:text="${entry.value.totalPoints}"></td>
-                    <td>
-                        <a th:href="@{/pointsHistory/detail(id=${entry.value.encryptedCustomerId})}" class="btn btn-primary btn-sm">查看詳情</a>
-                    </td>
+                <td th:text="${entry.value.customerName}"></td>
+                <td th:text="${entry.value.totalPoints}"></td>
+                <td>
+                    <a th:href="@{/pointsHistory/detail(id=${entry.value.encryptedCustomerId})}" class="btn btn-primary btn-sm">查看詳情</a>
+                </td>
+	            </tr>
                 </tr>
             </tbody>
         </table>
-        <a href="/pointsHistory/search" class="btn btn-secondary mt-3">搜索會員</a>
+        <a th:href="@{/pointsHistory/search}" class="btn btn-secondary mt-3">搜索會員</a>
+		<!--<a href="@{/marketMaster/pointsHistory/search}" class="btn btn-secondary mt-3">搜索會員</a> -->
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
