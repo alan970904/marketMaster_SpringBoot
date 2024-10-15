@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,6 +67,8 @@ public interface RestockDetailsRepository extends JpaRepository<RestockDetailsBe
     //根據supplierId 查找所有關聯的進貨明細
     @Query("SELECT r FROM RestockDetailsBean r WHERE r.supplier.supplierId = :supplierId")
     List<RestockDetailsBean> findBySupplierId(@Param("supplierId") String supplierId);
+
+
 
 }
 

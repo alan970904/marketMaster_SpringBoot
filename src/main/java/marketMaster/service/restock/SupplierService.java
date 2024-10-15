@@ -4,6 +4,8 @@ import marketMaster.DTO.restock.SupplierDTO.SupplierIdAndNameDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierInfoDTO;
 import marketMaster.bean.restock.SuppliersBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +56,8 @@ public class SupplierService {
 
 
     //拿到所有供應商資訊
-    public List<SupplierInfoDTO> getAllSuppliersWithAccounts() {
-        return suppliersRepository.findAllSuppliersWithAccounts();
+    public Page<SupplierInfoDTO> getAllSuppliersWithAccounts(Pageable pageable) {
+        return suppliersRepository.findAllSuppliersWithAccounts(pageable);
     }
 
     //找所有supplier Id 跟name
