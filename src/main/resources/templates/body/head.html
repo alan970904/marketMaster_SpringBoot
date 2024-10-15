@@ -249,9 +249,23 @@
 
     <script>
         $(document).ready(function () {
+        	// 頁面加載時檢查 localStorage 中的側邊欄狀態
+		    var sidebarState = localStorage.getItem('sidebarState');
+		    if (sidebarState === 'collapsed') {
+		        $('#sidebar, .content').addClass('active');
+		    } else {
+		        $('#sidebar, .content').removeClass('active');
+		    }
+            
             // 點擊側邊欄的收起按鈕，切換側邊欄的顯示與隱藏
             $('#sidebarCollapse').on('click', function () {
                 $('#sidebar, .content').toggleClass('active');
+                // 保存側邊欄的狀態到 localStorage
+		        if ($('#sidebar').hasClass('active')) {
+		            localStorage.setItem('sidebarState', 'collapsed');
+		        } else {
+		            localStorage.setItem('sidebarState', 'expanded');
+		        }
                 adjustContentWidth(); // 調整內容區域的寬度
             });
 
