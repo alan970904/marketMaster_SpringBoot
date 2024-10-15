@@ -1,65 +1,72 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>新增員工</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
-	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
-	<div th:fragment="content">
-    <main class="container mt-4">
-        <h1 class="mb-4">新增員工</h1>
-        <h2 class="mb-3">(員工編號 <span th:text="${newEmployeeId}"></span>)</h2>
-        <form id="addEmployeeForm" th:action="@{/employee/empAdd}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
-            <input type="hidden" name="employeeId" th:value="${newEmployeeId}">
-            <table class="table table-bordered" style="width: 50%;">
-                <tr>
-                    <th>姓名:</th>
-                    <td><input type="text" name="employeeName" id="employeeName" required></td>
-                </tr>
-                <tr>
-                    <th>電話:</th>
-                    <td><input type="text" name="employeeTel" id="employeeTel" maxlength="10" required></td>
-                </tr>
-                <tr>
-                    <th>身分證號碼:</th>
-                    <td><input type="text" name="employeeIdcard" id="employeeIdcard" maxlength="10" required></td>
-                </tr>
-                <tr>
-                    <th>Email:</th>
-                    <td><input type="email" name="employeeEmail" id="employeeEmail" required></td>
-                </tr>
-                <tr>
-                    <th>職位編號:</th>
-                    <td>
-                        <select name="positionId" id="positionId" required>
-                            <option value="">請選擇職位</option>
-                            <option th:each="position : ${positions}" 
-                                    th:value="${position.positionId}" 
-                                    th:text="${position.positionId + ' - ' + position.positionName}">
-                            </option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th>入職日期:</th>
-                    <td><input type="date" name="hiredate" required></td>
-                </tr>
-                <tr>
-                    <th>上傳圖片:</th>
-                    <td><input type="file" name="file" accept="image/*"></td>
-                </tr>
-            </table>
-            <button type="submit" class="btn btn-primary">新增員工</button>
-        </form>
-        <div id="errorMessages" class="text-danger mt-3"></div>
-        <a th:href="@{/employee/empList}" class="btn btn-secondary mt-3">返回員工列表</a>
-    </main>
+    <div th:replace="~{body/header :: header}">
+        <div th:fragment="content">
+            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+                <h1 class="mb-4">新增員工</h1>
+                <h2 class="mb-3">(員工編號 <span th:text="${newEmployeeId}"></span>)</h2>
+                <form id="addEmployeeForm" th:action="@{/employee/empAdd}" method="post" enctype="multipart/form-data"
+                    onsubmit="return validateForm()">
+                    <input type="hidden" name="employeeId" th:value="${newEmployeeId}">
+                    <table class="table table-bordered" style="width: 50%;">
+                        <tr>
+                            <th>姓名:</th>
+                            <td><input type="text" name="employeeName" id="employeeName" required></td>
+                        </tr>
+                        <tr>
+                            <th>電話:</th>
+                            <td><input type="text" name="employeeTel" id="employeeTel" maxlength="10" required></td>
+                        </tr>
+                        <tr>
+                            <th>身分證號碼:</th>
+                            <td><input type="text" name="employeeIdcard" id="employeeIdcard" maxlength="10" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td><input type="email" name="employeeEmail" id="employeeEmail" required></td>
+                        </tr>
+                        <tr>
+                            <th>職位編號:</th>
+                            <td>
+                                <select name="positionId" id="positionId" required>
+                                    <option value="">請選擇職位</option>
+                                    <option th:each="position : ${positions}" th:value="${position.positionId}"
+                                        th:text="${position.positionId + ' - ' + position.positionName}">
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>入職日期:</th>
+                            <td><input type="date" name="hiredate" required></td>
+                        </tr>
+                        <tr>
+                            <th>上傳圖片:</th>
+                            <td><input type="file" name="file" accept="image/*"></td>
+                        </tr>
+                    </table>
+                    <button type="submit" class="btn btn-primary">新增員工</button>
+	                <div class="d-flex justify-content-start">
+					    <a th:href="@{/employee/empList}" class="btn btn-secondary mt-2">返回員工列表</a>
+					</div>
+                </form>
+                <div id="errorMessages" class="text-danger mt-3"></div>
+            </main>
+        </div>
     </div>
-    </div>
+
+    <div th:replace="~{body/footer :: footer}"></div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -105,8 +112,8 @@
             return true;
         }
 
-        $(document).ready(function() {
-            $('#addEmployeeForm').on('submit', function(e) {
+        $(document).ready(function () {
+            $('#addEmployeeForm').on('submit', function (e) {
                 e.preventDefault();
                 if (validateForm()) {
                     var formData = new FormData(this);
@@ -114,11 +121,11 @@
                         url: /*[[@{/employee/empAdd}]]*/ '',
                         type: 'POST',
                         data: formData,
-                        success: function(response) {
+                        success: function (response) {
                             alert('新增員工成功');
                             window.location.href = /*[[@{/employee/empList}]]*/ '';
                         },
-                        error: function(xhr, status, error) {
+                        error: function (xhr, status, error) {
                             alert('新增員工失敗: ' + xhr.responseText);
                         },
                         cache: false,
@@ -130,4 +137,5 @@
         });
     </script>
 </body>
+
 </html>

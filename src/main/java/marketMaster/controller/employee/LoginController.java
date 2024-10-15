@@ -39,7 +39,7 @@ public class LoginController {
                 if (employee.isFirstLogin()) {
                     return "redirect:/employee/changePasswordPage";
                 } else {
-                    return "redirect:/employee/empList";
+                    return "redirect:/homePage";
                 }
             } else {
                 model.addAttribute("errorMessage", "員工編號或密碼錯誤");
@@ -54,12 +54,12 @@ public class LoginController {
     @GetMapping("/employee/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/employee/login";
+        return "redirect:/employee/loginPage";
     }
     
-//    @GetMapping("/homePage")
-//    public String homePage() {
-//        return "body/HomePage";
-//    }
+    @GetMapping("/homePage")
+    public String homePage() {
+        return "body/HomePage";
+    }
 	
 }

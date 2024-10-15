@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>供應商-商品</title>
     <!-- 引入 Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -9,13 +9,15 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
 </head>
 <body>
+<div th:replace="~{body/header :: header}">
+<div th:fragment="content">
 <div class="container mt-4">
     <h2>供應商商品列表</h2>
     <div class="d-flex justify-content-end mb-3">
         <button class="btn btn-success btn-add">新增商品</button>
     </div>
     <div>
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="productTable">
             <thead class="table-success">
             <tr>
                 <th>供應商商品編號</th>
@@ -26,29 +28,23 @@
                 <th>操作</th>
             </tr>
             </thead>
-            <tbody th:each="product : ${productList}">
-            <tr>
-                <td th:text="${product.supplierProductId}">supplierProductId</td>
-                <td th:text="${product.productId}">productId</td>
-                <td th:text="${product.productName}">productName</td>
-                <td class="productPrice" th:text="${product.productPrice}">productPrice</td>
-                <td class="productStatus" th:text="${product.status}">status</td>
-                <td>
-                    <button class="btn btn-warning btn-update"
-                            th:data-supplier-product-id="${product.supplierProductId}"
-                            th:data-product-id="${product.productId}"
-                            th:data-product-name="${product.productName}"
-                            th:data-product-price="${product.productPrice}"
-                            th:data-status="${product.status}">
-                        更新
-                    </button>
-                    <button class="btn btn-danger btn-delete" th:data-supplier-product-id="${product.supplierProductId}">刪除</button>
-                </td>
-            </tr>
+            <tbody>
+            <!-- 這裡的內容將由 JavaScript 動態生成 -->
             </tbody>
         </table>
+        <!-- 分頁按鈕 -->
+        <div class="d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination" id="pagination">
+                    <!-- 分頁按鈕會動態生成 -->
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
+</div>
+</div>
+<div th:replace="~{body/footer :: footer}"></div>
 
 <!-- 更新彈出視窗 -->
 <div id="updateDialog" title="更新供應商商品" style="display: none;">
@@ -90,80 +86,209 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 取得 URL 中的查詢參數
-    function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    }
+    $(document).ready(function () {
+        // 取得 URL 中的查詢參數
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
 
-    // 取得 supplierId，從 URL 的查詢參數中
-    const supplierId = getQueryParam('supplierId');
+        // 取得 supplierId，從 URL 的查詢參數中
+        const supplierId = getQueryParam('supplierId');
 
-    // 封裝綁定更新和刪除按鈕事件的函數
-    function bindUpdateDeleteEvents(row) {
-        // 绑定删除事件
-        const deleteBtn = row.querySelector('.btn-delete');
-        deleteBtn.addEventListener('click', function () {
-            const supplierProductId = deleteBtn.getAttribute('data-supplier-product-id');
-            const userConfirmed = confirm('確定要刪除嗎?');
-            if (userConfirmed) {
-                axios.delete(`/marketMaster/supplierProducts/deleteProduct?supplierProductId=${encodeURIComponent(supplierProductId)}`)
-                    .then(res => {
-                        if (res.data === "刪除成功！") {
-                            console.log("刪除成功", res);
-                            // 刷新頁面
-                            location.reload();
-                        } else {
-                            console.log("刪除失敗");
-                        }
-                    })
-                    .catch(error => {
-                        console.error('刪除失敗', error);
-                        alert('刪除失敗: ' + (error.response ? error.response.data : '未知錯誤'));
-                    });
+        let currentPage = 0; // 當前頁碼，從 0 開始
+        const pageSize = 10; // 每頁顯示的記錄數，與後端默認值一致
+
+        function loadProducts(page = 0) {
+            axios.get('/marketMaster/supplier/findProductsBySupplierIdPage', {
+                params: {
+                    supplierId: supplierId,
+                    page: page,
+                    size: pageSize
+                }
+            }).then(res => {
+                console.log(res.data.content)
+                renderTable(res.data.content); // res.data.content 包含當前頁的數據
+                setupPagination(res.data.totalPages); // 設置分頁
+            }).catch(error => {
+                console.error('加載商品資料失敗', error);
+            });
+        }
+
+        function renderTable(data) {
+            const tableBody = document.querySelector('#productTable tbody');
+            tableBody.innerHTML = ''; // 清空舊的內容
+
+            data.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${product.supplierProductId}</td>
+                <td>${product.productId}</td>
+                <td>${product.productName}</td>
+                <td class="productPrice">${product.productPrice}</td>
+                <td class="productStatus">${product.status}</td>
+                <td>
+                    <button class="btn btn-warning btn-update"
+                            data-supplier-product-id="${product.supplierProductId}"
+                            data-product-id="${product.productId}"
+                            data-product-name="${product.productName}"
+                            data-product-price="${product.productPrice}"
+                            data-status="${product.status}">
+                        更新
+                    </button>
+                    <button class="btn btn-danger btn-delete" data-supplier-product-id="${product.supplierProductId}">刪除</button>
+                </td>
+            `;
+                tableBody.appendChild(row);
+
+                // 綁定更新和刪除事件
+                bindUpdateDeleteEvents(row);
+            });
+        }
+
+        function setupPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = ''; // 清空舊的分頁按鈕
+
+            for (let i = 0; i < totalPages; i++) {
+                const li = document.createElement('li');
+                li.classList.add('page-item');
+                if (i === currentPage) {
+                    li.classList.add('active');
+                }
+
+                const a = document.createElement('a');
+                a.classList.add('page-link');
+                a.href = "#";
+                a.textContent = i + 1;
+
+                a.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    currentPage = i; // 更新當前頁碼
+                    loadProducts(currentPage); // 加載新頁面的數據
+                });
+
+                li.appendChild(a);
+                pagination.appendChild(li);
             }
-        });
+        }
 
-        // 绑定更新事件
-        const updateBtn = row.querySelector('.btn-update');
-        updateBtn.addEventListener('click', function () {
-            const supplierProductId = updateBtn.getAttribute('data-supplier-product-id');
-            const productId = updateBtn.getAttribute('data-product-id');
-            const productPrice = updateBtn.getAttribute('data-product-price');
-            const status = updateBtn.getAttribute('data-status');
+        function bindUpdateDeleteEvents(row) {
+            // 綁定刪除事件
+            const deleteBtn = row.querySelector('.btn-delete');
+            deleteBtn.addEventListener('click', function () {
+                const supplierProductId = deleteBtn.getAttribute('data-supplier-product-id');
+                const userConfirmed = confirm('確定要刪除嗎?');
+                if (userConfirmed) {
+                    axios.delete(`/marketMaster/supplierProducts/deleteProduct?supplierProductId=${encodeURIComponent(supplierProductId)}`)
+                        .then(res => {
+                            if (res.data === "刪除成功！") {
+                                console.log("刪除成功", res);
+                                // 重新加載當前頁面數據
+                                loadProducts(currentPage);
+                            } else {
+                                console.log("刪除失敗");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('刪除失敗', error);
+                            alert('刪除失敗: ' + (error.response ? error.response.data : '未知錯誤'));
+                        });
+                }
+            });
 
-            // 將資料填入彈出視窗的表單中
-            $("#updateProductPrice").val(productPrice);
-            $("#updateStatus").val(status);
+            // 綁定更新事件
+            const updateBtn = row.querySelector('.btn-update');
+            updateBtn.addEventListener('click', function () {
+                const supplierProductId = updateBtn.getAttribute('data-supplier-product-id');
+                const productId = updateBtn.getAttribute('data-product-id');
+                const productPrice = updateBtn.getAttribute('data-product-price');
+                const status = updateBtn.getAttribute('data-status');
 
-            // 顯示更新對話框
-            $("#updateDialog").dialog({
+                // 將資料填入彈出視窗的表單中
+                $("#updateProductPrice").val(productPrice);
+                $("#updateStatus").val(status);
+
+                // 顯示更新對話框
+                $("#updateDialog").dialog({
+                    modal: true,
+                    width: 400,
+                    buttons: {
+                        "保存": function () {
+                            // 取得更新後的值
+                            const updatedProductPrice = $("#updateProductPrice").val();
+                            const updatedStatus = $("#updateStatus").val();
+
+                            // 發送 PUT 請求
+                            axios.put(`/marketMaster/supplierProducts/updateProduct`, {
+                                supplierProductId: supplierProductId,
+                                supplierId: supplierId,
+                                productId: productId,
+                                productPrice: updatedProductPrice,
+                                status: updatedStatus
+                            })
+                                .then(res => {
+                                    console.log(res.data);
+                                    // 關閉彈出視窗
+                                    $("#updateDialog").dialog("close");
+                                    // 重新加載當前頁面數據
+                                    loadProducts(currentPage);
+                                })
+                                .catch(error => {
+                                    console.error('更新失敗', error);
+                                    alert('更新失敗: ' + (error.response ? error.response.data : '未知錯誤'));
+                                });
+                        },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+        }
+
+        // 新增功能
+        const addBtn = document.querySelector('.btn-add');
+        addBtn.addEventListener('click', function () {
+            // 清空表單中的值
+            $("#addProductId").val('');
+            $("#addProductPrice").val('');
+            $("#addStatus").val('');
+
+            // 顯示新增對話框
+            $("#addDialog").dialog({
                 modal: true,
                 width: 400,
                 buttons: {
                     "保存": function () {
-                        // 取得更新後的值
-                        const updatedProductPrice = $("#updateProductPrice").val();
-                        const updatedStatus = $("#updateStatus").val();
+                        // 取得輸入的值
+                        const newProductId = $("#addProductId").val();
+                        const newProductPrice = $("#addProductPrice").val();
+                        const newStatus = $("#addStatus").val();
 
-                        // 發送 PUT 請求，包含 supplierId
-                        axios.put(`/marketMaster/supplierProducts/updateProduct`, {
-                            supplierProductId: supplierProductId,
-                            supplierId: supplierId, // 從 URL 中取得的 supplierId
-                            productId: productId,
-                            productPrice: updatedProductPrice,
-                            status: updatedStatus
+                        // 檢查必填字段是否已填寫
+                        if (!newProductId || !newProductPrice || !newStatus) {
+                            alert('請填寫所有必填字段');
+                            return;
+                        }
+
+                        // 發送 POST 請求
+                        axios.post(`/marketMaster/supplierProducts/addProduct`, {
+                            supplierId: supplierId,
+                            productId: newProductId,
+                            productPrice: newProductPrice,
+                            status: newStatus
                         })
                             .then(res => {
                                 console.log(res.data);
                                 // 關閉彈出視窗
-                                $("#updateDialog").dialog("close");
-                                // 刷新頁面
-                                location.reload();
+                                $("#addDialog").dialog("close");
+                                // 重新加載當前頁面數據
+                                loadProducts(currentPage);
                             })
                             .catch(error => {
-                                console.error('更新失敗', error);
-                                alert('更新失敗: ' + (error.response ? error.response.data : '未知錯誤'));
+                                console.error('新增失敗', error);
+                                alert('新增失敗: ' + (error.response ? error.response.data : '未知錯誤'));
                             });
                     },
                     "取消": function () {
@@ -172,67 +297,9 @@
                 }
             });
         });
-    }
 
-    // 初始綁定現有的行
-    document.querySelectorAll('tbody tr').forEach(row => {
-        bindUpdateDeleteEvents(row);
-    });
-
-    // 新增功能
-    const addBtn = document.querySelector('.btn-add');
-    addBtn.addEventListener('click', function () {
-        // 清空表單中的值
-        $("#addProductId").val('');
-        $("#addProductPrice").val('');
-        $("#addStatus").val('');
-
-        // 顯示新增對話框
-        $("#addDialog").dialog({
-            modal: true,
-            width: 400,
-            buttons: {
-                "保存": function () {
-                    // 取得輸入的值
-                    const newProductId = $("#addProductId").val();
-                    const newProductPrice = $("#addProductPrice").val();
-                    const newStatus = $("#addStatus").val();
-
-                    // 檢查必填字段是否已填寫
-                    if (!newProductId || !newProductPrice || !newStatus) {
-                        alert('請填寫所有必填字段');
-                        return;
-                    }
-
-                    // 生成新的 supplierProductId，可以根据您的需求生成唯一的 ID
-                    // 这里假设由 supplierId 和 productId 组合而成
-                    const newSupplierProductId = supplierId + '-' + newProductId;
-
-                    // 發送 POST 請求，包含 supplierId
-                    axios.post(`/marketMaster/supplierProducts/addProduct`, {
-                        supplierProductId: newSupplierProductId,
-                        supplierId: supplierId, // 從 URL 中取得的 supplierId
-                        productId: newProductId,
-                        productPrice: newProductPrice,
-                        status: newStatus
-                    })
-                        .then(res => {
-                            console.log(res.data);
-                            // 關閉彈出視窗
-                            $("#addDialog").dialog("close");
-                            // 刷新頁面
-                            location.reload();
-                        })
-                        .catch(error => {
-                            console.error('新增失敗', error);
-                            alert('新增失敗: ' + (error.response ? error.response.data : '未知錯誤'));
-                        });
-                },
-                "取消": function () {
-                    $(this).dialog("close");
-                }
-            }
-        });
+        // 初始化頁面，載入數據
+        loadProducts(currentPage);
     });
 </script>
 </body>

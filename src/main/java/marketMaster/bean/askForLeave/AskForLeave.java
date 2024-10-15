@@ -14,55 +14,65 @@ import jakarta.persistence.Table;
 
 import marketMaster.bean.employee.EmpBean;
 
-
 @Entity
-@Table(name="ask_for_leave")
+@Table(name = "ask_for_leave")
 public class AskForLeave {
-	
+
 	@Id
 	@Column(name = "leave_id")
 	private String leaveId;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "employee_id")
 	private EmpBean empBean;
-	
+
+	@ManyToOne
+	@JoinColumn(name = "category_id")
+	private LeaveCategory leaveCategory;
+
+	@ManyToOne
+	@JoinColumn(name = "record_id")
+	private LeaveRecord leaveRecord;
+
 	@Column(name = "start_time")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private LocalDateTime starTime;
-	
+
 	@Column(name = "end_time")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private LocalDateTime endTime;
-	
-	@Column(name = "leave_type")
-	private String leaveType;
-	
+
 	@Column(name = "reason_leave")
 	private String reasonLeave;
-	
+
 	@Lob
 	@Column(name = "proof_image")
 	private byte[] proofImage;
-	
+
 	@Column(name = "approved_status")
 	private String approvedStatus;
+	
+	@Column(name = "rejection_reason")
+    private String rejectionReason;
 
 	public AskForLeave() {
 	}
 
-	
-	
-	public AskForLeave(String leaveId, EmpBean empBean, LocalDateTime starTime, LocalDateTime endTime, String leaveType,
-			String reasonLeave, byte[] proofImage, String approvedStatus) {
+
+
+	public AskForLeave(String leaveId, EmpBean empBean, LeaveCategory leaveCategory, LeaveRecord leaveRecord,
+			LocalDateTime starTime, LocalDateTime endTime, String reasonLeave, byte[] proofImage, String approvedStatus,
+			String rejectionReason) {
 		this.leaveId = leaveId;
 		this.empBean = empBean;
+		this.leaveCategory = leaveCategory;
+		this.leaveRecord = leaveRecord;
 		this.starTime = starTime;
 		this.endTime = endTime;
-		this.leaveType = leaveType;
 		this.reasonLeave = reasonLeave;
 		this.proofImage = proofImage;
 		this.approvedStatus = approvedStatus;
+		this.rejectionReason = rejectionReason;
 	}
 
 
@@ -83,6 +93,22 @@ public class AskForLeave {
 		this.empBean = empBean;
 	}
 
+	public LeaveCategory getLeaveCategory() {
+		return leaveCategory;
+	}
+
+	public void setLeaveCategory(LeaveCategory leaveCategory) {
+		this.leaveCategory = leaveCategory;
+	}
+
+	public LeaveRecord getLeaveRecord() {
+		return leaveRecord;
+	}
+
+	public void setLeaveRecord(LeaveRecord leaveRecord) {
+		this.leaveRecord = leaveRecord;
+	}
+
 	public LocalDateTime getStarTime() {
 		return starTime;
 	}
@@ -97,14 +123,6 @@ public class AskForLeave {
 
 	public void setEndTime(LocalDateTime endTime) {
 		this.endTime = endTime;
-	}
-
-	public String getLeaveType() {
-		return leaveType;
-	}
-
-	public void setLeaveType(String leaveType) {
-		this.leaveType = leaveType;
 	}
 
 	public String getReasonLeave() {
@@ -131,7 +149,13 @@ public class AskForLeave {
 		this.approvedStatus = approvedStatus;
 	}
 
-	
+	public String getRejectionReason() {
+		return rejectionReason;
+	}
+
+	public void setRejectionReason(String rejectionReason) {
+		this.rejectionReason = rejectionReason;
+	}
 	
 
 }
