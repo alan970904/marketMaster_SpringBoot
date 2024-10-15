@@ -1,7 +1,6 @@
 package marketMaster.service.product;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,21 +13,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
+import marketMaster.DTO.product.ProductIdRestockNumDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
 import marketMaster.bean.product.ProductBean;
-import marketMaster.bean.restock.RestockDetailsBean;
-import marketMaster.service.restock.RestockDetailsRepository;
 
 @Service
 public class ProductService {
 
 	@Autowired
 	private ProductRepository productRepo;
-	
-	@Autowired
-	private RestockDetailsRepository restockDetailsRepo;
 
-// ===================== 新增商品 =====================
+	// ===================== 新增商品 =====================
 	public ProductBean addProduct(ProductBean product, MultipartFile photo) throws IOException {
 		Optional<ProductBean> exist = productRepo.findById(product.getProductId());
 
@@ -90,15 +85,15 @@ public class ProductService {
 		return productRepo.findAllCategories();
 
 	}
-	
+
 //	public List<LocalDate> test(String productId) {
 //		return productRepo.findProductionDatesByProductId(productId);
 //	}
-	
+
 	public List<ProductSupplierDTO> findRestockDetails(String supplierId) {
-		
+
 		List<ProductSupplierDTO> restockDetails = productRepo.findBySupplierId(supplierId);
-		
+
 		return restockDetails;
 	}
 
@@ -169,7 +164,7 @@ public class ProductService {
 
 // ==============  進貨數量更新 ==============	
 	@Transactional
-	public void updateRestockProduct(String productId, Integer numberOfRestock) {
+	public void updateProductByInsertRestock(String productId, Integer numberOfRestock) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
 
 		if (optional.isPresent()) {
@@ -180,7 +175,40 @@ public class ProductService {
 		}
 
 	}
-	
-	
 
+	@Transactional
+	public void updateProductByUpdateRestock(String productId, Integer numberOfRestock, Integer oldNumberOfRestock) {
+
+		Integer difference = numberOfRestock - oldNumberOfRestock;
+		if (difference != 0) {
+			Optional<ProductBean> optional = productRepo.findById(productId);
+
+			if (optional.isPresent()) {
+
+				ProductBean product = optional.get();
+
+				product.setNumberOfInventory(product.getNumberOfInventory() + difference);
+			}
+		}
+
+	}
+	@Transactional
+	public void updateProductByDeleteRestock(String productId,Integer oldNumberOfRestock) {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			product.setNumberOfInventory(product.getNumberOfInventory()-oldNumberOfRestock);
+		}
+	}
+	public ProductIdRestockNumDTO findProductIdByRestockDetailId(String restockDetailId) {
+		return productRepo.findProductIdByRestockDetailId(restockDetailId);
+	}
+
+//	public List<ProductIdRestockNumDTO> findRestockNumByRestockId(String restockId) {
+//		return productRepo.findRestockNumberByRestockId(restockId);
+//	}
+
+//	public ProductIdRestockNumDTO findProductIdByRestockDetailId(String detailId) {
+//		return productRepo.findProductIdByRestockDetailId(detailId);
+//	}
 }
