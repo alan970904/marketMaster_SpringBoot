@@ -4,6 +4,8 @@ import marketMaster.DTO.restock.SupplierDTO.SupplierProductDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO;
 import marketMaster.bean.restock.SupplierProductsBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,10 @@ public class SupplierProductsService {
 //    透過供應商id找尋該id所有的商品
 public List<SupplierProductDTO>findProductsBySupplierId(String supplierId) {
      return supplierProductsRepository.findProductsBySupplierId(supplierId);
+    }
+    //    頁數透過供應商id找尋該id所有的商品
+    public Page<SupplierProductDetailDTO> findProductsBySupplierIdPage(String supplierId, Pageable pageable) {
+        return supplierProductsRepository.findProductsBySupplierIdPage(supplierId,pageable);
     }
 
     // 新增供應商提供的商品
