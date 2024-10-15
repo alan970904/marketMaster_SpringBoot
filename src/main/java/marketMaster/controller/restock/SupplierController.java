@@ -3,6 +3,7 @@ package marketMaster.controller.restock;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierInfoDTO;
+import marketMaster.DTO.restock.SupplierDTO.SupplierProductDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO;
 import marketMaster.bean.restock.SupplierAccountsBean;
 import marketMaster.bean.restock.SuppliersBean;
@@ -11,6 +12,10 @@ import marketMaster.service.restock.SupplierAccountsRepository;
 import marketMaster.service.restock.SupplierProductsService;
 import marketMaster.service.restock.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -38,15 +43,23 @@ public class SupplierController {
 
     @GetMapping("/AllSuppliers")
     @ResponseBody
-    public List<SupplierInfoDTO> getAllSuppliersWithAccounts() {
-        return supplierService.getAllSuppliersWithAccounts();
+    public Page<SupplierInfoDTO> getAllSuppliersWithAccounts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return supplierService.getAllSuppliersWithAccounts(pageable);
     }
-
+    //
     @GetMapping("/findProductsBySupplierId")
     public String findProductsBySupplierId(@RequestParam("supplierId") String supplierId, Model model) {
-        supplierProductsService.findProductsBySupplierId(supplierId);
-        model.addAttribute("supplierProducts", supplierProductsService.findProductsBySupplierId(supplierId));
-        return "/restock/supplierProducts";
+        model.addAttribute("supplierId", supplierId); // 只傳遞 supplierId 給前端
+        return "/restock/supplierProducts"; // 渲染靜態頁面
+    }
+
+
+    @GetMapping("/findProductsBySupplierIdPage")
+    @ResponseBody
+    public Page<SupplierProductDetailDTO> findProductsBySupplierIdPage(@RequestParam("supplierId") String supplierId,@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+      return   supplierProductsService.findProductsBySupplierIdPage(supplierId,pageable);
     }
 
 
