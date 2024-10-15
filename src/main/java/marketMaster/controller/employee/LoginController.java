@@ -39,7 +39,7 @@ public class LoginController {
                 if (employee.isFirstLogin()) {
                     return "redirect:/employee/changePasswordPage";
                 } else {
-                    return "redirect:/employee/empList";
+                    return "redirect:/homePage";
                 }
             } else {
                 model.addAttribute("errorMessage", "員工編號或密碼錯誤");
