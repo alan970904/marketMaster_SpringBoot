@@ -38,7 +38,7 @@
         <nav id="sidebar">
             <ul class="list-unstyled">
                 <li>
-                    <a th:href="@{/employee/empList}" class="sidebar-link"><i class="fa-solid fa-shop"></i> 後台管理首頁</a>
+                    <a th:href="@{/homePage}" class="sidebar-link"><i class="fa-solid fa-shop"></i> 後台管理首頁</a>
                 </li>
                 <li>
                     <a href="#memberSubmenu" data-bs-toggle="collapse" aria-expanded="false"
@@ -115,7 +115,7 @@
             </ul>
         </nav>
     </div>
-    	<div th:replace="~{::content}"></div>
+    	<div class="main-content" th:replace="~{::content}"></div>
     </div>
 
 </body>

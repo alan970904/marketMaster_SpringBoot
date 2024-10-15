@@ -54,12 +54,12 @@ public class LoginController {
     @GetMapping("/employee/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/employee/login";
+        return "redirect:/employee/loginPage";
     }
     
-//    @GetMapping("/homePage")
-//    public String homePage() {
-//        return "body/HomePage";
-//    }
+    @GetMapping("/homePage")
+    public String homePage() {
+        return "body/HomePage";
+    }
 	
 }
