@@ -1,101 +1,105 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>新增會員</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
-	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
-	<div th:fragment="content">
-    <main class="container mt-4">
-        <h1 class="mb-4">新增會員</h1>
+    <div th:replace="~{body/header :: header}">
+        <div th:fragment="content">
+            <main class="container mt-4">
+                <h1 class="mb-4">新增會員</h1>
 
-        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+                <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
 
-        <form id="addCustomerForm" th:action="@{/customer/cusAdd}" method="post" class="needs-validation" novalidate style="width: 50%;">
-            <div class="mb-3">
-                <label for="customerTel" class="form-label">手機號碼:</label>
-                <input type="tel" class="form-control" id="customerTel" name="customerTel" required>
-                <div class="invalid-feedback">請輸入有效的手機號碼（09開頭，總共10位數字）</div>
-            </div>
-            <div class="mb-3">
-                <label for="customerName" class="form-label">會員姓名:</label>
-                <input type="text" class="form-control" id="customerName" name="customerName" required>
-                <div class="invalid-feedback">請輸入至少兩個字的中文名字</div>
-            </div>
-            <div class="mb-3">
-                <label for="customerEmail" class="form-label">Email:</label>
-                <input type="email" class="form-control" id="customerEmail" name="customerEmail" required>
-                <div class="invalid-feedback">請輸入有效的 Email 地址</div>
-            </div>
+                <form id="addCustomerForm" th:action="@{/customer/cusAdd}" method="post" class="needs-validation"
+                    novalidate style="width: 50%;">
+                    <div class="mb-3">
+                        <label for="customerTel" class="form-label">手機號碼:</label>
+                        <input type="tel" class="form-control" id="customerTel" name="customerTel" required>
+                        <div class="invalid-feedback">請輸入有效的手機號碼（09開頭，總共10位數字）</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerName" class="form-label">會員姓名:</label>
+                        <input type="text" class="form-control" id="customerName" name="customerName" required>
+                        <div class="invalid-feedback">請輸入至少兩個字的中文名字</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerEmail" class="form-label">Email:</label>
+                        <input type="email" class="form-control" id="customerEmail" name="customerEmail" required>
+                        <div class="invalid-feedback">請輸入有效的 Email 地址</div>
+                    </div>
 
-            <button type="submit" class="btn btn-primary">新增會員</button>
-            <a class="btn btn-secondary" th:href="@{/customer/cusList}">返回會員列表</a>
-        </form>
-    </main>
+                    <button type="submit" class="btn btn-primary">新增會員</button>
+                </form>
+                <a class="btn btn-secondary mt-3" th:href="@{/customer/cusList}">返回會員列表</a>
+            </main>
+        </div>
     </div>
-    </div>
-
+    <div th:replace="~{body/footer :: footer}"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    (function () {
-        'use strict'
+        (function () {
+            'use strict'
 
-        var form = document.getElementById('addCustomerForm');
-        var tel = document.getElementById('customerTel');
-        var name = document.getElementById('customerName');
-        var email = document.getElementById('customerEmail');
+            var form = document.getElementById('addCustomerForm');
+            var tel = document.getElementById('customerTel');
+            var name = document.getElementById('customerName');
+            var email = document.getElementById('customerEmail');
 
-        function validateInput(input, validationFunction, errorMessage) {
-            if (!validationFunction(input.value)) {
-                input.setCustomValidity(errorMessage);
-                input.classList.add('is-invalid');
-            } else {
-                input.setCustomValidity('');
-                input.classList.remove('is-invalid');
-            }
-        }
-
-        function validateTel(value) {
-            return /^09[0-9]{8}$/.test(value);
-        }
-
-        function validateName(value) {
-            return /^[\u4e00-\u9fa5]{2,}$/.test(value);
-        }
-
-        function validateEmail(value) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-        }
-
-        tel.addEventListener('input', function() {
-            validateInput(tel, validateTel, '請輸入有效的手機號碼');
-        });
-
-        name.addEventListener('input', function() {
-            validateInput(name, validateName, '請輸入至少兩個字的中文名字');
-        });
-
-        email.addEventListener('input', function() {
-            validateInput(email, validateEmail, '請輸入有效的 Email');
-        });
-
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
+            function validateInput(input, validationFunction, errorMessage) {
+                if (!validationFunction(input.value)) {
+                    input.setCustomValidity(errorMessage);
+                    input.classList.add('is-invalid');
+                } else {
+                    input.setCustomValidity('');
+                    input.classList.remove('is-invalid');
+                }
             }
 
-            validateInput(tel, validateTel, '請輸入有效的手機號碼');
-            validateInput(name, validateName, '請輸入至少兩個字的中文名字');
-            validateInput(email, validateEmail, '請輸入有效的 Email');
+            function validateTel(value) {
+                return /^09[0-9]{8}$/.test(value);
+            }
 
-            form.classList.add('was-validated');
-        }, false);
-    })();
+            function validateName(value) {
+                return /^[\u4e00-\u9fa5]{2,}$/.test(value);
+            }
+
+            function validateEmail(value) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            }
+
+            tel.addEventListener('input', function () {
+                validateInput(tel, validateTel, '請輸入有效的手機號碼');
+            });
+
+            name.addEventListener('input', function () {
+                validateInput(name, validateName, '請輸入至少兩個字的中文名字');
+            });
+
+            email.addEventListener('input', function () {
+                validateInput(email, validateEmail, '請輸入有效的 Email');
+            });
+
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                validateInput(tel, validateTel, '請輸入有效的手機號碼');
+                validateInput(name, validateName, '請輸入至少兩個字的中文名字');
+                validateInput(email, validateEmail, '請輸入有效的 Email');
+
+                form.classList.add('was-validated');
+            }, false);
+        })();
     </script>
 </body>
+
 </html>
