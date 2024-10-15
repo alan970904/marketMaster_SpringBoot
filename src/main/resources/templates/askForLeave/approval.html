@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8" th:replace="~{body/head :: head}">
+<title>請假審核</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+	rel="stylesheet" />
+<style>
+.modal-body {
+	word-wrap: break-word;
+	white-space: normal;
+	max-height: 70vh;
+	overflow-y: auto;
+}
+</style>
+
+</head>
+
+<body>
+	 <div th:replace="~{body/header :: header}">
+		<div th:fragment="content">
+			<div class="container mt-5">
+				<div class="col text-center">
+					<h1>請假審核</h1>
+				</div>
+
+				<div class="row mt-3">
+					<div class="col">
+						<a class="btn btn-secondary"
+							th:href="@{/askForLeave/search(id=${session.employee.employeeId})}">
+							<i class="fa-regular fa-share-from-square"></i> 返回
+						</a>
+					</div>
+				</div>
+				<hr />
+
+				<div
+					th:if="${askForLeave != null and not #lists.isEmpty(askForLeave)}">
+					<table class="table table-striped table-bordered">
+						<thead class="table-dark">
+							<tr>
+								<th class="text-center" style="vertical-align: middle">
+									請假編號</th>
+								<th class="text-center" style="vertical-align: middle">
+									員工編號</th>
+								<th class="text-center" style="vertical-align: middle">
+									員工姓名</th>
+								<th class="text-center" style="vertical-align: middle">
+									開始時間</th>
+								<th class="text-center" style="vertical-align: middle">
+									結束時間</th>
+								<th class="text-center" style="vertical-align: middle">
+									請假類別</th>
+								<th class="text-center" style="vertical-align: middle">
+									請假原因</th>
+								<th class="text-center" style="vertical-align: middle">
+									批准狀態</th>
+								<th class="text-center" style="vertical-align: middle">附件</th>
+								<th class="text-center" style="vertical-align: middle;">退簽原因</th>
+								<th class="text-center" style="vertical-align: middle">操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="leave : ${askForLeave.content}">
+								<td class="text-center" style="vertical-align: middle"
+									th:text="${leave.leaveId}"></td>
+								<td class="text-center" style="vertical-align: middle"
+									th:text="${leave.empBean.employeeId}"></td>
+								<td class="text-center" style="vertical-align: middle"
+									th:text="${leave.empBean.employeeName}"></td>
+								<td class="text-center" style="vertical-align: middle"
+									th:text="${#temporals.format(leave.starTime, 'yyyy-MM-dd HH:mm')}"></td>
+								<td class="text-center" style="vertical-align: middle"
+									th:text="${#temporals.format(leave.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+								<td class="text-center" style="vertical-align: middle"
+									th:text="${leave.leaveCategory.leaveType}"></td>
+								<td class="text-center" style="vertical-align: middle;">
+									<button class="btn btn-sm btn-primary"
+										th:if="${leave.reasonLeave != null}" data-bs-toggle="modal"
+										data-bs-target="#Rlmodal"
+										th:data-reason="${leave.reasonLeave}">
+										<i class="fa-regular fa-eye"></i>檢視
+									</button> <span th:if="${leave.reasonLeave == null}"> <i
+										class="fa-regular fa-eye-slash"></i>
+								</span>
+								</td>
+								<td class="text-center" style="vertical-align: middle"
+									th:text="${leave.approvedStatus}"></td>
+								<td class="text-center" style="vertical-align: middle;"><a
+									th:if="${leave.proofImage != null}"
+									th:href="@{/askForLeave/image/{id}(id=${leave.leaveId})}"
+									target="_blank" class="btn btn-primary btn-sm"> <i
+										class="fa-regular fa-eye"></i>檢視
+								</a> <span th:if="${leave.proofImage == null}"> <i
+										class="fa-regular fa-eye-slash"></i>
+								</span></td>
+
+
+								<td class="text-center" style="vertical-align: middle;">
+									<button class="btn btn-sm btn-primary"
+										th:if="${leave.rejectionReason != null}"
+										data-bs-toggle="modal" data-bs-target="#RRmodal"
+										th:data-reason="${leave.rejectionReason}">
+										<i class="fa-regular fa-eye"></i>檢視
+									</button> <span th:if="${leave.rejectionReason == null}"> <i
+										class="fa-regular fa-eye-slash"></i>
+								</span>
+								</td>
+								<td class="text-center">
+									<button class="btn btn-success btn-sm approve-btn"
+										th:if="${leave.approvedStatus != '已批准'}"
+										th:data-id="${leave.leaveId}">批准</button> <span
+									th:if="${leave.approvedStatus == '已批准'}"> <i
+										class="fas fa-lock"></i> 已批准
+								</span>
+									<button class="btn btn-danger btn-sm reject-btn"
+										th:data-id="${leave.leaveId}" data-bs-toggle="modal"
+										data-bs-target="#rejectionModal">拒絕</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<nav aria-label="Page navigation">
+						<ul class="pagination justify-content-center">
+							<li class="page-item"
+								th:classappend="${currentPage == 1} ? 'disabled'"><a
+								class="page-link"
+								th:href="@{/askForLeave/approval(id=${empBean.employeeId}, p=${currentPage - 1})}"><i
+									class="fas fa-chevron-left"></i></a></li>
+							<li class="page-item"
+								th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+								th:classappend="${pageNum == currentPage} ? 'active'"><a
+								class="page-link"
+								th:href="@{/askForLeave/approval(id=${empBean.employeeId}, p=${pageNum})}"
+								th:text="${pageNum}"></a></li>
+							<li class="page-item"
+								th:classappend="${currentPage == totalPages} ? 'disabled'">
+								<a class="page-link"
+								th:href="@{/askForLeave/approval(id=${empBean.employeeId}, p=${currentPage + 1})}"><i
+									class="fas fa-chevron-right"></i></a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+
+				<div class="alert alert-info"
+					th:if="${askForLeave == null or #lists.isEmpty(askForLeave.content)}">
+					找不到符合條件的請假記錄。</div>
+			</div>
+			<div class="modal fade" id="Rlmodal" tabindex="-1"
+				aria-labelledby="RlmodalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="rejectionModalLabel">請假原因</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="Close"></button>
+						</div>
+						<div class="modal-body"></div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary button-center"
+								data-bs-dismiss="modal">返回</button>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="RRmodal" tabindex="-1"
+				aria-labelledby="RlmodalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="rejectionModalLabel">退簽原因</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="Close"></button>
+						</div>
+						<div class="modal-body"></div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary button-center"
+								data-bs-dismiss="modal">返回</button>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="rejectionModal" tabindex="-1"
+				aria-labelledby="rejectionModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="rejectionModalLabel">拒絕原因</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<textarea id="rejectionReason" class="form-control" rows="3"></textarea>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary"
+								data-bs-dismiss="modal">取消</button>
+							<button type="button" class="btn btn-primary"
+								id="submitRejection">提交拒絕</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+ <div th:replace="~{body/footer :: footer}"></div>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+	<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 這裡的代碼將繼續處理「拒絕」按鈕的點擊
+    document.querySelectorAll(".reject-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+            const leaveId = this.getAttribute("data-id");
+            document.getElementById("submitRejection").setAttribute("data-id", leaveId);
+            // 顯示拒絕模態框
+            $('#rejectionModal').modal('show');
+        });
+    });
+
+    // 綁定批准按鈕的點擊事件
+    document.querySelectorAll(".approve-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+            const leaveId = this.getAttribute("data-id");  // 取得 leaveId
+            approveLeave(leaveId);  // 呼叫批准方法
+        });
+    });
+
+    // 核准請假的方法
+    function approveLeave(leaveId) {
+        $.ajax({
+            url: "/marketMaster/askForLeave/approvalpost",
+            method: "POST",
+            data: { leaveId: leaveId },
+            success: function (response) {
+                alert(response);
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                alert("核准失敗。");
+            }
+        });
+    }
+
+    // 提交拒絕原因的方法
+    document.getElementById("submitRejection").addEventListener("click", function () {
+        const leaveId = this.getAttribute("data-id");
+        const rejectionReason = document.getElementById("rejectionReason").value;
+
+        if (!rejectionReason) {
+            alert("請填寫拒絕原因。");
+            return;
+        }
+
+        // 發送 AJAX 請求拒絕請假
+        $.ajax({
+            url: "/marketMaster/askForLeave/reject",
+            method: "POST",
+            data: {
+                leaveId: leaveId,
+                rejectionReason: rejectionReason
+            },
+            success: function (response) {
+                alert(response);
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                alert("拒絕失敗。");
+            }
+        });
+    });
+
+    // 綁定請假原因模態框
+    $('#Rlmodal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // 按鈕
+        var reason = button.data('reason');  // 獲取請假原因
+        var modalBody = $(this).find('.modal-body'); 
+        modalBody.text(reason); // 顯示在模態框中
+    });
+
+    // 綁定退簽原因模態框
+    $('#RRmodal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // 按鈕
+        var reason = button.data('reason');  // 獲取退簽原因
+        var modalBody = $(this).find('.modal-body'); 
+        modalBody.text(reason); // 顯示在模態框中
+    });
+});
+
+
+</script>
+</body>
+</html>

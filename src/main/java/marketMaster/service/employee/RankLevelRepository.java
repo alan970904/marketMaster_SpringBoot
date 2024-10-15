@@ -8,4 +8,6 @@ import marketMaster.bean.employee.RankLevelBean;
 @Repository
 public interface RankLevelRepository extends JpaRepository<RankLevelBean, String> {
 
+	RankLevelBean findTopByOrderByLimitsOfAuthorityDesc();
+	
 }

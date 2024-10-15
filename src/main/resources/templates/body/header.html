@@ -50,7 +50,7 @@
                             <a th:href="@{/employee/empList}" class="sidebar-link"> 員工列表</a>
                         </li>
                         <li>
-                            <a th:href="@{/askForLeave/home}" class="sidebar-link"> 請假</a>
+                            <a th:href="@{/askForLeave/search(id=${session.employee.employeeId})}" class="sidebar-link"> 請假</a>
                         </li>
                         <li>
                             <a th:href="@{/schedules/view}" class="sidebar-link"> 排班</a>
