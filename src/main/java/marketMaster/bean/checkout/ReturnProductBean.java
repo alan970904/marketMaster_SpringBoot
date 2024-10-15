@@ -14,9 +14,6 @@ public class ReturnProductBean implements Serializable {
     @Id
     @Column(name = "return_id")
     private String returnId;
-    
-    @Column(name = "checkout_id")
-    private String checkoutId;
 
     @Column(name = "employee_id")
     private String employeeId;
@@ -31,17 +28,12 @@ public class ReturnProductBean implements Serializable {
     @OneToMany(mappedBy = "returnProduct", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ReturnDetailsBean> returnDetails;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "checkout_id", insertable = false, updatable = false)
-    private CheckoutBean checkout;
-
     public ReturnProductBean() {
         super();
     }
 
-    public ReturnProductBean(String returnId, String checkoutId, String employeeId, Integer returnTotalPrice, Date returnDate) {
+    public ReturnProductBean(String returnId, String employeeId, Integer returnTotalPrice, Date returnDate) {
         this.returnId = returnId;
-        this.checkoutId = checkoutId;
         this.employeeId = employeeId;
         this.returnTotalPrice = returnTotalPrice;
         this.returnDate = returnDate;
@@ -57,14 +49,6 @@ public class ReturnProductBean implements Serializable {
         this.returnId = returnId;
     }
 
-    public String getCheckoutId() {
-        return checkoutId;
-    }
-
-    public void setCheckoutId(String checkoutId) {
-        this.checkoutId = checkoutId;
-    }
-    
     public String getEmployeeId() {
         return employeeId;
     }
@@ -95,14 +79,6 @@ public class ReturnProductBean implements Serializable {
 
     public void setReturnDetails(List<ReturnDetailsBean> returnDetails) {
         this.returnDetails = returnDetails;
-    }
-    
-    public CheckoutBean getCheckout() {
-        return checkout;
-    }
-
-    public void setCheckout(CheckoutBean checkout) {
-        this.checkout = checkout;
     }
 
     public void addReturnDetail(ReturnDetailsBean returnDetail) {

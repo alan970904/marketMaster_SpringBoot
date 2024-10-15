@@ -42,8 +42,8 @@ public class ReturnDetailsBean implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-        @JoinColumn(name = "checkout_id", referencedColumnName = "checkout_id", insertable = false, updatable = false),
-        @JoinColumn(name = "product_id", referencedColumnName = "product_id", insertable = false, updatable = false)
+        @JoinColumn(name = "checkout_id", referencedColumnName = "CHECKOUT_ID", insertable = false, updatable = false),
+        @JoinColumn(name = "product_id", referencedColumnName = "PRODUCT_ID", insertable = false, updatable = false)
     })
     private CheckoutDetailsBean checkoutDetail;
 
@@ -188,15 +188,6 @@ public class ReturnDetailsBean implements Serializable {
                ", returnStatus='" + returnStatus + '\'' +
                ", returnPhoto='" + returnPhoto + '\'' +
                '}';
-    }
-    
- // 新增檢查方法
-    @PrePersist
-    @PreUpdate
-    public void validateReturnStatus() {
-        if (!"顧客因素".equals(returnStatus) && !"商品外觀損傷".equals(returnStatus) && !"商品品質異常".equals(returnStatus)) {
-            throw new IllegalArgumentException("無效的退貨狀態");
-        }
     }
 
     // 內部類定義複合主鍵
