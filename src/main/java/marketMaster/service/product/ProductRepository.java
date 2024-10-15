@@ -3,8 +3,10 @@ package marketMaster.service.product;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.DTO.product.ProductIdDTO;
+import marketMaster.DTO.product.ProductIdRestockNumDTO;
 import marketMaster.DTO.product.ProductNameDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
+import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.bean.product.ProductBean;
 
 import org.springframework.data.domain.Page;
@@ -14,11 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
-
-import marketMaster.bean.restock.RestockDetailsBean;
-import marketMaster.bean.restock.SupplierProductsBean;
 
 
 @Repository
@@ -43,6 +41,9 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     Page<ProductBean> findInventoryNotEnough(Pageable pgb);
     
     
+    
+    //   ===============更新進貨數量用的=============
+    
 //    @Query("SELECT rd.productionDate FROM RestockDetailsBean rd " +
 //            "JOIN rd.supplierProduct sp " +
 //            "JOIN sp.product p " +
@@ -56,6 +57,13 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     @Query("SELECT new marketMaster.DTO.product.ProductSupplierDTO(rd.supplierProduct.product.productId,rd.dueDate) FROM RestockDetailsBean rd WHERE rd.supplierProduct.supplierProductId = :supplierProductId")
     List<ProductSupplierDTO> findBySupplierId(@Param("supplierProductId") String supplierProductId);
     
+    //進貨明細找商品id
+    @Query("SELECT new marketMaster.DTO.product.ProductIdRestockNumDTO(rd.supplierProduct.product.productId,rd.numberOfRestock) FROM RestockDetailsBean rd WHERE rd.detailId = :detailId")
+    ProductIdRestockNumDTO findProductIdByRestockDetailId(@Param("detailId") String detailId);
 
-
+    // 根據 restock 的 restockId 查詢 RestockDetailsBean
+    @Query("SELECT new marketMaster.DTO.product.ProductIdRestockNumDTO(r.supplierProduct.product.productId, r.numberOfRestock) FROM RestockDetailsBean r WHERE r.restock.restockId = :restockId")
+    List<ProductIdRestockNumDTO> findRestockNumberByRestockId(@Param("restockId") String restockId);
+    
+    //  ===============更新進貨數量用的=============
 }
