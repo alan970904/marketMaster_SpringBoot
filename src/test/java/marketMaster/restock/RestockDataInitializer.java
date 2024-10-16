@@ -48,13 +48,13 @@ public class RestockDataInitializer {
 //       List<LocalDate>a = productRepository.findProductionDatesByProductId(supplierId);
 //        System.out.println(a);
 //    }
-    @Test
-    public void goo1(){
-        int page =0;
-        int size =10;
-        Pageable pageable = PageRequest.of(page, size);
-       Page<SupplierProductDTO> goo= supplierProductsService.findProductsBySupplierIdPage("S001",pageable);
-        System.out.println(goo);
-    }
+//    @Test
+//    public void goo1(){
+//        int page =0;
+//        int size =10;
+//        Pageable pageable = PageRequest.of(page, size);
+//       Page<SupplierProductDTO> goo= supplierProductsService.findProductsBySupplierIdPage("S001",pageable);
+//        System.out.println(goo);
+//    }
 
 }

@@ -234,7 +234,7 @@
 					if (userConfirmed) {
 						axios.delete(`/marketMaster/restockDetail/deleteByRestockId?restockId=${restockId}`)
 								.then(res => {
-									if (res.data === "刪除成功！" || res.data === "删除成功！") {
+									if (res.status === 200) {
 										console.log("刪除成功", res);
 										// 刪除成功後，重新載入當前頁面的數據
 										if (isFiltered) {
@@ -242,15 +242,9 @@
 										} else {
 											loadRestockId(currentPage);
 										}
-									} else {
-										console.log("刪除失敗");
-										alert("刪除失敗！");
 									}
 								})
-								.catch(error => {
-									console.error("刪除失敗", error);
-									alert("刪除失敗！");
-								});
+
 					}
 				});
 			});

@@ -1,0 +1,18 @@
+<!-- ecpayPayment.html -->
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>跳轉到綠界支付</title>
+</head>
+<body>
+<form id="ecpayForm" method="post" th:action="${ecpayUrl}">
+    <th:block th:each="entry : ${ecpayParams}">
+        <input type="hidden" th:name="${entry.key}" th:value="${entry.value}" />
+    </th:block>
+</form>
+<script>
+    document.getElementById('ecpayForm').submit();
+</script>
+</body>
+</html>

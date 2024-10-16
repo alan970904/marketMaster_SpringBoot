@@ -16,6 +16,7 @@ public class PaymentInsertDTO {
     private String paymentMethod;
     private int totalAmount;
     private String paymentStatus;
+    private String MerchantTradeNo;
     List<PaymentRecordInsertDTO> paymentRecords;
 
 
