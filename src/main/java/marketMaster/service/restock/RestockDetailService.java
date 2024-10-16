@@ -5,9 +5,6 @@ import jakarta.transaction.Transactional;
 import marketMaster.DTO.restock.restock.RestockDTO;
 import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.bean.restock.RestockDetailsBean;
-import marketMaster.bean.restock.RestocksBean;
-import marketMaster.bean.restock.SupplierAccountsBean;
-import marketMaster.bean.restock.SupplierProductsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -108,6 +105,7 @@ public class RestockDetailService {
         updateSupplierTotalAmount(supplierId);
         // 5. 更新進貨商未付款總金額
         updateSupplierUnpaidAmount(supplierId);
+
     }
 
 

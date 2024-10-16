@@ -1,0 +1,72 @@
+
+
+邏輯一
+1. 新增進貨明細後根據供應商 把進貨明細的價格 加入到supplierAccount表中
+2. 刪除進貨明細後根據供應商 把進貨明細的價格 減去到supplierAccount表中
+
+邏輯二
+每次操作完 用迴圈重新加總 Where supplyId = ?1 sum restockTotalPrice
+
+
+
+刪除進貨Id
+一個進貨Id會有許多供應商
+
+用RestockId查找所有的進貨明細編號detailId
+找出所有進貨明細編號的供應商supplierId 跟進貨總金額restockTotalPrice
+
+更新對應的供應商進貨總金額SupplierAccounts表- 找到對應的SupplierId 在更新totalAmount
+
+
+------ 上面做好了
+目前問題
+未付款金額  要怎麼更新
+默認邏輯插入邏輯是 未付款 = 應付
+未付款金額邏輯 = 未付款金額 = 應付-已付
+
+進貨編號的分頁
+
+
+
+
+進貨編號的特定日期區間匯出成excel
+c
+新增進貨明細表 應該要多一個欄位是 進貨時的價格
+然後再編輯時才有欄位紀錄
+--------------
+訂單付款細節
+點擊後跳轉到與該供應商相關的所有訂單明細
+detail_id, number_of_restock, price_at_restock, restock_total_price
+
+
+-------------------
+restockDetail頁面要做分頁 做完
+要做日期區間選擇器 做完
+匯出excel
+
+
+供應商做分頁
+供應商訂單付款頁面做分頁
+
+供應商商品頁面做分頁
+
+
+
+-----------
+10/16
+插入進貨的時候
+員工從session 抓
+
+handsontable 怎麼調版型
+
+不用一次新增多筆訂單 一次一筆就好
+
+刪除供應商
+
+
+-------------
+
+
+
+
+
