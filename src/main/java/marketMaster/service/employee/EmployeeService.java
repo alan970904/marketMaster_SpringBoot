@@ -12,7 +12,7 @@ import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
 import marketMaster.viewModel.EmployeeViewModel;
 
-public interface EmploeeService {
+public interface EmployeeService {
 
 	EmpBean login(String employeeId, String rawPassword);
 

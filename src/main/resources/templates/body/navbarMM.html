@@ -61,8 +61,8 @@
                                     style="width: 40px; height: 40px;">
                             </a>
                             <ul class="dropdown-menu bg-warning" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item"
-                                        th:href="@{/employee/details(employeeId=${session.employee.employeeId})}">個人資料</a>
+                                     <li><a class="dropdown-item"
+                                  th:href="@{/employee/details(employeeId=${session.employee.employeeId})}">個人資料</a> 
                                 </li>
                                 <li><a class="dropdown-item" th:href="@{/employee/changePasswordPage}">修改密碼</a></li>
                                 <li>
@@ -249,6 +249,9 @@
                                     <li class="nav-item">
                                         <a class="nav-link py-1" th:href="@{/bonusExchange}">紅利兌換</a>
                                     </li>
+                                     <li class="nav-item">
+							            <a class="nav-link py-1" th:href="@{/pointsHistory/members}">紅利記錄</a>
+							        </li>
                                 </ul>
                             </li>
                         </ul>
