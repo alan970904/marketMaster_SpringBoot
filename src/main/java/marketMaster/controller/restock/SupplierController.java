@@ -3,7 +3,6 @@ package marketMaster.controller.restock;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierInfoDTO;
-import marketMaster.DTO.restock.SupplierDTO.SupplierProductDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO;
 import marketMaster.bean.restock.SupplierAccountsBean;
 import marketMaster.bean.restock.SuppliersBean;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -170,8 +168,6 @@ public class SupplierController {
         ecpayParams.put("CustomField2", "Custom value 2");
         ecpayParams.put("CustomField3", "Custom value 3");
         ecpayParams.put("CustomField4", "Custom value 4");
-        ecpayParams.put("Language", "ENG");
-
         // 生成 CheckMacValue
         String checkMacValue = paymentService.generateCheckMacValue(ecpayParams);
         ecpayParams.put("CheckMacValue", checkMacValue);

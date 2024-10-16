@@ -1,50 +1,20 @@
 package ECpayAIO_Java.ecpay.payment.integration;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import ecpay.payment.integration.domain.ATMRequestObj;
-import ecpay.payment.integration.domain.AioCheckOutALL;
-import ecpay.payment.integration.domain.AioCheckOutApplePay;
-import ecpay.payment.integration.domain.AioCheckOutATM;
-import ecpay.payment.integration.domain.AioCheckOutBARCODE;
-import ecpay.payment.integration.domain.AioCheckOutCVS;
-import ecpay.payment.integration.domain.AioCheckOutDevide;
-import ecpay.payment.integration.domain.AioCheckOutOneTime;
-import ecpay.payment.integration.domain.AioCheckOutPeriod;
-import ecpay.payment.integration.domain.AioCheckOutWebATM;
-import ecpay.payment.integration.domain.CVSOrBARCODERequestObj;
-import ecpay.payment.integration.domain.CreateServerOrderObj;
-import ecpay.payment.integration.domain.DoActionObj;
-import ecpay.payment.integration.domain.FundingReconDetailObj;
-import ecpay.payment.integration.domain.InvoiceObj;
-import ecpay.payment.integration.domain.QueryCreditCardPeriodInfoObj;
-import ecpay.payment.integration.domain.QueryTradeInfoObj;
-import ecpay.payment.integration.domain.QueryTradeObj;
-import ecpay.payment.integration.domain.TradeNoAioObj;
+import ecpay.payment.integration.domain.*;
 import ecpay.payment.integration.ecpayOperator.EcpayFunction;
 import ecpay.payment.integration.errorMsg.ErrorMessage;
 import ecpay.payment.integration.exception.EcpayException;
-import ecpay.payment.integration.verification.VerifyAioCheckOut;
-import ecpay.payment.integration.verification.VerifyCreateServerOrder;
-import ecpay.payment.integration.verification.VerifyDoAction;
-import ecpay.payment.integration.verification.VerifyFundingReconDetail;
-import ecpay.payment.integration.verification.VerifyQueryCreditTrade;
-import ecpay.payment.integration.verification.VerifyQueryTrade;
-import ecpay.payment.integration.verification.VerifyQueryTradeInfo;
-import ecpay.payment.integration.verification.VerifyTradeNoAio;
+import ecpay.payment.integration.verification.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 全功能無履約保證類別
