@@ -14,7 +14,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -28,9 +27,16 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
 
     @Query("select DISTINCT new marketMaster.DTO.product.ProductIdDTO(p.productId)FROM ProductBean p WHERE p.productName= :productName")
     List<ProductIdDTO>findAllProductIdByProductName(@Param("productName")String productName);
-    
+
     //JPA 自帶的模糊查詢
     Page<ProductBean> findByProductNameContaining(@Param("productName")String productName ,Pageable pgb);
+
+    Page<ProductBean>  findByProductAvailable(boolean productAvailable ,Pageable pgb);
+
+
+    @Query(value = "select * from products where Number_of_inventory <  product_safeinventory",nativeQuery = true)
+    Page<ProductBean> findInventoryNotEnough(Pageable pgb);
+
 
 //    @Query("from ProductBean where productName LIKE :productName")
 //    Page<ProductBean> findProductByProductNameLike(@Param("productName")String productName ,Pageable pgb);

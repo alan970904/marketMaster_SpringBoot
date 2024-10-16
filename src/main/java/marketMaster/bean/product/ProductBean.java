@@ -1,22 +1,10 @@
 package marketMaster.bean.product;
 
 import jakarta.persistence.*;
-
 import java.io.Serializable;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import marketMaster.bean.restock.SupplierProductsBean;
 
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "products")
 public class ProductBean implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -55,11 +43,158 @@ public class ProductBean implements Serializable {
 	@Column(name = "number_of_remove")
 	private int numberOfRemove;
 
-	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-	@JsonIgnore
-	private List<SupplierProductsBean> supplierProductsBeans;
+	@Column(name = "product_available")
+	private boolean productAvailable;
 
-	// getters 和 setters
+	@Column(name = "is_perishable")
+	private boolean isPerishable;
 
-	// 其
+	@Lob
+	@Column(name = "product_photo")
+	private byte[] productPhoto;
+
+	public ProductBean() {
+		super();
+	}
+
+	public ProductBean(String productId, String productCategory, String productName, int productPrice,
+					   int productSafeInventory, int numberOfShelve, int numberOfInventory, int numberOfSale, int numberOfExchange,
+					   int numberOfDestruction, int numberOfRemove, boolean productAvailable, boolean isPerishable,
+					   byte[] productPhoto) {
+		super();
+		this.productId = productId;
+		this.productCategory = productCategory;
+		this.productName = productName;
+		this.productPrice = productPrice;
+		this.productSafeInventory = productSafeInventory;
+		this.numberOfShelve = numberOfShelve;
+		this.numberOfInventory = numberOfInventory;
+		this.numberOfSale = numberOfSale;
+		this.numberOfExchange = numberOfExchange;
+		this.numberOfDestruction = numberOfDestruction;
+		this.numberOfRemove = numberOfRemove;
+		this.productAvailable = productAvailable;
+		this.isPerishable = isPerishable;
+		this.productPhoto = productPhoto;
+	}
+
+	public String getProductId() {
+		return productId;
+	}
+
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+
+	public String getProductCategory() {
+		return productCategory;
+	}
+
+	public void setProductCategory(String productCategory) {
+		this.productCategory = productCategory;
+	}
+
+	public String getProductName() {
+		return productName;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public int getProductPrice() {
+		return productPrice;
+	}
+
+	public void setProductPrice(int productPrice) {
+		this.productPrice = productPrice;
+	}
+
+	public int getProductSafeInventory() {
+		return productSafeInventory;
+	}
+
+	public void setProductSafeInventory(int productSafeInventory) {
+		this.productSafeInventory = productSafeInventory;
+	}
+
+	public int getNumberOfShelve() {
+		return numberOfShelve;
+	}
+
+	public void setNumberOfShelve(int numberOfShelve) {
+		this.numberOfShelve = numberOfShelve;
+	}
+
+	public int getNumberOfInventory() {
+		return numberOfInventory;
+	}
+
+	public void setNumberOfInventory(int numberOfInventory) {
+		this.numberOfInventory = numberOfInventory;
+	}
+
+	public int getNumberOfSale() {
+		return numberOfSale;
+	}
+
+	public void setNumberOfSale(int numberOfSale) {
+		this.numberOfSale = numberOfSale;
+	}
+
+	public int getNumberOfExchange() {
+		return numberOfExchange;
+	}
+
+	public void setNumberOfExchange(int numberOfExchange) {
+		this.numberOfExchange = numberOfExchange;
+	}
+
+	public int getNumberOfDestruction() {
+		return numberOfDestruction;
+	}
+
+	public void setNumberOfDestruction(int numberOfDestruction) {
+		this.numberOfDestruction = numberOfDestruction;
+	}
+
+	public int getNumberOfRemove() {
+		return numberOfRemove;
+	}
+
+	public void setNumberOfRemove(int numberOfRemove) {
+		this.numberOfRemove = numberOfRemove;
+	}
+
+	public boolean isProductAvailable() {
+		return productAvailable;
+	}
+
+	public void setProductAvailable(boolean productAvailable) {
+		this.productAvailable = productAvailable;
+	}
+
+	public boolean isPerishable() {
+		return isPerishable;
+	}
+
+	public void setPerishable(boolean isPerishable) {
+		this.isPerishable = isPerishable;
+	}
+
+	public byte[] getProductPhoto() {
+		return productPhoto;
+	}
+
+	public void setProductPhoto(byte[] productPhoto) {
+		this.productPhoto = productPhoto;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+
+
+
 }
