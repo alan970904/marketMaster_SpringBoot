@@ -48,6 +48,9 @@ public class EmployeeServiceImpl implements EmployeeService{
 	@Autowired
 	private RankLevelRepository rankLevelRepository;
 	
+	@Autowired
+	private EmailServiceImpl emailService;
+	
 	@Value("${upload.path}")
 	private String uploadPath;
 	
@@ -289,6 +292,19 @@ public class EmployeeServiceImpl implements EmployeeService{
 		EmpBean employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EmpDataAccessException("找不到員工"));
         return new PageImpl<>(Collections.singletonList(employee), pageable, 1);
+	}
+
+	@Override
+	public boolean resetPasswordAndSendEmail(String employeeId, String idCardLast4) {
+		if (validateEmployeeInfo(employeeId, idCardLast4)) {
+			EmpBean employee = getEmployee(employeeId);
+			String tempPassword = generateTempPassword();
+			updatePassword(employeeId, tempPassword);
+			emailService.sendPasswordResetEmail(employee.getEmployeeEmail(), tempPassword);
+			return true;
+		}
+		
+		return false;
 	}
 
 }

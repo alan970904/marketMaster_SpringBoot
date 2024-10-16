@@ -77,7 +77,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		case "viewList":
 		case "search":
 		case "update":
-			return userAuthority >= 1; // 限制權限1僅查看和修改個人資訊
+		case "chagePassword":
+		case "forgotPassword":
+			return userAuthority >= 1; // 限制權限1
 		case "viewDetails":
 		case "add":
 		case "delete":
