@@ -2,6 +2,7 @@ package marketMaster.service.notification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.notification.Notification;
@@ -40,4 +41,16 @@ public class NotificationServiceImpl implements NotificationService {
                 return "系統通知";
         }
     }
+
+	@Override
+	public List<Notification> getLatestNotifications(String userId, int limit) {
+		List<Notification> allNotifications = notificationRepository.findTopNByEmployeeIdOrderByCreatedAtDesc(userId);
+		return allNotifications.subList(0, Math.min(limit, allNotifications.size()));
+	}
+
+	@Override
+	@Transactional
+	public void markAllAsRead(String userId) {
+		notificationRepository.markAllAsReadForUser(userId);
+	}
 }
