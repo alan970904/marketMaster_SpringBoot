@@ -26,7 +26,7 @@ import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
 import marketMaster.requiresPermission.RequiresPermission;
 import marketMaster.service.AuthorizationService;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class EmployeeController {
 
 	@Autowired
-	private EmployeeServiceImpl employeeService;
+	private EmployeeService employeeService;
 
 	@Autowired
 	private AuthorizationService authService;

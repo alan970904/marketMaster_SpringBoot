@@ -27,7 +27,8 @@ import marketMaster.bean.employee.EmpBean;
 import marketMaster.service.askForLeave.AskForLeaveService;
 import marketMaster.service.askForLeave.LeaveCategoryService;
 import marketMaster.service.askForLeave.LeaveRecordService;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -38,7 +39,7 @@ public class AskForLeaveController {
 	private AskForLeaveService aslService;
 
 	@Autowired
-	private EmployeeServiceImpl empService;
+	private EmployeeService empService;
 
 	@Autowired
 	private LeaveCategoryService leaveCategoryService;
