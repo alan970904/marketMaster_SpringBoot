@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
 import marketMaster.requiresPermission.RequiresPermission;
 import marketMaster.service.AuthorizationService;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 @Controller
 public class ChangePasswordController {
 
     @Autowired
-    private EmployeeServiceImpl employeeService;
+    private EmployeeService employeeService;
     
 	@Autowired
 	private AuthorizationService authService;

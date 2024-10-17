@@ -17,11 +17,14 @@
             </a>
             <!-- 登出按鈕，始終顯示在右側 -->
             <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/employee/changePasswordPage}"><i class="fa-regular fa-circle-question"></i> </a>
+                </li>
             	<li class="nav-item">
                     <a class="nav-link" th:href="@{/chat/messages}"><i class="fa-regular fa-comments"></i> </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/employee/changePasswordPage}"><i class="fa-regular fa-circle-question"></i> </a>
+                    <a class="nav-link" th:href="@{/notifications}"><i class="fa-solid fa-bell"></i> </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/employee/details(employeeId=${session.employee.employeeId})}"><i class="fa-solid fa-user-tie"></i> </a>

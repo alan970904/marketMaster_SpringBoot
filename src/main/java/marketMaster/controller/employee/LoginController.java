@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
 import marketMaster.bean.employee.EmpBean;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 @Controller
 public class LoginController {
 
 	@Autowired
-	private EmployeeServiceImpl employeeService;
+	private EmployeeService employeeService;
 	
 	@GetMapping("/employee/loginPage")
 	public String showLoginPage() {
