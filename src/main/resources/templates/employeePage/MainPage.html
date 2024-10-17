@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前台首頁配置</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- 自訂樣式 -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* 整體容器 */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto 1fr 1fr;
+            gap: 20px;
+            height: 100vh;
+        }
+
+        /* 左上：排班月曆 */
+        .calendar {
+            grid-column: 1;
+            grid-row: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        /* 調整 FullCalendar 的高度 */
+        .calendar #calendar {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* 左中：請假單狀態與請假按鈕 */
+        .leave-status {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        /* 中上：待進貨 */
+        .pending-restock {
+            grid-column: 2;
+            grid-row: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        /* 中下：結帳按鈕、退貨按鈕與查詢會員紅利按鈕 */
+        .checkout-buttons {
+            grid-column: 2;
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 右上：進貨單按鈕與匯出 Excel 按鈕 */
+        .restock-excel-buttons {
+            grid-column: 3;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* 增加間距以改善視覺效果 */
+        }
+
+        /* 右下：會員按鈕 */
+        .member-button {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        /* 共用按鈕樣式 */
+        .btn-custom {
+            width: 100%; /* 改為100%以適應容器寬度 */
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        /* 查詢會員紅利按鈕的樣式 */
+        .btn-bonus {
+            background-color: yellow;
+            color: black;
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            text-align: center;
+        }
+
+        /* 日期選擇器樣式 */
+        .date-picker {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .date-picker label {
+            margin-bottom: 5px;
+        }
+
+        .date-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .date-inputs .form-control {
+            flex: 1;
+        }
+
+        /* 調整按鈕寬度 */
+        .restock-excel-buttons button {
+            width: 100%;
+        }
+
+        /* 調整 FullCalendar 按鈕樣式 */
+        .fc-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #0d6efd; /* 與事件顏色一致 */
+        }
+
+        .fc-button:hover {
+            color: #0a58ca; /* 深色在懸停時 */
+        }
+
+        /* 隱藏 FullCalendar 按鈕的文字，僅顯示圖示 */
+        .fc-prev-button::before,
+        .fc-next-button::before {
+            display: none;
+        }
+
+        /* 使用 Bootstrap Icons 類別來顯示箭頭 */
+        .fc-prev-button::after {
+            content: "\f053"; /* Bootstrap Icons bi-chevron-left */
+            font-family: "Bootstrap Icons";
+            font-size: 1.2rem;
+            display: inline-block;
+        }
+
+        .fc-next-button::after {
+            content: "\f054"; /* Bootstrap Icons bi-chevron-right */
+            font-family: "Bootstrap Icons";
+            font-size: 1.2rem;
+            display: inline-block;
+        }
+
+        /* 禁用按鈕時的樣式 */
+        .fc-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .restock-excel-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 左上：排班月曆 -->
+    <div class="calendar">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- 左中：請假單狀態與請假按鈕 -->
+    <div class="leave-status">
+        <p>請假單狀態：<span id="leave-status-text">待審核</span></p>
+        <button class="btn btn-warning btn-custom">請假</button>
+    </div>
+
+    <!-- 中上：待進貨 -->
+    <div class="pending-restock">
+        <h3>待進貨項目</h3>
+        <p>項目 1</p>
+        <p>項目 2</p>
+    </div>
+
+    <!-- 中下：結帳按鈕、退貨按鈕與查詢會員紅利按鈕 -->
+    <div class="checkout-buttons">
+        <button class="btn btn-primary btn-custom">結帳</button>
+        <button class="btn btn-danger btn-custom">退貨</button>
+        <!-- 查詢會員紅利 -->
+        <button class="btn-bonus">查詢會員紅利</button>
+    </div>
+
+    <!-- 右上：進貨單按鈕與匯出 Excel 按鈕 -->
+    <div class="restock-excel-buttons">
+        <!-- 進貨單按鈕 -->
+        <button class="btn btn-success btn-custom">進貨單</button>
+
+        <!-- 日期選擇器 -->
+        <div class="date-picker">
+            <label>選擇日期範圍：</label>
+            <div class="date-inputs">
+                <div>
+                    <label for="start-date">開始日期：</label>
+                    <input type="date" id="start-date" class="form-control">
+                </div>
+                <div>
+                    <label for="end-date">結束日期：</label>
+                    <input type="date" id="end-date" class="form-control">
+                </div>
+            </div>
+        </div>
+
+        <!-- 匯出 Excel 按鈕 -->
+        <button class="btn btn-info btn-custom">匯出 Excel</button>
+    </div>
+
+    <!-- 右下：會員按鈕 -->
+    <div class="member-button">
+        <button class="btn btn-secondary btn-custom">會員管理</button>
+    </div>
+</div>
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Icons JS (Optional if needed for better support) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        // 計算當前月份的第一天和最後一天
+        var today = new Date();
+        var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        var endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next',
+                center: 'title',
+                right: '' // 僅保留切換月份的按鈕
+            },
+            validRange: {
+                start: startOfMonth,
+                end: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1)
+            },
+            height: 'auto',
+            aspectRatio: 1.5,
+            themeSystem: 'bootstrap',
+            // 自訂樣式選項
+            eventColor: '#0d6efd',
+            eventTextColor: '#ffffff',
+            // 禁用拖曳和事件改變大小
+            editable: false,
+            eventLimit: false
+        });
+        calendar.render();
+
+        // 使用 Bootstrap Icons 替換 prev 和 next 按鈕的圖示
+        var prevButton = document.querySelector('.fc-prev-button');
+        var nextButton = document.querySelector('.fc-next-button');
+
+        if (prevButton) {
+            prevButton.innerHTML = '<i class="bi bi-chevron-left"></i>';
+        }
+
+        if (nextButton) {
+            nextButton.innerHTML = '<i class="bi bi-chevron-right"></i>';
+        }
+
+        // 禁用切換月份的按鈕，因為日曆僅顯示當前月份
+        if (prevButton) {
+            prevButton.disabled = true;
+            prevButton.style.pointerEvents = 'none'; // 防止點擊
+            prevButton.style.color = '#6c757d'; // 設置為灰色
+            prevButton.title = '無法切換到前一個月份';
+        }
+
+        if (nextButton) {
+            nextButton.disabled = true;
+            nextButton.style.pointerEvents = 'none'; // 防止點擊
+            nextButton.style.color = '#6c757d'; // 設置為灰色
+            nextButton.title = '無法切換到下一個月份';
+        }
+    });
+
+    // 匯出 Excel 按鈕的日期選擇功能
+    document.querySelector('.btn-info').addEventListener('click', function() {
+        var startDate = document.getElementById('start-date').value;
+        var endDate = document.getElementById('end-date').value;
+
+        if (!startDate || !endDate) {
+            alert('請選擇匯出的開始日期和結束日期。');
+            return;
+        }
+
+        if (startDate > endDate) {
+            alert('開始日期不能晚於結束日期。');
+            return;
+        }
+
+        // 在此處添加匯出 Excel 的邏輯，並使用 startDate 和 endDate 作為參數
+        console.log('匯出 Excel 的日期範圍:', startDate, '至', endDate);
+        // 例如，可以發送 AJAX 請求到後端服務
+    });
+</script>
+</body>
+</html>
