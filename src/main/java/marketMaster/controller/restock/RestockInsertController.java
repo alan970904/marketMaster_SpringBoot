@@ -85,6 +85,12 @@ public class RestockInsertController {
     }
 
 
+    @GetMapping("/EmployeePage")
+    public String EmployeePage(){
+        return "employeePage/MainPage";
+    }
+
+
 
 }
 
