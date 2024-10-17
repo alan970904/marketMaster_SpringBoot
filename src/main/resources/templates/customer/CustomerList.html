@@ -58,7 +58,7 @@
                                     class="btn btn-sm btn-info">詳情</a>
                                 <a th:href="@{/customer/getUpdate(customerTel=${customer.customerTel})}"
                                     class="btn btn-sm btn-warning">修改</a>
-                                <a th:href="@{/customer/delete(customerTel=${customer.customerTel})}"
+                                <a th:if="${currentAuthority >= 2}" th:href="@{/customer/delete(customerTel=${customer.customerTel})}"
                                     class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除此會員嗎？')">刪除</a>
                             </td>
                         </tr>

@@ -28,7 +28,7 @@ public class LoginController {
                         HttpSession session, Model model) {
         try {
             EmpBean employee = employeeService.login(employeeId, password);
-            if (employee != null) {
+            if (employee != null && employee.getResigndate() == null) {
                 EmployeeViewModel employeeViewModel = employeeService.getEmployeeViewModel(employeeId);
                 session.setAttribute("employee", employeeViewModel);
 

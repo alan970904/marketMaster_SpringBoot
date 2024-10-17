@@ -11,13 +11,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import marketMaster.bean.customer.CustomerBean;
+import marketMaster.requiresPermission.RequiresPermission;
+import marketMaster.service.AuthorizationService;
 import marketMaster.service.customer.CustomerServiceImpl;
+import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/customer")
@@ -26,7 +31,11 @@ public class CustomerController {
 	@Autowired
 	private CustomerServiceImpl customerService;
 	
+	@Autowired
+	private AuthorizationService authService;
+	
 	@GetMapping("/cusList")
+	@RequiresPermission(value = "viewList", resource = "customer")
 	public String getAllCustomer(@RequestParam(required = false) String searchTel,
 								@RequestParam(defaultValue = "0") int page,
 								@RequestParam(defaultValue = "10") int size,
@@ -43,6 +52,7 @@ public class CustomerController {
 	}
 	
 	@GetMapping("/details")
+	@RequiresPermission(value = "view", resource = "customer")
 	public String showCustomerDetails(@RequestParam String customerTel, Model model) {
 		Optional<CustomerBean> customerOptional = customerService.getCustomer(customerTel);
 		model.addAttribute("customer", customerOptional.get());
@@ -50,6 +60,7 @@ public class CustomerController {
 	}
 	
     @GetMapping("/delete")
+    @RequiresPermission(value = "delete", resource = "customer")
     public String deleteCustomer(@RequestParam String customerTel, RedirectAttributes redirectAttributes) {
         boolean deleted = customerService.deleteCustomer(customerTel);
         if (deleted) {
@@ -59,11 +70,13 @@ public class CustomerController {
     }
     
 	@GetMapping("/cusAddForm")
+	@RequiresPermission(value = "add", resource = "customer")
 	public String showAddForm() {
 		return "customer/AddCustomer";
 	}
 	
 	@PostMapping("/cusAdd")
+	@RequiresPermission(value = "add", resource = "customer")
 	public String addCustomer(@ModelAttribute CustomerBean customer, RedirectAttributes redirectAttributes, Model model) {
         customer.setDateOfRegistration(LocalDate.now());
         customer.setTotalPoints(0);
@@ -81,6 +94,7 @@ public class CustomerController {
 	}
 	
 	@GetMapping("/getUpdate")
+	@RequiresPermission(value = "update", resource = "customer")
 	public String showUpdateForm(@RequestParam String customerTel, Model model) {
 		Optional<CustomerBean> customerOptional = customerService.getCustomer(customerTel);
 		
@@ -94,6 +108,7 @@ public class CustomerController {
 	}
 	
 	@PostMapping("/cusUpdate")
+	@RequiresPermission(value = "update", resource = "customer")
 	public String updateCustomer(@ModelAttribute CustomerBean customer,
 	                             @RequestParam String originalTel,
 	                             RedirectAttributes redirectAttributes,
