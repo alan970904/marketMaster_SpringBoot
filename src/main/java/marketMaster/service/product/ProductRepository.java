@@ -6,7 +6,6 @@ import marketMaster.DTO.product.ProductIdDTO;
 import marketMaster.DTO.product.ProductIdRestockNumDTO;
 import marketMaster.DTO.product.ProductNameDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
-import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.bean.product.ProductBean;
 
 import org.springframework.data.domain.Page;
