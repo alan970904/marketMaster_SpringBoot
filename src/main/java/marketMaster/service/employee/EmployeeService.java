@@ -49,4 +49,6 @@ public interface EmployeeService {
 	List<EmpBean> findAllEmp();
 
 	Page<EmpBean> getEmployeeById(String employeeId, Pageable pageable);
+	
+	boolean resetPasswordAndSendEmail(String employeeId, String idCardLast4);
 }
