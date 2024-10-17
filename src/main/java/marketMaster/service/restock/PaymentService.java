@@ -1,5 +1,6 @@
 package marketMaster.service.restock;
 
+import ECpayAIO_Java.ecpay.payment.integration.ecpayOperator.EcpayFunction;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.PaymentRecordInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
@@ -7,13 +8,17 @@ import marketMaster.bean.restock.PaymentRecordsBean;
 import marketMaster.bean.restock.PaymentsBean;
 import marketMaster.bean.restock.RestockDetailsBean;
 import marketMaster.bean.restock.SupplierAccountsBean;
+import marketMaster.config.ECPayConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class PaymentService {
     @Autowired
@@ -27,7 +32,11 @@ public class PaymentService {
 
     @Autowired
     private RestockDetailsRepository restockDetailsRepository;
-    //找所有有關於SupplierId的進貨明細
+
+    @Autowired
+    private ECPayConfig ecPayConfig;
+
+    // 找所有有關於SupplierId的進貨明細
     public List<RestockDetailPaymentDTO> getPaymentDetailsBySupplierId(String supplierId) {
         List<RestockDetailsBean> restockDetails = restockDetailsRepository.findBySupplierId(supplierId);
         List<RestockDetailPaymentDTO> restockDetailPaymentDTOS = new ArrayList<>();
@@ -48,7 +57,7 @@ public class PaymentService {
         return restockDetailPaymentDTOS;
     }
 
-    //跟插入多筆付款資訊
+    // 插入多筆付款資訊
     @Transactional
     public void insertPayment(PaymentInsertDTO paymentInsertDTO, String supplierId) {
         // 使用 supplierId 查找 accountId
@@ -75,6 +84,10 @@ public class PaymentService {
                 .sum();
         payment.setTotalAmount(totalAmount);
 
+        // 使用 payment_id 作為 MerchantTradeNo
+        String merchantTradeNo = newPaymentId;
+        payment.setPaymentId(newPaymentId); // payment_id 同時作為 MerchantTradeNo
+
         // 保存 Payment
         paymentsRepository.save(payment);
 
@@ -95,9 +108,9 @@ public class PaymentService {
             paymentRecordsRepository.save(paymentRecords);
         }
         updatePaidAmount(supplierId);
-
     }
-    //  更新paidAmount
+
+    // 更新 paidAmount
     @Transactional
     public void updatePaidAmount(String supplierId) {
         Integer newPaidAmount = supplierAccountsRepository.calculatePaidAmount(supplierId);
@@ -107,9 +120,6 @@ public class PaymentService {
         System.out.println(newPaidAmount);
         supplierAccountsRepository.updatePaidAmount(supplierId, newPaidAmount);
     }
-
-
-
 
     private String generatePaymentId() {
         PaymentsBean payment = paymentsRepository.findTopByOrderByPaymentIdDesc();
@@ -141,4 +151,75 @@ public class PaymentService {
     }
 
 
+    public String generateCheckMacValue(Map<String, String> params) {
+        Hashtable<String, String> hashtable = new Hashtable<>(params);
+        System.out.println("Generating CheckMacValue with params: " + hashtable);
+        String checkMacValue = EcpayFunction.genCheckMacValue(ecPayConfig.getHashKey(), ecPayConfig.getHashIv(), hashtable);
+        System.out.println("Generated CheckMacValue: " + checkMacValue);
+        return checkMacValue;
+    }
+
+    // 验证 CheckMacValue
+    public boolean verifyECPayReturn(Map<String, String> params) {
+        String returnedCheckMacValue = params.get("CheckMacValue");
+        System.out.println("Returned CheckMacValue: " + returnedCheckMacValue);
+        if (returnedCheckMacValue == null) {
+            System.out.println("CheckMacValue is null.");
+            return false;
+        }
+
+        // 將 Map 轉換為 Hashtable
+        Hashtable<String, String> hashtableParams = new Hashtable<>();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            hashtableParams.put(entry.getKey(), entry.getValue());
+        }
+
+        // 重新生成 CheckMacValue
+        String generatedCheckMacValue = EcpayFunction.genCheckMacValue(ecPayConfig.getHashKey(), ecPayConfig.getHashIv(), hashtableParams);
+        System.out.println("Generated CheckMacValue for verification: " + generatedCheckMacValue);
+
+        // 比较返回的 CheckMacValue 与生成的是否一致
+        boolean isValid = returnedCheckMacValue.equalsIgnoreCase(generatedCheckMacValue);
+        System.out.println("Is CheckMacValue valid? " + isValid);
+        return isValid;
+    }
+
+    // 获取最新支付记录并转换为 PaymentInsertDTO
+    public PaymentInsertDTO getLatestPaymentInsertDTO(String supplierId) {
+        PaymentsBean latestPayment = paymentsRepository.findTopBySupplierAccounts_Supplier_SupplierIdOrderByPaymentDateDesc(supplierId);
+
+        if (latestPayment == null) {
+            throw new RuntimeException("未找到供应商ID为 " + supplierId + " 的付款记录");
+        }
+
+        PaymentInsertDTO paymentInsertDTO = new PaymentInsertDTO();
+        paymentInsertDTO.setAccountId(latestPayment.getSupplierAccounts().getAccountId());
+        paymentInsertDTO.setPaymentDate(latestPayment.getPaymentDate());
+        paymentInsertDTO.setPaymentMethod(latestPayment.getPaymentMethod());
+        paymentInsertDTO.setTotalAmount(latestPayment.getTotalAmount());
+        paymentInsertDTO.setPaymentStatus(latestPayment.getPaymentStatus());
+
+        // 使用 payment_id 作為 MerchantTradeNo
+        paymentInsertDTO.setMerchantTradeNo(latestPayment.getPaymentId());
+
+        List<PaymentRecordInsertDTO> paymentRecords = new ArrayList<>();
+        for (PaymentRecordsBean record : latestPayment.getPaymentRecords()) {
+            PaymentRecordInsertDTO recordDTO = new PaymentRecordInsertDTO();
+            recordDTO.setDetailId(record.getRestockDetails().getDetailId());
+            recordDTO.setPaymentAmount(record.getPaymentAmount());
+            paymentRecords.add(recordDTO);
+        }
+        paymentInsertDTO.setPaymentRecords(paymentRecords);
+
+        return paymentInsertDTO;
+    }
+
+    // 更新支付狀態
+    @Transactional
+    public void updatePaymentStatus(String paymentId, String status) {
+        PaymentsBean payment = paymentsRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Payment not found with ID: " + paymentId));
+        payment.setPaymentStatus(status);
+        paymentsRepository.save(payment);
+    }
 }

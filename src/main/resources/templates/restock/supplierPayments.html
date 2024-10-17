@@ -216,8 +216,9 @@
         contentType: 'application/json',
         data: JSON.stringify([paymentInsertDTO]), // 包裝成列表以符合後端需求
         success: function(response) {
-          alert('所有付款新增成功');
-          location.reload();
+          alert('所有付款新增成功，正在跳轉到支付頁面...');
+          // 跳轉到 ECPay 支付頁面
+          window.location.href = '/marketMaster/supplier/prepareECPayPayment?supplierId=' + encodeURIComponent(supplierId);
         },
         error: function(xhr, status, error) {
           alert('付款新增失敗: ' + xhr.responseText);

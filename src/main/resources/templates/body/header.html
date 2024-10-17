@@ -2,7 +2,7 @@
 <html lang="zh-Hant-TW" xmlns:th="http://www.thymeleaf.org/">
 
 <body>
-	<div th:fragment="header">
+<div th:fragment="header">
     <!-- 固定在頂部的導航欄 -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
@@ -17,7 +17,7 @@
             </a>
             <!-- 登出按鈕，始終顯示在右側 -->
             <ul class="navbar-nav ms-auto">
-            	<li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/chat/messages}"><i class="fa-regular fa-comments"></i> </a>
                 </li>
                 <li class="nav-item">
@@ -35,14 +35,14 @@
 
     <div>
         <!-- 側邊欄 -->
-        <nav id="sidebar" class="active">
+        <nav id="sidebar">
             <ul class="list-unstyled">
                 <li>
                     <a th:href="@{/homePage}" class="sidebar-link"><i class="fa-solid fa-shop"></i> 後台管理首頁</a>
                 </li>
                 <li>
                     <a href="#memberSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
+                       class="sidebar-link dropdown-toggle">
                         <i class="fa-solid fa-users-gear"></i> 員工管理
                     </a>
                     <ul class="collapse list-unstyled submenu" id="memberSubmenu">
@@ -59,7 +59,7 @@
                 </li>
                 <li>
                     <a href="#restockSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
+                       class="sidebar-link dropdown-toggle">
                         <i class="fa-solid fa-truck"></i> 進貨管理
                     </a>
                     <ul class="collapse list-unstyled submenu" id="#restockSubmenu">
@@ -73,7 +73,7 @@
                 </li>
                 <li>
                     <a href="#productSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
+                       class="sidebar-link dropdown-toggle">
                         <i class="fas fa-shopping-bag"></i> 商品管理</a>
                     <ul class="collapse list-unstyled submenu" id="produuctSubmenu">
                         <li>
@@ -83,7 +83,7 @@
                 </li>
                 <li>
                     <a href="#checkoutSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle"><i class="fa-solid fa-hand-holding-dollar"></i> 結帳管理</a>
+                       class="sidebar-link dropdown-toggle"><i class="fa-solid fa-hand-holding-dollar"></i> 結帳管理</a>
                     <ul class="collapse list-unstyled submenu" id="checkoutSubmenu">
                         <li>
                             <a th:href="@{/checkout/checkoutMain}" class="sidebar-link"> 結帳列表</a>
@@ -92,7 +92,7 @@
                 </li>
                 <li>
                     <a href="#Submenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
+                       class="sidebar-link dropdown-toggle">
                         <i class="fa-solid fa-face-tired"></i> 退貨管理</a>
                     <ul class="collapse list-unstyled submenu" id="Submenu">
                         <li>
@@ -100,9 +100,9 @@
                         </li>
                     </ul>
                 </li>
-				<li>
+                <li>
                     <a href="#customersSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle"><i class="fa-solid fa-address-book"></i> 會員管理</a>
+                       class="sidebar-link dropdown-toggle"><i class="fa-solid fa-address-book"></i> 會員管理</a>
                     <ul class="collapse list-unstyled submenu" id="customersSubmenu">
                         <li>
                             <a th:href="@{/customer/cusList}" class="sidebar-link"> 會員列表</a>
@@ -115,8 +115,8 @@
             </ul>
         </nav>
     </div>
-    	<div class="main-content" th:replace="~{::content}"></div>
-    </div>
+    <div class="main-content" th:replace="~{::content}"></div>
+</div>
 
 </body>
 

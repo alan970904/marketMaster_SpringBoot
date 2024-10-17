@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:align-items="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
+    <title>main</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding-top: 100px;
+            padding-left: 200px;
+            background-color: #FFF3E0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto 1fr 1fr;
+            gap: 20px;
+            height: 100vh;
+        }
+
+        .calendar {
+            grid-column: 1;
+            grid-row: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .calendar #calendar {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .leave-status {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .pending-restock {
+            grid-column: 2;
+            grid-row: 1;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .checkout-buttons {
+            grid-column: 2;
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .restock-excel-buttons {
+            grid-column: 3;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .member-button {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .btn-custom {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .btn-bonus {
+            background-color: yellow;
+            color: black;
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            text-align: center;
+        }
+
+        .date-picker {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .date-picker label {
+            margin-bottom: 5px;
+        }
+
+        .date-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .date-inputs .form-control {
+            flex: 1;
+        }
+
+        .restock-excel-buttons button {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .restock-excel-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{body/headerEmployee :: headerEmployee}">
+    <div th:fragment="content">
+        <div class="container">
+            <!-- 左上：排班月曆 -->
+            <div class="calendar">
+                <div id="calendar"></div>
+            </div>
+
+            <!-- 左中：請假單狀態與請假按鈕 -->
+            <div class="leave-status">
+                <p>請假單狀態：<span id="leave-status-text">待審核</span></p>
+                <button class="btn btn-warning btn-custom">請假</button>
+            </div>
+
+            <!-- 中上：待進貨 -->
+            <div class="pending-restock">
+                <h3>待進貨項目</h3>
+                <p>項目 1</p>
+                <p>項目 2</p>
+            </div>
+
+            <!-- 中下：結帳按鈕、退貨按鈕與查詢會員紅利按鈕 -->
+            <div class="checkout-buttons">
+                <button class="btn btn-primary btn-custom">結帳</button>
+                <button class="btn btn-danger btn-custom">退貨</button>
+                <!-- 查詢會員紅利 -->
+                <button class="btn-bonus">查詢會員紅利</button>
+            </div>
+
+            <!-- 右上：進貨單按鈕與匯出 Excel 按鈕 -->
+            <div class="restock-excel-buttons">
+                <!-- 進貨單按鈕 -->
+
+                <button class="btn btn-success btn-custom">進貨單</button>
+                <img th:src="@{/img/Restock.jpg}" alt="無法顯示" style="width: 250px "   align-items: center; />
+                <!-- 日期選擇器 -->
+                <div class="date-picker">
+                    <label>選擇日期範圍：</label>
+                    <div class="date-inputs">
+                        <div>
+                            <label for="start-date">開始日期：</label>
+                            <input type="date" id="start-date" class="form-control">
+                        </div>
+                        <div>
+                            <label for="end-date">結束日期：</label>
+                            <input type="date" id="end-date" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 匯出 Excel 按鈕 -->
+                <button class="btn btn-info btn-custom">匯出 Excel</button>
+            </div>
+
+            <!-- 右下：會員按鈕 -->
+            <div class="member-button">
+                <button class="btn btn-secondary btn-custom">會員管理</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var today = new Date();
+        var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        var endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next',
+                center: 'title',
+                right: ''
+            },
+            validRange: {
+                start: startOfMonth,
+                end: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1)
+            },
+            height: 'auto',
+            aspectRatio: 1.5,
+            themeSystem: 'bootstrap',
+            eventColor: '#0d6efd',
+            eventTextColor: '#ffffff',
+            editable: false,
+            eventLimit: false
+        });
+        calendar.render();
+
+        var prevButton = document.querySelector('.fc-prev-button');
+        var nextButton = document.querySelector('.fc-next-button');
+
+        if (prevButton) {
+            prevButton.innerHTML = '<i class="bi bi-chevron-left"></i>';
+            prevButton.disabled = true;
+            prevButton.style.pointerEvents = 'none';
+            prevButton.style.color = '#6c757d';
+            prevButton.title = '無法切換到前一個月份';
+        }
+
+        if (nextButton) {
+            nextButton.innerHTML = '<i class="bi bi-chevron-right"></i>';
+            nextButton.disabled = true;
+            nextButton.style.pointerEvents = 'none';
+            nextButton.style.color = '#6c757d';
+            nextButton.title = '無法切換到下一個月份';
+        }
+    });
+
+    document.querySelector('.btn-info').addEventListener('click', function() {
+        var startDate = document.getElementById('start-date').value;
+        var endDate = document.getElementById('end-date').value;
+
+        if (!startDate || !endDate) {
+            alert('請選擇匯出的開始日期和結束日期。');
+            return;
+        }
+
+        if (startDate > endDate) {
+            alert('開始日期不能晚於結束日期。');
+            return;
+        }
+
+        console.log('匯出 Excel 的日期範圍:', startDate, '至', endDate);
+    });
+</script>
+</body>
+</html>
