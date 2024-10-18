@@ -99,6 +99,7 @@ public class RestockDetailController {
     @GetMapping("/getExcelByDateRange")
     @ResponseBody
     public ResponseEntity<ByteArrayResource> getExcelByDateRange(@RequestParam String startDate, @RequestParam String endDate) throws IOException {
+        System.out.println("有進來會出");
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         byte[] excelBytes = restockService.exportRestockDetailsToExcel(start, end);

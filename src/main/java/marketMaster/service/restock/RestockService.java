@@ -169,7 +169,7 @@ public class RestockService {
     public Page<RestockDTO> getRestockDetailsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
         return restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate,pageable);
     }
-
+        //匯出excel
         public byte[]exportRestockDetailsToExcel(LocalDate startDate, LocalDate endDate) throws IOException {
             List<RestockDTO> restocks = restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate, Pageable.unpaged()).getContent();
             Workbook workbook = new XSSFWorkbook();
@@ -186,8 +186,8 @@ public class RestockService {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(restock.getRestockId());
                 row.createCell(1).setCellValue(restock.getEmployeeId()+"-"+restock.getEmployeeName());
-                row.createCell(3).setCellValue(restock.getRestockDate().format(formatter));
-                row.createCell(4).setCellValue(restock.getRestockTotalPrice());
+                row.createCell(2).setCellValue(restock.getRestockDate().format(formatter));
+                row.createCell(3).setCellValue(restock.getRestockTotalPrice());
             }
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

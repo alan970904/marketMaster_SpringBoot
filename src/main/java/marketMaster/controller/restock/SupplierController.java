@@ -47,6 +47,11 @@ public class SupplierController {
         return "/restock/supplier";
     }
 
+    @PostMapping("/supplier2")
+    public String supplier2(){
+        return "/restock/supplier";
+    }
+
 
 
     @GetMapping("/AllSuppliers")
@@ -159,11 +164,9 @@ public class SupplierController {
         ecpayParams.put("ChoosePayment", "WebATM"); // 根據需求選擇支付方式
         ecpayParams.put("EncryptType", "1");
         ecpayParams.put("ClientBackURL", ecPayConfig.getClientBackUrl());
-        ecpayParams.put("ItemURL", "https://www.yourdomain.com/item");
         ecpayParams.put("Remark", "Additional notes");
         ecpayParams.put("OrderResultURL", ecPayConfig.getOrderResultUrl());
         ecpayParams.put("NeedExtraPaidInfo", "Y");
-        ecpayParams.put("PlatformID", "");
         ecpayParams.put("CustomField1", "Custom value 1");
         ecpayParams.put("CustomField2", "Custom value 2");
         ecpayParams.put("CustomField3", "Custom value 3");
