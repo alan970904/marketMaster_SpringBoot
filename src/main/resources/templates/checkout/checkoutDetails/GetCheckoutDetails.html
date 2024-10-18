@@ -21,7 +21,7 @@
 </head>
 <body>
 <div th:replace="~{body/header :: header}">
-    <div th:fragment="content">
+	<div th:fragment="content">
     <main class="container mt-5">
         <h1 class="mb-4">結帳明細詳情</h1>
         <div class="card">
@@ -32,8 +32,8 @@
                         <td th:text="${checkoutDetails.checkoutId}"></td>
                     </tr>
                     <tr>
-                        <th>產品編號</th>
-                        <td th:text="${checkoutDetails.productId}"></td>
+                        <th>產品名稱</th>
+                        <td th:text="${checkoutDetails.product.productName}"></td>
                     </tr>
                     <tr>
                         <th>數量</th>
@@ -56,7 +56,7 @@
     </main>
 </div>
 </div>    
-<div th:replace="~{body/footer :: footer}"></div>    
+    <div th:replace="~{body/footer :: footer}"></div>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 

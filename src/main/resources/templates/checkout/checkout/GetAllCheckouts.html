@@ -19,7 +19,7 @@
 </head>
 <body>
 <div th:replace="~{body/header :: header}">
-    <div th:fragment="content">
+	<div th:fragment="content">
     <main>
         <div class="container mt-5">
             <h1 class="mb-4">所有結帳記錄</h1>
@@ -27,27 +27,33 @@
                 <thead>
                     <tr>
                         <th>結帳編號</th>
+                        <th>發票號碼</th>
                         <th>客戶電話</th>
                         <th>員工編號</th>
                         <th>總價</th>
                         <th>結帳日期</th>
-                        <th>紅利點數</th>
-                        <th>點數到期日</th>
+                      <!--   <th>紅利點數</th>
+                        <th>點數到期日</th> --> 
+      					<th>結帳單狀態</th>
+      					<th>對應退貨編號</th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="checkout : ${checkouts}">
                         <td th:text="${checkout.checkoutId}"></td>
+                        <td th:text="${checkout.invoiceNumber}"></td>
                         <td th:text="${checkout.customerTel}"></td>
                         <td th:text="${checkout.employeeId}"></td>
                         <td th:text="${checkout.checkoutTotalPrice}"></td>
                         <td th:text="${checkout.checkoutDate}"></td>
-                        <td th:text="${checkout.bonusPoints}"></td>
-                        <td th:text="${checkout.pointsDueDate}"></td>
+                   <!--       <td th:text="${checkout.bonusPoints}"></td>
+                        <td th:text="${checkout.pointsDueDate}"></td>-->
+                        <td th:text="${checkout.checkoutStatus}"></td>
+      <td th:text="${checkout.checkoutStatus == '已退貨' ? checkout.relatedReturnId : '-'}"></td>
                         <td>
                             <a th:href="@{/checkout/checkoutDetails/listByCheckoutId(checkoutId=${checkout.checkoutId})}" class="btn btn-info btn-sm">查看明細</a>
-                            <a th:href="@{/checkout/update(checkoutId=${checkout.checkoutId})}" class="btn btn-primary btn-sm">修改</a>
+                            <a th:href="@{/checkout/update(checkoutId=${checkout.checkoutId})}" class="btn btn-warning btn-sm">修改</a>
                             <button class="btn btn-danger btn-sm delete-btn" th:data-checkout-id="${checkout.checkoutId}">刪除</button>
                         </td>
                     </tr>
