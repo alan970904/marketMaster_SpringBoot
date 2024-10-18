@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
 import marketMaster.bean.employee.EmpBean;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 @Controller
 public class LoginController {
 
 	@Autowired
-	private EmployeeServiceImpl employeeService;
+	private EmployeeService employeeService;
 	
 	@GetMapping("/employee/loginPage")
 	public String showLoginPage() {
@@ -28,7 +28,7 @@ public class LoginController {
                         HttpSession session, Model model) {
         try {
             EmpBean employee = employeeService.login(employeeId, password);
-            if (employee != null) {
+            if (employee != null && employee.getResigndate() == null) {
                 EmployeeViewModel employeeViewModel = employeeService.getEmployeeViewModel(employeeId);
                 session.setAttribute("employee", employeeViewModel);
 
@@ -39,7 +39,7 @@ public class LoginController {
                 if (employee.isFirstLogin()) {
                     return "redirect:/employee/changePasswordPage";
                 } else {
-                    return "redirect:/employee/empList";
+                    return "redirect:/homePage";
                 }
             } else {
                 model.addAttribute("errorMessage", "員工編號或密碼錯誤");

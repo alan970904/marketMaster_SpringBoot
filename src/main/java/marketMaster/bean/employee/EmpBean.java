@@ -1,10 +1,12 @@
 package marketMaster.bean.employee;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import marketMaster.bean.notification.Notification;
 
 @Entity
 @Table(name = "employee")
@@ -65,10 +68,21 @@ public class EmpBean implements java.io.Serializable {
     @OneToMany(mappedBy = "toEmployee", fetch = FetchType.LAZY)
     private List<ChatMessage> receivedMessages;
     
+    @JsonIgnore
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
+    
     //獲取員工的權限等級
     public int getAuthority() {
 		return this.rankLevel.getLimitsOfAuthority();
 	}
+    
+    // 新增方法：獲取未讀通知數量
+    public int getUnreadNotificationsCount() {
+        return (int) notifications.stream()
+                .filter(n -> !n.getIsRead())
+                .count();
+    }
     
     public EmpBean() {
     }
@@ -205,6 +219,14 @@ public class EmpBean implements java.io.Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public List<Notification> getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(List<Notification> notifications) {
+		this.notifications = notifications;
 	}
 
 }

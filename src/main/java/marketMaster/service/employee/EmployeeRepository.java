@@ -32,6 +32,9 @@ public interface EmployeeRepository extends JpaRepository<EmpBean,String> {
     int countByPositionId(String positionId);
 
     int countByPositionIdAndResigndateIsNull(String positionId);
+    
+    // Notification使用
+    List<EmpBean> findByRankLevel_PositionNameIn(List<String> roles);
 	
 	// restock使用
     @Query("SELECT new marketMaster.DTO.employee.EmployeeInfoDTO(e.employeeId, e.employeeName) FROM EmpBean e")

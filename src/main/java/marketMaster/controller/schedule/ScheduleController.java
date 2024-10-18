@@ -13,7 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import marketMaster.bean.employee.EmpBean;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.service.schedule.ScheduleService;
 
 @Controller
@@ -24,7 +24,7 @@ public class ScheduleController {
 	private ScheduleService scheduleService;
 
 	@Autowired
-	private EmployeeServiceImpl empService;
+	private EmployeeService empService;
 
 	@GetMapping("/view")
 	public String viewSchedules() {

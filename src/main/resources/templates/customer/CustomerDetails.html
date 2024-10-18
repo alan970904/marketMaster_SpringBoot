@@ -13,7 +13,7 @@
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
-            <main class="container mt-4">
+            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
                 <h1 class="mb-4">會員詳細資訊</h1>
 
                 <div class="card" style="width: 40%;">
@@ -42,9 +42,10 @@
                         </table>
                     </div>
                 </div>
-
-                <a class="btn btn-secondary mt-3" th:href="@{/customer/cusList}">返回會員列表</a>
-                <a th:href="@{/customer/getUpdate(customerTel=${customer.customerTel})}" class="btn btn-warning mt-3">修改</a>
+				<div class="d-flex justify-content-start" style="width: 40%;">
+			        <a class="btn btn-secondary mt-3" th:href="@{/customer/cusList}">返回會員列表</a>
+                	<a th:href="@{/customer/getUpdate(customerTel=${customer.customerTel})}" class="btn btn-warning mt-3 ms-3">修改</a>
+			    </div>
             </main>
         </div>
     </div>

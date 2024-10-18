@@ -12,7 +12,7 @@
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
-            <main class="container mt-4">
+            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
 
                 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
                 <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
@@ -65,8 +65,10 @@
                         </td>
                     </tr>
                 </table>
-                <a th:href="@{/employee/empList}" class="btn btn-secondary mt-3">返回員工列表</a>
-                <a th:href="@{/employee/getUpdate(employeeId=${employee.employeeId})}" class="btn btn-warning mt-3">修改</a>
+            	<div class="d-flex justify-content-start" style="width: 60%;">
+			        <a th:href="@{/employee/empList}" class="btn btn-secondary me-3">返回員工列表</a>
+			        <a th:href="@{/employee/getUpdate(employeeId=${employee.employeeId})}" class="btn btn-warning">修改</a>
+			    </div>
             </main>
         </div>
     </div>

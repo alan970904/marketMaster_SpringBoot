@@ -121,6 +121,12 @@
             color: black;
         }
 
+		.message-timestamp {
+		    font-size: 0.8em;
+		    color: gray;
+		    margin-top: 5px;
+		}
+
         .input-area {
             display: flex;
             padding: 10px;
@@ -216,6 +222,7 @@
                 <div th:each="message : ${messages}"
                     th:class="${message.fromUser == session.employee.employeeId ? 'message sent' : 'message received'}">
                     <div class="message-content" th:text="${message.content}"></div>
+                	<div class="message-timestamp" th:text="${#dates.format(message.timestamp, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
             </div>
             <div class="input-area">
@@ -254,6 +261,7 @@
                             var messageClass = message.fromUser === currentUserId ? 'sent' : 'received';
                             var messageHtml = '<div class="message ' + messageClass + '">' +
                                 '<div class="message-content">' + message.content + '</div>' +
+                                '<div class="message-timestamp">' + new Date(message.timestamp).toLocaleString() + '</div>' +
                                 '</div>';
                             $('#messageContainer').append(messageHtml);
                         });
@@ -261,8 +269,6 @@
                     },
                     error: function (xhr, status, error) {
                         console.error('載入歷史訊息失敗:', error);
-                        console.error('狀態碼:', xhr.status);
-                        console.error('回應文本:', xhr.responseText);
                         alert('載入歷史訊息失敗，請稍後再試。錯誤信息: ' + error);
                     }
                 });
