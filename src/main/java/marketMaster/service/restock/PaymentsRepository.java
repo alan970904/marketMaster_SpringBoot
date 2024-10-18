@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface PaymentsRepository extends JpaRepository<PaymentsBean ,String> {
     PaymentsBean findTopByOrderByPaymentIdDesc();
 
+
+    PaymentsBean findTopBySupplierAccounts_Supplier_SupplierIdOrderByPaymentDateDesc(String supplierId);
 }

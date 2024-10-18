@@ -251,7 +251,6 @@
         $(document).ready(function () {
             // 頁面加載時檢查 localStorage 中的側邊欄狀態
             var sidebarState = localStorage.getItem('sidebarState');
-
             // 點擊側邊欄的收起按鈕，切換側邊欄的顯示與隱藏
             $('#sidebarCollapse').on('click', function () {
                 $('#sidebar, .content').toggleClass('active');
