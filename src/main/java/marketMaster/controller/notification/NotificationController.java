@@ -3,6 +3,7 @@ package marketMaster.controller.notification;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,24 +23,28 @@ public class NotificationController {
 	private NotificationServiceImpl notificationService;
 
 	@GetMapping("/latest")
-	public List<Notification> getLatestNotifications(HttpSession session) {
+	public ResponseEntity<?> getLatestNotifications(HttpSession session) {
 		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
 		
 		if (currentEmployee != null) {
 			// 從 session 中獲取當前用戶 ID
-			return notificationService.getLatestNotifications(currentEmployee.getEmployeeId(), 5);
+			List<Notification> notifications = notificationService.getLatestNotifications(currentEmployee.getEmployeeId(), 5);
+			return ResponseEntity.ok(notifications);
 		}
 		
-		return List.of();
+		return ResponseEntity.badRequest().body("No employee in session");
 	}
 
 	@PostMapping("/markAsRead")
-	public void markNotificationsAsRead(HttpSession session) {
+	public ResponseEntity<?> markNotificationsAsRead(HttpSession session) {
 		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
 		
 		if (currentEmployee != null) {
 			notificationService.markAllAsRead(currentEmployee.getEmployeeId());
+			return ResponseEntity.ok().build();
 		}
+		
+		return ResponseEntity.badRequest().body("No employee in session");
 	}
 	
 }

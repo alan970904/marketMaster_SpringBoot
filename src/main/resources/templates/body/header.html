@@ -31,8 +31,9 @@
                                 <i class="fas fa-bell"></i>
                                 <span class="badge bg-danger" id="notificationCount"></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown"
-                                id="notificationList">
+                            <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
+                                <li><a class="dropdown-item text-center" id="loadingNotifications">加載中...</a></li>
+        						<li><a class="dropdown-item text-center d-none" id="noNotifications">沒有新通知</a></li>
                                 <!-- 通知將在這裡動態添加 -->
                             </ul>
                         </li>
@@ -140,44 +141,6 @@
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- 通知功能的JavaScript -->
-    <script th:inline="javascript">
-        function fetchNotifications() {
-            fetch('/api/notifications/latest')
-                .then(response => response.json())
-                .then(notifications => {
-                    const notificationList = document.getElementById('notificationList');
-                    const notificationCount = document.getElementById('notificationCount');
-
-                    notificationList.innerHTML = '';
-                    let unreadCount = 0;
-
-                    notifications.forEach(notification => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<a class="dropdown-item" href="#">${notification.message}</a>`;
-                        notificationList.appendChild(li);
-
-                        if (!notification.isRead) {
-                            unreadCount++;
-                        }
-                    });
-
-                    notificationCount.textContent = unreadCount > 0 ? unreadCount : '';
-                });
-        }
-
-        // 初始加載通知
-        fetchNotifications();
-
-        // 每60秒刷新一次通知
-        setInterval(fetchNotifications, 60000);
-
-        // 點擊通知圖標時標記所有通知為已讀
-        document.getElementById('notificationDropdown').addEventListener('click', () => {
-            fetch('/api/notifications/markAsRead', { method: 'POST' })
-                .then(() => fetchNotifications());
-        });
-    </script>
 </body>
 
 </html>

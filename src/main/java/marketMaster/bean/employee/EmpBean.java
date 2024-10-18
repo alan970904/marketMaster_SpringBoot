@@ -68,6 +68,7 @@ public class EmpBean implements java.io.Serializable {
     @OneToMany(mappedBy = "toEmployee", fetch = FetchType.LAZY)
     private List<ChatMessage> receivedMessages;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
     
