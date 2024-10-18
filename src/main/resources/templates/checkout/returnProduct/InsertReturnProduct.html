@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增退貨記錄</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style th:inline="css">
+        main {
+
+            /* 全局樣式 */
+            body {
+                background-color: #f0f2f5;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #333;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            /* 卡片樣式 */
+            .card {
+                background-color: #ffffff;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                padding: 2.5rem;
+                margin: 2rem auto;
+                max-width: 800px;
+            }
+
+            .card h2 {
+                color: #2c3e50;
+                margin-bottom: 2rem;
+                text-align: center;
+                font-size: 2.2rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            /* 表單網格布局 */
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+            }
+
+            /* 表單组樣式 */
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.7rem;
+                color: #34495e;
+                font-weight: 500;
+                font-size: 1.1rem;
+            }
+
+            .form-control {
+                width: 100%;
+                padding: 0.8rem 1rem;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #3498db;
+                box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            }
+
+            /* 電話號碼输入框樣式 */
+            .phone-group .phone-inputs {
+                display: flex;
+                align-items: center;
+            }
+
+            .phone-group .form-control {
+                flex: 1;
+            }
+
+            .phone-separator {
+                margin: 0 10px;
+                color: #34495e;
+                font-weight: bold;
+            }
+
+            /* 下拉選單樣式 */
+            select.form-control {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2334495e' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 1rem center;
+                background-size: 12px;
+                padding-right: 2.5rem;
+            }
+
+            /* 按鈕樣式 */
+            .btn {
+                background-color: #3498db;
+                color: white;
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.1rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .btn:hover {
+                background-color: #2980b9;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+            }
+
+            #addProduct {
+                margin-top: 1.5rem;
+                margin-bottom: 1.5rem;
+                background-color: #2ecc71;
+            }
+
+            #addProduct:hover {
+                background-color: #27ae60;
+            }
+
+            /* 產品列表樣式 */
+            .product-list {
+                margin-top: 1.5rem;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 1.5rem;
+                background-color: #f9f9f9;
+            }
+
+            .product-list p {
+                margin-bottom: 1rem;
+                padding: 1rem;
+                background-color: #fff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: all 0.3s ease;
+            }
+
+            .product-list p:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .removeProduct {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 0.5rem 0.8rem;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+            }
+
+            .removeProduct:hover {
+                background-color: #c0392b;
+                transform: translateY(-1px);
+            }
+
+            /* 錯誤消息樣式（已移除） */
+            .error-message {
+                display: none;
+                height: 0;
+                margin: 0;
+                padding: 0;
+                border: none;
+            }
+
+            /* 返回按鈕樣式 */
+            #back {
+                background-color: #95a5a6;
+                color: white;
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.1rem;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-top: 1.5rem;
+                margin-bottom: 0;
+            }
+
+            #back:hover {
+                background-color: #7f8c8d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(149, 165, 166, 0.3);
+            }
+
+            /* 響應式設計 */
+            @media (max-width: 768px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .card {
+                    padding: 1.5rem;
+                }
+
+                .btn,
+                #back {
+                    width: 100%;
+                }
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{body/header :: header}">
+        <div th:fragment="content">
+            <main role="main">
+                <div class="container mt-5">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">新增退貨紀錄</h2>
+                            <form id="returnProductForm" enctype="multipart/form-data">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="returnId">退貨編號:</label>
+                                        <input type="text" class="form-control" id="returnId" name="returnId" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="invoiceNumber">發票號碼:</label>
+                                        <input type="text" class="form-control" id="invoiceNumber" name="invoiceNumber"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="originalCheckoutId">原始結帳編號:</label>
+                                        <input type="text" class="form-control" id="originalCheckoutId"
+                                            name="originalCheckoutId" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="employeeId">員工編號:</label>
+                                        <select id="employeeId" name="employeeId" class="form-control" required>
+                                            <option value="">請選擇員工</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="productName">退貨商品名稱:</label>
+                                        <select class="form-select" id="productName" name="productName" disabled>
+                                            <option value="">請選擇商品名稱</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="returnQuantity">退貨商品數量:</label>
+                                        <input type="number" class="form-control" id="returnQuantity"
+                                            name="returnQuantity" min="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="productPrice">商品價格:</label>
+                                        <input type="number" class="form-control" id="productPrice" name="productPrice"
+                                            readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="subtotal">退貨小計:</label>
+                                        <input type="number" class="form-control" id="subtotal" name="subtotal"
+                                            readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="returnReason">退貨原因:</label>
+                                        <input type="text" class="form-control" id="returnReason" name="returnReason">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="returnStatus">退貨商品狀態:</label>
+                                        <select class="form-select" id="returnStatus" name="returnStatus">
+                                            <option value="">請選擇狀態</option>
+                                            <option value="顧客因素">顧客因素</option>
+                                            <option value="商品外觀損傷">商品外觀損傷</option>
+                                            <option value="商品品質異常">商品品質異常</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="returnPhoto">上傳退貨商品照片:</label>
+                                        <input type="file" class="form-control-file" id="returnPhoto" name="returnPhoto"
+                                            accept="image/*">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary mt-3" id="addProductBtn">添加商品</button>
+
+                                <div id="returnProductList" class="product-list mt-3"></div>
+
+                                <div class="form-group">
+                                    <label for="totalReturnAmount">總退貨金額:</label>
+                                    <input type="number" class="form-control" id="totalReturnAmount"
+                                        name="totalReturnAmount" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="returnDate">退貨日期:</label>
+                                    <input type="date" class="form-control" id="returnDate" name="returnDate" required>
+                                </div>
+                                <button type="submit" class="btn btn-success mt-3">新增退貨紀錄</button>
+                            </form>
+                            <br>
+                            <a class="btn btn-secondary" th:href="@{/returnProduct/returnMain}">返回主頁</a>
+                        </div>
+                    </div>
+                    <div id="errorMessages" class="alert alert-danger mt-3" style="display: none;"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+	<div th:replace="~{body/footer :: footer}"></div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function () {
+            // 獲取下一個退貨ID
+            axios.get(/*[[@{/returnProduct/nextId}]]*/)
+                .then(function (response) {
+                    $("#returnId").val(response.data);
+                })
+                .catch(function (error) {
+                    console.error('獲取退貨編號失敗:', error);
+                    showError('獲取退貨編號失敗，請稍後再試');
+                });
+
+            // 獲取所有在職員工
+            axios.get(/*[[@{/returnProduct/activeEmployees}]]*/)
+                .then(function (response) {
+                    var employeeSelect = $('#employeeId');
+                    response.data.forEach(function (emp) {
+                        employeeSelect.append($('<option>')
+                            .text(emp.employeeId + ' - ' + emp.employeeName)
+                            .attr('value', emp.employeeId));
+                    });
+                })
+                .catch(function (error) {
+                    console.error('獲取員工資料失敗:', error);
+                    showError('獲取員工資料失敗，請稍後再試');
+                });
+
+            // 監聽發票號碼輸入
+            $('#invoiceNumber').on('blur', function () {
+                var invoiceNumber = $(this).val();
+                if (!invoiceNumber) return;
+                axios.get(/*[[@{/returnProduct/invoiceDetails}]]*/, { params: { invoiceNumber: invoiceNumber } })
+                    .then(function (response) {
+                        var details = response.data;
+                        $('#originalCheckoutId').val(details[0].originalCheckoutId);
+
+                        var productSelect = $('#productName');
+                        productSelect.empty().append('<option value="">請選擇商品名稱</option>');
+                        details.forEach(function (product) {
+                            productSelect.append($('<option>')
+                                .text(product.productName)
+                                .attr('value', product.productId)
+                                .data('price', product.productPrice)
+                                .data('quantity', product.numberOfCheckout)
+                                .data('isPerishable', product.isPerishable)
+                                .data('purchaseDate', product.checkoutDate));
+                        });
+                        productSelect.prop('disabled', false);
+                    })
+                    .catch(function (error) {
+                        console.error('獲取發票詳細資料失敗:', error);
+                        showError('獲取發票詳細資料失敗，請確認發票號碼是否正確');
+                        $('#productName').prop('disabled', true);
+                        $('#originalCheckoutId').val('');
+                    });
+            });
+
+            // 監聽商品選擇
+            $('#productName').on('change', function () {
+                var selectedOption = $(this).find('option:selected');
+                var price = selectedOption.data('price') || 0;
+                var maxQuantity = selectedOption.data('quantity') || 0;
+                $('#productPrice').val(price);
+                $('#returnQuantity').attr('max', maxQuantity);
+                $('#returnQuantity').val('');  // 清空數量輸入
+                $('#subtotal').val('');  // 清空小計
+                calculateSubtotal();
+                checkReturnPeriod(selectedOption);
+            });
+
+            // 監聽退貨數量輸入
+            $('#returnQuantity').on('input', function () {
+                var quantity = parseInt($(this).val()) || 0;
+                var maxQuantity = parseInt($(this).attr('max')) || 0;
+                if (quantity > maxQuantity) {
+                    $(this).val(maxQuantity);
+                    showError('退貨數量不能大於原購買數量 ' + maxQuantity);
+                }
+                calculateSubtotal();
+            });
+
+            function calculateSubtotal() {
+                var quantity = parseInt($('#returnQuantity').val()) || 0;
+                var price = parseInt($('#productPrice').val()) || 0;
+                $('#subtotal').val(quantity * price);
+            }
+
+            function checkReturnPeriod(selectedOption) {
+                var isPerishable = selectedOption.data('isPerishable') === 1;
+                var purchaseDate = new Date(selectedOption.data('purchaseDate'));
+                var today = new Date();
+                var daysSincePurchase = (today - purchaseDate) / (1000 * 60 * 60 * 24);
+
+                if ((isPerishable && daysSincePurchase > 1) || (!isPerishable && daysSincePurchase > 7)) {
+                    showError('此商品已超過退貨期限，無法退貨。');
+                    $('#productName').val('');
+                    $('#productPrice').val('');
+                    $('#subtotal').val('');
+                    return false;
+                }
+                return true;
+            }
+
+            // 添加商品
+            $('#addProductBtn').on('click', function () {
+                var productId = $('#productName').val();
+                var productName = $('#productName option:selected').text();
+                var quantity = $('#returnQuantity').val();
+                var price = parseInt($('#productPrice').val());
+                var reason = $('#returnReason').val();
+                var subtotal = parseInt($('#subtotal').val());
+                var status = $('#returnStatus').val();
+                console.log("選擇的退貨狀態:", status); // 添加這行來調試
+                var photoInput = $('#returnPhoto')[0];
+                var photoFile = photoInput.files[0];
+                var photoName = photoFile ? photoFile.name : '無';
+
+                if (!productId || !quantity || !reason || !status) {
+                    showError('請填寫完整的商品資訊');
+                    return;
+                }
+
+                if (!checkReturnPeriod($('#productName option:selected'))) {
+                    return;
+                }
+
+                var productHtml = `
+                <div class="card mb-2" data-product-id="${productId}">
+                    <div class="card-body">
+                        <h5 class="card-title">${productName}</h5>
+                        <p class="card-text">數量: ${quantity}</p>
+                        <p class="card-text">單價: ${price}</p>
+                        <p class="card-text">退貨原因: ${reason}</p>
+                        <p class="card-text">小計: ${subtotal}</p>
+                        <p class="card-text">狀態: ${status}</p>
+                        <p class="card-text">照片: ${photoName}</p>
+                        <input type="file" name="files" style="display:none;">
+                        <button type="button" class="btn btn-danger btn-sm remove-product">移除</button>
+                    </div>
+                </div>
+            `;
+                var $productElement = $(productHtml);
+                $('#returnProductList').append($productElement);
+
+                // 將文件添加到隱藏的文件輸入
+                if (photoFile) {
+                    var dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(photoFile);
+                    $productElement.find('input[type="file"]')[0].files = dataTransfer.files;
+                }
+
+                // 清空輸入欄位
+                $('#productName').val('');
+                $('#returnQuantity').val('');
+                $('#productPrice').val('');
+                $('#returnReason').val('');
+                $('#subtotal').val('');
+                $('#returnStatus').val('');
+                $('#returnPhoto').val('');
+
+                calculateTotalReturnAmount();
+            });
+
+            // 移除商品
+            $(document).on('click', '.remove-product', function () {
+                $(this).closest('.card').remove();
+                calculateTotalReturnAmount();
+            });
+
+            function calculateTotalReturnAmount() {
+                var total = 0;
+                $('#returnProductList .card-body').each(function () {
+                    var subtotal = parseFloat($(this).find('p:nth-child(5)').text().split(': ')[1]);
+                    total += subtotal;
+                });
+                $('#totalReturnAmount').val(total.toFixed(2));
+            }
+
+            // 表單提交
+            $('#returnProductForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var formData = new FormData();
+                var returnProducts = [];
+
+                $('#returnProductList .card-body').each(function (index) {
+                    var productDiv = $(this);
+                    var productData = {
+                        productId: productDiv.closest('.card').data('product-id'),
+                        numberOfReturn: parseInt(productDiv.find('p:contains("數量")').text().split(': ')[1]),
+                        productPrice: parseInt(productDiv.find('p:contains("單價")').text().split(': ')[1]),
+                        reasonForReturn: productDiv.find('p:contains("退貨原因")').text().split(': ')[1],
+                        returnPrice: parseInt(productDiv.find('p:contains("小計")').text().split(': ')[1]),
+                        returnStatus: productDiv.find('p:contains("狀態")').text().split(': ')[1]
+                    };
+                    returnProducts.push(productData);
+
+                    var fileInput = productDiv.find('input[type="file"]')[0];
+                    if (fileInput && fileInput.files[0]) {
+                        formData.append('files', fileInput.files[0]);
+                    }
+                });
+
+                var returnData = {
+                    returnId: $('#returnId').val(),
+                    originalInvoiceNumber: $('#invoiceNumber').val(),
+                    originalCheckoutId: $('#originalCheckoutId').val(),
+                    employeeId: $('#employeeId').val(),
+                    returnTotalPrice: parseInt($('#totalReturnAmount').val()),
+                    returnDate: $('#returnDate').val(),
+                    returnProducts: returnProducts
+                };
+
+                formData.append('returnData', JSON.stringify(returnData));
+
+                axios.post(/*[[@{/returnProduct/add}]]*/, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+                    .then(function (response) {
+                        if (response.data.status === 'success') {
+                            alert('退貨紀錄新增成功');
+                            window.location.href = /*[[@{/returnProduct/list}]]*/ ;
+                        } else {
+                            alert('退貨紀錄新增失敗: ' + response.data.message);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.error('Error:', error);
+                        alert('發生錯誤，請稍後再試');
+                    });
+            });
+            function showError(message) {
+                $('#errorMessages').text(message).show();
+                setTimeout(function () {
+                    $('#errorMessages').hide();
+                }, 5000);
+            }
+
+            // 設置今天日期為預設值
+            var today = new Date().toISOString().split('T')[0];
+            $('#returnDate').val(today);
+
+        });
+        /*]]>*/
+    </script>
+
+</body>
+
+</html>
