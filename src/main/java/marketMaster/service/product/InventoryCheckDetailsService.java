@@ -13,20 +13,22 @@ public class InventoryCheckDetailsService {
 
 	@Autowired
 	private InventoryCheckDetailsRepository inventoryCheckDetailsRepo;
-	
+
 	public InventoryCheckDetailsBean findOneInventoryCheckDetailById(String detailId) {
 		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findById(detailId);
-		
+
 		if (optional.isPresent()) {
 			InventoryCheckDetailsBean inventoryCheckDetail = optional.get();
 			return inventoryCheckDetail;
 		}
 		return null;
 	}
-	
+
 	public List<InventoryCheckDetailsBean> findByInventoryCheckDetailId(String inventoryCheckId) {
-	
-		
+
 		return inventoryCheckDetailsRepo.findDetailByInventoryCheckId(inventoryCheckId);
+	}
+	public List<InventoryCheckDetailsBean> addDetails(InventoryCheckDetailsBean inventoryCheckDetailsBean) {
+		return null;
 	}
 }
