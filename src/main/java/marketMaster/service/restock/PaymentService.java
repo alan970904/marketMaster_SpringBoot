@@ -84,10 +84,6 @@ public class PaymentService {
                 .sum();
         payment.setTotalAmount(totalAmount);
 
-        // 使用 payment_id 作為 MerchantTradeNo
-        String merchantTradeNo = newPaymentId;
-        payment.setPaymentId(newPaymentId); // payment_id 同時作為 MerchantTradeNo
-
         // 保存 Payment
         paymentsRepository.save(payment);
 
@@ -117,7 +113,6 @@ public class PaymentService {
         if (newPaidAmount == null) {
             newPaidAmount = 0;
         }
-        System.out.println(newPaidAmount);
         supplierAccountsRepository.updatePaidAmount(supplierId, newPaidAmount);
     }
 
@@ -129,6 +124,7 @@ public class PaymentService {
         if (lastId == null) {
             return "PMT001";  // 第一次插入時從 PMT001 開始
         }
+
 
         // 提取數字部分並遞增
         int idNum = Integer.parseInt(lastId.substring(3)) + 1;
@@ -184,13 +180,9 @@ public class PaymentService {
         return isValid;
     }
 
-    // 获取最新支付记录并转换为 PaymentInsertDTO
     public PaymentInsertDTO getLatestPaymentInsertDTO(String supplierId) {
         PaymentsBean latestPayment = paymentsRepository.findTopBySupplierAccounts_Supplier_SupplierIdOrderByPaymentDateDesc(supplierId);
 
-        if (latestPayment == null) {
-            throw new RuntimeException("未找到供应商ID为 " + supplierId + " 的付款记录");
-        }
 
         PaymentInsertDTO paymentInsertDTO = new PaymentInsertDTO();
         paymentInsertDTO.setAccountId(latestPayment.getSupplierAccounts().getAccountId());
