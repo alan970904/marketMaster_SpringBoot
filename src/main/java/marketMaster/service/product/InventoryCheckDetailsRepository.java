@@ -13,4 +13,7 @@ public interface InventoryCheckDetailsRepository extends JpaRepository<Inventory
 
 	@Query("SELECT icd FROM InventoryCheckDetailsBean icd WHERE icd.inventoryCheck.inventoryCheckId = :inventoryCheckId")
 	List<InventoryCheckDetailsBean> findDetailByInventoryCheckId(@Param("inventoryCheckId") String inventoryCheckId);
+	
+	@Query("SELECT MAX(icd.detailId) FROM InventoryCheckDetailsBean icd")
+	String findMaxId();
 }
