@@ -1,6 +1,6 @@
 package marketMaster.service.restock;
 
-import ECpayAIO_Java.ecpay.payment.integration.ecpayOperator.EcpayFunction;
+import ecpay.payment.integration.ecpayOperator.EcpayFunction;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.PaymentRecordInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
