@@ -1,135 +1,185 @@
 package marketMaster.bean.checkout;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.*;
+@Entity
+@Table(name = "checkout")
+public class CheckoutBean implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-@Entity @Table(name = "checkout")
-public class CheckoutBean implements Serializable  {
-	private static final long serialVersionUID = 1L;
-	
-	@Id @Column(name = "CHECKOUT_ID")
-	private String checkoutId;
-	
-	@Column(name = "CUSTOMER_TEL")
-	private String customerTel;
-	
-	@Column(name = "EMPLOYEE_ID")
-	private String employeeId;
-	
-	@Column(name = "CHECKOUT_TOTAL_PRICE")
-	private int checkoutTotalPrice;
-	
-	@Temporal(TemporalType.DATE)
-    @Column(name = "CHECKOUT_DATE")
-	private Date checkoutDate;
-	
-	@Column(name = "BONUS_POINTS")
-	private int bonusPoints;
-	
-	@Temporal(TemporalType.DATE)
-    @Column(name = "POINTS_DUE_DATE")
-	private Date pointsDueDate;
-	
-	@OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Id
+    @Column(name = "checkout_id")
+    private String checkoutId;
+
+    @Column(name = "invoice_number", nullable = false)
+    private String invoiceNumber;
+
+    @Column(name = "customer_tel")
+    private String customerTel;
+
+    @Column(name = "employee_id", nullable = false)
+    private String employeeId;
+
+    @Column(name = "checkout_total_price", nullable = false)
+    private int checkoutTotalPrice;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "checkout_date", nullable = false)
+    private Date checkoutDate;
+
+    @Column(name = "bonus_points")
+    private Integer bonusPoints;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "points_due_date")
+    private Date pointsDueDate;
+
+    @Column(name = "checkout_status", nullable = false)
+    private String checkoutStatus;
+
+    @Column(name = "related_return_id")
+    private String relatedReturnId;
+
+    @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CheckoutDetailsBean> checkoutDetails = new ArrayList<>();
 
-	// Constructors, Getters, and Setters
+    @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ReturnProductBean> returnProducts = new ArrayList<>();
 
-	public CheckoutBean() {
-		super();
-	}
+    // Constructors
+    public CheckoutBean() {
+        super();
+    }
 
-	public CheckoutBean(String checkoutId, String customerTel, String employeeId, int checkoutTotalPrice,
-			Date checkoutDate, int bonusPoints, Date pointsDueDate, List<CheckoutDetailsBean> checkoutDetails) {
-		super();
-		this.checkoutId = checkoutId;
-		this.customerTel = customerTel;
-		this.employeeId = employeeId;
-		this.checkoutTotalPrice = checkoutTotalPrice;
-		this.checkoutDate = checkoutDate;
-		this.bonusPoints = bonusPoints;
-		this.pointsDueDate = pointsDueDate;
-		this.checkoutDetails = checkoutDetails;
-	}
+    public CheckoutBean(String checkoutId, String invoiceNumber, String customerTel, String employeeId,
+                        int checkoutTotalPrice, Date checkoutDate, Integer bonusPoints, Date pointsDueDate,
+                        String checkoutStatus, String relatedReturnId) {
+        this.checkoutId = checkoutId;
+        this.invoiceNumber = invoiceNumber;
+        this.customerTel = customerTel;
+        this.employeeId = employeeId;
+        this.checkoutTotalPrice = checkoutTotalPrice;
+        this.checkoutDate = checkoutDate;
+        this.bonusPoints = bonusPoints;
+        this.pointsDueDate = pointsDueDate;
+        this.checkoutStatus = checkoutStatus;
+        this.relatedReturnId = relatedReturnId;
+    }
 
-	public String getCheckoutId() {
-		return checkoutId;
-	}
+    // Getters and Setters
+    public String getCheckoutId() {
+        return checkoutId;
+    }
 
-	public void setCheckoutId(String checkoutId) {
-		this.checkoutId = checkoutId;
-	}
+    public void setCheckoutId(String checkoutId) {
+        this.checkoutId = checkoutId;
+    }
 
-	public String getCustomerTel() {
-		return customerTel;
-	}
+    public String getInvoiceNumber() {
+        return invoiceNumber;
+    }
 
-	public void setCustomerTel(String customerTel) {
-		this.customerTel = customerTel;
-	}
+    public void setInvoiceNumber(String invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
+    }
 
-	public String getEmployeeId() {
-		return employeeId;
-	}
+    public String getCustomerTel() {
+        return customerTel;
+    }
 
-	public void setEmployeeId(String employeeId) {
-		this.employeeId = employeeId;
-	}
+    public void setCustomerTel(String customerTel) {
+        this.customerTel = customerTel;
+    }
 
-	public int getCheckoutTotalPrice() {
-		return checkoutTotalPrice;
-	}
+    public String getEmployeeId() {
+        return employeeId;
+    }
 
-	public void setCheckoutTotalPrice(int checkoutTotalPrice) {
-		this.checkoutTotalPrice = checkoutTotalPrice;
-	}
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
 
-	public Date getCheckoutDate() {
-		return checkoutDate;
-	}
+    public int getCheckoutTotalPrice() {
+        return checkoutTotalPrice;
+    }
 
-	public void setCheckoutDate(Date checkoutDate) {
-		this.checkoutDate = checkoutDate;
-	}
+    public void setCheckoutTotalPrice(int checkoutTotalPrice) {
+        this.checkoutTotalPrice = checkoutTotalPrice;
+    }
 
-	public int getBonusPoints() {
-		return bonusPoints;
-	}
+    public Date getCheckoutDate() {
+        return checkoutDate;
+    }
 
-	public void setBonusPoints(int bonusPoints) {
-		this.bonusPoints = bonusPoints;
-	}
+    public void setCheckoutDate(Date checkoutDate) {
+        this.checkoutDate = checkoutDate;
+    }
 
-	public Date getPointsDueDate() {
-		return pointsDueDate;
-	}
+    public Integer getBonusPoints() {
+        return bonusPoints;
+    }
 
-	public void setPointsDueDate(Date pointsDueDate) {
-		this.pointsDueDate = pointsDueDate;
-	}
+    public void setBonusPoints(Integer bonusPoints) {
+        this.bonusPoints = bonusPoints;
+    }
 
-	public List<CheckoutDetailsBean> getCheckoutDetails() {
-		return checkoutDetails;
-	}
+    public Date getPointsDueDate() {
+        return pointsDueDate;
+    }
 
-	public void setCheckoutDetails(List<CheckoutDetailsBean> checkoutDetails) {
-		this.checkoutDetails = checkoutDetails;
-	}
+    public void setPointsDueDate(Date pointsDueDate) {
+        this.pointsDueDate = pointsDueDate;
+    }
 
-	public void addCheckoutDetail(CheckoutDetailsBean detail) {
-		if (checkoutDetails == null) {
-			checkoutDetails = new ArrayList<>();
-		}
-		checkoutDetails.add(detail);
-		detail.setCheckout(this);
-	}
-	
-	// 添加 equals 和 hashCode 方法
+    public String getCheckoutStatus() {
+        return checkoutStatus;
+    }
+
+    public void setCheckoutStatus(String checkoutStatus) {
+        this.checkoutStatus = checkoutStatus;
+    }
+
+    public String getRelatedReturnId() {
+        return relatedReturnId;
+    }
+
+    public void setRelatedReturnId(String relatedReturnId) {
+        this.relatedReturnId = relatedReturnId;
+    }
+
+    public List<CheckoutDetailsBean> getCheckoutDetails() {
+        return checkoutDetails;
+    }
+
+    public void setCheckoutDetails(List<CheckoutDetailsBean> checkoutDetails) {
+        this.checkoutDetails = checkoutDetails;
+    }
+
+    public List<ReturnProductBean> getReturnProducts() {
+        return returnProducts;
+    }
+
+    public void setReturnProducts(List<ReturnProductBean> returnProducts) {
+        this.returnProducts = returnProducts;
+    }
+
+    // Helper methods
+    public void addCheckoutDetail(CheckoutDetailsBean detail) {
+        checkoutDetails.add(detail);
+        detail.setCheckout(this);
+    }
+
+    public void addReturnProduct(ReturnProductBean returnProduct) {
+        returnProducts.add(returnProduct);
+        returnProduct.setCheckout(this);
+    }
+
+    // equals, hashCode, and toString methods
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -143,17 +193,19 @@ public class CheckoutBean implements Serializable  {
         return Objects.hash(checkoutId);
     }
 
-    // 添加 toString 方法
     @Override
     public String toString() {
         return "CheckoutBean{" +
-               "checkoutId='" + checkoutId + '\'' +
-               ", customerTel='" + customerTel + '\'' +
-               ", employeeId='" + employeeId + '\'' +
-               ", checkoutTotalPrice=" + checkoutTotalPrice +
-               ", checkoutDate=" + checkoutDate +
-               ", bonusPoints=" + bonusPoints +
-               ", pointsDueDate=" + pointsDueDate +
-               '}';
+                "checkoutId='" + checkoutId + '\'' +
+                ", invoiceNumber='" + invoiceNumber + '\'' +
+                ", customerTel='" + customerTel + '\'' +
+                ", employeeId='" + employeeId + '\'' +
+                ", checkoutTotalPrice=" + checkoutTotalPrice +
+                ", checkoutDate=" + checkoutDate +
+                ", bonusPoints=" + bonusPoints +
+                ", pointsDueDate=" + pointsDueDate +
+                ", checkoutStatus='" + checkoutStatus + '\'' +
+                ", relatedReturnId='" + relatedReturnId + '\'' +
+                '}';
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>超市訂單系統</title>
+    <title>超市退貨系統</title>
     
     <!-- CSS 引用 -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -21,77 +21,58 @@
             background-color: #fff;
         }
         main .card-header {
-            background-color: #4e73df;
+            background-color: #6c757d;
             color: white;
             font-weight: 500;
             border-bottom: none;
         }
         main .btn-primary {
-            background-color: #4e73df;
-            border-color: #4e73df;
+            background-color: #6c757d;
+            border-color: #6c757d;
         }
         main .btn-primary:hover {
-            background-color: #2e59d9;
-            border-color: #2e59d9;
+            background-color: #5a6268;
+            border-color: #5a6268;
         }
         main .form-control:focus {
-            border-color: #4e73df;
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+            border-color: #6c757d;
+            box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
         }
         main .input-group-text {
-            background-color: #4e73df;
+            background-color: #6c757d;
             color: white;
-            border-color: #4e73df;
+            border-color: #6c757d;
         }
     </style>
 </head>
 <body>
 <div th:replace="~{body/header :: header}">
 <div th:fragment="content">
-  <!--   <div th:replace="~{body/body :: body}"></div>--> 
     <main class="container mt-5">
-        <h1 class="mb-4">超市訂單系統</h1>
+        <h1 class="mb-4">超市退貨系統</h1>
         
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-list-alt me-2"></i>所有結帳記錄
+                        <i class="fas fa-list-alt me-2"></i>所有退貨記錄
                     </div>
                     <div class="card-body">
-                        <a th:href="@{/checkout/list}" class="btn btn-primary w-100">
-                            <i class="fas fa-search me-2"></i>查看所有結帳記錄
+                        <a th:href="@{/returnProduct/list}" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>查看所有退貨記錄
                         </a>
                     </div>
                 </div>
             </div>
-            <!-- 
+            
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-search me-2"></i>搜尋結帳記錄
+                        <i class="fas fa-plus-circle me-2"></i>新增退貨記錄
                     </div>
                     <div class="card-body">
-                        <form th:action="@{/checkout/search}" method="get">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="customerTel" placeholder="輸入客戶電話">
-                                <button class="btn btn-primary" type="submit">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-             -->
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-plus-circle me-2"></i>新增結帳記錄
-                    </div>
-                    <div class="card-body">
-                        <a th:href="@{/checkout/add}" class="btn btn-primary w-100">
-                            <i class="fas fa-plus me-2"></i>新增結帳記錄
+                        <a th:href="@{/returnProduct/add}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>新增退貨記錄
                         </a>
                     </div>
                 </div>
