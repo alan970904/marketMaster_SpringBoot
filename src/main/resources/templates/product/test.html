@@ -12,10 +12,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/40ce2136c3.js" crossorigin="anonymous"></script>
     <style>
-        img{
+        img {
             max-height: 100%;
             width: auto;
         }
+
         .w20 {
             width: 20%;
         }
@@ -37,7 +38,7 @@
         <div th:fragment="content">
             <main>
                 <div class="container">
-                    <button type="button" class="btn btn-primary">完成盤點</button>
+                    <button type="button" class="btn btn-primary" id="submit">完成盤點</button>
                     <div class="row">
                         <th:block th:each=" product: ${products}">
                             <div class="card col-3 m-3" style="width: 18rem;">
@@ -53,23 +54,26 @@
                                 </th:block>
 
                                 <div class="card-body text-center">
-                                    <input type="hidden" th:value="${product.productId}">
+                                    <input type="hidden" class="productId" th:value="${product.productId}">
                                     <h5 class="card-title m-auto" th:text="${product.productName}"></h5>
                                 </div>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item ">
-                                        當前庫存量: <span th:text="${product.numberOfInventory}"></span>個
+                                        當前庫存量: <span th:text="${product.numberOfInventory}"
+                                            class="numberOfInventory"></span>個
                                     </li>
                                     <li class="list-group-item">
                                         <div class="input-group">
                                             <span class="input-group-text">本次盤點量:</span>
-                                            <input type="number" class="form-control invectoryCheck" min="0">
+                                            <input type="number" class="form-control actualInventory" min="0">
                                         </div>
                                     </li>
-                                    <li class="list-group-item">狀態</li>
+                                    <li class="list-group-item">庫存狀況
+                                        <span class="stockStatus"></span>
+                                    </li>
                                 </ul>
                                 <div class="card-body">
-                                    <input type="text">
+                                    <input type="text" class="remark">
                                 </div>
                             </div>
                         </th:block>
@@ -86,34 +90,101 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
-        const invectoryCheck = document.querySelectorAll('.invectoryCheck')
+        const actualInventory = document.querySelectorAll('.actualInventory ')
 
-        for (let i = 0; i < invectoryCheck.length; i++) {
-             invectoryCheck[i].addEventListener('blur',function(){
-            const invectoryCheckValue = document.getElementsByClassName('invectoryCheck').value
-            const productId = document.querySelector('input').value
-            console.log(productId)
-            const detail = {
-                
-            }
-
-        })
-        }
         const detailsList = [];
-        // const details = {
-        //     productId:productId,
-        //     currentInventory:currentInventory,
-        //     actualInventory:actualInventory,
-        //     differentialInventory:differentialInventory,
-        //     remark:remark
+
+        const inventoryCheckInsertDTO = {
+            employeeId: 'E001',
+            details: detailsList
+        }
+
+
+
+        document.getElementById('submit').addEventListener('click', function () {
+            for (let i = 0; i < actualInventory.length; i++) {
+                const actualInventoryValue = document.getElementsByClassName('actualInventory')[i].value
+                const productId = document.getElementsByClassName('productId')[i].value
+                const numberOfInventory = document.getElementsByClassName('numberOfInventory')[i].innerHTML
+                const remark = document.getElementsByClassName('remark')[i].value
+
+                const detail = {
+                    productId: productId,
+                    currentInventory: numberOfInventory,
+                    actualInventory: actualInventoryValue,
+                    remark: remark
+                }
+
+                detailsList.push(detail)
+
+            }
+            console.log(inventoryCheckInsertDTO)
+            axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO)
+                .then(res => {
+                    console.log('新增成功')
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        })
+        for (let i = 0; i < actualInventory.length; i++) {
+
+            actualInventory[i].addEventListener('blur', function () {
+                const actualInventoryValue = document.getElementsByClassName('actualInventory')[i].value
+                const numberOfInventoryStr = document.getElementsByClassName('numberOfInventory')[i].innerHTML
+                const numberOfInventory = parseInt(numberOfInventoryStr)
+                const stockStatus = document.getElementsByClassName('stockStatus')[i]
+                const remark = document.getElementsByClassName('remark')[i]
+
+
+                if (actualInventoryValue == numberOfInventory) {
+                    stockStatus.innerHTML = '數量無誤'
+                    remark.readOnly = true
+                    remark.value = '無誤'
+                } else {
+                    remark.readOnly = false
+                    remark.value = ''
+                    stockStatus.innerHTML = '數量有誤'
+                    remark.focus();
+                }
+
+
+            })
+        }
+
+        // //生成分頁按鈕
+        // function pageMaker(data) {
+        //     const ul = document.getElementById("pageUl")
+        //     ul.innerHTML = "";  // 清空之前的分頁按鈕
+
+        //     for (let i = 1; i <= data.totalPages; i++) {  // 根據回傳的總頁數來生成按鈕
+        //         const li = document.createElement("li");
+        //         const btn = document.createElement("button");
+        //         btn.className = "page-link"
+        //         btn.textContent = i;
+        //         btn.addEventListener('click', function () {
+        //             const productName = document.getElementById('inputName').value
+        //             axios.post(findByPageUrl, {
+        //                 productName: productName,
+        //                 pageNumber: i
+        //             })  // 傳遞 productName 和頁碼
+        //                 .then(res => {
+
+        //                 })
+        //                 .catch(err => {
+        //                     console.error(err);
+        //                 });
+        //         });
+        //         li.appendChild(btn);
+        //         ul.appendChild(li);
+        //     }
         // }
 
-        const InventoryCheckBean = {
-            employee:'E001',
-            details:details
-        }
+        // function htmlMaker(data) {
+        //     const row = document.getElementsByClassName('row')
 
-       
+        // }
+
     </script>
 
 </body>

@@ -38,8 +38,9 @@ public class InventoryCheckDetailsService {
 		return null;
 	}
 	
-	public String newId() {
-		
+	
+	public String newDetailId() {
+
 		String maxId = inventoryCheckDetailsRepo.findMaxId();
 		if (maxId == null || maxId.isEmpty()) {
 			return "ICD00000001";
@@ -47,7 +48,7 @@ public class InventoryCheckDetailsService {
 		String eng = maxId.substring(0, 3);
 		String numStr = maxId.substring(3);
 		int num = Integer.parseInt(numStr);
-		String result = eng+String.format("%08d", num+1);
+		String result = eng + String.format("%08d", num + 1);
 		return result;
 	}
 
