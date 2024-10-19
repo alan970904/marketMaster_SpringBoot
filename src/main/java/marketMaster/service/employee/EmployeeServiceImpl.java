@@ -27,9 +27,11 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import marketMaster.annotation.NotificationTrigger;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
+import marketMaster.service.notification.NotificationService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 @Service
@@ -48,10 +50,17 @@ public class EmployeeServiceImpl implements EmployeeService{
 	@Autowired
 	private RankLevelRepository rankLevelRepository;
 	
+	@Autowired
+	private EmailServiceImpl emailService;
+	
+	@Autowired
+	private NotificationService notificationService;
+	
 	@Value("${upload.path}")
 	private String uploadPath;
 	
-    @PostConstruct
+    @Override
+	@PostConstruct
     public void init() {
         try {
             Files.createDirectories(Paths.get(uploadPath));
@@ -99,6 +108,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 	}
 	
 	@Override
+	@NotificationTrigger(event = "NEW_EMPLOYEE", roles = {"經理", "主管"})
 	public boolean addEmployee(EmpBean emp, MultipartFile file) {
         try {
             if (file != null && !file.isEmpty()) {
@@ -110,10 +120,16 @@ public class EmployeeServiceImpl implements EmployeeService{
             emp.setPassword(passwordEncoder.encode("0000"));
             emp.setFirstLogin(true);
             
-            employeeRepository.save(emp);
-            return true;
+            EmpBean savedEmployee = employeeRepository.save(emp);
+            
+            if (savedEmployee != null) {
+				notificationService.sendNotificationByEvent("NEW_EMPLOYEE", new String[] {"經理", "主管"});
+				return true;
+            } else {
+				return false;
+			}
+            
         } catch (Exception e) {
-            // 記錄錯誤
             e.printStackTrace();
             return false;
         }
@@ -185,12 +201,15 @@ public class EmployeeServiceImpl implements EmployeeService{
 	}
 	
 	@Override
+	@NotificationTrigger(event = "EMPLOYEE_RESIGNED", roles = {"經理", "主管"})
 	public boolean updateEmployee(EmpBean emp, MultipartFile file) throws EmpDataAccessException {
         try {
             // 檢查員工是否存在
             EmpBean existingEmp = employeeRepository.findById(emp.getEmployeeId())
                 .orElseThrow(() -> new EmpDataAccessException("員工不存在"));
 
+            boolean isResigning = emp.getResigndate() != null && existingEmp.getResigndate() == null;
+            
             // 更新員工信息
             existingEmp.setEmployeeName(emp.getEmployeeName());
             existingEmp.setEmployeeTel(emp.getEmployeeTel());
@@ -212,8 +231,17 @@ public class EmployeeServiceImpl implements EmployeeService{
             }
 
             // 保存更新後的員工信息
-            employeeRepository.save(existingEmp);
-            return true;
+            EmpBean updateEmployee = employeeRepository.save(existingEmp);
+            
+            if (updateEmployee != null) {
+				if (isResigning) {
+					notificationService.sendNotificationByEvent("EMPLOYEE_RESIGNED", new String[]{"經理", "主管"});
+				}
+				return true;
+			} else {
+				return false;
+			}
+            
         } catch (Exception e) {
             throw new EmpDataAccessException("更新員工失敗", e);
         }
@@ -231,7 +259,6 @@ public class EmployeeServiceImpl implements EmployeeService{
             Path filepath = Paths.get(uploadPath, fileName);
             Files.deleteIfExists(filepath);
         } catch (IOException e) {
-            // 記錄錯誤，但不中斷流程
             e.printStackTrace();
         }
     }
@@ -289,6 +316,19 @@ public class EmployeeServiceImpl implements EmployeeService{
 		EmpBean employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EmpDataAccessException("找不到員工"));
         return new PageImpl<>(Collections.singletonList(employee), pageable, 1);
+	}
+
+	@Override
+	public boolean resetPasswordAndSendEmail(String employeeId, String idCardLast4) {
+		if (validateEmployeeInfo(employeeId, idCardLast4)) {
+			EmpBean employee = getEmployee(employeeId);
+			String tempPassword = generateTempPassword();
+			updatePassword(employeeId, tempPassword);
+			emailService.sendPasswordResetEmail(employee.getEmployeeEmail(), tempPassword);
+			return true;
+		}
+		
+		return false;
 	}
 
 }

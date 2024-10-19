@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import marketMaster.bean.employee.ChatMessage;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.service.employee.ChatServiceImpl;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +33,7 @@ public class ChatController {
 	private ChatServiceImpl chatService;
 	
 	@Autowired
-	private EmployeeServiceImpl employeeService;
+	private EmployeeService employeeService;
 	
 	@GetMapping("/messages")
 	public String showChatMessages(Model model, HttpSession session) {

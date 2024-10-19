@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>員工列表</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 </head>
+<style>
+    .centered {
+        text-align: center;
+    }
+</style>
 <body>
-	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
-    <div th:fragment="content">
+	<div th:replace="~{body/header :: header}">
+	<div th:fragment="content">
     <main class="container mt-4">
         <h1>員工列表</h1>
         <div class="row mb-3">
@@ -32,26 +37,26 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>員工編號</th>
-                    <th>姓名</th>
-                    <th>職位</th>
-                    <th th:if="${currentAuthority >= 2}">手機號碼</th>
-                    <th th:if="${currentAuthority >= 2}">電子郵件</th>
-                    <th>入職日期</th>
-                    <th th:if="${currentAuthority >= 2}">離職日期</th>
-                    <th>操作</th>
+                    <th class="centered">員工編號</th>
+                    <th class="centered">姓名</th>
+                    <th class="centered">職位</th>
+                    <th class="centered" th:if="${currentAuthority >= 2}">手機號碼</th>
+                    <th class="centered" th:if="${currentAuthority >= 2}">電子郵件</th>
+                    <th class="centered">入職日期</th>
+                    <th class="centered" th:if="${currentAuthority >= 2}">離職日期</th>
+                    <th class="centered">操作</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="employee : ${employees}">
-                    <td th:text="${employee.employeeId}"></td>
-                    <td th:text="${employee.employeeName}"></td>
-                    <td th:text="${employee.rankLevel.positionName}"></td>
-                    <td th:if="${currentAuthority >= 2}" th:text="${employee.employeeTel}"></td>
-                    <td th:if="${currentAuthority >= 2}" th:text="${employee.employeeEmail}"></td>
-                    <td th:text="${#temporals.format(employee.hiredate, 'yyyy-MM-dd')}"></td>
-                    <td th:if="${currentAuthority >= 2}" th:text="${employee.resigndate != null ? #temporals.format(employee.resigndate, 'yyyy-MM-dd') : '-'}"></td>
-                    <td>
+                    <td class="centered" th:text="${employee.employeeId}"></td>
+                    <td class="centered" th:text="${employee.employeeName}"></td>
+                    <td class="centered" th:text="${employee.rankLevel.positionName}"></td>
+                    <td class="centered" th:if="${currentAuthority >= 2}" th:text="${employee.employeeTel}"></td>
+                    <td class="centered" th:if="${currentAuthority >= 2}" th:text="${employee.employeeEmail}"></td>
+                    <td class="centered" th:text="${#temporals.format(employee.hiredate, 'yyyy-MM-dd')}"></td>
+                    <td class="centered" th:if="${currentAuthority >= 2}" th:text="${employee.resigndate != null ? #temporals.format(employee.resigndate, 'yyyy-MM-dd') : '-'}"></td>
+                    <td class="centered">
                         <a th:if="${currentAuthority >= 2 or employee.employeeId == session.employee.employeeId}"
                         	th:href="@{/employee/details(employeeId=${employee.employeeId})}" class="btn btn-sm btn-info">詳情</a>
                         <a th:if="${(currentAuthority >= 2 or employee.employeeId == session.employee.employeeId) and employee.resigndate == null}"
@@ -100,9 +105,13 @@
             </table>
         </div>
         </main>
+        </div>
     </div>
-    </div>
+    
+    <div th:replace="~{body/footer :: footer}"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

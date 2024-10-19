@@ -47,10 +47,10 @@ public class ProductBean implements Serializable {
 
 	@Column(name = "number_of_remove")
 	private int numberOfRemove;
-	
+
 	@Column(name = "product_available")
 	private boolean productAvailable;
-	
+
 	@Column(name = "is_perishable")
 	private boolean isPerishable;
 
@@ -67,9 +67,9 @@ public class ProductBean implements Serializable {
 	}
 
 	public ProductBean(String productId, String productCategory, String productName, int productPrice,
-			int productSafeInventory, int numberOfShelve, int numberOfInventory, int numberOfSale, int numberOfExchange,
-			int numberOfDestruction, int numberOfRemove, boolean productAvailable, boolean isPerishable,
-			byte[] productPhoto) {
+					   int productSafeInventory, int numberOfShelve, int numberOfInventory, int numberOfSale, int numberOfExchange,
+					   int numberOfDestruction, int numberOfRemove, boolean productAvailable, boolean isPerishable,
+					   byte[] productPhoto) {
 		super();
 		this.productId = productId;
 		this.productCategory = productCategory;
@@ -214,6 +214,6 @@ public class ProductBean implements Serializable {
 	}
 
 
-	
+
 
 }

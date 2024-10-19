@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" th:replace="~{body/head :: head}">
   <title>供應商-商品</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,7 +13,7 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
-<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+<div th:replace="~{body/header :: header}">
 <div th:fragment="content">
 <div class="row w-100">
   <div class="col-lg-10 col-md-12 mx-auto">
@@ -37,8 +37,18 @@
       </thead>
       <tbody></tbody>
     </table>
+    <!-- 分頁按鈕 -->
+    <div class="d-flex justify-content-center">
+      <nav aria-label="Page navigation">
+        <ul class="pagination" id="pagination">
+          <!-- 分頁按鈕會動態生成 -->
+        </ul>
+      </nav>
+    </div>
+
   </div>
 </div>
+
 <!-- 新增供應商的模態框 -->
 <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
 <div class="modal-dialog">
@@ -174,6 +184,7 @@
 
 </div>
 </div>
+<div th:replace="~{body/footer :: footer}"></div>
 
 <!-- Bootstrap JS 和依賴庫 -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
@@ -183,12 +194,20 @@
 
 <script>
   $(document).ready(function () {
-    loadSuppliers();
+    let currentPage = 0; // 當前頁碼，從 0 開始
+    const pageSize = 10; // 每頁顯示的記錄數，與後端默認值一致
 
-    function loadSuppliers() {
-      // 加載供應商資料
-      axios.get("/marketMaster/supplier/AllSuppliers").then(res => {
-        renderTable(res.data);
+    loadSuppliers(currentPage);
+
+    function loadSuppliers(page = 0) {
+      axios.get("/marketMaster/supplier/AllSuppliers", {
+        params: {
+          page: page,
+          size: pageSize
+        }
+      }).then(res => {
+        renderTable(res.data.content); // res.data.content 包含當前頁的數據
+        setupPagination(res.data.totalPages); // 設置分頁
       }).catch(err => {
         console.log('加載供應商資料失敗', err);
       });
@@ -201,31 +220,31 @@
       data.forEach(detail => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td><input type="checkbox" class="selectSupplier" value="${detail.supplierId}"></td>
-          <td>${detail.supplierId}</td>
-      <td><a href="/marketMaster/supplier/getAllSupplierProduct?supplierId=${detail.supplierId}">${detail.supplierName}</a></td>
-          <td>${detail.address}</td>
-          <td>${detail.contactPerson}</td>
-          <td>${detail.phone}</td>
-          <td>${detail.email}</td>
-          <td>${detail.totalAmount}</td>
-          <td>${detail.paidAmount}</td>
-          <td>${detail.unpaidAmount}</td>
-          <td>
-            <button class="btn btn-primary order-details-btn" data-supplier-id="${detail.supplierId}">訂單付款細節</button>
-          </td>
-          <td>
-            <button class="btn btn-warning btn-update"
-              data-supplier-id="${detail.supplierId}"
-              data-supplier-name="${detail.supplierName}"
-              data-address="${detail.address}"
-              data-contact-person="${detail.contactPerson}"
-              data-phone="${detail.phone}"
-              data-email="${detail.email}">
-              更新資料
-            </button>
-          </td>
-        `;
+        <td><input type="checkbox" class="selectSupplier" value="${detail.supplierId}"></td>
+        <td>${detail.supplierId}</td>
+        <td><a href="/marketMaster/supplier/getAllSupplierProduct?supplierId=${detail.supplierId}">${detail.supplierName}</a></td>
+        <td>${detail.address}</td>
+        <td>${detail.contactPerson}</td>
+        <td>${detail.phone}</td>
+        <td>${detail.email}</td>
+        <td>${detail.totalAmount}</td>
+        <td>${detail.paidAmount}</td>
+        <td>${detail.unpaidAmount}</td>
+        <td>
+          <button class="btn btn-primary order-details-btn" data-supplier-id="${detail.supplierId}">訂單付款細節</button>
+        </td>
+        <td>
+          <button class="btn btn-warning btn-update"
+            data-supplier-id="${detail.supplierId}"
+            data-supplier-name="${detail.supplierName}"
+            data-address="${detail.address}"
+            data-contact-person="${detail.contactPerson}"
+            data-phone="${detail.phone}"
+            data-email="${detail.email}">
+            更新資料
+          </button>
+        </td>
+      `;
         tableBody.appendChild(row);
       });
       // 為"訂單付款細節"按鈕添加點擊事件
@@ -233,8 +252,35 @@
 
       // 為"更新資料"按鈕添加點擊事件
       attachUpdateEvent();
-      // 為"訂單付款細節"按鈕添加點擊事件
     }
+
+    function setupPagination(totalPages) {
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = ''; // 清空舊的分頁按鈕
+
+      for (let i = 0; i < totalPages; i++) {
+        const li = document.createElement('li');
+        li.classList.add('page-item');
+        if (i === currentPage) {
+          li.classList.add('active');
+        }
+
+        const a = document.createElement('a');
+        a.classList.add('page-link');
+        a.href = "#";
+        a.textContent = i + 1;
+
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          currentPage = i; // 更新當前頁碼
+          loadSuppliers(currentPage); // 加載新頁面的數據
+        });
+
+        li.appendChild(a);
+        pagination.appendChild(li);
+      }
+    }
+
     function attachOrderDetailsEvent() {
       const orderDetailsBtns = document.querySelectorAll('.order-details-btn');
       orderDetailsBtns.forEach(button => {
@@ -304,7 +350,7 @@
                 const editModal = bootstrap.Modal.getInstance(document.getElementById('editSupplierModal'));
                 editModal.hide();
                 // 重新加載供應商列表
-                loadSuppliers();
+                loadSuppliers(currentPage); // 注意這裡傳遞 currentPage
               })
               .catch(error => {
                 console.error('更新供應商資訊失敗', error);

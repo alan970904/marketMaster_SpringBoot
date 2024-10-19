@@ -77,6 +77,7 @@ public class CheckoutDetailsController {
     public ResponseEntity<Map<String, String>> updateCheckoutDetails(@RequestBody CheckoutDetailsBean checkoutDetails) {
         try {
             checkoutDetailsService.updateCheckoutDetails(checkoutDetails);
+            // 更新總價
             checkoutService.updateTotalPrice(checkoutDetails.getCheckoutId());
             return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
         } catch (DataAccessException e) {
@@ -122,6 +123,8 @@ public class CheckoutDetailsController {
             @RequestParam int returnPrice) {
         try {
             checkoutDetailsService.updateAfterReturn(checkoutId, productId, returnQuantity, returnPrice);
+            // 更新總價
+            checkoutService.updateTotalPrice(checkoutId);
             return ResponseEntity.ok(Map.of("status", "success", "message", "退貨後更新成功"));
         } catch (DataAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -138,10 +141,54 @@ public class CheckoutDetailsController {
             @RequestParam int returnPrice) {
         try {
             checkoutDetailsService.cancelReturn(checkoutId, productId, returnQuantity, returnPrice);
+            // 更新總價
+            checkoutService.updateTotalPrice(checkoutId);
             return ResponseEntity.ok(Map.of("status", "success", "message", "取消退貨成功"));
         } catch (DataAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", "取消失敗: " + e.getMessage()));
         }
     }
+    
+    @GetMapping("/totalSales")
+    @ResponseBody
+    public ResponseEntity<Integer> getTotalSalesByProduct(@RequestParam String productId) {
+        try {
+            Integer totalSales = checkoutDetailsService.getTotalSalesByProduct(productId);
+            return ResponseEntity.ok(totalSales);
+        } catch (DataAccessException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/topSellingProducts")
+    public String getTopSellingProducts(@RequestParam(defaultValue = "10") int limit, Model model) {
+        try {
+            List<Map<String, Object>> topProducts = checkoutDetailsService.getTopSellingProducts(limit);
+            model.addAttribute("topProducts", topProducts);
+            return "checkout/checkoutDetails/TopSellingProducts";
+        } catch (DataAccessException e) {
+            model.addAttribute("error", "獲取熱銷商品失敗: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    // 新增方法：根據結帳ID和商品ID獲取結帳明細
+    @GetMapping("/getByCheckoutAndProduct")
+    @ResponseBody
+    public ResponseEntity<CheckoutDetailsBean> getCheckoutDetailsByCheckoutAndProduct(
+            @RequestParam String checkoutId,
+            @RequestParam String productId) {
+        try {
+            CheckoutDetailsBean detail = checkoutDetailsService.findByCheckoutIdAndProductId(checkoutId, productId);
+            if (detail != null) {
+                return ResponseEntity.ok(detail);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (DataAccessException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
 }

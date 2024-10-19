@@ -1,92 +1,105 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>會員列表</title>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
-	<!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 </head>
+<style>
+    .centered {
+        text-align: center;
+    }
+</style>
 <body>
-	<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
-	<div th:fragment="content">
-    <main class="container mt-4">
-        <h1>會員列表</h1>
-        
-        <div id="successMessage" th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-        
-        <div class="row mb-3">
-	        <div class="col-md-6">
-	        	<a th:href="@{/customer/cusAddForm}" class="btn btn-primary">新增會員</a>
-	        </div>
-	        <div class="col-md-6">
-	        	<form th:action="@{/customer/cusList}" method="get" class="float-end">
-	            	<div class="input-group">
-		                <input type="text" class="form-control" name="searchTel" th:value="${searchTel}" placeholder="輸入手機號碼">
-		                <button type="submit" class="btn btn-primary">查詢</button>
-	            	</div>
-	        	</form>
-	        </div>
+    <div th:replace="~{body/header :: header}">
+        <div th:fragment="content">
+            <main class="container mt-4">
+                <h1>會員列表</h1>
+
+                <div id="successMessage" th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <a th:href="@{/customer/cusAddForm}" class="btn btn-primary">新增會員</a>
+                    </div>
+                    <div class="col-md-6">
+                        <form th:action="@{/customer/cusList}" method="get" class="float-end">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="searchTel" th:value="${searchTel}"
+                                    placeholder="輸入手機號碼">
+                                <button type="submit" class="btn btn-primary">查詢</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="centered">手機號碼</th>
+                            <th class="centered">姓名</th>
+                            <th class="centered">Email</th>
+                            <th class="centered">註冊日期</th>
+                            <th class="centered">累積紅利點數</th>
+                            <th class="centered">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="customer : ${customers}">
+                            <td class="centered" th:text=${customer.customerTel}></td>
+                            <td class="centered" th:text=${customer.customerName}></td>
+                            <td class="centered" th:text=${customer.customerEmail}></td>
+                            <td class="centered" th:text=${customer.dateOfRegistration}></td>
+                            <td class="centered" th:text=${customer.totalPoints}></td>
+                            <td class="centered">
+                                <a th:href="@{/customer/details(customerTel=${customer.customerTel})}"
+                                    class="btn btn-sm btn-info">詳情</a>
+                                <a th:href="@{/customer/getUpdate(customerTel=${customer.customerTel})}"
+                                    class="btn btn-sm btn-warning">修改</a>
+                                <a th:if="${currentAuthority >= 2}" th:href="@{/customer/delete(customerTel=${customer.customerTel})}"
+                                    class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除此會員嗎？')">刪除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- 分頁控件 -->
+                <nav aria-label="Page navigation" th:if="${totalPages > 1}">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? disabled">
+                            <a class="page-link" th:href="@{/customer/cusList(page=${currentPage - 1})}"
+                                tabindex="-1">上一頁</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${currentPage == i} ? active">
+                            <a class="page-link" th:href="@{/customer/cusList(page=${i})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? disabled">
+                            <a class="page-link" th:href="@{/customer/cusList(page=${currentPage + 1})}">下一頁</a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </main>
         </div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>手機號碼</th>
-                    <th>姓名</th>
-                    <th>Email</th>
-                    <th>註冊日期</th>
-                    <th>累積紅利點數</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="customer : ${customers}">
-	                <td th:text=${customer.customerTel}></td>
-	                <td th:text=${customer.customerName}></td>
-	                <td th:text=${customer.customerEmail}></td>
-	                <td th:text=${customer.dateOfRegistration}></td>
-	                <td th:text=${customer.totalPoints}></td>
-	                <td>
-	                    <a th:href="@{/customer/details(customerTel=${customer.customerTel})}" class="btn btn-sm btn-info">詳情</a>
-	                    <a th:href="@{/customer/getUpdate(customerTel=${customer.customerTel})}" class="btn btn-sm btn-warning">修改</a>
-	                    <a th:href="@{/customer/delete(customerTel=${customer.customerTel})}" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除此會員嗎？')">刪除</a>
-	                </td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <!-- 分頁控件 -->
-        <nav aria-label="Page navigation" th:if="${totalPages > 1}">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${currentPage == 0} ? disabled">
-                    <a class="page-link" th:href="@{/customer/cusList(page=${currentPage - 1})}" tabindex="-1">上一頁</a>
-                </li>
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${currentPage == i} ? active">
-                    <a class="page-link" th:href="@{/customer/cusList(page=${i})}" th:text="${i + 1}"></a>
-                </li>
-                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? disabled">
-                    <a class="page-link" th:href="@{/customer/cusList(page=${currentPage + 1})}">下一頁</a>
-                </li>
-            </ul>
-        </nav>
-        
-    </main>
     </div>
-    </div>
-    
+    <div th:replace="~{body/footer :: footer}"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-	<script>
-    $(document).ready(function() {
-        // 檢查是否存在成功消息
-        if ($('#successMessage').length > 0) {
-            // 1秒後淡出並移除消息
-            setTimeout(function() {
-                $('#successMessage').fadeOut('slow', function() {
-                    $(this).remove();
-                });
-            }, 1000);
-        }
-    });
+    <script>
+        $(document).ready(function () {
+            // 檢查是否存在成功消息
+            if ($('#successMessage').length > 0) {
+                // 1秒後淡出並移除消息
+                setTimeout(function () {
+                    $('#successMessage').fadeOut('slow', function () {
+                        $(this).remove();
+                    });
+                }, 1000);
+            }
+        });
     </script>
 </body>
+
 </html>

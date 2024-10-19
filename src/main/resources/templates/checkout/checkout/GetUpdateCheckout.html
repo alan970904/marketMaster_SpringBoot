@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>更新結帳資訊</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -12,9 +12,8 @@
 
 </head>
 <body>
-<div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+<div th:replace="~{body/header :: header}">
 	<div th:fragment="content">
-   <!--  <div th:replace="~{body/body :: body}"></div> -->
     <main class="container mt-5">
         <h1 class="mb-4">更新結帳資訊</h1>
         <form id="updateForm" th:action="@{/checkout/update}" method="post" class="card">
@@ -24,6 +23,10 @@
                     <label for="checkoutId" class="form-label">結帳編號:</label>
                     <input type="text" id="checkoutId" name="checkoutId" th:value="${checkout.checkoutId}" class="form-control" readonly>
                 </div>
+                <div class="mb-3">
+  					<label for="invoiceNumber" class="form-label">發票號碼:</label>
+  					<input type="text" class="form-control" id="invoiceNumber" th:value="${checkout.invoiceNumber}">
+				</div>
                 <div class="mb-3 phone-group">
                     <label for="customerTel" class="form-label">顧客手機:</label>
                     <div class="phone-inputs d-flex">
@@ -32,10 +35,16 @@
                         <input type="text" id="customerTel2" name="customerTel2" class="form-control" maxlength="6">
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label for="employeeId" class="form-label">員工編號:</label>
-                    <input type="text" id="employeeId" name="employeeId" th:value="${checkout.employeeId}" class="form-control" required>
-                </div>
+                <div class="form-group">
+    						<label for="employeeId">員工編號:</label>
+    						<select id="employeeId" name="employeeId" class="form-control" required>
+        						<option value="">請選擇員工</option>
+        						<option th:each="emp : ${employees}" 
+                						th:value="${emp.employeeId}" 
+                						th:text="${emp.employeeId + ' - ' + emp.employeeName}">
+        						</option>
+    						</select>
+						</div>
                 <div class="mb-3">
                     <label for="checkoutTotalPrice" class="form-label">總價:</label>
                     <input type="text" id="checkoutTotalPrice" name="checkoutTotalPrice" th:value="${checkout.checkoutTotalPrice}" class="form-control" readonly>
@@ -52,14 +61,22 @@
                     <label for="pointsDueDate" class="form-label">點數到期日:</label>
                     <input type="date" id="pointsDueDate" name="pointsDueDate" th:value="${checkout.pointsDueDate}" class="form-control" readonly>
                 </div>
+                <div class="mb-3">
+			  		<label for="checkoutStatus" class="form-label">結帳狀態:</label>
+			  		<select class="form-control" id="checkoutStatus">
+			    	<option value="正常" th:selected="${checkout.checkoutStatus == '正常'}">正常</option>
+			    	<option value="已退貨" th:selected="${checkout.checkoutStatus == '已退貨'}">已退貨</option>
+			  		</select>
+				</div>
                 <button type="submit" class="btn btn-primary">更新</button>
             </div>
+            
         </form>
         <button id="back" class="btn btn-secondary mt-3">返回結帳列表</button>
     </main>
 </div>
 </div>
-
+<div th:replace="~{body/footer :: footer}"></div>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -103,18 +120,37 @@
 	        }
 	    });
 	
+		// 如果沒有員工數據，則通過 Axios 獲取
+        if ($('#employeeId option').length <= 1) {
+    		axios.get(/*[[@{/checkout/employees}]]*/ '/checkout/employees')
+        		.then(function (response) {
+            		var employeeSelect = $('#employeeId');
+           		 	$.each(response.data, function(i, emp) {
+                		employeeSelect.append($('<option>')
+                    		.text(emp.employeeId + ' - ' + emp.employeeName)
+                    		.attr('value', emp.employeeId));
+            		});
+        		})
+        		.catch(function (error) {
+            		console.error('獲取員工資料失敗:', error);
+            		alert('獲取員工資料時出錯，請稍後再試');
+        		});
+		}
+	
 	    $("#updateForm").submit(function(e) {
 		    e.preventDefault();
 		    updateBonusAndDueDate(); // 確保在提交前再次更新
 		    var customerTel = ($("#customerTel1").val() + $("#customerTel2").val()).trim();
 		    var formData = {
 		        checkoutId: $("#checkoutId").val(),
+		        invoiceNumber: document.getElementById('invoiceNumber').value,
 		        customerTel: customerTel,
 		        employeeId: $("#employeeId").val(),
 		        checkoutTotalPrice: $("#checkoutTotalPrice").val(),
 		        checkoutDate: $("#checkoutDate").val(),
 		        bonusPoints: customerTel ? $("#bonusPoints").val() : "0",
-		        pointsDueDate: customerTel ? $("#pointsDueDate").val() : null
+		        pointsDueDate: customerTel ? $("#pointsDueDate").val() : null,
+		        checkoutStatus: document.getElementById('checkoutStatus').value
 		    };
 		    
 		    console.log("Submitting form data:", formData);

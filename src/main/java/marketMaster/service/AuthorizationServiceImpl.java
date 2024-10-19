@@ -40,7 +40,21 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 	}
 
 	private boolean hasCustomerPermission(int userAuthority, String operation) {
-		return false;
+		switch(operation) {
+		case "view":
+		case "viewList":
+		case "search":
+		case "update":
+		case "viewDetails":
+		case "add":
+		case "updateAll":
+			return userAuthority >= 1; // 限制權限1
+		case "delete":
+			return userAuthority >= 2; // 權限2、3對所有員工都能操作，但權限2不能更新經理
+		default:
+			return false;
+			
+		}
 	}
 	
 	private boolean hasReturnPermission(int userAuthority, String operation) {
@@ -77,11 +91,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		case "viewList":
 		case "search":
 		case "update":
-			return userAuthority >= 1; // 限制權限1僅查看和修改個人資訊
-		case "viewDetails":
+		case "chagePassword":
+		case "forgotPassword":
+			return userAuthority >= 1; // 限制權限1
 		case "add":
 		case "delete":
-		case "updateAll":
 			return userAuthority >= 2; // 權限2、3對所有員工都能操作，但權限2不能更新經理
 		default:
 			return false;

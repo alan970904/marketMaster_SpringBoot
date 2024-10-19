@@ -6,15 +6,18 @@ import marketMaster.service.restock.RestockDetailService;
 import marketMaster.service.restock.RestockDetailsRepository;
 import marketMaster.service.restock.RestockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -90,6 +93,27 @@ public class RestockDetailController {
         LocalDate end = LocalDate.parse(endDate);
         Pageable pageable = PageRequest.of(page, size);
         return restockService.getRestockDetailsByDateRange(start, end,pageable);
+    }
+
+    //根據日期查詢匯出excel
+    @GetMapping("/getExcelByDateRange")
+    @ResponseBody
+    public ResponseEntity<ByteArrayResource> getExcelByDateRange(@RequestParam String startDate, @RequestParam String endDate) throws IOException {
+        System.out.println("有進來會出");
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        byte[] excelBytes = restockService.exportRestockDetailsToExcel(start, end);
+        ByteArrayResource resource = new ByteArrayResource(excelBytes);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=restock_details.xlsx");
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(excelBytes.length)
+                .body(resource);
+
     }
 
 
