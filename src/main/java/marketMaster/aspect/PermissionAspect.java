@@ -1,4 +1,4 @@
-package marketMaster.requiresPermission;
+package marketMaster.aspect;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -8,7 +8,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
-import marketMaster.service.AuthorizationServiceImpl;
+import marketMaster.requiresPermission.RequiresPermission;
+import marketMaster.service.authorization.AuthorizationServiceImpl;
 import marketMaster.viewModel.EmployeeViewModel;
 
 @Aspect

@@ -1,4 +1,4 @@
-package marketMaster.service;
+package marketMaster.service.authorization;
 
 import org.springframework.stereotype.Service;
 
@@ -48,9 +48,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		case "viewDetails":
 		case "add":
 		case "updateAll":
-			return userAuthority >= 1; // 限制權限1
+			return userAuthority >= 1;
 		case "delete":
-			return userAuthority >= 2; // 權限2、3對所有員工都能操作，但權限2不能更新經理
+			return userAuthority >= 2;
 		default:
 			return false;
 			
