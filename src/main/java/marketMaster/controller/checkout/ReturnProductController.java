@@ -15,9 +15,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import marketMaster.DTO.checkout.CheckoutDTO;
 import marketMaster.DTO.checkout.ReturnDetailDTO;
 import marketMaster.DTO.checkout.ReturnProductDTO;
+import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.ReturnProductBean;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.product.ProductBean;
+import marketMaster.service.checkout.CheckoutService;
 import marketMaster.service.checkout.ReturnProductService;
 import marketMaster.exception.DataAccessException;
 
@@ -42,6 +44,9 @@ public class ReturnProductController {
     @Autowired
     private ReturnProductService returnProductService;
 
+    @Autowired
+    private CheckoutService checkoutService;
+    
     @Value("${upload.path}")
     private String uploadPath;
     
@@ -75,14 +80,14 @@ public class ReturnProductController {
     }
 
     @GetMapping("/add")
-    public String showAddForm(Model model) {
+    public String showAddForm(@RequestParam(required = false) String invoiceNumber, Model model) {
         try {
             model.addAttribute("returnProduct", new ReturnProductBean());
             model.addAttribute("nextId", returnProductService.generateNextReturnId());
+            model.addAttribute("invoiceNumber", invoiceNumber);
             model.addAttribute("employees", returnProductService.getActiveEmployees());
             return "checkout/returnProduct/InsertReturnProduct";
         } catch (DataAccessException e) {
-            logger.severe("準備新增退貨表單失敗: " + e.getMessage());
             model.addAttribute("error", "準備新增退貨表單失敗，請稍後再試");
             return "error";
         }
@@ -97,6 +102,7 @@ public class ReturnProductController {
             ObjectMapper mapper = new ObjectMapper();
             ReturnProductDTO returnData = mapper.readValue(returnDataJson, ReturnProductDTO.class);
             
+            // 處理文件上傳
             if (files != null && !files.isEmpty()) {
                 for (int i = 0; i < files.size(); i++) {
                     MultipartFile file = files.get(i);
@@ -109,8 +115,22 @@ public class ReturnProductController {
                 }
             }
             
-            returnProductService.addReturnProductWithDetails(returnData);
-            return ResponseEntity.ok(Map.of("status", "success", "message", "退貨記錄及明細新增成功"));
+            // 新增退貨記錄
+            String returnId = returnProductService.addReturnProductWithDetails(returnData);
+            
+            // 更新原始結帳單狀態
+            CheckoutBean checkout = checkoutService.findByInvoiceNumber(returnData.getOriginalInvoiceNumber());
+            if (checkout != null) {
+                checkout.setCheckoutStatus("已退貨");
+                checkout.setRelatedReturnId(returnId);
+                checkoutService.updateCheckout(checkout);
+            }
+            
+            return ResponseEntity.ok(Map.of(
+                "status", "success", 
+                "message", "退貨記錄新增成功",
+                "returnId", returnId
+            ));
         } catch (Exception e) {
             logger.severe("新增退貨記錄及明細失敗: " + e.getMessage());
             e.printStackTrace();
@@ -382,7 +402,26 @@ public class ReturnProductController {
         }
     }
 
-
+    @PostMapping("/updateCheckoutStatus")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> updateCheckoutStatus(
+            @RequestParam String invoiceNumber,
+            @RequestParam String returnId) {
+        try {
+            // 更新結帳單狀態
+            CheckoutBean checkout = checkoutService.findByInvoiceNumber(invoiceNumber);
+            if (checkout != null) {
+                checkout.setCheckoutStatus("已退貨");
+                checkout.setRelatedReturnId(returnId);
+                checkoutService.updateCheckout(checkout);
+                return ResponseEntity.ok(Map.of("status", "success", "message", "狀態更新成功"));
+            }
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "找不到對應的結帳記錄"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "更新狀態失敗: " + e.getMessage()));
+        }
+    }
     
     
 }

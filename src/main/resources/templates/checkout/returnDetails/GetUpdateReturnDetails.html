@@ -20,13 +20,26 @@
 <body>
 <div th:replace="~{body/header :: header}">
     <div th:fragment="content">
-        <main role="main">
-            <div class="container mt-5">
+        <div class="container mt-5" role="main">
                 <h1 class="mb-4">修改退貨明細</h1>
+                
+                <div class="card">
+                <div class="card-body">
                 <form id="updateForm">
-                    <input type="hidden" id="returnId" th:value="${returnDetail.returnId}">
-                    <input type="hidden" id="checkoutId" th:value="${returnDetail.originalCheckoutId}">
-                    <input type="hidden" id="productId" th:value="${returnDetail.productId}">
+                		<div class="mb-3">
+                            <label for="returnId">退貨編號:</label>
+                            <input type="text" class="form-control" th:value="${returnDetail.returnId}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="checkoutId">結帳編號:</label>
+                            <input type="text" class="form-control" id="originalCheckoutId" name="originalCheckoutId" th:value="${returnDetail.originalCheckoutId}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="productId">商品編號:</label>
+                            <input type="text" class="form-control" id="productId" name="productId" th:value="${returnDetail.productId}" readonly>
+                        </div>
                     
                     <div class="mb-3">
                         <label for="returnQuantity" class="form-label">退貨數量:</label>
@@ -51,7 +64,8 @@
                     <a th:href="@{/returnProduct/returnDetails/list}" class="btn btn-secondary">返回</a>
                 </form>
             </div>
-        </main>
+            </div>
+            </div>
     </div>
 </div>
 <div th:replace="~{body/footer :: footer}"></div>

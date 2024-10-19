@@ -156,7 +156,7 @@ public class ReturnProductService {
 
     // 新增退貨記錄及明細
     @Transactional(rollbackFor = Exception.class)
-    public void addReturnProductWithDetails(ReturnProductDTO returnData) throws DataAccessException {
+    public String addReturnProductWithDetails(ReturnProductDTO returnData) throws DataAccessException {
         try {
         	logger.info("開始新增退貨記錄，退貨ID: " + returnData.getReturnId());
             // 處理退貨主表資料
@@ -206,6 +206,7 @@ public class ReturnProductService {
             }
             
             logger.info("退貨記錄及明細新增完成");
+            return returnData.getReturnId();
         } catch (Exception e) {
         	logger.severe("新增退貨記錄及明細時發生異常: " + e.getMessage());
             logger.severe("完整的退貨數據: " + returnData.toString());
