@@ -1,4 +1,4 @@
-package marketMaster.service;
+package marketMaster.service.authorization;
 
 public interface AuthorizationService {
 

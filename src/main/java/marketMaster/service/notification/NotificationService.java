@@ -12,5 +12,4 @@ public interface NotificationService {
 
 	void markAllAsRead(String userId);
 
-
 }
