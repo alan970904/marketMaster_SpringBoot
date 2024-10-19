@@ -25,7 +25,7 @@ import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
 import marketMaster.requiresPermission.RequiresPermission;
-import marketMaster.service.AuthorizationService;
+import marketMaster.service.authorization.AuthorizationService;
 import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 

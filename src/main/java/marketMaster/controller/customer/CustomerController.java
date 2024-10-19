@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import marketMaster.bean.customer.CustomerBean;
 import marketMaster.requiresPermission.RequiresPermission;
-import marketMaster.service.AuthorizationService;
+import marketMaster.service.authorization.AuthorizationService;
 import marketMaster.service.customer.CustomerServiceImpl;
 import marketMaster.viewModel.EmployeeViewModel;
 
