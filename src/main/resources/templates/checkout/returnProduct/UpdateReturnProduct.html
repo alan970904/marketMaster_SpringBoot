@@ -14,35 +14,47 @@
 <div th:replace="~{body/header :: header}">
     <div th:fragment="content">
         <div class="container mt-5" role="main">
-            <h1 id="更新退貨資訊" class="mb-4">更新退貨資訊</h1>
+            <h1 class="mb-4">更新退貨資訊</h1>
 
             <div class="card">
                 <div class="card-body">
                     <form id="updateReturnProductForm">
-                        <input type="hidden" id="returnId" name="returnId" th:value="${returnProduct.returnId}">
+                        <div class="mb-3">
+                            <label for="returnId">退貨編號:</label>
+                            <input type="text" class="form-control" th:value="${returnProduct.returnId}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="originalInvoiceNumber">發票號碼:</label>
+                            <input type="text" class="form-control" id="originalInvoiceNumber" name="originalInvoiceNumber" th:value="${returnProduct.originalInvoiceNumber}" readonly>
+                        </div>
                         
                         <div class="mb-3">
                             <label for="checkoutId">結帳編號:</label>
                             <input type="text" class="form-control" id="originalCheckoutId" name="originalCheckoutId" th:value="${returnProduct.originalCheckoutId}" readonly>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="employeeId">員工編號:</label>
+                            <select id="employeeId" name="employeeId" class="form-control" required>
+        						<option value="">請選擇員工</option>
+        						<option th:each="emp : ${employees}" 
+                						th:value="${emp.employeeId}" 
+                						th:text="${emp.employeeId + ' - ' + emp.employeeName}">
+        						</option>
+    						</select>
+                        </div>
 
+						<div class="mb-3">
+                            <label for="returnTotalPrice">退貨總金額:</label>
+                            <input type="number" class="form-control" id="returnTotalPrice" name="returnTotalPrice" th:value="${returnProduct.returnTotalPrice}" readonly>
+                        </div>
+						
                         <div class="mb-3">
                             <label for="returnDate">退貨日期:</label>
                             <input type="date" class="form-control" id="returnDate" name="returnDate" th:value="${#dates.format(returnProduct.returnDate, 'yyyy-MM-dd')}" required>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="returnTotalPrice">退貨總金額:</label>
-                            <input type="number" class="form-control" id="returnTotalPrice" name="returnTotalPrice" th:value="${returnProduct.returnTotalPrice}" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="employeeId">處理員工:</label>
-                            <select class="form-control" id="employeeId" name="employeeId" required>
-                                <option value="">請選擇員工</option>
-                                <option th:each="employee : ${employees}" th:value="${employee.employeeId}" th:text="${employee.employeeName}" th:selected="${employee.employeeId == returnProduct.employeeId}"></option>
-                            </select>
-                        </div>
 
                         <button type="submit" class="btn btn-primary">更新</button>
                     </form>
@@ -61,25 +73,21 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
 $(document).ready(function() {
-    // 監聽表單提交
-    $('#updateReturnProductForm').on('submit', function(e) {
-        e.preventDefault(); // 防止表單的默認提交行為
-        var formData = new FormData(this);
-        var data = Object.fromEntries(formData.entries()); // 將FormData轉換為物件
+    $("#updateBtn").click(function() {
+        const updateData = {
+            returnId: $("[th:value='${returnProduct.returnId}']").val(),
+            employeeId: $("#employeeId").val(),
+            returnDate: $("#returnDate").val()
+        };
 
-        axios.post('/returnProduct/update', data)
-            .then(function(response) {
-                if (response.data.status === 'success') {
-                    alert('退貨記錄更新成功');
-                    window.location.href = '/returnProduct/list'; // 成功後重定向
-                } else {
-                    alert('更新失敗: ' + response.data.message);
+        axios.post('/returnProduct/update', updateData)
+            .then(response => {
+                if(response.data.status === 'success') {
+                    alert('更新成功');
+                    window.location.href = '/returnProduct/list';
                 }
             })
-            .catch(function(error) {
-                console.error('更新失敗:', error);
-                alert('發生錯誤，請稍後再試');
-            });
+            .catch(error => alert('更新失敗: ' + error.response.data.message));
     });
 });
 </script>

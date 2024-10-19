@@ -50,7 +50,7 @@
 								<td th:text="${detail.originalCheckoutId}"></td>
 								<td th:text="${detail.checkoutDetail.product.productName}"></td>
 								<td th:text="${detail.numberOfReturn}"></td>
-								<td th:text="${detail.returnPrice}"></td>
+								<td class="return-amount" th:text="${detail.returnPrice}"></td>
 								<td th:text="${detail.returnStatus}"></td>
 								<td><a class="btn btn-info btn-sm"
 									th:href="@{/returnProduct/returnDetails/details(returnId=${detail.returnId},originalCheckoutId=${detail.originalCheckoutId},productId=${detail.productId})}">詳情</a>
@@ -93,6 +93,17 @@
         }
     });
    
+   
+   // 計算總金額
+            function calculateTotal() {
+                let total = 0;
+                $('.return-amount').each(function() {
+                    total += parseInt($(this).text()) || 0;
+                });
+                $('#totalAmount').text(total);
+            }
+            
+            calculateTotal();
 
 function deleteReturnDetail(returnId, originalCheckoutId, productId) {
     if (confirm('確定要刪除這筆退貨明細嗎？')) {
