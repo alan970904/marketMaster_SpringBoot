@@ -59,8 +59,7 @@ public class InventoryCheckService {
 		inventoryCheck.setInventoryCheckDate(now);
 		
 		inventoryCheckRepo.save(inventoryCheck);
-			
-			
+						
 			List<InventoryCheckDetailDTO> detailsList = inventoryCheckInsertDTO.getDetails();
 			for (InventoryCheckDetailDTO detail : detailsList) {
 				InventoryCheckDetailsBean inventoryCheckDetail = new InventoryCheckDetailsBean();

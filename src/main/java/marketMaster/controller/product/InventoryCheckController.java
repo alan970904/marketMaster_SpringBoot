@@ -31,7 +31,7 @@ public class InventoryCheckController {
 
 	@GetMapping("/inventoryCheck/getAllProduct")
 	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
-			@RequestParam(value = "size", defaultValue = "3") Integer pageSize, Model m) {
+			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
 		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
 		List<InventoryCheckBean> inventoryCheck = inventoryCheckService.findAllInventoryCheck();
 		m.addAttribute("products", products);
@@ -52,8 +52,6 @@ public class InventoryCheckController {
 	@PostMapping("/inventoryCheck/addCheck")
 	public void addInventoryCheck(@RequestBody InventoryCheckInsertDTO inventoryCheckInsertDTO) {
 		inventoryCheckService.addInventoryCheck(inventoryCheckInsertDTO);
-		
-//		return null;
 	}
 	
 	@PostMapping("/inventoryCheck/delete")

@@ -39,6 +39,7 @@
             <main>
                 <div class="container">
                     <button type="button" class="btn btn-primary" id="submit">完成盤點</button>
+                    <input type="hidden" th:value="${session.employee.employeeId}" id="employeeId"> 
                     <div class="row">
                         <th:block th:each=" product: ${products}">
                             <div class="card col-3 m-3" style="width: 18rem;">
@@ -94,8 +95,10 @@
 
         const detailsList = [];
 
+        const employeeId = document.getElementById('employeeId').value
+
         const inventoryCheckInsertDTO = {
-            employeeId: 'E001',
+            employeeId:employeeId,
             details: detailsList
         }
 
