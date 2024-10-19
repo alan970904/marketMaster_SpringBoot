@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import marketMaster.DTO.product.InventoryCheckInsertDTO;
 import marketMaster.bean.product.InventoryCheckBean;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.InventoryCheckService;
@@ -30,7 +31,7 @@ public class InventoryCheckController {
 
 	@GetMapping("/inventoryCheck/getAllProduct")
 	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
-			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
+			@RequestParam(value = "size", defaultValue = "3") Integer pageSize, Model m) {
 		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
 		List<InventoryCheckBean> inventoryCheck = inventoryCheckService.findAllInventoryCheck();
 		m.addAttribute("products", products);
@@ -47,11 +48,12 @@ public class InventoryCheckController {
 
 	}
 	
+
 	@PostMapping("/inventoryCheck/addCheck")
-	public InventoryCheckBean addInventoryCheck(@RequestParam InventoryCheckBean inventoryCheckBean) {
-		inventoryCheckService.addInventoryCheck(inventoryCheckBean);
+	public void addInventoryCheck(@RequestBody InventoryCheckInsertDTO inventoryCheckInsertDTO) {
+		inventoryCheckService.addInventoryCheck(inventoryCheckInsertDTO);
 		
-		return null;
+//		return null;
 	}
 	
 	@PostMapping("/inventoryCheck/delete")
