@@ -22,16 +22,15 @@ import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.ProductService;
 
-
 @Controller
 public class ProductController {
-	
+
 	@Autowired
 	private ProductService productService;
-	
+
 	@Autowired
 	private ProductRestController productRestController;
-	
+
 	@GetMapping("/product/addPage")
 	public String addProductPage(Model m) {
 		List<ProductCategoryDTO> productCategory = productRestController.getProductCategory();
@@ -39,16 +38,17 @@ public class ProductController {
 		m.addAttribute("categorys", productCategory);
 		return "/product/insertProduct";
 	}
-	
+
 	@Transactional
 	@PostMapping("/product/add")
-	public String addProduct(@ModelAttribute ProductBean product,@RequestParam MultipartFile photo,Model m) throws IOException{
+	public String addProduct(@ModelAttribute ProductBean product, @RequestParam MultipartFile photo, Model m)
+			throws IOException {
 
-		ProductBean newProduct = productService.addProduct(product,photo);
+		ProductBean newProduct = productService.addProduct(product, photo);
 		System.out.println(product.getProductCategory());
 		if (newProduct == null) {
 			m.addAttribute("errorMsg", "商品編號已存在");
-			
+
 			return "/product/insertProduct";
 		}
 		m.addAttribute("message", "新增商品資料成功");
@@ -56,113 +56,117 @@ public class ProductController {
 		m.addAttribute("product", newProduct);
 		return "/product/showChangePage";
 	}
-	
-	
+
 	@GetMapping("/product/downloadProductPhoto")
-	public ResponseEntity<?> getProductPhoto(@RequestParam String productId){
+	public ResponseEntity<?> getProductPhoto(@RequestParam String productId) {
 		ProductBean product = productService.findOneProduct(productId);
-		
+
 		byte[] productPhotoByte = product.getProductPhoto();
-		
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.IMAGE_JPEG);
-		
-		return new ResponseEntity<byte[]> (productPhotoByte,headers,HttpStatus.OK) ;
+
+		return new ResponseEntity<byte[]>(productPhotoByte, headers, HttpStatus.OK);
 	}
+
 	@GetMapping("/product/findOne")
 	public String getOneProduct(@RequestParam String productId, Model m) {
 		ProductBean product = productService.findOneProduct(productId);
-		
-		m.addAttribute("product",product);
+
+		byte[] productPhotoByte = product.getProductPhoto();
+
+		System.out.println(productPhotoByte);
+		m.addAttribute("product", product);
 		return "product/findOnePage";
 	}
-	
-	@GetMapping("/product/findProductAvailable") //測試中 先預設false
-	public String getProductAvailable(@RequestParam(defaultValue = "false") boolean available, @RequestParam(value = "page",defaultValue = "1")Integer pageNumber,@RequestParam(value = "size",defaultValue = "10") Integer pageSize , Model m) {
-				
-		Page<ProductBean> products = productService.findProductAvailable(available,pageNumber,pageSize);
-		
+
+	@GetMapping("/product/findProductAvailable") // 測試中 先預設false
+	public String getProductAvailable(@RequestParam(defaultValue = "false") boolean available,
+			@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
+			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
+
+		Page<ProductBean> products = productService.findProductAvailable(available, pageNumber, pageSize);
+
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
-		
+
 		return "product/findAllPage";
 	}
-	
+
 	@GetMapping("/product/findProductInventoryNotEnough")
-	public String getProductInventoryNotEnough(@RequestParam(value = "page",defaultValue = "1")Integer pageNumber,@RequestParam(value = "size",defaultValue = "10") Integer pageSize, Model m) {
-		Page<ProductBean> products = productService.findProductNotEnough(pageNumber,pageSize);
-		
+	public String getProductInventoryNotEnough(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
+			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
+		Page<ProductBean> products = productService.findProductNotEnough(pageNumber, pageSize);
+
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
 		return "product/findAllPage";
 	}
-	
-	
+
 	@GetMapping("/product/findAll")
-	public String getAllProduct(@RequestParam(value = "page",defaultValue = "1")Integer pageNumber,@RequestParam(value = "size",defaultValue = "10") Integer pageSize , Model m) {
-				
-		Page<ProductBean> products = productService.findAllProduct(pageNumber,pageSize);
-		
+	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
+			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
+
+		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
+
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
-		
+
 		return "product/findAllPage";
 	}
-	
-	
+
 	@GetMapping("/product/getUpdate")
 	public String getUpdateProduct(@RequestParam String productId, Model m) {
 		ProductBean product = productService.findOneProduct(productId);
-		
-		m.addAttribute("product",product);
+
+		m.addAttribute("product", product);
 		return "product/getUpdatePage";
 	}
-	
+
 	@Transactional
 	@PostMapping("/product/update")
-	public String updateProduct(@ModelAttribute ProductBean product ,@RequestParam MultipartFile photo, Model m) throws IOException {
-		product.setProductPhoto(photo.getBytes());
-		ProductBean newProduct = productService.updateProduct(product);
-		System.out.println(product.getProductPhoto());
-		
+	public String updateProduct(@ModelAttribute ProductBean product, @RequestParam MultipartFile photo, Model m)
+			throws IOException {
+		ProductBean newProduct = productService.updateProduct(product,photo);
 		m.addAttribute("message", "成功更新商品資料");
 		m.addAttribute("product", newProduct);
 		return "/product/showChangePage";
 	}
-	
+
 	@GetMapping("/product/getphotopage")
 	public String updatephotopage() {
 		return "/product/getupdatephoto";
 	}
-	
+
 	@Transactional
 	@PostMapping("/product/updatephoto")
-	public void updateProductPhoto(@RequestParam String productId ,@RequestParam MultipartFile photo, Model m) {
+	public void updateProductPhoto(@RequestParam String productId, @RequestParam MultipartFile photo, Model m) {
 		try {
-			productService.updateProductPhoto(productId,photo);
+			productService.updateProductPhoto(productId, photo);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	@GetMapping("/product/getShelve")
 	public String getShelve(@RequestParam String productId, Model m) {
 		ProductBean product = productService.findOneProduct(productId);
-		
-		m.addAttribute("product",product);
+
+		m.addAttribute("product", product);
 		return "product/getShelvePage";
 	}
-	
+
 	@Transactional
 	@PostMapping("/product/shelve")
-	public String shelveProduct(@RequestParam String productId,@RequestParam Integer numberOfShelve, Model m) {
-		ProductBean newProduct = productService.shelveProduct(productId,numberOfShelve);
-		
+	public String shelveProduct(@RequestParam String productId, @RequestParam Integer numberOfShelve, Model m) {
+		ProductBean newProduct = productService.shelveProduct(productId, numberOfShelve);
+
 		m.addAttribute("message", "成功上架商品");
 		m.addAttribute("product", newProduct);
 		return "/product/showChangePage";
 	}
+
 	@Transactional
 	@PostMapping("/product/remove")
 	public String postMethodName(@RequestParam String productId) {
@@ -170,5 +174,5 @@ public class ProductController {
 
 		return "redirect:/product/findAll";
 	}
-	
+
 }
