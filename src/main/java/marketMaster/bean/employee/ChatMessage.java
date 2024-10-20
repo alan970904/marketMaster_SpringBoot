@@ -17,7 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
-@Entity
+@Entity // 標記這個類為JPA實體,表示它與數據庫表對應。
 @Table(name = "chat_messages")
 public class ChatMessage {
 
@@ -48,10 +48,9 @@ public class ChatMessage {
 	@JoinColumn(name = "to_user", referencedColumnName = "employee_id", insertable = false, updatable = false)
 	private EmpBean toEmployee;
 	
-	//自動設置時間戳
-	@PrePersist
+	@PrePersist // 在持久化之前自動調用
 	protected void onCreat() {
-		timestamp = LocalDateTime.now();
+		timestamp = LocalDateTime.now(); // 設置當前時間為時間戳
 	}
 	
 	public ChatMessage() {
