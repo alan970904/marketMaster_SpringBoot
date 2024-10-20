@@ -1,4 +1,5 @@
 --創建表格
+use ispan;
 
 -- 創建商品表
 CREATE TABLE products (
@@ -22,9 +23,9 @@ CREATE TABLE products (
 CREATE TABLE inventory_check (
     inventory_check_id VARCHAR(30) NOT NULL PRIMARY KEY, -- 盤點編號
 	employee_id VARCHAR(30) NOT NULL, --負責員工ID，外鍵，指向
-	inventory_check_date DATE NOT NULL, --盤點日期
-    
+	inventory_check_date DATE NOT NULL, --盤點日期 
 );
+
 --創建盤點明細
 CREATE TABLE inventory_check_details (
 	detail_id VARCHAR(30) NOT NULL PRIMARY KEY, --盤點明細編號
@@ -51,6 +52,7 @@ CREATE TABLE employee (
     image_path NVARCHAR(255) -- 圖片路徑欄位
 );
 
+-- 創建消息通知
 CREATE TABLE notification (
     id INT IDENTITY(1,1) PRIMARY KEY,
     employee_id VARCHAR(30) NOT NULL,
@@ -90,8 +92,8 @@ CREATE TABLE supplier_products (
 	product_price INT NOT NULL,               -- 商品價格，由供應商設定
 	status INT NOT NULL,                      -- 商品狀態（0: 不可用，1: 可用）
 	PRIMARY KEY (supplier_product_id),        -- 設定主鍵為 supplier_product_id
-	FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id), -- 建立與 suppliers 表的外鍵關聯
-	FOREIGN KEY (product_id) REFERENCES products(product_id)     -- 建立與 products 表的外鍵關聯
+	--FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id), -- 建立與 suppliers 表的外鍵關聯
+	--FOREIGN KEY (product_id) REFERENCES products(product_id)     -- 建立與 products 表的外鍵關聯
 );
 
 -- 建立供應商帳戶表，記錄供應商的帳戶狀況
@@ -102,7 +104,7 @@ CREATE TABLE supplier_accounts (
 	paid_amount INT NOT NULL,                 -- 供應商已付款金額
 	unpaid_amount INT NOT NULL,               -- 供應商未付款金額
 	PRIMARY KEY (account_id),                 -- 設定主鍵為 account_id
-	FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id) -- 建立與 suppliers 表的外鍵關聯
+	--FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id) -- 建立與 suppliers 表的外鍵關聯
 );
 
 -- 建立進貨表，記錄進貨的基本信息
@@ -112,7 +114,7 @@ CREATE TABLE restocks (
 	restock_date DATE NOT NULL,               -- 進貨日期
 	employee_id VARCHAR(30),                  -- 員工ID，外鍵，指向 employee 表
 	PRIMARY KEY (restock_id),                 -- 設定主鍵為 restock_id
-	FOREIGN KEY (employee_id) REFERENCES employee(employee_id) -- 建立與 employee 表的外鍵關聯
+	--FOREIGN KEY (employee_id) REFERENCES employee(employee_id) -- 建立與 employee 表的外鍵關聯
 );
 
 -- 建立進貨明細表，記錄每次進貨中包含的商品詳情，直接加入 supplier_id 欄位
@@ -128,9 +130,9 @@ CREATE TABLE restock_details (
 	due_date DATE NOT NULL,                   -- 商品的到期日期
 	restock_date DATE NOT NULL,               -- 商品的進貨日期
 	PRIMARY KEY (detail_id),                  -- 設定主鍵為 detail_id
-	FOREIGN KEY (restock_id) REFERENCES restocks(restock_id), -- 建立與 restocks 表的外鍵關聯
-	FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id), -- 建立與 suppliers 表的外鍵關聯
-	FOREIGN KEY (supplier_product_id) REFERENCES supplier_products(supplier_product_id) -- 建立與 supplier_products 表的外鍵關聯
+	--FOREIGN KEY (restock_id) REFERENCES restocks(restock_id), -- 建立與 restocks 表的外鍵關聯
+	--FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id), -- 建立與 suppliers 表的外鍵關聯
+	--FOREIGN KEY (supplier_product_id) REFERENCES supplier_products(supplier_product_id) -- 建立與 supplier_products 表的外鍵關聯
 );
 
 -- 建立付款表，記錄支付的相關資訊
@@ -142,7 +144,7 @@ CREATE TABLE payments (
 	total_amount INT NOT NULL,                -- 付款總額
 	payment_status NVARCHAR(30) NOT NULL,      -- 支付狀態
 	PRIMARY KEY (payment_id),                 -- 設定主鍵為 payment_id
-	FOREIGN KEY (account_id) REFERENCES supplier_accounts(account_id) -- 建立與 supplier_accounts 表的外鍵關聯
+	--FOREIGN KEY (account_id) REFERENCES supplier_accounts(account_id) -- 建立與 supplier_accounts 表的外鍵關聯
 );
 
 -- 建立付款記錄表，記錄每次付款的細節
@@ -152,8 +154,8 @@ CREATE TABLE payment_records (
 	detail_id VARCHAR(30) NOT NULL,          -- 進貨ID，外鍵，指向 restocks 表
 	payment_amount INT NOT NULL,              -- 付款金額
 	PRIMARY KEY (record_id),                  -- 設定主鍵為 record_id
-	FOREIGN KEY (payment_id) REFERENCES payments(payment_id),   -- 建立與 payments 表的外鍵關聯
-	FOREIGN KEY (detail_id) REFERENCES restock_details(detail_id)    -- 建立與 restocks 表的外鍵關聯
+	--FOREIGN KEY (payment_id) REFERENCES payments(payment_id),   -- 建立與 payments 表的外鍵關聯
+	--FOREIGN KEY (detail_id) REFERENCES restock_details(detail_id)    -- 建立與 restocks 表的外鍵關聯
 );
 
 -- 創建退貨明細表
@@ -206,7 +208,6 @@ CREATE TABLE checkout (
 	related_return_id VARCHAR(30), -- 對應退貨編號
 	CONSTRAINT CHK_checkout_status CHECK (checkout_status IN (N'正常', N'已退貨'))
 );
-
 
 -- 創建職級表
 CREATE TABLE ranklevel (
@@ -426,7 +427,7 @@ VALUES
 	('E003', '阿瑋', '0900789789', 'C123456789', 'aaa0003@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E004', '阿翔', '0900321321', 'D123456789', 'aaa0004@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E005', '阿翰', '0900654654', 'E123456789', 'aaa0005@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
-	('E006', '阿鼎', '0900987987', 'F123456789', 'aaa0006@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL);
+	('E006', '阿鼎', '0900987987', 'F123456789', 'ricekevin22@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL);
 
 INSERT INTO chat_messages (from_user, to_user, content, timestamp)
 VALUES 
