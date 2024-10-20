@@ -55,7 +55,7 @@
                                 </th:block>
 
                                 <div class="card-body text-center">
-                                    <input type="hidden" class="productId" th:value="${product.productId}">
+                                    <!-- <input type="hidden" class="productId" th:value="${product.productId}"> -->
                                     <h5 class="card-title m-auto" th:text="${product.productName}"></h5>
                                 </div>
                                 <ul class="list-group list-group-flush">
@@ -95,10 +95,10 @@
 
         const detailsList = [];
 
-        const employeeId = document.getElementById('employeeId').value
+        // const employeeId = document.getElementById('employeeId').value
 
         const inventoryCheckInsertDTO = {
-            employeeId:employeeId,
+            employeeId:'E001',
             details: detailsList
         }
 
