@@ -1,7 +1,12 @@
 package marketMaster.bean.product;
 
 import jakarta.persistence.*;
+import marketMaster.bean.restock.SupplierProductsBean;
+
 import java.io.Serializable;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
@@ -53,6 +58,10 @@ public class ProductBean implements Serializable {
 	@Column(name = "product_photo")
 	private byte[] productPhoto;
 
+	@OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+	@JsonIgnore
+	private List<SupplierProductsBean>  supplierProductBean;
+	
 	public ProductBean() {
 		super();
 	}
@@ -188,6 +197,16 @@ public class ProductBean implements Serializable {
 
 	public void setProductPhoto(byte[] productPhoto) {
 		this.productPhoto = productPhoto;
+	}
+	
+	
+
+	public List<SupplierProductsBean> getSupplierProductBean() {
+		return supplierProductBean;
+	}
+
+	public void setSupplierProductBean(List<SupplierProductsBean> supplierProductBean) {
+		this.supplierProductBean = supplierProductBean;
 	}
 
 	public static long getSerialversionuid() {

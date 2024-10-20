@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "return_products")
@@ -14,33 +15,46 @@ public class ReturnProductBean implements Serializable {
     @Id
     @Column(name = "return_id")
     private String returnId;
+    
+    @Column(name = "original_checkout_id", nullable = false)
+    private String originalCheckoutId;
 
-    @Column(name = "employee_id")
+    @Column(name = "original_invoice_number", nullable = false)
+    private String originalInvoiceNumber;
+
+    @Column(name = "employee_id", nullable = false)
     private String employeeId;
 
-    @Column(name = "return_total_price")
+    @Column(name = "return_total_price", nullable = false)
     private Integer returnTotalPrice;
 
-    @Column(name = "return_date")
+    @Column(name = "return_date", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date returnDate;
 
     @OneToMany(mappedBy = "returnProduct", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ReturnDetailsBean> returnDetails;
+    private List<ReturnDetailsBean> returnDetails = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_checkout_id", insertable = false, updatable = false)
+    private CheckoutBean checkout;
+
+    // 構造函數
     public ReturnProductBean() {
         super();
     }
 
-    public ReturnProductBean(String returnId, String employeeId, Integer returnTotalPrice, Date returnDate) {
+    public ReturnProductBean(String returnId, String originalCheckoutId, String originalInvoiceNumber, 
+                             String employeeId, Integer returnTotalPrice, Date returnDate) {
         this.returnId = returnId;
+        this.originalCheckoutId = originalCheckoutId;
+        this.originalInvoiceNumber = originalInvoiceNumber;
         this.employeeId = employeeId;
         this.returnTotalPrice = returnTotalPrice;
         this.returnDate = returnDate;
-        this.returnDetails = new ArrayList<>();
     }
 
-    // Getters and setters
+    // Getter 和 Setter 方法
     public String getReturnId() {
         return returnId;
     }
@@ -49,6 +63,22 @@ public class ReturnProductBean implements Serializable {
         this.returnId = returnId;
     }
 
+    public String getOriginalCheckoutId() {
+        return originalCheckoutId;
+    }
+
+    public void setOriginalCheckoutId(String originalCheckoutId) {
+        this.originalCheckoutId = originalCheckoutId;
+    }
+
+    public String getOriginalInvoiceNumber() {
+        return originalInvoiceNumber;
+    }
+
+    public void setOriginalInvoiceNumber(String originalInvoiceNumber) {
+        this.originalInvoiceNumber = originalInvoiceNumber;
+    }
+    
     public String getEmployeeId() {
         return employeeId;
     }
@@ -80,18 +110,44 @@ public class ReturnProductBean implements Serializable {
     public void setReturnDetails(List<ReturnDetailsBean> returnDetails) {
         this.returnDetails = returnDetails;
     }
+    
+    public CheckoutBean getCheckout() {
+        return checkout;
+    }
 
+    public void setCheckout(CheckoutBean checkout) {
+        this.checkout = checkout;
+    }
+
+    // 輔助方法
     public void addReturnDetail(ReturnDetailsBean returnDetail) {
-        if (returnDetails == null) {
-            returnDetails = new ArrayList<>();
-        }
         returnDetails.add(returnDetail);
         returnDetail.setReturnProduct(this);
     }
 
+    // equals, hashCode, toString 方法
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ReturnProductBean)) return false;
+        ReturnProductBean that = (ReturnProductBean) o;
+        return Objects.equals(returnId, that.returnId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(returnId);
+    }
+
     @Override
     public String toString() {
-        return "ReturnProductBean [returnId=" + returnId + ", employeeId=" + employeeId + ", returnTotalPrice="
-                + returnTotalPrice + ", returnDate=" + returnDate + "]";
+        return "ReturnProductBean{" +
+               "returnId='" + returnId + '\'' +
+               ", originalCheckoutId='" + originalCheckoutId + '\'' +
+               ", originalInvoiceNumber='" + originalInvoiceNumber + '\'' +
+               ", employeeId='" + employeeId + '\'' +
+               ", returnTotalPrice=" + returnTotalPrice +
+               ", returnDate=" + returnDate +
+               '}';
     }
 }

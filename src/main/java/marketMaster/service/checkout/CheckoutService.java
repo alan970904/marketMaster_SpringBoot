@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -61,15 +62,14 @@ public class CheckoutService {
         try {
             logger.info("Updating checkout: " + checkout.getCheckoutId());
             
-            // 獲取原有的結帳資訊
             CheckoutBean existingCheckout = checkoutRepository.findById(checkout.getCheckoutId())
                     .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
 
-            // 更新結帳基本資訊
             existingCheckout.setEmployeeId(checkout.getEmployeeId());
             existingCheckout.setCheckoutDate(checkout.getCheckoutDate());
+            existingCheckout.setInvoiceNumber(checkout.getInvoiceNumber());
+            existingCheckout.setCheckoutStatus(checkout.getCheckoutStatus());
             
-            // 處理客戶電話
             String customerTel = checkout.getCustomerTel();
             existingCheckout.setCustomerTel(customerTel);
             
@@ -83,17 +83,14 @@ public class CheckoutService {
                 existingCheckout.setPointsDueDate(checkout.getPointsDueDate());
             }
 
-            // 保存更新後的結帳資訊
             checkoutRepository.save(existingCheckout);
 
-            // 更新總金額
             updateTotalPrice(existingCheckout.getCheckoutId());
 
             logger.info("Checkout updated successfully: " + existingCheckout.getCheckoutId());
             return true;
         } catch (Exception e) {
             logger.severe("更新結帳記錄失敗: " + e.getMessage());
-            e.printStackTrace();
             throw new DataAccessException("更新結帳記錄失敗: " + e.getMessage());
         }
     }
@@ -113,11 +110,15 @@ public class CheckoutService {
     public String generateNextCheckoutId() throws DataAccessException {
         List<String> lastIds = checkoutRepository.getLastCheckoutId();
         String lastId = lastIds.isEmpty() ? "C00000000" : lastIds.get(0);
-        if (!lastId.matches("C\\d{8}")) {
-            return "C00000001";
-        }
         int nextNumber = Integer.parseInt(lastId.substring(1)) + 1;
         return String.format("C%08d", nextNumber);
+    }
+    
+    public String generateNextInvoiceNumber() throws DataAccessException {
+        List<String> lastNumbers = checkoutRepository.getLastInvoiceNumber();
+        String lastNumber = lastNumbers.isEmpty() ? "IN00000000" : lastNumbers.get(0);
+        int nextNumber = Integer.parseInt(lastNumber.substring(2)) + 1;
+        return String.format("IN%08d", nextNumber);
     }
 
     public List<EmpBean> getAllEmployees() throws DataAccessException {
@@ -148,7 +149,8 @@ public class CheckoutService {
         try {
             int totalAmount = 0;
             
-            checkoutRepository.save(checkout);  // 先保存 CheckoutBean
+            checkout.setCheckoutStatus("正常");
+            checkoutRepository.save(checkout);
 
             for (CheckoutDetailsBean detail : details) {
                 detail.setCheckoutId(checkout.getCheckoutId());
@@ -159,29 +161,25 @@ public class CheckoutService {
 
             checkout.setCheckoutTotalPrice(totalAmount);
 
-            // 處理會員和非會員結帳
             if (checkout.getCustomerTel() != null && !checkout.getCustomerTel().isEmpty()) {
-                // 會員結帳
                 int bonusPoints = calculateBonusPoints(totalAmount);
                 checkout.setBonusPoints(bonusPoints);
 
-                // 設置紅利點數到期日（一年後）
                 LocalDate pointsDueDate = LocalDate.now().plusYears(1);
                 checkout.setPointsDueDate(java.sql.Date.valueOf(pointsDueDate));
             } else {
-                // 非會員結帳
                 checkout.setBonusPoints(0);
                 checkout.setPointsDueDate(null);
             }
 
-            checkoutRepository.save(checkout);// 更新 CheckoutBean
+            checkoutRepository.save(checkout);
 
             return true;
         } catch (Exception e) {
             throw new DataAccessException("新增結帳記錄和明細失敗", e);
         }
     }
-
+    
     @Transactional
     public void deleteCheckoutAndDetails(String checkoutId) throws DataAccessException {
         if (checkoutId == null || checkoutId.isEmpty()) {
@@ -192,8 +190,7 @@ public class CheckoutService {
     }
 
     @Transactional
-    public void updateTotalAndBonus(String checkoutId, BigDecimal totalAmount, int bonusPoints)
-            throws DataAccessException {
+    public void updateTotalAndBonus(String checkoutId, int totalAmount, Integer bonusPoints) throws DataAccessException {
         try {
             if (checkoutId == null || checkoutId.trim().isEmpty()) {
                 throw new IllegalArgumentException("checkoutId 不能為空");
@@ -202,7 +199,7 @@ public class CheckoutService {
             CheckoutBean checkout = checkoutRepository.findById(checkoutId)
                     .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
             
-            checkout.setCheckoutTotalPrice(totalAmount.intValue());
+            checkout.setCheckoutTotalPrice(totalAmount);
             
             String customerTel = checkout.getCustomerTel();
             if (customerTel == null || customerTel.trim().isEmpty()) {
@@ -212,7 +209,6 @@ public class CheckoutService {
             } else {
                 logger.info("Customer tel is not empty, setting bonus points: " + bonusPoints);
                 checkout.setBonusPoints(bonusPoints);
-                // 設置紅利點數到期日（一年後）
                 LocalDate pointsDueDate = LocalDate.now().plusYears(1);
                 checkout.setPointsDueDate(java.sql.Date.valueOf(pointsDueDate));
             }
@@ -223,12 +219,6 @@ public class CheckoutService {
             logger.severe("更新總金額和紅利點數失敗: " + e.getMessage());
             throw new DataAccessException("更新總金額和紅利點數失敗", e);
         }
-    }
-
-    private BigDecimal calculateTotalAmount(List<CheckoutDetailsBean> details) {
-        return details.stream()
-                .map(detail -> new BigDecimal(detail.getCheckoutPrice()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private int calculateBonusPoints(int totalAmount) {
@@ -263,7 +253,6 @@ public class CheckoutService {
     private List<CheckoutDetailsBean> updateCheckoutDetails(String checkoutId, Map<String, String> checkoutData) throws Exception {
         List<CheckoutDetailsBean> updatedDetails = new ArrayList<>();
         
-        // 假設結帳明細數據以 JSON 字符串的形式存在於 checkoutData 中
         String detailsJson = checkoutData.get("checkoutDetails");
         if (detailsJson != null && !detailsJson.isEmpty()) {
             List<Map<String, Object>> detailsList = objectMapper.readValue(detailsJson, new TypeReference<List<Map<String, Object>>>() {});
@@ -275,13 +264,36 @@ public class CheckoutService {
                 detailBean.setNumberOfCheckout((Integer) detail.get("quantity"));
                 detailBean.setProductPrice((Integer) detail.get("price"));
                 
-                // 調用 service 方法來更新或插入明細
                 checkoutDetailsService.updateOrInsertDetail(detailBean);
                 updatedDetails.add(detailBean);
             }
         }
         
         return updatedDetails;
+    }
+    
+ // 新增方法：根據日期範圍獲取結帳記錄
+    public List<CheckoutBean> getCheckoutsByDateRange(Date startDate, Date endDate) throws DataAccessException {
+        return checkoutRepository.getCheckoutsByDateRange(startDate, endDate);
+    }
+
+    // 新增方法：獲取特定日期的銷售總額
+    public Integer getDailySalesTotal(Date date) throws DataAccessException {
+        return checkoutRepository.getDailySalesTotal(date);
+    }
+    
+    @Transactional
+    public void updateCheckoutStatus(String checkoutId, String status) throws DataAccessException {
+        checkoutRepository.updateCheckoutStatus(checkoutId, status);
+    }
+
+    public CheckoutBean findByInvoiceNumber(String invoiceNumber) throws DataAccessException {
+        return checkoutRepository.findByInvoiceNumber(invoiceNumber);
+    }
+
+    @Transactional
+    public void updateTotalPriceAfterReturn(String checkoutId) throws DataAccessException {
+        checkoutRepository.updateTotalPriceAfterReturn(checkoutId);
     }
     
 }

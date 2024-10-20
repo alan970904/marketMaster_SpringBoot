@@ -1,6 +1,8 @@
 package marketMaster.bean.checkout;
 
 import jakarta.persistence.*;
+import marketMaster.bean.product.ProductBean;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,29 +17,33 @@ public class CheckoutDetailsBean implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
-    @Column(name = "CHECKOUT_ID")
+    @Column(name = "checkout_id")
     private String checkoutId;
 
     @Id
-    @Column(name = "PRODUCT_ID")
+    @Column(name = "product_id")
     private String productId;
     
-    @Column(name = "NUMBER_OF_CHECKOUT")
+    @Column(name = "number_of_checkout", nullable = false)
     private int numberOfCheckout;
     
-    @Column(name = "PRODUCT_PRICE")
+    @Column(name = "product_price", nullable = false)
     private int productPrice;
     
-    @Column(name = "CHECKOUT_PRICE")
+    @Column(name = "checkout_price", nullable = false)
     private int checkoutPrice;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "CHECKOUT_ID", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "checkout_id", insertable = false, updatable = false)
     @JsonIgnore
     private CheckoutBean checkout;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private ProductBean product;
+    
     @OneToMany(mappedBy = "checkoutDetail", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ReturnDetailsBean> returnDetails;
+    private List<ReturnDetailsBean> returnDetails = new ArrayList<>();
 
     // Constructors
     public CheckoutDetailsBean() {
@@ -50,7 +56,6 @@ public class CheckoutDetailsBean implements Serializable {
         this.numberOfCheckout = numberOfCheckout;
         this.productPrice = productPrice;
         this.checkoutPrice = checkoutPrice;
-        this.returnDetails = new ArrayList<>();
     }
 
     // Getters and setters
@@ -102,6 +107,14 @@ public class CheckoutDetailsBean implements Serializable {
         this.checkout = checkout;
     }
 
+    public ProductBean getProduct() {
+        return product;
+    }
+
+    public void setProduct(ProductBean product) {
+        this.product = product;
+    }
+    
     public List<ReturnDetailsBean> getReturnDetails() {
         return returnDetails;
     }
@@ -110,10 +123,8 @@ public class CheckoutDetailsBean implements Serializable {
         this.returnDetails = returnDetails;
     }
 
+    // Helper method
     public void addReturnDetail(ReturnDetailsBean returnDetail) {
-        if (returnDetails == null) {
-            returnDetails = new ArrayList<>();
-        }
         returnDetails.add(returnDetail);
         returnDetail.setCheckoutDetail(this);
     }
@@ -144,11 +155,11 @@ public class CheckoutDetailsBean implements Serializable {
                '}';
     }
 
-    // 內部類定義複合主鍵
+    // Inner class for composite primary key
     public static class CheckoutDetailsId implements Serializable {
-		private static final long serialVersionUID = 1L;
-		
-		private String checkoutId;
+        private static final long serialVersionUID = 1L;
+        
+        private String checkoutId;
         private String productId;
 
         public CheckoutDetailsId() {}

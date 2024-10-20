@@ -1,10 +1,10 @@
 package marketMaster.service.checkout;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
-import marketMaster.service.checkout.CheckoutDetailsRepository;
 import marketMaster.exception.DataAccessException;
 import marketMaster.bean.checkout.CheckoutDetailsBean.CheckoutDetailsId;
 
@@ -15,6 +15,7 @@ import java.util.Optional;
 @Service
 @Transactional
 public class CheckoutDetailsService {
+	
     @Autowired
     private CheckoutDetailsRepository checkoutDetailsRepository;
 
@@ -80,8 +81,8 @@ public class CheckoutDetailsService {
     public void cancelReturn(String checkoutId, String productId, int returnQuantity, int returnPrice) throws DataAccessException {
         checkoutDetailsRepository.cancelReturn(checkoutId, productId, returnQuantity, returnPrice);
     }
-    
- // 新增方法：更新或插入結帳明細
+
+    // 更新或插入結帳明細
     @Transactional
     public void updateOrInsertDetail(CheckoutDetailsBean detailBean) throws DataAccessException {
         try {
@@ -104,4 +105,18 @@ public class CheckoutDetailsService {
         }
     }
     
+    // 獲取特定商品的總銷售量
+    public Integer getTotalSalesByProduct(String productId) throws DataAccessException {
+        return checkoutDetailsRepository.getTotalSalesByProduct(productId);
+    }
+
+    // 獲取銷售量最高的前N個商品
+    public List<Map<String, Object>> getTopSellingProducts(int limit) throws DataAccessException {
+        return checkoutDetailsRepository.getTopSellingProducts(PageRequest.of(0, limit));
+    }
+
+    // 新增：獲取特定結帳ID和商品ID的結帳明細
+    public CheckoutDetailsBean findByCheckoutIdAndProductId(String checkoutId, String productId) throws DataAccessException {
+        return checkoutDetailsRepository.findByCheckoutIdAndProductId(checkoutId, productId);
+    }
 }
