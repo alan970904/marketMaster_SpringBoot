@@ -10,8 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import marketMaster.annotation.RequiresPermission;
 import marketMaster.bean.customer.CustomerBean;
-import marketMaster.requiresPermission.RequiresPermission;
 import marketMaster.service.authorization.AuthorizationService;
 import marketMaster.service.customer.CustomerServiceImpl;
 
