@@ -36,6 +36,9 @@ public class PaymentService {
     @Autowired
     private ECPayConfig ecPayConfig;
 
+
+
+
     // 找所有有關於SupplierId的進貨明細
     public List<RestockDetailPaymentDTO> getPaymentDetailsBySupplierId(String supplierId) {
         List<RestockDetailsBean> restockDetails = restockDetailsRepository.findBySupplierId(supplierId);
@@ -47,11 +50,9 @@ public class PaymentService {
             dto.setNumberOfRestock(details.getNumberOfRestock());
             dto.setPriceAtRestock(details.getPriceAtRestock());
             dto.setRestockTotalPrice(details.getRestockTotalPrice());
-
             // 檢查是否為 null
             Integer paidAmount = paymentRecordsRepository.sumPaymentAmountByDetailId(details.getDetailId());
             dto.setPaidAmount(paidAmount != null ? paidAmount : 0);  // 如果為 null，則設置為 0
-
             restockDetailPaymentDTOS.add(dto);
         }
         return restockDetailPaymentDTOS;
@@ -155,7 +156,6 @@ public class PaymentService {
         return checkMacValue;
     }
 
-    // 验证 CheckMacValue
     public boolean verifyECPayReturn(Map<String, String> params) {
         String returnedCheckMacValue = params.get("CheckMacValue");
         System.out.println("Returned CheckMacValue: " + returnedCheckMacValue);
@@ -180,6 +180,7 @@ public class PaymentService {
         return isValid;
     }
 
+
     public PaymentInsertDTO getLatestPaymentInsertDTO(String supplierId) {
         PaymentsBean latestPayment = paymentsRepository.findTopBySupplierAccounts_Supplier_SupplierIdOrderByPaymentDateDesc(supplierId);
 
@@ -188,11 +189,12 @@ public class PaymentService {
         paymentInsertDTO.setAccountId(latestPayment.getSupplierAccounts().getAccountId());
         paymentInsertDTO.setPaymentDate(latestPayment.getPaymentDate());
         paymentInsertDTO.setPaymentMethod(latestPayment.getPaymentMethod());
+        System.out.println("PaymentInsertDTO: " + latestPayment.getTotalAmount());
         paymentInsertDTO.setTotalAmount(latestPayment.getTotalAmount());
         paymentInsertDTO.setPaymentStatus(latestPayment.getPaymentStatus());
 
-        // 使用 payment_id 作為 MerchantTradeNo
-        paymentInsertDTO.setMerchantTradeNo(latestPayment.getPaymentId());
+        // 使用 payment_id 作為 MerchantTradeN
+        paymentInsertDTO.setMerchantTradeNo(latestPayment.getPaymentId()+System.currentTimeMillis());
 
         List<PaymentRecordInsertDTO> paymentRecords = new ArrayList<>();
         for (PaymentRecordsBean record : latestPayment.getPaymentRecords()) {
