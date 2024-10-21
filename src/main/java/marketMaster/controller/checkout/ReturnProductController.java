@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -166,14 +167,20 @@ public class ReturnProductController {
 
     @PostMapping("/update")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> updateReturnProduct(@RequestBody ReturnProductBean returnProduct) {
+    public ResponseEntity<Map<String, String>> updateReturnProduct(@RequestBody Map<String, String> request) {
         try {
+            ReturnProductBean returnProduct = returnProductService.getReturnProduct(request.get("returnId"));
+            returnProduct.setEmployeeId(request.get("employeeId"));
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date returnDate = sdf.parse(request.get("returnDate"));
+            returnProduct.setReturnDate(returnDate);
+            
             returnProductService.updateReturnProduct(returnProduct);
             return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
-        } catch (DataAccessException e) {
-            logger.severe("更新退貨記錄失敗: " + e.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "error", "message", "更新失敗: " + e.getMessage()));
+                    .body(Map.of("status", "error", "message", e.getMessage()));
         }
     }
 

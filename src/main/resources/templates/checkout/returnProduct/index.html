@@ -48,11 +48,11 @@
 <body>
 <div th:replace="~{body/header :: header}">
 <div th:fragment="content">
-    <main class="container mt-5">
+    <main class="container mt-5 text-center">
         <h1 class="mb-4">超市退貨系統</h1>
         
-        <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
+        <div class="row d-flex justify-content-center">
+            <div class="col-lg-4 col-md-5 mb-4 mx-4">
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-list-alt me-2"></i>所有退貨記錄
@@ -65,7 +65,7 @@
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-5 mb-4 mx-4">
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-plus-circle me-2"></i>新增退貨記錄
