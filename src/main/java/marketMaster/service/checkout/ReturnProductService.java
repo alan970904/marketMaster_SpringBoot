@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import marketMaster.DTO.checkout.CheckoutDTO;
 import marketMaster.DTO.checkout.ReturnDetailDTO;
 import marketMaster.DTO.checkout.ReturnProductDTO;
+import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.ReturnDetailsBean;
 import marketMaster.bean.checkout.ReturnProductBean;
 import marketMaster.bean.employee.EmpBean;
@@ -33,6 +34,9 @@ public class ReturnProductService {
 
     @Autowired
     private ReturnDetailsRepository returnDetailsRepository;
+    
+    @Autowired
+    private CheckoutService checkoutService;
     
     // 獲取單一退貨記錄
     public ReturnProductBean getReturnProduct(String returnId) throws DataAccessException {
@@ -203,6 +207,12 @@ public class ReturnProductService {
                 logger.info("退貨明細保存成功，ReturnId: " + returnDetail.getReturnId() + 
                         ", ProductId: " + returnDetail.getProductId() +
                         ", PhotoPath: " + returnDetail.getReturnPhoto());
+            }
+            
+            // 更新結帳狀態並扣除紅利點數
+            CheckoutBean checkout = checkoutService.findByInvoiceNumber(returnData.getOriginalInvoiceNumber());
+            if (checkout != null) {
+                checkoutService.updateCheckoutStatus(checkout.getCheckoutId(), "已退貨");
             }
             
             logger.info("退貨記錄及明細新增完成");

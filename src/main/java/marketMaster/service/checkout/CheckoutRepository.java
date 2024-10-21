@@ -78,4 +78,15 @@ public interface CheckoutRepository extends JpaRepository<CheckoutBean, String> 
     // 獲取最新發票號碼
     @Query("SELECT c.invoiceNumber FROM CheckoutBean c ORDER BY c.invoiceNumber DESC")
     List<String> getLastInvoiceNumber();
+
+    @Query("UPDATE CustomerBean c SET c.totalPoints = c.totalPoints + :points WHERE c.customerTel = :tel")
+    @Modifying
+    void addBonusPointsToCustomer(@Param("tel") String customerTel, @Param("points") int points);
+
+    @Query("UPDATE CustomerBean c SET c.totalPoints = c.totalPoints - :points WHERE c.customerTel = :tel") 
+    @Modifying
+    void deductBonusPointsFromCustomer(@Param("tel") String customerTel, @Param("points") int points);
+
+    @Query("SELECT COUNT(c) > 0 FROM CustomerBean c WHERE c.customerTel = :tel")
+    boolean existsByCustomerTel(@Param("tel") String customerTel);
 }
