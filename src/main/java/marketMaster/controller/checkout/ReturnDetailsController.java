@@ -118,20 +118,28 @@ public class ReturnDetailsController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ReturnDetailsBean returnDetail = mapper.readValue(returnDetailJson, ReturnDetailsBean.class);
+            ReturnDetailsBean existingDetail = returnDetailsService.getReturnDetails(
+                returnDetail.getReturnId(), 
+                returnDetail.getOriginalCheckoutId(), 
+                returnDetail.getProductId()
+            );
+            
+            // 更新需要修改的欄位
+            existingDetail.setReasonForReturn(returnDetail.getReasonForReturn());
+            existingDetail.setNumberOfReturn(returnDetail.getNumberOfReturn());
+            existingDetail.setReturnStatus(returnDetail.getReturnStatus());
             
             // 處理照片上傳
             if (file != null && !file.isEmpty()) {
                 String fileName = saveFile(file);
-                returnDetail.setReturnPhoto(fileName);
+                existingDetail.setReturnPhoto(fileName);
             }
             
-            // 重新計算小計
-            returnDetail.setReturnPrice(returnDetail.getNumberOfReturn() * returnDetail.getProductPrice());
+            // 更新小計
+            existingDetail.setReturnPrice(existingDetail.getNumberOfReturn() * existingDetail.getProductPrice());
             
-            returnDetailsService.saveReturnDetails(returnDetail);
-            
-            // 更新退貨總金額
-            returnDetailsService.updateReturnTotal(returnDetail.getReturnId());
+            returnDetailsService.saveReturnDetails(existingDetail);
+            returnDetailsService.updateReturnTotal(existingDetail.getReturnId());
             
             return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
         } catch (Exception e) {
@@ -159,12 +167,18 @@ public class ReturnDetailsController {
             String returnId = request.get("returnId");
             String originalCheckoutId = request.get("originalCheckoutId");
             String productId = request.get("productId");
+            
+            if(returnId == null || originalCheckoutId == null || productId == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "缺少必要參數"));
+            }
+            
             returnDetailsService.deleteReturnDetails(returnId, originalCheckoutId, productId);
-            return ResponseEntity.ok(Map.of("status", "success", "message", "退貨明細已成功刪除"));
+            return ResponseEntity.ok(Map.of("status", "success", "message", "刪除成功"));
         } catch (DataAccessException e) {
             logger.severe("刪除退貨明細失敗: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "error", "message", "刪除退貨明細失敗: " + e.getMessage()));
+                .body(Map.of("status", "error", "message", "刪除失敗"));
         }
     }
 

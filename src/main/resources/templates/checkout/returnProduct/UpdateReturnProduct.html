@@ -18,46 +18,49 @@
 
             <div class="card">
                 <div class="card-body">
-                    <form id="updateReturnProductForm">
-                        <div class="mb-3">
-                            <label for="returnId">退貨編號:</label>
-                            <input type="text" class="form-control" th:value="${returnProduct.returnId}" readonly>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="originalInvoiceNumber">發票號碼:</label>
-                            <input type="text" class="form-control" id="originalInvoiceNumber" name="originalInvoiceNumber" th:value="${returnProduct.originalInvoiceNumber}" readonly>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="checkoutId">結帳編號:</label>
-                            <input type="text" class="form-control" id="originalCheckoutId" name="originalCheckoutId" th:value="${returnProduct.originalCheckoutId}" readonly>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="employeeId">員工編號:</label>
-                            <select id="employeeId" name="employeeId" class="form-control" required>
-        						<option value="">請選擇員工</option>
-        						<option th:each="emp : ${employees}" 
-                						th:value="${emp.employeeId}" 
-                						th:text="${emp.employeeId + ' - ' + emp.employeeName}">
-        						</option>
-    						</select>
-                        </div>
+                    <form id="updateForm">
+                <div class="mb-3">
+                    <label for="returnId">退貨編號:</label>
+                    <input type="text" class="form-control" th:value="${returnProduct.returnId}" readonly>
+                    <input type="hidden" id="returnId" th:value="${returnProduct.returnId}">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="invoiceNumber">發票號碼:</label>
+                    <input type="text" class="form-control" th:value="${returnProduct.originalInvoiceNumber}" readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="checkoutId">結帳編號:</label>
+                    <input type="text" class="form-control" th:value="${returnProduct.originalCheckoutId}" readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="employeeId">員工編號:</label>
+                    <select id="employeeId" class="form-control">
+                        <option value="">請選擇員工</option>
+                        <option th:each="emp : ${employees}" 
+                                th:value="${emp.employeeId}"
+                                th:text="${emp.employeeName}"
+                                th:selected="${emp.employeeId == returnProduct.employeeId}">
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="totalPrice">退貨總金額:</label>
+                    <input type="text" class="form-control" th:value="${returnProduct.returnTotalPrice}" readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="returnDate">退貨日期:</label>
+                    <input type="date" id="returnDate" class="form-control" 
+                           th:value="${#dates.format(returnProduct.returnDate, 'yyyy-MM-dd')}">
+                </div>
 
-						<div class="mb-3">
-                            <label for="returnTotalPrice">退貨總金額:</label>
-                            <input type="number" class="form-control" id="returnTotalPrice" name="returnTotalPrice" th:value="${returnProduct.returnTotalPrice}" readonly>
-                        </div>
-						
-                        <div class="mb-3">
-                            <label for="returnDate">退貨日期:</label>
-                            <input type="date" class="form-control" id="returnDate" name="returnDate" th:value="${#dates.format(returnProduct.returnDate, 'yyyy-MM-dd')}" required>
-                        </div>
-
-
-                        <button type="submit" class="btn btn-primary">更新</button>
-                    </form>
+                <button type="submit" class="btn btn-primary">更新</button>
+                <a th:href="@{/returnProduct/list}" class="btn btn-secondary">返回</a>
+            </form>
                 </div>
             </div>
 
@@ -72,22 +75,32 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-$(document).ready(function() {
-    $("#updateBtn").click(function() {
-        const updateData = {
-            returnId: $("[th:value='${returnProduct.returnId}']").val(),
+$(function() {
+    $("#updateForm").submit(function(e) {
+        e.preventDefault();
+        var formData = {
+            returnId: $("#returnId").val(),
             employeeId: $("#employeeId").val(),
             returnDate: $("#returnDate").val()
         };
-
-        axios.post('/returnProduct/update', updateData)
-            .then(response => {
-                if(response.data.status === 'success') {
-                    alert('更新成功');
-                    window.location.href = '/returnProduct/list';
+        
+        $.ajax({
+            url: "[[@{/returnProduct/update}]]",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function(response) {
+                if(response.status === "success") {
+                    alert("更新成功");
+                    window.location.href = "[[@{/returnProduct/list}]]";
+                } else {
+                    alert("更新失敗: " + response.message);
                 }
-            })
-            .catch(error => alert('更新失敗: ' + error.response.data.message));
+            },
+            error: function(xhr) {
+                alert("更新失敗");
+            }
+        });
     });
 });
 </script>

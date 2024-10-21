@@ -43,8 +43,11 @@ public class ReturnDetailsService {
     }
 
     // 刪除退貨明細
+    @Transactional
     public void deleteReturnDetails(String returnId, String originalCheckoutId, String productId) throws DataAccessException {
         returnDetailsRepository.deleteById(new ReturnDetailsBean.ReturnDetailsId(returnId, originalCheckoutId, productId));
+        // 更新退貨總金額
+        updateReturnTotal(returnId);
     }
 
     // 根據產品ID搜索退貨明細
