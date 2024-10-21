@@ -18,7 +18,7 @@
                 <form id="addEmployeeForm" th:action="@{/employee/empAdd}" method="post" enctype="multipart/form-data"
                     onsubmit="return validateForm()">
                     <input type="hidden" name="employeeId" th:value="${newEmployeeId}">
-                    <table class="table table-bordered" style="width: 50%;">
+                    <table class="table table-bordered">
                         <tr>
                             <th>姓名:</th>
                             <td><input type="text" name="employeeName" id="employeeName" required></td>

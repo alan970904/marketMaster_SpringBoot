@@ -1,29 +1,41 @@
 package marketMaster.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import marketMaster.interceptor.LoginInterceptor;
+import marketMaster.interceptor.front.FrontLoginInterceptor;
 
 @Configuration
-@ConfigurationProperties(prefix = "app")
 public class WebMvcConfig implements WebMvcConfigurer {
 
 	private String uploadDir;
 	
 	@Autowired
 	private LoginInterceptor loginInterceptor;
+	
+	@Autowired
+	private FrontLoginInterceptor frontLoginInterceptor;
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 
 		registry.addInterceptor(loginInterceptor)
-        .addPathPatterns("/**")
-        .excludePathPatterns("/employee/login", "/employee/loginPage", "/employee/logout", "/employee/forgotPasswordPage", "/employee/forgotPassword", "/css/**", "/js/**", "/images/**", "/uploads/**", "/supplier/supplier2");
+        .addPathPatterns("/employee/**", "/homePage")
+        .excludePathPatterns("/employee/login", "/employee/loginPage", 
+        					"/employee/logout", "/employee/forgotPasswordPage", 
+        					"/employee/forgotPassword", "/css/**", "/js/**", "/images/**", 
+        					"/uploads/**", "/supplier/supplier2");
+	
+		registry.addInterceptor(frontLoginInterceptor)
+		.addPathPatterns("/front/**", "/mainPage")
+		.excludePathPatterns("/front/login", "/front/loginPage", 
+							"/front/logout", "/front/forgotPasswordPage", 
+							"/front/forgotPassword", "/css/**", "/js/**", "/images/**", 
+							"/uploads/**");
 	}
 
 	@Override
@@ -34,9 +46,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**").addResourceLocations("file:" + uploadDir + "/");
 
 	}
-	
-    public void setUploadDir(String uploadDir) {
-        this.uploadDir = uploadDir;
-    }
 	
 }
