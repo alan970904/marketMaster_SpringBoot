@@ -15,9 +15,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import marketMaster.bean.employee.ChatMessage;
 import marketMaster.service.employee.ChatServiceImpl;
 
+/*
+ * 負責維護 WebSocket 連接的生命週期,
+ * 處理incoming消息,並將消息轉發給適當的接收者。
+ */
+
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
+	// 用於存儲所有活動的WebSocket會話
 	private static final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -33,6 +39,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		String payload = message.getPayload();
+		// 使用 ObjectMapper 進行 JSON 和 Java 對象之間的轉換。
 		ChatMessage chatMessage = objectMapper.readValue(payload, ChatMessage.class);
 
 		// 保存消息到數據庫
@@ -52,7 +59,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	private String getUserId(WebSocketSession session) {
-		// 從 session 中獲取用戶 ID，這裡假設您在建立 WebSocket 連接時將用戶 ID 存儲在了 session 屬性中
+		// 從 session 中獲取用戶 ID
 		return (String) session.getAttributes().get("userId");
 	}
 

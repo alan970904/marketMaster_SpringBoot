@@ -81,8 +81,7 @@ public class ChatController {
 	        List<ChatMessage> messages = chatService.getRecentMessages(employee.getEmployeeId(), otherUser, 50);
 	        return ResponseEntity.ok(messages != null ? messages : new ArrayList<>());
 	    } catch (Exception e) {
-	        // 記錄錯誤
-	        e.printStackTrace(); // 或使用日誌框架記錄錯誤
+	        e.printStackTrace();
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 	    }
 	}

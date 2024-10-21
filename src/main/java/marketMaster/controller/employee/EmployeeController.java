@@ -21,11 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+import marketMaster.annotation.RequiresPermission;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
-import marketMaster.requiresPermission.RequiresPermission;
-import marketMaster.service.AuthorizationService;
+import marketMaster.service.authorization.AuthorizationService;
 import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 

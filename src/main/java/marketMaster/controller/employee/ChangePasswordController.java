@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
-import marketMaster.requiresPermission.RequiresPermission;
-import marketMaster.service.AuthorizationService;
+import marketMaster.annotation.RequiresPermission;
+import marketMaster.service.authorization.AuthorizationService;
 import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 

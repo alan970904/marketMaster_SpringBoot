@@ -20,6 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+
 		registry.addInterceptor(loginInterceptor)
         .addPathPatterns("/**")
         .excludePathPatterns("/employee/login", "/employee/loginPage", "/employee/logout", "/employee/forgotPasswordPage", "/employee/forgotPassword", "/css/**", "/js/**", "/images/**", "/uploads/**", "/supplier/supplier2");
@@ -31,6 +32,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
         registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
         registry.addResourceHandler("/uploads/**").addResourceLocations("file:" + uploadDir + "/");
+
 	}
 	
     public void setUploadDir(String uploadDir) {
