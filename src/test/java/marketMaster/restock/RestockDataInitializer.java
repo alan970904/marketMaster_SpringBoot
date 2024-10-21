@@ -1,6 +1,10 @@
 package marketMaster.restock;
 
+import ecpay.payment.integration.AllInOne;
+import ecpay.payment.integration.domain.AioCheckOutALL;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
+import marketMaster.bean.restock.PaymentsBean;
+import marketMaster.controller.restock.SupplierController;
 import marketMaster.service.product.ProductRepository;
 import marketMaster.service.restock.*;
 import org.apache.poi.ss.usermodel.Row;
@@ -47,6 +51,11 @@ public class RestockDataInitializer {
     @Autowired
     SupplierProductsService supplierProductsService;
 
+    @Autowired
+    SupplierController supplierController;
+
+    @Autowired
+    PaymentsRepository paymentsRepository;
     @Test
     public void getPaymentDetailsBySupplierId() {
         String supplierId = "S001";
@@ -97,4 +106,14 @@ public class RestockDataInitializer {
     }
 
 
-}
+
+
+        @Test
+    public void  good() {
+       String supplierId ="S002";
+            PaymentsBean latestPayment = paymentsRepository.findTopBySupplierAccounts_Supplier_SupplierIdOrderByPaymentDateDesc(supplierId);
+            System.out.println(latestPayment);
+        }
+
+    }
+

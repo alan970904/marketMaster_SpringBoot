@@ -22,21 +22,21 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 
 		registry.addInterceptor(loginInterceptor)
-        .addPathPatterns("/**")
-        .excludePathPatterns("/employee/login", "/employee/loginPage", "/employee/logout", "/employee/forgotPasswordPage", "/employee/forgotPassword", "/css/**", "/js/**", "/images/**", "/uploads/**", "/supplier/supplier2");
-	}
 
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");
-        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
-        registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
-        registry.addResourceHandler("/uploads/**").addResourceLocations("file:" + uploadDir + "/");
-
+				.addPathPatterns("/**")
+				.excludePathPatterns(
+						"/employee/login",
+						"/employee/loginPage",
+						"/employee/logout",
+						"/employee/forgotPasswordPage",
+						"/employee/forgotPassword",
+						"/css/**",
+						"/js/**",
+						"/images/**",
+						"/marketMaster/supplier/supplier",
+						"/supplier/supplier",
+						"/marketMaster/supplier/ecpayReturn",
+						"/supplier/ecpayReturn"
+				);
 	}
-	
-    public void setUploadDir(String uploadDir) {
-        this.uploadDir = uploadDir;
-    }
-	
 }
