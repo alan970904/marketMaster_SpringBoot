@@ -1,6 +1,10 @@
 package marketMaster.restock;
 
+import ecpay.payment.integration.AllInOne;
+import ecpay.payment.integration.domain.AioCheckOutALL;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
+import marketMaster.bean.restock.PaymentsBean;
+import marketMaster.controller.restock.SupplierController;
 import marketMaster.service.product.ProductRepository;
 import marketMaster.service.restock.*;
 import org.apache.poi.ss.usermodel.Row;
@@ -47,6 +51,11 @@ public class RestockDataInitializer {
     @Autowired
     SupplierProductsService supplierProductsService;
 
+    @Autowired
+    SupplierController supplierController;
+
+    @Autowired
+    PaymentsRepository paymentsRepository;
     @Test
     public void getPaymentDetailsBySupplierId() {
         String supplierId = "S001";
@@ -97,4 +106,33 @@ public class RestockDataInitializer {
     }
 
 
-}
+        @Test
+        public void  ecpayCheckout() {
+
+            ECpayAIO_Java.ecpay.payment.integration.AllInOne all = new ECpayAIO_Java.ecpay.payment.integration.AllInOne("");
+
+            AioCheckOutALL obj = new AioCheckOutALL();
+            obj.setMerchantTradeNo("testCompany0004");
+            obj.setMerchantTradeDate("2017/01/01 08:05:23");
+            obj.setTotalAmount("50");
+            obj.setTradeDesc("test Description");
+            obj.setItemName("TestItem");
+            // 交易結果回傳網址，只接受 https 開頭的網站，可以使用 ngrok
+            obj.setReturnURL("<http://211.23.128.214:5000>");
+            obj.setNeedExtraPaidInfo("N");
+            // 商店轉跳網址 (Optional)
+            obj.setClientBackURL("<http://192.168.1.37:8080/>");
+            String form = all.aioCheckOut(obj, null);
+
+            System.out.println(form);
+        }
+
+        @Test
+    public void  good() {
+       String supplierId ="S002";
+            PaymentsBean latestPayment = paymentsRepository.findTopBySupplierAccounts_Supplier_SupplierIdOrderByPaymentDateDesc(supplierId);
+            System.out.println(latestPayment);
+        }
+
+    }
+
