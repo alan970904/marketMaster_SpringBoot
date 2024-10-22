@@ -252,4 +252,36 @@ public class ProductService {
 			product.setNumberOfInventory(currentInventory);
 		}
 	}
+	
+	//結帳數量更新
+	
+	@Transactional 
+	public void updateProductByInsertCheckOut(String productId,int numberOfCheckout) {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			product.setNumberOfInventory(product.getNumberOfInventory() - numberOfCheckout);
+			product.setNumberOfSale(product.getNumberOfSale() + numberOfCheckout);
+		}
+	}
+	@Transactional 
+	public void updateProductByDeleteCheckOut(String productId,int numberOfCheckout) {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			product.setNumberOfInventory(product.getNumberOfInventory() + numberOfCheckout);
+			product.setNumberOfSale(product.getNumberOfSale() - numberOfCheckout);
+		}
+	}
+	
+	//退貨數量更新
+	@Transactional
+	public void updateProductByInsertReturn(String productId,int numberOfReturn) {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			product.setNumberOfSale(product.getNumberOfSale() - numberOfReturn);
+			product.setNumberOfDestruction(product.getNumberOfDestruction() + numberOfReturn);
+		}
+	}
 }
