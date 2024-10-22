@@ -1,5 +1,7 @@
 package marketMaster.controller.restock;
 
+import ecpay.payment.integration.domain.AioCheckOutALL;
+import jakarta.servlet.http.HttpSession;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
 import marketMaster.DTO.restock.SupplierDTO.SupplierInfoDTO;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -42,15 +45,16 @@ public class SupplierController {
     @Autowired
     private ECPayConfig ecPayConfig;
 
-    @GetMapping("/supplier")
-    public String supplier(){
+    @RequestMapping(value = "/supplier", method = {RequestMethod.GET, RequestMethod.POST})
+    public String supplier(HttpSession session) {
+        if (session.getAttribute("employee") == null) {
+            // 用戶未登入，重定向到登入頁面
+            return "redirect:/employee/loginPage";
+        }
         return "/restock/supplier";
     }
 
-    @PostMapping("/supplier2")
-    public String supplier2(){
-        return "/restock/supplier";
-    }
+
 
 
 
@@ -148,6 +152,7 @@ public class SupplierController {
     public String prepareECPayPayment(@RequestParam("supplierId") String supplierId, Model model) {
         // 獲取最新的支付記錄
         PaymentInsertDTO paymentInsertDTO = paymentService.getLatestPaymentInsertDTO(supplierId);
+        System.out.println("DTO 裡面的 total"+paymentInsertDTO.getTotalAmount());
         int totalAmount = paymentInsertDTO.getTotalAmount();
         String merchantTradeNo = paymentInsertDTO.getMerchantTradeNo(); // 這裡是 payment_id
 
@@ -158,6 +163,7 @@ public class SupplierController {
         ecpayParams.put("MerchantTradeDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
         ecpayParams.put("PaymentType", "aio");
         ecpayParams.put("TotalAmount", String.valueOf(totalAmount));
+        System.out.println(totalAmount);
         ecpayParams.put("TradeDesc", "供應商付款");
         ecpayParams.put("ItemName", "供應商付款"); // 根據實際需求設置
         ecpayParams.put("ReturnURL", ecPayConfig.getReturnUrl());
@@ -168,9 +174,7 @@ public class SupplierController {
         ecpayParams.put("OrderResultURL", ecPayConfig.getOrderResultUrl());
         ecpayParams.put("NeedExtraPaidInfo", "Y");
         ecpayParams.put("CustomField1", "Custom value 1");
-        ecpayParams.put("CustomField2", "Custom value 2");
-        ecpayParams.put("CustomField3", "Custom value 3");
-        ecpayParams.put("CustomField4", "Custom value 4");
+
         // 生成 CheckMacValue
         String checkMacValue = paymentService.generateCheckMacValue(ecpayParams);
         ecpayParams.put("CheckMacValue", checkMacValue);
@@ -178,7 +182,6 @@ public class SupplierController {
         // 將參數傳遞給視圖
         model.addAttribute("ecpayParams", ecpayParams);
         model.addAttribute("ecpayUrl", "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5"); // 測試環境
-
         return "/restock/ecpayPayment"; // 跳轉到包含支付表單的視圖
     }
 
@@ -186,6 +189,7 @@ public class SupplierController {
     @ResponseBody
     public String handleECPayReturn(@RequestParam Map<String, String> params) {
         boolean isValid = paymentService.verifyECPayReturn(params);
+        System.out.println(params);
         if (isValid) {
             String merchantTradeNo = params.get("MerchantTradeNo"); // payment_id
             String paymentStatus = params.get("RtnCode");

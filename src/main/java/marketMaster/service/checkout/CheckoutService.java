@@ -164,6 +164,7 @@ public class CheckoutService {
             if (checkout.getCustomerTel() != null && !checkout.getCustomerTel().isEmpty()) {
                 int bonusPoints = calculateBonusPoints(totalAmount);
                 checkout.setBonusPoints(bonusPoints);
+                checkoutRepository.addBonusPointsToCustomer(checkout.getCustomerTel(), bonusPoints);
 
                 LocalDate pointsDueDate = LocalDate.now().plusYears(1);
                 checkout.setPointsDueDate(java.sql.Date.valueOf(pointsDueDate));
@@ -284,6 +285,17 @@ public class CheckoutService {
     
     @Transactional
     public void updateCheckoutStatus(String checkoutId, String status) throws DataAccessException {
+        CheckoutBean checkout = checkoutRepository.findById(checkoutId)
+            .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
+            
+        if (status.equals("已退貨") && checkout.getCheckoutStatus().equals("正常")) {
+            // 退貨時扣除紅利
+            checkoutRepository.deductBonusPointsFromCustomer(
+                checkout.getCustomerTel(), 
+                checkout.getBonusPoints()
+            );
+        }
+        
         checkoutRepository.updateCheckoutStatus(checkoutId, status);
     }
 

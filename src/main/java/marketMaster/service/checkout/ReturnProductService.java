@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import marketMaster.DTO.checkout.CheckoutDTO;
 import marketMaster.DTO.checkout.ReturnDetailDTO;
 import marketMaster.DTO.checkout.ReturnProductDTO;
+import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.ReturnDetailsBean;
 import marketMaster.bean.checkout.ReturnProductBean;
 import marketMaster.bean.employee.EmpBean;
@@ -33,6 +34,9 @@ public class ReturnProductService {
 
     @Autowired
     private ReturnDetailsRepository returnDetailsRepository;
+    
+    @Autowired
+    private CheckoutService checkoutService;
     
     // 獲取單一退貨記錄
     public ReturnProductBean getReturnProduct(String returnId) throws DataAccessException {
@@ -156,7 +160,7 @@ public class ReturnProductService {
 
     // 新增退貨記錄及明細
     @Transactional(rollbackFor = Exception.class)
-    public void addReturnProductWithDetails(ReturnProductDTO returnData) throws DataAccessException {
+    public String addReturnProductWithDetails(ReturnProductDTO returnData) throws DataAccessException {
         try {
         	logger.info("開始新增退貨記錄，退貨ID: " + returnData.getReturnId());
             // 處理退貨主表資料
@@ -205,7 +209,14 @@ public class ReturnProductService {
                         ", PhotoPath: " + returnDetail.getReturnPhoto());
             }
             
+            // 更新結帳狀態並扣除紅利點數
+            CheckoutBean checkout = checkoutService.findByInvoiceNumber(returnData.getOriginalInvoiceNumber());
+            if (checkout != null) {
+                checkoutService.updateCheckoutStatus(checkout.getCheckoutId(), "已退貨");
+            }
+            
             logger.info("退貨記錄及明細新增完成");
+            return returnData.getReturnId();
         } catch (Exception e) {
         	logger.severe("新增退貨記錄及明細時發生異常: " + e.getMessage());
             logger.severe("完整的退貨數據: " + returnData.toString());

@@ -243,7 +243,7 @@
 </head>
 
 <body>
-     <div th:replace="~{body/header :: header}">
+    <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
             <main>
 
@@ -352,7 +352,7 @@
             </main>
         </div>
     </div>
-<div th:replace="~{body/footer :: footer}"></div>
+    <div th:replace="~{body/footer :: footer}"></div>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -452,6 +452,25 @@
                 }
             });
 
+            // 新增 - 會員驗證
+            $("#customerTel2").on('blur', async function () {
+                if (this.value.length === 6) {
+                    const tel = $('#customerTel1').val() + $('#customerTel2').val();
+                    try {
+                        const response = await axios.get(/*[[@{/customer/validate}]]*/ '/customer/validate', {
+                            params: { tel: tel }
+                        });
+                        if (!response.data.exists) {
+                            alert('此手機號碼尚未註冊會員，將導向會員註冊頁面');
+                            window.location.href = /*[[@{/customer/cusAddForm}]]*/ '/customer/cusAddForm';
+                        }
+                    } catch (error) {
+                        console.error('驗證會員失敗:', error);
+                        alert('驗證會員失敗，請稍後再試');
+                    }
+                }
+            });
+
             // 計算小計
             function calculateSubtotal() {
                 var quantity = $("#quantity").val();
@@ -534,11 +553,28 @@
             }
 
             // 表單提交事件
-            $('#checkoutForm').submit(function (e) {
+            $('#checkoutForm').submit(async function (e) {
                 e.preventDefault();
 
                 if (!validateForm()) {
                     return;
+                }
+
+                const tel = $('#customerTel1').val() + $('#customerTel2').val();
+                if (tel) {
+                    try {
+                        const response = await axios.get(/*[[@{/customer/validate}]]*/ '/customer/validate', {
+                            params: { tel: tel }
+                        });
+                        if (!response.data.exists) {
+                            alert('請先完成會員註冊');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('驗證會員失敗:', error);
+                        alert('驗證會員失敗，請稍後再試');
+                        return;
+                    }
                 }
 
                 var products = [];
@@ -547,8 +583,7 @@
                     products.push({
                         productId: $product.data('product-id'),
                         quantity: parseInt($product.find('.quantity').text()),
-                        price: parseFloat($product.find('.price').text()),
-                        subtotal: parseFloat($product.find('.subtotal').text())
+                        price: parseFloat($product.find('.price').text())
                     });
                 });
 
@@ -559,40 +594,30 @@
 
                 var formData = {
                     checkoutId: $('#checkoutId').val(),
-                    customerTel: $('#customerTel1').val() + $('#customerTel2').val(),
+                    invoiceNumber: $('#invoiceNumber').val(),
+                    customerTel: tel,
                     employeeId: $('#employeeId').val(),
-                    totalAmount: parseFloat($('#totalAmount').val()),
+                    checkoutTotalPrice: parseFloat($('#totalAmount').val()),
                     checkoutDate: $('#checkoutDate').val(),
                     bonusPoints: parseInt($('#bonusPoints').val()),
                     pointsDueDate: $('#pointsDueDate').val(),
-                    details: products.map(function (product) {
-                        return {
-                            productId: product.productId,
-                            quantity: product.quantity,
-                            price: product.price
-                        };
-                    })
+                    details: products
                 };
 
-                axios.post(/*[[@{/checkout/add}]]*/ '/checkout/add', formData, {
-                    headers: {
-                        'Content-Type': 'application/json'
+                try {
+                    const response = await axios.post(/*[[@{/checkout/add}]]*/ '/checkout/add', formData);
+                    if (response.data.status === 'success') {
+                        alert('結帳成功');
+                        window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
+                    } else {
+                        alert(response.data.message || '結帳失敗');
                     }
-                })
-                    .then(function (response) {
-                        if (response.data.status === 'success') {
-                            alert('結帳記錄新增成功');
-                            window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
-                        } else {
-                            alert('結帳記錄新增失敗: ' + response.data.message);
-                        }
-                    })
-                    .catch(function (error) {
-                        console.error('AJAX error:', error);
-                        alert('發生錯誤，請稍後再試');
-                    });
+                } catch (error) {
+                    console.error('結帳失敗:', error);
+                    alert('系統錯誤，請稍後再試');
+                }
             });
-        });
+       
 
         function validateForm() {
             var errorMessages = [];
@@ -618,6 +643,7 @@
         document.getElementById('back').addEventListener('click', function () {
             window.location.href = /*[[@{/checkout/checkoutMain}]]*/ '/checkout/checkoutMain';
         });
+    });
     </script>
 </body>
 

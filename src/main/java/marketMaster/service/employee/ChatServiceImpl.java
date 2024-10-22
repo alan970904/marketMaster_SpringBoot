@@ -25,11 +25,14 @@ public class ChatServiceImpl implements ChateService {
 	@Override
     @Transactional
     public List<ChatMessage> getRecentMessages(String user1, String user2, int limit) {
-        List<ChatMessage> messages = chatMessageRepository.findConversation(user1, user2, PageRequest.of(0, limit));
-        messages.forEach(message -> {
+		// 使用 repository 方法獲取兩個用戶之間的最近消息
+		List<ChatMessage> messages = chatMessageRepository.findConversation(user1, user2, PageRequest.of(0, limit));
+        
+		messages.forEach(message -> {
             Hibernate.initialize(message.getFromEmployee());
             Hibernate.initialize(message.getToEmployee());
         });
+		
         return messages;
     }
 }

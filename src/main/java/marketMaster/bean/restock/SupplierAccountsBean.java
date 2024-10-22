@@ -45,7 +45,6 @@ public class SupplierAccountsBean {
     public String toString() {
         return "SupplierAccountsBean{" +
                 "accountId='" + accountId + '\'' +
-                // 避免递归调用
                 // ", supplier=" + supplier +
                 ", totalAmount=" + totalAmount +
                 ", paidAmount=" + paidAmount +
