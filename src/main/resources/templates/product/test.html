@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org/">
+<!-- <html xmlns:th="http://www.thymeleaf.org/"> -->
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">    
     <title>商品資料</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -10,9 +10,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/40ce2136c3.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/40ce2136c3.js"></script>
     <style>
-        img {
+        .card-img-top {
             max-height: 100%;
             width: auto;
         }
@@ -34,52 +34,28 @@
 </head>
 
 <body>
-    <div th:replace="~{body/navbarMM :: navbarMM(content=~{::content})}">
+    <!-- <div th:replace="~{bodyheader :: header}"> -->
         <div th:fragment="content">
             <main>
                 <div class="container">
-                    <button type="button" class="btn btn-primary" id="submit">完成盤點</button>
-                    <input type="hidden" th:value="${session.employee.employeeId}" id="employeeId"> 
-                    <div class="row">
-                        <th:block th:each=" product: ${products}">
-                            <div class="card col-3 m-3" style="width: 18rem;">
-                                <th:block
-                                    th:switch="${product.productPhoto != null && product.productPhoto.length > 0}">
-                                    <div class="h262 position-relative ">
-                                        <img th:case="${true}"
-                                            th:src="@{/product/downloadProductPhoto(productId=${product.productId})}"
-                                            class="card-img-top">
-                                        <i th:case="${false}"
-                                            class="fa-solid fa-file-image position-absolute top-50 start-50 translate-middle"></i>
-                                    </div>
-                                </th:block>
+                    <div class="d-flex my-3">
+                        <button type="button" class="btn btn-primary mx-3" id="submit">完成盤點</button>
 
-                                <div class="card-body text-center">
-                                    <!-- <input type="hidden" class="productId" th:value="${product.productId}"> -->
-                                    <h5 class="card-title m-auto" th:text="${product.productName}"></h5>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item ">
-                                        當前庫存量: <span th:text="${product.numberOfInventory}"
-                                            class="numberOfInventory"></span>個
-                                    </li>
-                                    <li class="list-group-item">
-                                        <div class="input-group">
-                                            <span class="input-group-text">本次盤點量:</span>
-                                            <input type="number" class="form-control actualInventory" min="0">
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item">庫存狀況
-                                        <span class="stockStatus"></span>
-                                    </li>
-                                </ul>
-                                <div class="card-body">
-                                    <input type="text" class="remark">
-                                </div>
-                            </div>
-                        </th:block>
+                        <select class="form-select w-auto" name="" id="productCategory">
+                            <option value="" selected>請選擇要盤點的商品類別</option>
+                            <!-- 商品種類搜尋 -->
+                        </select>
                     </div>
 
+                    <!-- <input type="hidden" th:value="${session.employee.employeeId}" id="employeeId">  -->
+                    <div class="row invectoryCheck-row">
+
+                    </div>
+
+                    <div id="page">
+                        <ul class="pagination" id="pageUl">
+                        </ul>
+                    </div>
 
 
                 </div>
@@ -87,107 +63,208 @@
             </main>
         </div>
     </div>
+    <!-- <div th:replace="~{body/footer :: footer}"></div> -->
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
-        const actualInventory = document.querySelectorAll('.actualInventory ')
+        document.addEventListener('DOMContentLoaded', init);
 
-        const detailsList = [];
-
-        // const employeeId = document.getElementById('employeeId').value
-
-        const inventoryCheckInsertDTO = {
-            employeeId:'E001',
-            details: detailsList
+        function init() {
+            fetchProductsAndRender();
+            getProductCategory();
         }
 
-
-
-        document.getElementById('submit').addEventListener('click', function () {
-            for (let i = 0; i < actualInventory.length; i++) {
-                const actualInventoryValue = document.getElementsByClassName('actualInventory')[i].value
-                const productId = document.getElementsByClassName('productId')[i].value
-                const numberOfInventory = document.getElementsByClassName('numberOfInventory')[i].innerHTML
-                const remark = document.getElementsByClassName('remark')[i].value
-
-                const detail = {
-                    productId: productId,
-                    currentInventory: numberOfInventory,
-                    actualInventory: actualInventoryValue,
-                    remark: remark
-                }
-
-                detailsList.push(detail)
-
-            }
-            console.log(inventoryCheckInsertDTO)
-            axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO)
+        // 抓取商品分類 並 塞入下拉式選單
+        function getProductCategory() {
+            axios.post('http://localhost:8080/marketMaster/product/findProductCategory')
                 .then(res => {
-                    console.log('新增成功')
+                    categoryMaker(res.data)
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        }
+        // 塞入下拉式選單
+        function categoryMaker(data) {
+            const select = document.getElementById('productCategory')
+            data.forEach(element => {
+                const option = document.createElement('option')
+                option.value = element.productCategory
+                option.textContent = element.productCategory
+                document.getElementById('productCategory').appendChild(option)
+                select.appendChild(option)
+            });
+
+        }
+
+        //利用下拉式選單抓取商品資料
+        const select = document.getElementById('productCategory');
+        select.addEventListener('change', function () {
+
+            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getProductByCategory/json', {
+                productCategory: this.value,
+                pageSize: 10,
+                pageNumber: 1
+            })
+                .then(res => {
+                    const productsHTML = htmlMaker(res.data.content);
+                    document.querySelector('.invectoryCheck-row').innerHTML = productsHTML;
+                    pageMaker(res.data);
+                    setupRemarkListeners();
+                    submitListener();
                 })
                 .catch(err => {
                     console.error(err);
                 })
         })
-        for (let i = 0; i < actualInventory.length; i++) {
 
-            actualInventory[i].addEventListener('blur', function () {
-                const actualInventoryValue = document.getElementsByClassName('actualInventory')[i].value
-                const numberOfInventoryStr = document.getElementsByClassName('numberOfInventory')[i].innerHTML
-                const numberOfInventory = parseInt(numberOfInventoryStr)
-                const stockStatus = document.getElementsByClassName('stockStatus')[i]
-                const remark = document.getElementsByClassName('remark')[i]
+        // Global variables
+        let detailsList = [];
+        const inventoryCheckInsertDTO = {
+            employeeId: 'E001',
+            details: detailsList
+        };
 
 
-                if (actualInventoryValue == numberOfInventory) {
-                    stockStatus.innerHTML = '數量無誤'
-                    remark.readOnly = true
-                    remark.value = '無誤'
-                } else {
-                    remark.readOnly = false
-                    remark.value = ''
-                    stockStatus.innerHTML = '數量有誤'
-                    remark.focus();
+
+        function submitListener() {
+            document.getElementById('submit').addEventListener('click', function () {
+                detailsList = []; // 在添加新項目前清空列表
+                const actualInventoryInputs = document.querySelectorAll('.actualInventory');
+
+                let hasEmptyInput = false;
+                let emptyInputProductName = '';
+
+                actualInventoryInputs.forEach((input, index) => {
+                    if (input.value.trim() === '') {
+                        hasEmptyInput = true;
+                        emptyInputProductName = input.closest('.card').querySelector('.card-title').textContent;
+                        return; // 退出 forEach 循環
+                    }
+
+                    const detail = {
+                        productId: document.getElementsByClassName('productId')[index].value,
+                        currentInventory: document.getElementsByClassName('numberOfInventory')[index].textContent,
+                        actualInventory: input.value,
+                        remark: document.getElementsByClassName('remark')[index].value
+                    };
+                    detailsList.push(detail);
+                });
+
+                if (hasEmptyInput) {
+                    alert(`請輸入所有商品的盤點數量。商品 "${emptyInputProductName}" 的盤點數量為空。`);
+                    return; // 停止執行並退出函數
                 }
 
+                inventoryCheckInsertDTO.details = detailsList;
+                console.log(inventoryCheckInsertDTO);
 
-            })
+                axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO)
+                    .then(res => {
+                        console.log('新增成功');
+                        alert('庫存盤點成功提交！');
+                    })
+                    .catch(err => {
+                        console.error('添加庫存檢查時出錯:', err);
+                        alert('提交失敗，請稍後再試。');
+                    });
+            });
         }
 
-        // //生成分頁按鈕
-        // function pageMaker(data) {
-        //     const ul = document.getElementById("pageUl")
-        //     ul.innerHTML = "";  // 清空之前的分頁按鈕
 
-        //     for (let i = 1; i <= data.totalPages; i++) {  // 根據回傳的總頁數來生成按鈕
-        //         const li = document.createElement("li");
-        //         const btn = document.createElement("button");
-        //         btn.className = "page-link"
-        //         btn.textContent = i;
-        //         btn.addEventListener('click', function () {
-        //             const productName = document.getElementById('inputName').value
-        //             axios.post(findByPageUrl, {
-        //                 productName: productName,
-        //                 pageNumber: i
-        //             })  // 傳遞 productName 和頁碼
-        //                 .then(res => {
 
-        //                 })
-        //                 .catch(err => {
-        //                     console.error(err);
-        //                 });
-        //         });
-        //         li.appendChild(btn);
-        //         ul.appendChild(li);
-        //     }
-        // }
+        function setupRemarkListeners() {
+            const actualInventoryInputs = document.querySelectorAll('.actualInventory');
+            actualInventoryInputs.forEach((input, index) => {
+                input.addEventListener('blur', function () {
+                    const actualInventoryValue = parseInt(this.value);
+                    const numberOfInventory = parseInt(document.getElementsByClassName('numberOfInventory')[index].textContent);
+                    const stockStatus = document.getElementsByClassName('stockStatus')[index];
+                    const remark = document.getElementsByClassName('remark')[index];
 
-        // function htmlMaker(data) {
-        //     const row = document.getElementsByClassName('row')
+                    if (actualInventoryValue === numberOfInventory) {
+                        stockStatus.textContent = '數量無誤';
+                        remark.readOnly = true;
+                        remark.value = '無誤';
+                    } else {
+                        stockStatus.textContent = '數量有誤';
+                        remark.readOnly = false;
+                        remark.value = '';
+                        remark.focus();
+                    }
+                });
+            });
+        }
 
-        // }
+        function htmlMaker(products) {
+            const baseUrl = '/marketMaster'; // Update this if needed
+            return products.map(product => `
+        <div class="card col-3 m-3" style="width: 18rem;">
+            <div class="h262 position-relative ">
+                ${product.productPhoto && product.productPhoto.length > 0
+                    ? `<img src="${baseUrl}/product/downloadProductPhoto?productId=${product.productId}" class="card-img-top">`
+                    : `<i class="fa-solid fa-file-image position-absolute top-50 start-50 translate-middle"></i>`
+                }
+            </div>
+            <div class="card-body text-center">
+                <input type="hidden" class="productId" value="${product.productId}">
+                <h5 class="card-title m-auto">${product.productName}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item ">
+                    當前庫存量: <span class="numberOfInventory">${product.numberOfInventory}</span>個
+                </li>
+                <li class="list-group-item">
+                    <div class="input-group">
+                        <span class="input-group-text">本次盤點量:</span>
+                        <input type="number" class="form-control actualInventory required invectoryCheck" min="0">
+                    </div>
+                </li>
+                <li class="list-group-item">庫存狀況
+                    <span class="stockStatus"></span>
+                </li>
+            </ul>
+            <div class="card-body">
+                <input type="text" required class="remark">
+            </div>
+        </div>
+    `).join('');
+        }
 
+        function fetchProductsAndRender(pageNumber = 1) {
+            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getAllProduct/json', {
+                pageSize: 10,
+                pageNumber: pageNumber
+            })
+                .then(response => {
+                    console.log(response);
+                    const productsHTML = htmlMaker(response.data.content);
+                    document.querySelector('.invectoryCheck-row').innerHTML = productsHTML;
+                    pageMaker(response.data);
+                    setupRemarkListeners();
+                    submitListener();
+                })
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                });
+        }
+
+        function pageMaker(data) {
+            const ul = document.getElementById("pageUl");
+            ul.innerHTML = ''; // Clear existing pagination
+
+            for (let i = 1; i <= data.totalPages; i++) {
+                const li = document.createElement("li");
+                li.className = "page-item";
+                const btn = document.createElement("button");
+                btn.className = "page-link";
+                btn.textContent = i;
+                btn.addEventListener('click', () => fetchProductsAndRender(i));
+                li.appendChild(btn);
+                ul.appendChild(li);
+            }
+        }
     </script>
 
 </body>
