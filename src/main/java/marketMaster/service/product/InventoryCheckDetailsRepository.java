@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import marketMaster.DTO.product.ICDDiffInventoryDTO;
 import marketMaster.bean.product.InventoryCheckDetailsBean;
 
 @Repository
@@ -16,4 +17,8 @@ public interface InventoryCheckDetailsRepository extends JpaRepository<Inventory
 	
 	@Query("SELECT MAX(icd.detailId) FROM InventoryCheckDetailsBean icd")
 	String findMaxId();
+	
+	@Query("SELECT DISTINCT icd.differentialInventory FROM InventoryCheckDetailsBean icd WHERE icd.inventoryCheck.inventoryCheckId= :inventoryCheckId")
+	List<Integer> findDifferentialInventoryByCheckId(@Param("inventoryCheckId") String inventoryCheckId);
+	
 }

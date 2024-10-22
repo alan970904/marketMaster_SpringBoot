@@ -69,6 +69,12 @@ public class ProductService {
 		return products;
 	}
 
+	public Page<ProductBean> findProductByCategory(String productCategory, Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
+		Page<ProductBean> products = productRepo.findByProductCategory(productCategory, pgb);
+		return products;
+	}
+
 	public Page<ProductBean> findProductAvailable(boolean isAvailable, Integer pageNumber, Integer pageSize) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
 		Page<ProductBean> products = productRepo.findByProductAvailable(isAvailable, pgb);
@@ -192,14 +198,16 @@ public class ProductService {
 		}
 
 	}
+
 	@Transactional
-	public void updateProductByDeleteRestock(String productId,Integer oldNumberOfRestock) {
+	public void updateProductByDeleteRestock(String productId, Integer oldNumberOfRestock) {
 		Optional<ProductBean> optional = productRepo.findById(productId);
 		if (optional.isPresent()) {
 			ProductBean product = optional.get();
-			product.setNumberOfInventory(product.getNumberOfInventory()-oldNumberOfRestock);
+			product.setNumberOfInventory(product.getNumberOfInventory() - oldNumberOfRestock);
 		}
 	}
+
 	public ProductIdRestockNumDTO findProductIdByRestockDetailId(String restockDetailId) {
 		return productRepo.findProductIdByRestockDetailId(restockDetailId);
 	}
@@ -211,4 +219,37 @@ public class ProductService {
 //	public ProductIdRestockNumDTO findProductIdByRestockDetailId(String detailId) {
 //		return productRepo.findProductIdByRestockDetailId(detailId);
 //	}
+
+	// 盤點數量更新
+
+	@Transactional
+	public void updateProductByInsertCheck(String productId, Integer actualInventory) {
+
+		Optional<ProductBean> optional = productRepo.findById(productId);
+
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			product.setNumberOfInventory(actualInventory);
+		}
+	}
+
+	@Transactional
+	public void updateProductByUpdateCheck(String productId, Integer actualInventory) {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			product.setNumberOfInventory(actualInventory);
+		}
+	}
+
+	@Transactional
+	public void updateProductByDeleteCheck(String productId, Integer currentInventory) {
+		Optional<ProductBean> optional = productRepo.findById(productId);
+
+		if (optional.isPresent()) {
+			ProductBean product = optional.get();
+			product.setNumberOfInventory(currentInventory);
+		}
+	}
 }
