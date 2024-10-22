@@ -19,7 +19,7 @@
           <!-- 登出按鈕，始終顯示在右側 -->
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" th:href="@{/employee/changePasswordPage}"><i
+              <a class="nav-link" th:href="@{/front/changePasswordPage}"><i
                   class="fa-regular fa-circle-question"></i>
               </a>
             </li>
@@ -39,11 +39,11 @@
               </ul>
             </li>
             <li class="nav-item">
-              <a class="nav-link" th:href="@{/employee/details(employeeId=${session.employee.employeeId})}"><i
+              <a class="nav-link" th:href="@{/employee/front/details(employeeId=${session.employee.employeeId})}"><i
                   class="fa-solid fa-user-tie"></i> </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" th:href="@{/employee/logout}"><i class="fas fa-sign-out-alt"></i> </a>
+              <a class="nav-link" th:href="@{/front/logout}"><i class="fas fa-sign-out-alt"></i> </a>
             </li>
           </ul>
         </div>
@@ -64,9 +64,11 @@
                 <i class="fa-solid fa-users-gear"></i> 員工管理
               </a>
               <ul class="collapse list-unstyled submenu" id="memberSubmenu">
+                <!-- 
                 <li>
                   <a th:href="@{/employee/empList}" class="sidebar-link"> 員工列表</a>
                 </li>
+                 -->
                 <li>
                   <a th:href="@{/askForLeave/search(id=${session.employee.employeeId})}" class="sidebar-link"> 請假</a>
                 </li>
