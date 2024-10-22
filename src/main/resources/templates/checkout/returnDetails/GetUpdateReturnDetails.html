@@ -20,38 +20,71 @@
 <body>
 <div th:replace="~{body/header :: header}">
     <div th:fragment="content">
-        <main role="main">
-            <div class="container mt-5">
+        <div class="container mt-5" role="main">
                 <h1 class="mb-4">修改退貨明細</h1>
-                <form id="updateForm">
-                    <input type="hidden" id="returnId" th:value="${returnDetail.returnId}">
-                    <input type="hidden" id="checkoutId" th:value="${returnDetail.originalCheckoutId}">
-                    <input type="hidden" id="productId" th:value="${returnDetail.productId}">
-                    
-                    <div class="mb-3">
-                        <label for="returnQuantity" class="form-label">退貨數量:</label>
-                        <input type="number" class="form-control" id="returnQuantity" th:value="${returnDetail.returnQuantity}" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="returnAmount" class="form-label">退貨金額:</label>
-                        <input type="number" class="form-control" id="returnAmount" th:value="${returnDetail.returnAmount}" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="returnStatus" class="form-label">退貨狀態:</label>
-                        <select class="form-select" id="returnStatus" required>
-                            <option value="處理中" th:selected="${returnDetail.returnStatus == '處理中'}">處理中</option>
-                            <option value="已完成" th:selected="${returnDetail.returnStatus == '已完成'}">已完成</option>
-                            <option value="已取消" th:selected="${returnDetail.returnStatus == '已取消'}">已取消</option>
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">提交</button>
-                    <a th:href="@{/returnProduct/returnDetails/list}" class="btn btn-secondary">返回</a>
-                </form>
+                
+                <div class="card">
+                <div class="card-body">
+                <form id="updateDetailForm" enctype="multipart/form-data">
+   <div class="mb-3">
+       <label for="returnId">退貨編號:</label>
+       <input type="text" class="form-control" th:value="${returnDetail.returnId}" readonly>
+       <input type="hidden" id="returnId" name="returnId" th:value="${returnDetail.returnId}">
+   </div>
+
+   <div class="mb-3"> 
+       <label for="originalCheckoutId">結帳編號:</label>
+       <input type="text" class="form-control" th:value="${returnDetail.originalCheckoutId}" readonly>
+       <input type="hidden" id="originalCheckoutId" name="originalCheckoutId" th:value="${returnDetail.originalCheckoutId}">
+   </div>
+
+   <div class="mb-3">
+       <label for="productId">商品編號:</label> 
+       <input type="text" class="form-control" th:value="${returnDetail.productId}" readonly>
+       <input type="hidden" id="productId" name="productId" th:value="${returnDetail.productId}">
+   </div>
+
+   <div class="mb-3">
+       <label for="returnReason">退貨原因:</label>
+       <input type="text" id="returnReason" name="returnReason" class="form-control" th:value="${returnDetail.reasonForReturn}">
+   </div>
+
+   <div class="mb-3">
+       <label for="numberOfReturn">退貨數量:</label>
+       <input type="number" id="numberOfReturn" name="numberOfReturn" class="form-control" th:value="${returnDetail.numberOfReturn}">
+   </div>
+
+   <div class="mb-3">
+       <label for="productPrice">商品價格:</label>
+       <input type="text" id="productPrice" name="productPrice" class="form-control" th:value="${returnDetail.productPrice}" readonly>
+   </div>
+
+   <div class="mb-3">
+       <label for="returnPrice">退貨小計:</label>
+       <input type="text" id="returnPrice" name="returnPrice" class="form-control" th:value="${returnDetail.returnPrice}" readonly>
+   </div>
+
+   <div class="mb-3">
+       <label for="returnStatus">退貨商品狀態:</label>
+       <select id="returnStatus" name="returnStatus" class="form-control">
+           <option value="顧客因素" th:selected="${returnDetail.returnStatus == '顧客因素'}">顧客因素</option>
+           <option value="商品外觀損傷" th:selected="${returnDetail.returnStatus == '商品外觀損傷'}">商品外觀損傷</option>
+           <option value="商品品質異常" th:selected="${returnDetail.returnStatus == '商品品質異常'}">商品品質異常</option>
+       </select>
+   </div>
+
+   <div class="mb-3">
+       <label for="returnPhoto">退貨商品照片:</label>
+       <input type="file" id="returnPhoto" name="returnPhoto" class="form-control" accept="image/*">
+       <img id="photoPreview" th:if="${returnDetail.returnPhoto}" th:src="@{'/uploads/' + ${returnDetail.returnPhoto}}" class="mt-2" style="max-width: 200px">
+   </div>
+
+   <button type="submit" class="btn btn-primary">更新</button>
+   <a th:href="@{/returnProduct/returnDetails/list}" class="btn btn-secondary">返回</a>
+</form>
             </div>
-        </main>
+            </div>
+            </div>
     </div>
 </div>
 <div th:replace="~{body/footer :: footer}"></div>
@@ -62,31 +95,66 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script th:inline="javascript">
-document.getElementById('updateForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const returnId = document.getElementById('returnId').value;
-    const checkoutId = document.getElementById('checkoutId').value;
-    const productId = document.getElementById('productId').value;
-    const returnQuantity = document.getElementById('returnQuantity').value;
-    const returnAmount = document.getElementById('returnAmount').value;
-    const returnStatus = document.getElementById('returnStatus').value;
-    
-    axios.post('/returnProduct/returnDetails/update', {
-        returnId: returnId,
-        checkoutId: checkoutId,
-        productId: productId,
-        returnQuantity: returnQuantity,
-        returnAmount: returnAmount,
-        returnStatus: returnStatus
-    })
-    .then(function (response) {
-        alert('更新成功');
-        window.location.href = '/returnProduct/returnDetails/list';
-    })
-    .catch(function (error) {
-        alert('更新失敗: ' + error.response.data.message);
-    });
+$(document).ready(function() {
+   // 即時計算小計
+   $('#numberOfReturn').on('input', function() {
+       var quantity = parseInt($(this).val()) || 0;
+       var price = parseInt($('#productPrice').val()) || 0;
+       $('#returnPrice').val(quantity * price);
+   });
+
+   // 即時預覽照片
+   $('#returnPhoto').on('change', function(e) {
+       if(this.files && this.files[0]) {
+           var reader = new FileReader();
+           reader.onload = function(e) {
+               $('#photoPreview').attr('src', e.target.result);
+           }
+           reader.readAsDataURL(this.files[0]);
+       }
+   });
+
+   // 表單提交
+   $('#updateDetailForm').on('submit', function(e) {
+       e.preventDefault();
+       
+       var formData = new FormData();
+       var returnDetailData = {
+           returnId: $('#returnId').val(),
+           originalCheckoutId: $('#originalCheckoutId').val(),
+           productId: $('#productId').val(),
+           reasonForReturn: $('#returnReason').val(),
+           numberOfReturn: $('#numberOfReturn').val(),
+           returnPrice: $('#returnPrice').val(),
+           returnStatus: $('#returnStatus').val()
+       };
+       
+       formData.append('returnDetail', JSON.stringify(returnDetailData));
+       
+       if($('#returnPhoto')[0].files[0]) {
+           formData.append('file', $('#returnPhoto')[0].files[0]);
+       }
+       
+       $.ajax({
+           url: [[@{/returnProduct/returnDetails/update}]],
+           type: 'POST',
+           data: formData,
+           processData: false,
+           contentType: false,
+           success: function(response) {
+               if(response.status === 'success') {
+                   alert('更新成功');
+                   window.location.href = [[@{/returnProduct/returnDetails/list}]];
+               } else {
+                   alert('更新失敗: ' + response.message);
+               }
+           },
+           error: function(xhr) {
+               console.error('Error:', xhr);
+               alert('更新失敗');
+           }
+       });
+   });
 });
 </script>
 

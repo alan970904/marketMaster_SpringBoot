@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import marketMaster.bean.checkout.ReturnDetailsBean;
 import marketMaster.exception.DataAccessException;
 import marketMaster.bean.checkout.ReturnDetailsBean.ReturnDetailsId;
+import marketMaster.bean.checkout.ReturnProductBean;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,9 @@ public class ReturnDetailsService {
     @Autowired
     private ReturnDetailsRepository returnDetailsRepository;
 
+    @Autowired
+    private ReturnProductRepository returnProductRepository;
+    
     // 獲取單一退貨明細
     public ReturnDetailsBean getReturnDetails(String returnId, String originalCheckoutId, String productId) throws DataAccessException {
         return returnDetailsRepository.findById(new ReturnDetailsBean.ReturnDetailsId(returnId, originalCheckoutId, productId))
@@ -39,8 +43,11 @@ public class ReturnDetailsService {
     }
 
     // 刪除退貨明細
+    @Transactional
     public void deleteReturnDetails(String returnId, String originalCheckoutId, String productId) throws DataAccessException {
         returnDetailsRepository.deleteById(new ReturnDetailsBean.ReturnDetailsId(returnId, originalCheckoutId, productId));
+        // 更新退貨總金額
+        updateReturnTotal(returnId);
     }
 
     // 根據產品ID搜索退貨明細
@@ -102,4 +109,15 @@ public class ReturnDetailsService {
     public Integer getProductReturnQuantityInDateRange(String productId, Date startDate, Date endDate) throws DataAccessException {
         return returnDetailsRepository.getProductReturnQuantityInDateRange(productId, startDate, endDate);
     }
+    
+    @Transactional
+    public void updateReturnTotal(String returnId) {
+        int total = calculateReturnTotal(returnId);
+        // 更新主表總金額
+        ReturnProductBean returnProduct = returnProductRepository.findById(returnId)
+                .orElseThrow(() -> new DataAccessException("退貨記錄不存在"));
+        returnProduct.setReturnTotalPrice(total);
+        returnProductRepository.save(returnProduct);
+    }
+    
 }

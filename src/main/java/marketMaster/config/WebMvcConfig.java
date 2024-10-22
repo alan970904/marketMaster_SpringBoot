@@ -1,5 +1,6 @@
 package marketMaster.config;
 
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -12,8 +13,9 @@ import marketMaster.interceptor.front.FrontLoginInterceptor;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-	private String uploadDir;
-	
+	@Setter
+    private String uploadDir;
+
 	@Autowired
 	private LoginInterceptor loginInterceptor;
 	
@@ -28,7 +30,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         .excludePathPatterns("/employee/login", "/employee/loginPage", 
         					"/employee/logout", "/employee/forgotPasswordPage", 
         					"/employee/forgotPassword", "/css/**", "/js/**", "/images/**", 
-        					"/uploads/**", "/supplier/supplier2");
+        					"/uploads/**", "/marketMaster/supplier/supplier", 
+        					"/marketMaster/supplier/ecpayReturn", "/supplier/ecpayReturn");
 	
 		registry.addInterceptor(frontLoginInterceptor)
 		.addPathPatterns("/front/**", "/mainPage")
@@ -40,10 +43,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");
-        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
-        registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
-        registry.addResourceHandler("/uploads/**").addResourceLocations("file:" + uploadDir + "/");
+		registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");
+		registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
+		registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
+		registry.addResourceHandler("/uploads/**").addResourceLocations("file:" + uploadDir + "/");
 
 	}
 	

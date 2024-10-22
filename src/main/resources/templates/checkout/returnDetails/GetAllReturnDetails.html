@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>所有退貨明細</title>
@@ -8,18 +9,22 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
-        .dataTables_length select { padding-right: 30px !important; background-position: right 0.5rem center !important; }
+        .dataTables_length select {
+            padding-right: 30px !important;
+            background-position: right 0.5rem center !important;
+        }
     </style>
 </head>
+
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
             <div role="main">
                 <div class="container mt-5">
                     <h1 class="mb-4">所有退貨明細</h1>
-                    
+
                     <table class="table table-striped table-bordered" id="returnDetailsTable">
                         <thead>
                             <tr>
@@ -41,9 +46,14 @@
                                 <td th:text="${detail.returnPrice}"></td>
                                 <td th:text="${detail.returnStatus}"></td>
                                 <td>
-                                    <a class="btn btn-info btn-sm" th:href="@{/returnProduct/returnDetails/details(returnId=${detail.returnId},originalCheckoutId=${detail.originalCheckoutId},productId=${detail.productId})}">詳情</a>
-                                    <button class="btn btn-warning btn-sm" onclick="showUpdateForm(this)" th:data-return-id="${detail.returnId}" th:data-checkout-id="${detail.originalCheckoutId}" th:data-product-id="${detail.productId}">修改</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteReturnDetail(this)" th:data-return-id="${detail.returnId}" th:data-checkout-id="${detail.originalCheckoutId}" th:data-product-id="${detail.productId}">刪除</button>
+                                    <a class="btn btn-info btn-sm"
+                                        th:href="@{/returnProduct/returnDetails/details(returnId=${detail.returnId},originalCheckoutId=${detail.originalCheckoutId},productId=${detail.productId})}">詳情</a>
+                                    <a class="btn btn-warning btn-sm"
+                                        th:href="@{/returnProduct/returnDetails/update(returnId=${detail.returnId},originalCheckoutId=${detail.originalCheckoutId},productId=${detail.productId})}">修改</a>
+                                    <button class="btn btn-danger btn-sm delete-btn"
+                                        th:data-return-id="${detail.returnId}"
+                                        th:data-checkout-id="${detail.originalCheckoutId}"
+                                        th:data-product-id="${detail.productId}">刪除</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -56,54 +66,58 @@
             </div>
         </div>
     </div>
-	<div th:replace="~{body/footer :: footer}"></div>
+    <div th:replace="~{body/footer :: footer}"></div>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script th:inline="javascript">
-    $(document).ready(function() {
-        var table = $('#returnDetailsTable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese-traditional.json"
+        $(document).ready(function () {
+            var table = $('#returnDetailsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese-traditional.json"
+                }
+            });
+            function showUpdateForm(button) {
+                var returnId = button.getAttribute('data-return-id');
+                var checkoutId = button.getAttribute('data-checkout-id');
+                var productId = button.getAttribute('data-product-id');
+                window.location.href = `/returnProduct/returnDetails/update?returnId=${returnId}&checkoutId=${checkoutId}&productId=${productId}`;
             }
-        });
-        function showUpdateForm(button) {
-            var returnId = button.getAttribute('data-return-id');
-            var checkoutId = button.getAttribute('data-checkout-id');
-            var productId = button.getAttribute('data-product-id');
-            window.location.href = `/returnProduct/returnDetails/update?returnId=${returnId}&checkoutId=${checkoutId}&productId=${productId}`;
-        }
 
-        function deleteReturnDetail(button) {
-            var returnId = button.getAttribute('data-return-id');
-            var checkoutId = button.getAttribute('data-checkout-id');
-            var productId = button.getAttribute('data-product-id');
-            if (confirm('確定要刪除此退貨明細嗎？')) {
-                fetch('/returnProduct/returnDetails/delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ returnId: returnId, checkoutId: checkoutId, productId: productId }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('退貨明細已成功刪除');
-                        location.reload();
-                    } else {
-                        alert('刪除退貨明細失敗: ' + data.message);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    alert('刪除退貨明細時發生錯誤');
-                });
-            }
-        }
+            $('.delete-btn').on('click', function () {
+                const returnId = $(this).data('return-id');
+                const checkoutId = $(this).data('checkout-id');
+                const productId = $(this).data('product-id');
+
+                if (confirm('確定要刪除此退貨明細嗎？')) {
+                    $.ajax({
+                        url: '/marketMaster/returnProduct/returnDetails/delete',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            returnId: returnId,
+                            originalCheckoutId: checkoutId,
+                            productId: productId
+                        }),
+                        success: function (response) {
+                            if (response && response.status === 'success') {
+                                alert('刪除成功');
+                                location.reload();
+                            } else {
+                                alert(response.message || '刪除失敗');
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error('Error:', xhr);
+                            alert('刪除失敗，請稍後再試');
+                        }
+                    });
+                }
+            });
         });
     </script>
 </body>
+
 </html>

@@ -1,20 +1,30 @@
 package marketMaster.controller.checkout;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import marketMaster.bean.checkout.ReturnDetailsBean;
 import marketMaster.service.checkout.ReturnDetailsService;
 import marketMaster.exception.DataAccessException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @Controller
@@ -25,6 +35,9 @@ public class ReturnDetailsController {
 
     @Autowired
     private ReturnDetailsService returnDetailsService;
+    
+    @Value("${upload.path}")
+    private String uploadPath;
 
     @GetMapping("/list")
     public String getAllReturnDetails(Model model) {
@@ -82,28 +95,69 @@ public class ReturnDetailsController {
     }
 
     @GetMapping("/update")
-    public String showUpdateForm(@RequestParam String returnId, @RequestParam String originalCheckoutId, @RequestParam String productId, Model model) {
+    public String showUpdateForm(@RequestParam String returnId, @RequestParam String originalCheckoutId, 
+            @RequestParam String productId, Model model) {
         try {
-            model.addAttribute("returnDetails", returnDetailsService.getReturnDetails(returnId, originalCheckoutId, productId));
+            ReturnDetailsBean returnDetail = returnDetailsService.getReturnDetails(returnId, originalCheckoutId, productId);
+            model.addAttribute("returnDetail", returnDetail);
+            // 增加額外的商品和發票資訊
+            model.addAttribute("product", returnDetail.getCheckoutDetail().getProduct());
+            model.addAttribute("invoice", returnDetail.getReturnProduct().getOriginalInvoiceNumber());
             return "checkout/returnDetails/GetUpdateReturnDetails";
         } catch (DataAccessException e) {
-            logger.severe("獲取更新退貨明細表單失敗: " + e.getMessage());
-            model.addAttribute("error", "獲取更新退貨明細表單失敗，請稍後再試");
+            model.addAttribute("error", "獲取更新退貨明細表單失敗");
             return "error";
         }
     }
 
     @PostMapping("/update")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> updateReturnDetails(@RequestBody ReturnDetailsBean returnDetails) {
+    public ResponseEntity<Map<String, String>> updateReturnDetails(
+            @RequestPart("returnDetail") String returnDetailJson,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
-            returnDetailsService.saveReturnDetails(returnDetails);
+            ObjectMapper mapper = new ObjectMapper();
+            ReturnDetailsBean returnDetail = mapper.readValue(returnDetailJson, ReturnDetailsBean.class);
+            ReturnDetailsBean existingDetail = returnDetailsService.getReturnDetails(
+                returnDetail.getReturnId(), 
+                returnDetail.getOriginalCheckoutId(), 
+                returnDetail.getProductId()
+            );
+            
+            // 更新需要修改的欄位
+            existingDetail.setReasonForReturn(returnDetail.getReasonForReturn());
+            existingDetail.setNumberOfReturn(returnDetail.getNumberOfReturn());
+            existingDetail.setReturnStatus(returnDetail.getReturnStatus());
+            
+            // 處理照片上傳
+            if (file != null && !file.isEmpty()) {
+                String fileName = saveFile(file);
+                existingDetail.setReturnPhoto(fileName);
+            }
+            
+            // 更新小計
+            existingDetail.setReturnPrice(existingDetail.getNumberOfReturn() * existingDetail.getProductPrice());
+            
+            returnDetailsService.saveReturnDetails(existingDetail);
+            returnDetailsService.updateReturnTotal(existingDetail.getReturnId());
+            
             return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
-        } catch (DataAccessException e) {
-            logger.severe("更新退貨明細失敗: " + e.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "error", "message", "更新失敗: " + e.getMessage()));
+                    .body(Map.of("status", "error", "message", e.getMessage()));
         }
+    }
+    
+    // 新增檔案儲存方法
+    private String saveFile(MultipartFile file) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        String extension = originalFilename != null && originalFilename.contains(".") 
+            ? originalFilename.substring(originalFilename.lastIndexOf("."))
+            : "";
+        String fileName = UUID.randomUUID().toString() + extension;
+        Path filePath = Paths.get(uploadPath, fileName);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        return fileName;
     }
 
     @PostMapping("/delete")
@@ -113,12 +167,18 @@ public class ReturnDetailsController {
             String returnId = request.get("returnId");
             String originalCheckoutId = request.get("originalCheckoutId");
             String productId = request.get("productId");
+            
+            if(returnId == null || originalCheckoutId == null || productId == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error", "message", "缺少必要參數"));
+            }
+            
             returnDetailsService.deleteReturnDetails(returnId, originalCheckoutId, productId);
-            return ResponseEntity.ok(Map.of("status", "success", "message", "退貨明細已成功刪除"));
+            return ResponseEntity.ok(Map.of("status", "success", "message", "刪除成功"));
         } catch (DataAccessException e) {
             logger.severe("刪除退貨明細失敗: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "error", "message", "刪除退貨明細失敗: " + e.getMessage()));
+                .body(Map.of("status", "error", "message", "刪除失敗"));
         }
     }
 
