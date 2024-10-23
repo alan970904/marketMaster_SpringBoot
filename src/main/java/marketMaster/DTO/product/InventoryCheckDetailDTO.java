@@ -5,6 +5,8 @@ public class InventoryCheckDetailDTO {
 	
 	private String productId;
 	
+	private String detailId;
+	
 	private Integer currentInventory;
 	
 	private Integer actualInventory;
@@ -53,6 +55,14 @@ public class InventoryCheckDetailDTO {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public String getDetailId() {
+		return detailId;
+	}
+
+	public void setDetailId(String detailId) {
+		this.detailId = detailId;
 	}
 
 	
