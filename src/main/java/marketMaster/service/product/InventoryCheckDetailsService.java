@@ -63,12 +63,18 @@ public class InventoryCheckDetailsService {
 		inventoryCheckDetailsRepo.deleteById(detailId);
 	}
 	
-//	public boolean findNewestDetailId(String productId) {
-//		
-//		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findFirstByProduct_ProductIdOrderByDetailIdDesc(productId);
-//		
-//		return null;
-//	}
+	
+	public boolean findNewestDetailId(String productId,String OutSideDetailId) {
+		boolean isNewest =false;
+		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findFirstByProduct_ProductIdOrderByDetailIdDesc(productId);
+		
+		InventoryCheckDetailsBean details = optional.orElse(null);
+		if (details.getDetailId() == OutSideDetailId) {
+			isNewest = true;
+		}
+		
+		return isNewest;
+	}
 	
 	//自動生成新的明細id
 	public String newDetailId() {

@@ -77,5 +77,13 @@ public class InventoryCheckDetailsController {
 	}
 	
 	
+	@PostMapping("/inventoryCheckDetails/isNewestDetail")
+	public ResponseEntity<Void> isNewestDetail(@RequestParam String productId,@RequestParam String detailId,Model m) {
+		boolean isNewest = inventoryCheckDetailsService.findNewestDetailId(productId, detailId);
+		
+		m.addAttribute("isNewest", isNewest);
+		return ResponseEntity.ok().build();
+	}
+	
 	
 }
