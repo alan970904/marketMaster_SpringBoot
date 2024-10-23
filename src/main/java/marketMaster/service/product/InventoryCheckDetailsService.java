@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import marketMaster.bean.product.InventoryCheckDetailsBean;
 
@@ -38,7 +39,38 @@ public class InventoryCheckDetailsService {
 		return null;
 	}
 	
+	public boolean findCheckStatus(String inventoryCheckId) {
+		List<Integer> differentialInventoryByCheckId = inventoryCheckDetailsRepo.findDifferentialInventoryByCheckId(inventoryCheckId);
+		System.out.println(differentialInventoryByCheckId);
+		boolean hasNonZero = differentialInventoryByCheckId.stream().anyMatch(n -> n != 0);
+		return hasNonZero;
+	}
 	
+	@Transactional
+	public void updateDetailById(String detailId,Integer actualInventory,String remark) {
+		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findById(detailId);
+		
+		if (optional.isPresent()) {
+			InventoryCheckDetailsBean detail = optional.get();
+			detail.setActualInventory(actualInventory);
+			detail.setDifferentialInventory(detail.getCurrentInventory()-actualInventory);
+			detail.setRemark(remark);
+		}
+	}
+	
+	
+	public void deleteDetailById(String detailId) {
+		inventoryCheckDetailsRepo.deleteById(detailId);
+	}
+	
+//	public boolean findNewestDetailId(String productId) {
+//		
+//		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findFirstByProduct_ProductIdOrderByDetailIdDesc(productId);
+//		
+//		return null;
+//	}
+	
+	//自動生成新的明細id
 	public String newDetailId() {
 
 		String maxId = inventoryCheckDetailsRepo.findMaxId();
