@@ -66,7 +66,6 @@ public class ChangePasswordController {
     }
 
     @PostMapping("/employee/forgotPassword")
-    @RequiresPermission(value = "forgotPassword", resource = "employee")
     public String processForgotPassword(@RequestParam String employeeId, @RequestParam String idCardLast4, Model model) {
         boolean isResetSuccessful  = employeeService.resetPasswordAndSendEmail(employeeId, idCardLast4);
         if (isResetSuccessful ) {
