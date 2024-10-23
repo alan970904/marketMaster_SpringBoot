@@ -4,12 +4,11 @@ public class ProductPageDTO {
 
 	private String productName;
 
-	private int pageNumber;
-
-	public ProductPageDTO(String productName, int pageNumber) {
-		this.productName = productName;
-		this.pageNumber = pageNumber;
-	}
+	private String productCategory;
+	
+	private Integer pageNumber;
+	
+	private Integer pageSize;
 
 	public String getProductName() {
 		return productName;
@@ -19,12 +18,45 @@ public class ProductPageDTO {
 		this.productName = productName;
 	}
 
-	public int getPageNumber() {
+	public String getProductCategory() {
+		return productCategory;
+	}
+
+	public void setProductCategory(String productCategory) {
+		this.productCategory = productCategory;
+	}
+
+	public Integer getPageNumber() {
 		return pageNumber;
 	}
 
-	public void setPageNumber(int pageNumber) {
+	public void setPageNumber(Integer pageNumber) {
 		this.pageNumber = pageNumber;
 	}
+
+	public Integer getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(Integer pageSize) {
+		this.pageSize = pageSize;
+	}
+
+	public ProductPageDTO(String productName, String productCategory, Integer pageNumber, Integer pageSize) {
+		super();
+		this.productName = productName;
+		this.productCategory = productCategory;
+		this.pageNumber = pageNumber;
+		this.pageSize = pageSize;
+	}
+
+	public ProductPageDTO() {
+		super();
+	}
+
+
+
+
+	
 
 }

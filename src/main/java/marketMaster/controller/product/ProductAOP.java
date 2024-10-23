@@ -1,5 +1,6 @@
 package marketMaster.controller.product;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.aspectj.lang.JoinPoint;
@@ -10,10 +11,14 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import marketMaster.DTO.checkout.ReturnDetailDTO;
+import marketMaster.DTO.checkout.ReturnProductDTO;
 import marketMaster.DTO.product.ProductIdRestockNumDTO;
 import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.DTO.restock.restock.RestockDetailsInsertDTO;
 import marketMaster.DTO.restock.restock.RestockInsertDTO;
+import marketMaster.bean.checkout.CheckoutDetailsBean;
+import marketMaster.service.checkout.CheckoutDetailsService;
 import marketMaster.service.product.ProductService;
 
 @Component
@@ -22,6 +27,9 @@ public class ProductAOP {
 
 	@Autowired
 	private ProductService productService;
+	
+	@Autowired
+    private CheckoutDetailsService checkoutDetailsService;
 
 	ThreadLocal<ProductIdRestockNumDTO> beforeData = new ThreadLocal<>();
 
@@ -37,7 +45,26 @@ public class ProductAOP {
 	@Pointcut("execution(* marketMaster.controller.restock.RestockDetailController.deleteByRestockDetailId(..))")
 	public void pointCutDeleteRestock() {
 	}
-// 
+// 		結帳的切入點
+
+	@Pointcut("execution(* marketMaster.service.checkout.CheckoutService.insertCheckoutWithDetails(..))")
+	public void pointCutInsertCheckOut() {
+	}
+	@Pointcut("execution(* marketMaster.service.checkout.CheckoutDetailsService.updateCheckoutDetails(..))")
+	public void pointCutUpdateCheckOut() {
+	}
+	@Pointcut("execution(* marketMaster.service.checkout.CheckoutDetailsService.getPartCheckoutDetails(..))")
+	public void pointCutGetUpdateCheckOut() {
+	}
+	@Pointcut("execution(* marketMaster.service.checkout.CheckoutDetailsService.deleteCheckoutDetails(..))")
+	public void pointCutDeleteCheckOut() {
+	}
+// 	退貨
+	@Pointcut("execution(* marketMaster.service.checkout.ReturnProductService.addReturnProductWithDetails(..))")
+	public void pointCutInsertReturn() {
+		
+	}
+	
 	@After("pointCutInsertRestock()")
 	public void updateProductByInsertRestockNumber(JoinPoint joinpoint) {
 		Object[] args = joinpoint.getArgs();
@@ -98,4 +125,55 @@ public class ProductAOP {
 		productService.updateProductByDeleteRestock(productId, numberOfRestock);
 		System.out.println("刪除成功");
 	}
+	
+	//結帳
+	@After("pointCutInsertCheckOut()")
+	public void updateProductByInsertCheckOut(JoinPoint joinpoint) {
+		Object[] args = joinpoint.getArgs();
+		List<CheckoutDetailsBean> checkoutDetails = (List<CheckoutDetailsBean>) args[1];
+		for (CheckoutDetailsBean detail : checkoutDetails) {
+			
+			String productId = detail.getProductId();
+			int numberOfCheckout = detail.getNumberOfCheckout();
+			productService.updateProductByInsertCheckOut(productId, numberOfCheckout);
+		}
+	}
+//	@After("pointCutUpdateCheckOut()")
+//	public void updateProductByUpdateCheckOut(JoinPoint joinpoint) {
+//		Object[] args = joinpoint.getArgs();
+//		CheckoutDetailsBean detail = (CheckoutDetailsBean) args[0];
+//		
+//			
+//			String productId = detail.getProductId();
+//			int numberOfCheckout = detail.getNumberOfCheckout();
+//			productService.updateProductByInsertCheckOut(productId, numberOfCheckout);
+//		
+//	}
+//	
+	@After("pointCutDeleteCheckOut()")
+	public void updateProductByDeleteCheckOut(JoinPoint joinpoint) {
+		Object[] args = joinpoint.getArgs();
+		String checkoutId = (String) args[0];
+		String productId = (String) args[1];
+		CheckoutDetailsBean checkoutDetail = checkoutDetailsService.getCheckoutDetails(checkoutId, productId);
+		int numberOfCheckout = checkoutDetail.getNumberOfCheckout();
+		productService.updateProductByDeleteCheckOut(productId, numberOfCheckout);
+		
+		
+		}
+	
+	//退貨
+	@After("pointCutInsertReturn()")
+	public void updateProductByInsertReturn(JoinPoint joinpoint) {
+		Object[] args = joinpoint.getArgs();
+		ReturnProductDTO returnProductDTO =  (ReturnProductDTO) args[0];
+		List<ReturnDetailDTO> returnProducts = returnProductDTO.getReturnProducts();
+		
+		for (ReturnDetailDTO detail : returnProducts) {
+			Integer numberOfReturn = detail.getNumberOfReturn();
+			String productId = detail.getProductId();
+			productService.updateProductByInsertReturn(productId, numberOfReturn);
+		}
+	}
+	
 }
