@@ -211,4 +211,58 @@ public class ProductService {
 //	public ProductIdRestockNumDTO findProductIdByRestockDetailId(String detailId) {
 //		return productRepo.findProductIdByRestockDetailId(detailId);
 //	}
+	
+
+	// ==============  結帳購物車使用 ==============
+	
+	/**
+	 * 獲取所有商品類別
+	 */
+	public List<String> getAllCategories() {
+	    List<ProductCategoryDTO> categories = productRepo.findAllCategories();
+	    return categories.stream()
+	            .map(ProductCategoryDTO::getProductCategory)
+	            .toList();
+	}
+
+	/**
+	 * 取得商品詳細資訊
+	 */
+	public ProductBean getProduct(String productId) {
+	    return productRepo.findById(productId).orElse(null);
+	}
+
+	/**
+	 * 檢查並更新商品庫存
+	 * @return true 如果庫存足夠，false 如果庫存不足
+	 */
+	@Transactional
+	public boolean checkAndUpdateStock(String productId, int quantity) {
+	    Optional<ProductBean> optional = productRepo.findById(productId);
+	    if (optional.isPresent()) {
+	        ProductBean product = optional.get();
+	        if (product.getNumberOfInventory() >= quantity) {
+	            // 更新庫存和銷售數量
+	            product.setNumberOfInventory(product.getNumberOfInventory() - quantity);
+	            product.setNumberOfSale(product.getNumberOfSale() + quantity);
+	            productRepo.save(product);
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	/**
+	 * 取消商品庫存更新（用於交易失敗時）
+	 */
+	@Transactional
+	public void cancelStockUpdate(String productId, int quantity) {
+	    Optional<ProductBean> optional = productRepo.findById(productId);
+	    if (optional.isPresent()) {
+	        ProductBean product = optional.get();
+	        product.setNumberOfInventory(product.getNumberOfInventory() + quantity);
+	        product.setNumberOfSale(product.getNumberOfSale() - quantity);
+	        productRepo.save(product);
+	    }
+	}
 }
