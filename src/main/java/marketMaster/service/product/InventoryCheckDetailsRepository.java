@@ -1,6 +1,8 @@
 package marketMaster.service.product;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +22,8 @@ public interface InventoryCheckDetailsRepository extends JpaRepository<Inventory
 	
 	@Query("SELECT DISTINCT icd.differentialInventory FROM InventoryCheckDetailsBean icd WHERE icd.inventoryCheck.inventoryCheckId= :inventoryCheckId")
 	List<Integer> findDifferentialInventoryByCheckId(@Param("inventoryCheckId") String inventoryCheckId);
+ 
+	Optional<InventoryCheckDetailsBean> findFirstByProduct_ProductIdOrderByDetailIdDesc(String productId);
+
 	
 }

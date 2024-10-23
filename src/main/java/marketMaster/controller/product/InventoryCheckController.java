@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,8 +46,10 @@ public class InventoryCheckController {
 	}
 
 	@PostMapping("/inventoryCheck/addCheck")
-	public void addInventoryCheck(@RequestBody InventoryCheckInsertDTO inventoryCheckInsertDTO) {
+	@ResponseBody
+	public ResponseEntity<?> addInventoryCheck(@RequestBody InventoryCheckInsertDTO inventoryCheckInsertDTO) {
 		inventoryCheckService.addInventoryCheck(inventoryCheckInsertDTO);
+		return ResponseEntity.ok().body("新增成功");
 	}
 
 	@PostMapping("/inventoryCheck/delete")

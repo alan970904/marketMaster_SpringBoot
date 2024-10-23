@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<!-- <html xmlns:th="http://www.thymeleaf.org/"> -->
+<html xmlns:th="http://www.thymeleaf.org/">
 
 <head>
-    <meta charset="UTF-8" th:replace="~{body/head :: head}">    
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>商品資料</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -34,7 +34,7 @@
 </head>
 
 <body>
-    <!-- <div th:replace="~{bodyheader :: header}"> -->
+    <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
             <main>
                 <div class="container">
@@ -63,7 +63,7 @@
             </main>
         </div>
     </div>
-    <!-- <div th:replace="~{body/footer :: footer}"></div> -->
+    <div th:replace="~{body/footer :: footer}"></div>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -129,45 +129,94 @@
 
 
         function submitListener() {
-            document.getElementById('submit').addEventListener('click', function () {
+            // 先移除舊的事件監聽器
+            const submitButton = document.getElementById('submit');
+            const newSubmitButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+
+            newSubmitButton.addEventListener('click', function () {
                 detailsList = []; // 在添加新項目前清空列表
                 const actualInventoryInputs = document.querySelectorAll('.actualInventory');
 
                 let hasEmptyInput = false;
                 let emptyInputProductName = '';
+                let hasEmptyRemark = false;
+                let emptyRemarkProductName = '';
 
                 actualInventoryInputs.forEach((input, index) => {
-                    if (input.value.trim() === '') {
+                    const actualInventoryValue = input.value.trim();
+                    const currentInventory = document.getElementsByClassName('numberOfInventory')[index].textContent;
+                    const remarkInput = document.getElementsByClassName('remark')[index];
+                    const productName = input.closest('.card').querySelector('.card-title').textContent;
+
+                    // 檢查盤點數量是否為空
+                    if (actualInventoryValue === '') {
                         hasEmptyInput = true;
-                        emptyInputProductName = input.closest('.card').querySelector('.card-title').textContent;
-                        return; // 退出 forEach 循環
+                        emptyInputProductName = productName;
+                        return;
+                    }
+
+                    // 檢查當數量不符時，備註是否為空
+                    if (actualInventoryValue !== currentInventory && remarkInput.value.trim() === '') {
+                        hasEmptyRemark = true;
+                        emptyRemarkProductName = productName;
+                        return;
                     }
 
                     const detail = {
                         productId: document.getElementsByClassName('productId')[index].value,
-                        currentInventory: document.getElementsByClassName('numberOfInventory')[index].textContent,
-                        actualInventory: input.value,
-                        remark: document.getElementsByClassName('remark')[index].value
+                        currentInventory: currentInventory,
+                        actualInventory: actualInventoryValue,
+                        remark: remarkInput.value
                     };
                     detailsList.push(detail);
                 });
 
+                // 驗證檢查
                 if (hasEmptyInput) {
                     alert(`請輸入所有商品的盤點數量。商品 "${emptyInputProductName}" 的盤點數量為空。`);
-                    return; // 停止執行並退出函數
+                    return;
+                }
+
+                if (hasEmptyRemark) {
+                    alert(`商品 "${emptyRemarkProductName}" 的盤點數量與當前庫存不符，請填寫原因。`);
+                    return;
                 }
 
                 inventoryCheckInsertDTO.details = detailsList;
                 console.log(inventoryCheckInsertDTO);
 
-                axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO)
-                    .then(res => {
-                        console.log('新增成功');
+                // 禁用提交按鈕，避免重複提交
+                newSubmitButton.disabled = true;
+
+                // 修改 axios 請求
+                axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        console.log('新增成功:', response);
                         alert('庫存盤點成功提交！');
+                        // 可選：重新載入數據
+                        // fetchProductsAndRender();
                     })
-                    .catch(err => {
-                        console.error('添加庫存檢查時出錯:', err);
-                        alert('提交失敗，請稍後再試。');
+                    .catch(error => {
+                        console.error('添加庫存檢查時出錯:', error);
+                        if (error.response) {
+                            // 服務器回應了特定的錯誤信息
+                            alert(`提交失敗：${error.response.data || '請稍後再試'}`);
+                        } else if (error.request) {
+                            // 請求已經發出，但沒有收到回應
+                            alert('提交失敗：無法連接到服務器，請檢查網路連接');
+                        } else {
+                            // 發生了一些錯誤，導致請求無法發出
+                            alert('提交失敗：請稍後再試');
+                        }
+                    })
+                    .finally(() => {
+                        // 恢復提交按鈕
+                        newSubmitButton.disabled = false;
                     });
             });
         }
@@ -187,10 +236,14 @@
                         stockStatus.textContent = '數量無誤';
                         remark.readOnly = true;
                         remark.value = '無誤';
+                        // 移除必填標記
+                        remark.removeAttribute('required');
                     } else {
                         stockStatus.textContent = '數量有誤';
                         remark.readOnly = false;
                         remark.value = '';
+                        // 添加必填標記
+                        remark.setAttribute('required', 'required');
                         remark.focus();
                     }
                 });

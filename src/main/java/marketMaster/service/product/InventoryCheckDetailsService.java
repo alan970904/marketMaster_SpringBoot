@@ -63,6 +63,13 @@ public class InventoryCheckDetailsService {
 		inventoryCheckDetailsRepo.deleteById(detailId);
 	}
 	
+//	public boolean findNewestDetailId(String productId) {
+//		
+//		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findFirstByProduct_ProductIdOrderByDetailIdDesc(productId);
+//		
+//		return null;
+//	}
+	
 	//自動生成新的明細id
 	public String newDetailId() {
 
