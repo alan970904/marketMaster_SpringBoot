@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
+    <title>更新員工資料</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div th:replace="~{body/headerEmployee :: headerEmployee}">
+        <div th:fragment="content">
+            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+                <h1 class="mb-4">更新個人資訊</h1>
+                <form th:action="@{/employee/front/empUpdate}" method="post" onsubmit="return validateForm()"
+                    enctype="multipart/form-data">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>員工編號:</th>
+                            <td><input type="text" name="employeeId" id="employeeId"
+                                    th:value="${employeeToUpdate.employeeId}" readonly></td>
+                        </tr>
+                        <tr>
+                            <th>姓名:</th>
+                            <td><input type="text" name="employeeName" id="employeeName"
+                                    th:value="${employeeToUpdate.employeeName}" required></td>
+                        </tr>
+                        <tr>
+                            <th>電話:</th>
+                            <td><input type="text" name="employeeTel" id="employeeTel"
+                                    th:value="${employeeToUpdate.employeeTel}" required></td>
+                        </tr>
+                        <tr>
+                            <th>身分證號碼:</th>
+                            <td><input type="text" name="employeeIdcard" id="employeeIdcard"
+                                    th:value="${employeeToUpdate.employeeIdcard}" required></td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td><input type="email" name="employeeEmail" id="employeeEmail"
+                                    th:value="${employeeToUpdate.employeeEmail}" required></td>
+                        </tr>
+                        <!--
+                        <tr>
+                            <th>職位編號:</th>
+                            <td>
+                                <select name="positionId" id="positionId" readonly>
+                                    <option value="">請選擇職位</option>
+                                    <option th:each="position : ${positions}" th:value="${position.positionId}"
+                                        th:text="${position.positionId + ' - ' + position.positionName}"
+                                        th:selected="${position.positionId == employeeToUpdate.positionId}">
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+                        -->
+                        <tr>
+                            <th>入職日期:</th>
+                            <td><input type="date" name="hiredate"
+                                    th:value="${#temporals.format(employeeToUpdate.hiredate, 'yyyy-MM-dd')}" readonly>
+                            </td>
+                        </tr>
+                        <!-- 
+                        <tr>
+                            <th>離職日期:</th>
+                            <td><input type="date" name="resigndate"
+                                    th:value="${employeeToUpdate.resigndate != null ? #temporals.format(employeeToUpdate.resigndate, 'yyyy-MM-dd') : ''}">
+                            </td>
+                        </tr>
+                         -->
+                        <tr>
+                            <th>上傳新圖片:</th>
+                            <td><input type="file" name="file" accept="image/*"></td>
+                        </tr>
+                    </table>
+                    <button type="submit" class="btn btn-primary">更新</button>
+                	<div class="d-flex justify-content-start">
+					    <a th:href="@{/mainPage}" class="btn btn-secondary mt-3">返回首頁</a>
+					</div>
+                </form>
+            </main>
+        </div>
+    </div>
+    <div th:replace="~{body/footer :: footer}"></div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function validateForm() {
+            var name = document.getElementById('employeeName').value;
+            var tel = document.getElementById('employeeTel').value;
+            var idcard = document.getElementById('employeeIdcard').value;
+            var email = document.getElementById('employeeEmail').value;
+            var positionId = document.getElementById('positionId').value;
+
+            // 驗證姓名（至少兩個字的中文）
+            if (!/^[\u4e00-\u9fa5]{2,}$/.test(name)) {
+                alert('姓名格式不正確，請輸入至少兩個字的中文。');
+                return false;
+            }
+
+            // 驗證電話（09開頭，總共10個數字）
+            if (!/^09\d{8}$/.test(tel)) {
+                alert('電話格式不正確，請輸入09開頭的10位數字。');
+                return false;
+            }
+
+            // 驗證身分證號碼（台灣身分證號碼格式）
+            if (!/^[A-Z][12]\d{8}$/.test(idcard)) {
+                alert('身分證號碼格式不正確，請輸入正確的台灣身分證號碼。');
+                return false;
+            }
+
+            // 驗證Email
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Email格式不正確，請輸入有效的Email地址。');
+                return false;
+            }
+
+            // 驗證職位編號(M開頭，兩位數)
+            if (!/^M\d{2}$/.test(positionId)) {
+                alert('職位編號格式不正確，請輸入M開頭加上兩位數字。');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</body>
+
+</html>
