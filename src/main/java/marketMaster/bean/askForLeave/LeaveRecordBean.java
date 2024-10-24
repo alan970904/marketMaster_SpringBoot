@@ -1,8 +1,10 @@
 package marketMaster.bean.askForLeave;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,13 +12,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import marketMaster.bean.employee.EmpBean;
 
 @Entity
 @Table(name = "leave_record")
-public class LeaveRecord {
+public class LeaveRecordBean {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,27 +30,31 @@ public class LeaveRecord {
 
 	@ManyToOne
 	@JoinColumn(name = "category_id")
-	private LeaveCategory leaveCategory;
+	private LeaveCategoryBean leaveCategory;
 
-	@Column(name = "year")
-	private int year;
+	@Column(name = "expiration_date")
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private LocalDate expirationDate;
 
 	@Column(name = "actual_hours")
-	private int actualHours;
+	private Integer actualHours;
 
-	@OneToMany(mappedBy = "leaveRecord", cascade = CascadeType.ALL)
-	private List<AskForLeave> askForLeaveList;
+	@Column(name = "limit_hours")
+	private Integer limitHours;
+	
+	
 
-	public LeaveRecord() {
+	public LeaveRecordBean() {
 	}
 
-	public LeaveRecord(EmpBean empBean, LeaveCategory leaveCategory, int year, int actualHours,
-			List<AskForLeave> askForLeaveList) {
+	public LeaveRecordBean(EmpBean empBean, LeaveCategoryBean leaveCategory, LocalDate expirationDate, int actualHours,
+			int limitHours) {
+		super();
 		this.empBean = empBean;
 		this.leaveCategory = leaveCategory;
-		this.year = year;
+		this.expirationDate = expirationDate;
 		this.actualHours = actualHours;
-		this.askForLeaveList = askForLeaveList;
+		this.limitHours = limitHours;
 	}
 
 	public Integer getRecordId() {
@@ -68,20 +73,20 @@ public class LeaveRecord {
 		this.empBean = empBean;
 	}
 
-	public LeaveCategory getLeaveCategory() {
+	public LeaveCategoryBean getLeaveCategory() {
 		return leaveCategory;
 	}
 
-	public void setLeaveCategory(LeaveCategory leaveCategory) {
+	public void setLeaveCategory(LeaveCategoryBean leaveCategory) {
 		this.leaveCategory = leaveCategory;
 	}
 
-	public int getYear() {
-		return year;
+	public LocalDate getExpirationDate() {
+		return expirationDate;
 	}
 
-	public void setYear(int year) {
-		this.year = year;
+	public void setExpirationDate(LocalDate expirationDate) {
+		this.expirationDate = expirationDate;
 	}
 
 	public int getActualHours() {
@@ -92,12 +97,19 @@ public class LeaveRecord {
 		this.actualHours = actualHours;
 	}
 
-	public List<AskForLeave> getAskForLeaveList() {
-		return askForLeaveList;
+	public int getLimitHours() {
+		return limitHours;
 	}
 
-	public void setAskForLeaveList(List<AskForLeave> askForLeaveList) {
-		this.askForLeaveList = askForLeaveList;
+	public void setLimitHours(int limitHours) {
+		this.limitHours = limitHours;
+	}
+
+	@Override
+	public String toString() {
+		return "LeaveRecordBean [recordId=" + recordId + ", empBean=" + empBean + ", leaveCategory=" + leaveCategory
+				+ ", expirationDate=" + expirationDate + ", actualHours=" + actualHours + ", limitHours=" + limitHours
+				+ "]";
 	}
 
 }

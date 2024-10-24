@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
 <meta charset="UTF-8" th:replace="~{body/head :: head}">
 <title>個人請假表</title>
 <link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
 	rel="stylesheet">
 <link
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 	rel="stylesheet">
-<link rel="stylesheet"
-	href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
-<link rel="stylesheet"
-	href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
 <style>
 .modal-body {
 	word-wrap: break-word;
@@ -20,7 +18,14 @@
 	max-height: 70vh;
 	overflow-y: auto;
 }
-/* Custom button styles */
+
+.table th {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 150px;
+}
+
 .nav-link.btn-blue-background {
 	background-color: white;
 	color: black;
@@ -43,12 +48,27 @@
 	color: black;
 	border: none;
 }
+
+.table th.start-time, .table th.end-time {
+	width: 300px !important;
+}
+
+ .nav-pills .nav-link {
+    padding: 10px 15px;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  
+  .nav-pills .nav-item {
+    margin: 0 10px;
+  }
 </style>
 
 
 </head>
+
 <body>
-	 <div th:replace="~{body/header :: header}">
+	<div th:replace="~{body/header :: header}">
 		<div th:fragment="content">
 			<div class="container mt-5">
 				<div class="row">
@@ -58,23 +78,6 @@
 				</div>
 
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a
-						class="nav-link btn-blue-background active" aria-current="page"
-						data-status="all"> <i class="fas fa-filter"></i> 顯示所有
-					</a></li>
-					<li class="nav-item"><a class="nav-link btn-blue-background"
-						data-status="approved" aria-current="page"> <i
-							class="fa-solid fa-check"></i> 已批准
-					</a></li>
-					<li class="nav-item"><a class="nav-link btn-blue-background"
-						data-status="pending" aria-current="page"> <i
-							class="fa-solid fa-clock"></i> 待審核
-					</a></li>
-					<li class="nav-item"><a class="nav-link btn-blue-background"
-						data-status="rejected" aria-current="page"> <i
-							class="fa-solid fa-ban"></i> 已退簽
-					</a></li>
-
 					<li class="nav-item"><a class="nav-link btn-lightblue"
 						aria-current="page"
 						th:href="@{/askForLeave/add(employeeId=${empBean.employeeId})}">
@@ -83,6 +86,11 @@
 					<li class="nav-item"><a class="nav-link btn-lightblue"
 						th:href="@{/askForLeave/approval(id=${empBean.employeeId}, p=1)}"
 						aria-current="page"> <i class="fa-solid fa-user-pen"></i> 請假簽核
+					</a></li>
+
+					<li class="nav-item"><a class="nav-link btn-lightblue"
+						th:href="@{/askForLeave/findLeaveByEmpId(employeeId=${empBean.employeeId})}"
+						aria-current="page"> <i class="fa-solid fa-user-pen"></i> 時數查詢
 					</a></li>
 				</ul>
 
@@ -94,16 +102,29 @@
 								<th class="text-center" style="vertical-align: middle;">請假編號</th>
 								<th class="text-center" style="vertical-align: middle;">員工編號</th>
 								<th class="text-center" style="vertical-align: middle;">員工姓名</th>
-								<th class="text-center" style="vertical-align: middle;">開始時間</th>
-								<th class="text-center" style="vertical-align: middle;">結束時間</th>
-								<th class="text-center" style="vertical-align: middle;">請假類別</th>
+								<th class="text-center" style="vertical-align: middle;">
+									開始時間 <input type="text" class="form-control form-control-sm"
+									placeholder=" yyyy-MM-dd" data-filter="startTime">
+								</th>
+								<th class="text-center" style="vertical-align: middle;">
+									結束時間 <input type="text" class="form-control form-control-sm"
+									placeholder="yyyy-MM-dd" data-filter="endTime">
+								</th>
+								<th class="text-center" style="vertical-align: middle;">
+									請假類別 <input type="text" class="form-control form-control-sm"
+									placeholder="類別" data-filter="leaveCategory">
+								</th>
 								<th class="text-center" style="vertical-align: middle;">請假原因</th>
-								<th class="text-center" style="vertical-align: middle;">批准狀態</th>
+								<th class="text-center" style="vertical-align: middle;">
+									簽核狀態 <input type="text" class="form-control form-control-sm"
+									placeholder="簽核狀態" data-filter="approvedStatus">
+								</th>
 								<th class="text-center" style="vertical-align: middle;">附件</th>
 								<th class="text-center" style="vertical-align: middle;">退簽原因</th>
 								<th class="text-center" style="vertical-align: middle;">操作</th>
 							</tr>
 						</thead>
+
 
 						<tbody>
 							<tr th:each="leave : ${leaves}" class="leave-row">
@@ -243,8 +264,6 @@
 					</ul>
 				</nav>
 
-
-
 				<div class="alert alert-info"
 					th:if="${leaves == null or #lists.isEmpty(leaves)}">
 					找不到符合條件的請假記錄。</div>
@@ -253,102 +272,248 @@
 	</div>
 	<div id="duplicateErrorMessage" style="display: none;"
 		th:text="${duplicateError}"></div>
-		 <div th:replace="~{body/footer :: footer}"></div>
+	<div th:replace="~{body/footer :: footer}"></div>
 	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-	<script
-		src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-	<script
-		src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 	<script>
 
+		document.addEventListener('DOMContentLoaded', function () {
+			// 刪除請假記錄的功能
+			const deleteButtons = document.querySelectorAll('.delete-btn');
+			deleteButtons.forEach(function (button) {
+				button.addEventListener('click', function () {
+					const leaveId = this.getAttribute('data-leave-id');
+					if (confirm('確定要刪除這筆請假記錄嗎？')) {
+						fetch('/marketMaster/askForLeave/delete/' + leaveId, {
+							method: 'DELETE'
+						})
+							.then(response => {
+								if (response.ok) {
+									alert('刪除成功');
+									location.reload();  // 刷新頁面
+								} else {
+									throw new Error('刪除失敗');
+								}
+							})
+							.catch(error => {
+								alert('刪除失敗: ' + error.message);
+							});
+					}
+				});
+			});
+
+			// 顯示錯誤訊息
+			const errorMessageElement = document.getElementById('duplicateErrorMessage');
+			const errorMessage = errorMessageElement.textContent || errorMessageElement.innerText;
+			if (errorMessage && errorMessage.trim() !== '') {
+				alert(errorMessage);
+				errorMessageElement.textContent = '';
+			}
+
+			// 模態框顯示理由
+			const modalElements = document.querySelectorAll('#Rlmodal, #RRmodal');
+			modalElements.forEach(function (modal) {
+				modal.addEventListener('show.bs.modal', function (event) {
+					const button = event.relatedTarget;
+					const reason = button.getAttribute('data-reason');
+					const modalBody = modal.querySelector('.modal-body');
+					modalBody.textContent = reason;
+				});
+			});
+
+			// 篩選功能
+			const filterInputs = document.querySelectorAll('[data-filter]');
+			filterInputs.forEach(input => {
+				input.addEventListener('change', function () {
+					const startTimeInput = document.querySelector('[data-filter="startTime"]');
+					const endTimeInput = document.querySelector('[data-filter="endTime"]');
+
+					const filters = {
+						startTime: startTimeInput.value || '',
+						endTime: endTimeInput.value || '',
+						leaveCategory: document.querySelector('[data-filter="leaveCategory"]').value || '',
+						approvedStatus: document.querySelector('[data-filter="approvedStatus"]').value || '',
+						employeeId: document.querySelector('tbody tr:first-child td:nth-child(2)').textContent.trim()
+					};
 
 
+					fetch('/marketMaster/askForLeave/filter?' + new URLSearchParams(filters), {
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					})
+						.then(response => {
+							if (!response.ok) {
+								throw new Error('網絡錯誤');
+							}
+							return response.json();
+						})
+						.then(data => {
+							if (data && data.content) {
+								updateTable(data);
+								updatePagination(data);
+							} else {
+								console.error('返回的數據格式錯誤:', data);
+							}
+						})
+						.catch(error => {
+							console.error('Error fetching filtered data:', error);
+						});
+				});
+			});
 
-document.addEventListener('DOMContentLoaded', function () {
-    // 刪除請假記錄的功能
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-    deleteButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const leaveId = this.getAttribute('data-leave-id');
-            if (confirm('確定要刪除這筆請假記錄嗎？')) {
-                fetch('/marketMaster/askForLeave/delete/' + leaveId, {
-                    method: 'DELETE'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert('刪除成功');
-                        location.reload();  // 刷新頁面
-                    } else {
-                        throw new Error('刪除失敗');
-                    }
-                })
-                .catch(error => {
-                    alert('刪除失敗: ' + error.message);
-                });
-            }
-        });
-    });
+			function updateTable(data) {
+				const tbody = document.querySelector('tbody');
+				tbody.innerHTML = ''; // 清空表格
 
-    // 顯示錯誤訊息
-    const errorMessageElement = document.getElementById('duplicateErrorMessage');
-    const errorMessage = errorMessageElement.textContent || errorMessageElement.innerText;
-    if (errorMessage && errorMessage.trim() !== '') {
-        alert(errorMessage);
-        errorMessageElement.textContent = '';
-    }
+				data.content.forEach(leave => {
+					const row = document.createElement('tr');
+					row.innerHTML = `
+            <td class="text-center" style="vertical-align: middle;">${leave.leaveId}</td>
+            <td class="text-center" style="vertical-align: middle;">${leave.empBean.employeeId}</td>
+            <td class="text-center" style="vertical-align: middle;">${leave.empBean.employeeName}</td>
+            <td class="text-center" style="vertical-align: middle;">${(leave.starTime)}</td>
+            <td class="text-center" style="vertical-align: middle;">${(leave.endTime)}</td>
+            <td class="text-center" style="vertical-align: middle;">${leave.leaveCategory.leaveType}</td>
+            <td class="text-center" style="vertical-align: middle;">
+                <button class="btn btn-sm btn-primary" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#Rlmodal" 
+                    data-reason="${leave.reasonLeave}">
+                    <i class="fa-regular fa-eye"></i>檢視
+                </button>
+                <span style="display: ${leave.reasonLeave ? 'none' : 'inline'};">
+                    <i class="fa-regular fa-eye-slash"></i>
+                </span>
+            </td>
+            <td class="text-center" style="vertical-align: middle;">${leave.approvedStatus}</td>
+            <td class="text-center" style="vertical-align: middle;">
+                <a href="/askForLeave/image/${leave.leaveId}" 
+                   target="_blank" 
+                   class="btn btn-primary btn-sm" 
+                   style="display: ${leave.proofImage ? 'inline' : 'none'};">
+                    <i class="fa-regular fa-eye"></i>檢視
+                </a>
+                <span style="display: ${leave.proofImage ? 'none' : 'inline'};">
+                    <i class="fa-regular fa-eye-slash"></i>
+                </span>
+            </td>
+            <td class="text-center" style="vertical-align: middle;">
+                <button class="btn btn-sm btn-primary" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#RRmodal" 
+                    data-reason="${leave.rejectionReason}" 
+                    style="display: ${leave.rejectionReason ? 'inline' : 'none'};">
+                    <i class="fa-regular fa-eye"></i>檢視
+                </button>
+                <span style="display: ${leave.rejectionReason ? 'none' : 'inline'};">
+                    <i class="fa-regular fa-eye-slash"></i>
+                </span>
+            </td>
+            <td class="text-center" style="vertical-align: middle;">
+                <div style="display: inline-block;">
+                    <a class="btn btn-warning btn-sm" 
+                       href="/askForLeave/edit/${leave.leaveId}" 
+                       style="display: ${leave.approvedStatus !== '已批准' ? 'inline' : 'none'};">
+                        <i class="fas fa-edit"></i>修改
+                    </a>
+                    <button class="btn btn-danger btn-sm delete-btn" 
+                        data-leave-id="${leave.leaveId}" 
+                        style="display: ${leave.approvedStatus !== '已批准' ? 'inline' : 'none'};">
+                        <i class="fa-solid fa-trash-can"></i>刪除
+                    </button>
+                    <span style="display: ${leave.approvedStatus === '已批准' ? 'inline' : 'none'};">
+                        <i class="fas fa-lock"></i> 無法操作
+                    </span>
+                </div>
+            </td>
+        `;
+					tbody.appendChild(row);
+				});
+			}
 
-    // 模態框顯示理由
-    const modalElements = document.querySelectorAll('#Rlmodal, #RRmodal');
-    modalElements.forEach(function(modal) {
-        modal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const reason = button.getAttribute('data-reason');
-            const modalBody = modal.querySelector('.modal-body');
-            modalBody.textContent = reason;
-        });
-    });
 
-    // 篩選功能
-    const filterTabs = document.querySelector('.nav-pills');
-    const leaveRows = document.querySelectorAll('.leave-row');
+			function updatePagination(data) {
+				const pagination = document.querySelector('.pagination');
+				const currentPage = data.number + 1; // 因為後端的 page number 是從 0 開始
+				const totalPages = data.totalPages;
 
-    // 初始化時設置激活的篩選狀態
-    filterTabs.querySelector('.nav-link.active').classList.add('active');
+				pagination.innerHTML = ''; // 清空現有的分頁
 
-    // 監聽篩選按鈕的點擊事件
-    filterTabs.addEventListener('click', function (event) {
-        if (event.target.classList.contains('nav-link')) {
-            const status = event.target.getAttribute('data-status');
+				// Previous Button
+				const prevItem = document.createElement('li');
+				prevItem.classList.add('page-item');
+				if (currentPage === 1) {
+					prevItem.classList.add('disabled');
+				}
+				prevItem.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})"><i class="fas fa-chevron-left"></i></a>`;
+				pagination.appendChild(prevItem);
 
-            // 移除所有篩選按鈕的 active 類，然後把 active 類添加到點擊的按鈕
-            filterTabs.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            event.target.classList.add('active');
+				// Page Numbers
+				for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+					const pageItem = document.createElement('li');
+					pageItem.classList.add('page-item');
+					if (pageNum === currentPage) {
+						pageItem.classList.add('active');
+					}
+					pageItem.innerHTML = `<a class="page-link" href="#" onclick="changePage(${pageNum})">${pageNum}</a>`;
+					pagination.appendChild(pageItem);
+				}
 
-            filterRowsByStatus(status);
-        }
-    });
+				// Next Button
+				const nextItem = document.createElement('li');
+				nextItem.classList.add('page-item');
+				if (currentPage === totalPages) {
+					nextItem.classList.add('disabled');
+				}
+				nextItem.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})"><i class="fas fa-chevron-right"></i></a>`;
+				pagination.appendChild(nextItem);
+			}
 
-    // 根據選擇的狀態篩選表格行
-    function filterRowsByStatus(status) {
-        leaveRows.forEach(function (row) {
-            const statusTd = row.querySelector('td:nth-child(8)');  // 第 8 列
-            const rowStatus = statusTd ? statusTd.textContent.trim() : '';  // 取得該列的文字內容
+			function changePage(pageNum) {
+				// 這裡可以再調用過濾的邏輯以獲取相應頁面的數據
+				const startTimeInput = document.querySelector('[data-filter="startTime"]');
+				const endTimeInput = document.querySelector('[data-filter="endTime"]');
 
-            // 根據「批准狀態」與傳入的狀態進行比對
-            if (status === 'all' || rowStatus === status || (status === 'approved' && rowStatus === '已批准') || (status === 'pending' && rowStatus === '待審核') || (status === 'rejected' && rowStatus === '已退簽')) {
-                row.style.display = '';  // 顯示該行
-            } else {
-                row.style.display = 'none';  // 隱藏該行
-            }
-        });
-    }
-});
-</script>
+				const filters = {
+					startTime: startTimeInput.value || '',
+					endTime: endTimeInput.value || '',
+					leaveCategory: document.querySelector('[data-filter="leaveCategory"]').value || '',
+					approvedStatus: document.querySelector('[data-filter="approvedStatus"]').value || '',
+					employeeId: document.querySelector('tbody tr:first-child td:nth-child(2)').textContent.trim(),
+					pageNum: pageNum // 傳遞當前頁碼
+				};
+				fetch('/marketMaster/askForLeave/filter?' + new URLSearchParams(filters), {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('網絡錯誤');
+						}
+						return response.json();
+					})
+					.then(data => {
+
+						if (data && data.content) {
+							updateTable(data);
+							updatePagination(data); // 更新分頁
+						} else {
+							console.error('返回的數據格式錯誤:', data);
+						}
+					})
+					.catch(error => {
+						console.error('Error fetching filtered data:', error);
+					});
+			}
+		});
+	</script>
 </body>
+
 </html>
