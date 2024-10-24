@@ -264,7 +264,7 @@ CREATE TABLE customer (
     total_points INT  NOT NULL -- 累積紅利點數 --Create時先設定為0
 );
 
--- 創建紅利兌換商品表
+-- 創建紅利兌換商品表ㄆ
 CREATE TABLE bonus_exchange (
     exchange_id VARCHAR(30) NOT NULL PRIMARY KEY, -- 兌換編號，編號開頭用H
     product_id VARCHAR(30) NOT NULL, -- 商品編號REFERENCES products(product_id)
