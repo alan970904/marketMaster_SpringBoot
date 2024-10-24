@@ -1,6 +1,5 @@
 package marketMaster.controller.product;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.DTO.product.ProductPageDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
 import marketMaster.bean.product.ProductBean;
-import marketMaster.bean.restock.RestockDetailsBean;
 import marketMaster.bean.restock.SupplierProductsBean;
 import marketMaster.service.product.ProductService;
 
@@ -38,10 +36,7 @@ public class ProductRestController {
 		ProductBean aProduct = productService.findOneProduct(productId);
 		List<SupplierProductsBean> supplierProduct = aProduct.getSupplierProductBean();
 		for (SupplierProductsBean supplierProductsBean : supplierProduct) {
-			System.out.println(supplierProductsBean);
 			String supplierProductId = supplierProductsBean.getSupplierProductId();
-			System.out.println(supplierProductId);
-			System.out.println("==============");
 			List<ProductSupplierDTO> productSupplierDTO = productService.findRestockDetails(supplierProductId);
 			for (ProductSupplierDTO aProductSupplierDTO : productSupplierDTO) {
 				System.out.println(aProductSupplierDTO.getProductId());
@@ -50,6 +45,13 @@ public class ProductRestController {
 		}
 	}
 	
+	@PostMapping("/product/findProductInventoryNotEnough/json")
+	public Page<ProductBean>  getProductInventoryNotEnough(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
+			@RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
+		Page<ProductBean> products = productService.findProductNotEnough(pageNumber, pageSize);
+
+		return products;
+	}
 	
 	@PostMapping("/product/findProductCategory")
 	public List<ProductCategoryDTO> getProductCategory() {

@@ -36,7 +36,7 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     Page<ProductBean>  findByProductAvailable(boolean productAvailable ,Pageable pgb);
 
 
-    @Query(value = "select * from products where Number_of_inventory <  product_safeinventory",nativeQuery = true)
+    @Query(value = "select * from products where Number_of_inventory <  product_safeinventory AND product_available = 1",nativeQuery = true)
     Page<ProductBean> findInventoryNotEnough(Pageable pgb);
 
     Page<ProductBean> findByProductCategory(String productCategory,Pageable pgb);

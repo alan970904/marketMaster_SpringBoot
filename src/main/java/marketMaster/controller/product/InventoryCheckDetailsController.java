@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpSession;
 import marketMaster.DTO.product.InventoryCheckDetailDTO;
+import marketMaster.annotation.RequiresPermission;
 import marketMaster.bean.product.InventoryCheckDetailsBean;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.InventoryCheckDetailsService;
 import marketMaster.service.product.ProductService;
+import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,6 +54,7 @@ public class InventoryCheckDetailsController {
 	}
 	
 	@PostMapping("/inventoryCheckDetails/deleteByDetailId")
+	@RequiresPermission(value = "deleteInventoryCheckDetail",resource = "employee")
 	public String deleteDetailById(@RequestBody InventoryCheckDetailDTO inventoryCheckDetailDTO) {
 		String detailId = inventoryCheckDetailDTO.getDetailId();
 		InventoryCheckDetailsBean detail = inventoryCheckDetailsService.findOneInventoryCheckDetailById(detailId);
@@ -76,14 +80,19 @@ public class InventoryCheckDetailsController {
 		return ResponseEntity.ok().build();
 	}
 	
-	
+	@ResponseBody
 	@PostMapping("/inventoryCheckDetails/isNewestDetail")
-	public ResponseEntity<Void> isNewestDetail(@RequestParam String productId,@RequestParam String detailId,Model m) {
-		boolean isNewest = inventoryCheckDetailsService.findNewestDetailId(productId, detailId);
+	public boolean isNewestDetail(@RequestBody InventoryCheckDetailDTO inventoryCheckDetailDTO,Model m) {
+		String productId = inventoryCheckDetailDTO.getProductId();
+		String detailId = inventoryCheckDetailDTO.getDetailId();
+		boolean isNewest = inventoryCheckDetailsService.isNewestDetailId(productId, detailId);
 		
 		m.addAttribute("isNewest", isNewest);
-		return ResponseEntity.ok().build();
+		return isNewest;
 	}
+	
+	
+	
 	
 	
 }

@@ -32,7 +32,7 @@ public class InventoryCheckController {
 
 	@GetMapping("/inventoryCheck/home")
 	public String homePage() {
-		return "/product/test";
+		return "/product/checkHomePage";
 	}
 
 	@GetMapping("/inventoryCheck/getAllProduct")
@@ -42,7 +42,7 @@ public class InventoryCheckController {
 		List<InventoryCheckBean> inventoryCheck = inventoryCheckService.findAllInventoryCheck();
 		m.addAttribute("products", products);
 		m.addAttribute("inventoryCheck", inventoryCheck);
-		return "/product/test";
+		return "/product/checkHomePage";
 	}
 
 	@PostMapping("/inventoryCheck/addCheck")

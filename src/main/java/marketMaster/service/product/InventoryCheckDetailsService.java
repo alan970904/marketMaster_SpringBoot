@@ -64,12 +64,12 @@ public class InventoryCheckDetailsService {
 	}
 	
 	
-	public boolean findNewestDetailId(String productId,String OutSideDetailId) {
+	public boolean isNewestDetailId(String productId,String OutSideDetailId) {
 		boolean isNewest =false;
 		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findFirstByProduct_ProductIdOrderByDetailIdDesc(productId);
 		
 		InventoryCheckDetailsBean details = optional.orElse(null);
-		if (details.getDetailId() == OutSideDetailId) {
+		if (details.getDetailId().equals(OutSideDetailId) ) {
 			isNewest = true;
 		}
 		

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+    <meta charset="UTF-8" th:replace="~{body/head :: head}">
+    <title>商品資料</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/40ce2136c3.js"></script>
+    <style>
+        .card-img-top {
+            max-height: 100%;
+            width: auto;
+        }
+
+        .w20 {
+            width: 20%;
+        }
+
+        .fa-file-image {
+            font-size: 180px;
+
+        }
+
+        .h262 {
+            height: 262px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{body/header :: header}">
+        <div th:fragment="content">
+            <main>
+                <div class="container">
+                    <div class="d-flex my-3">
+                        <button type="button" class="btn btn-primary mx-3" id="submit">完成盤點</button>
+
+                        <select class="form-select w-auto" name="" id="productCategory">
+                            <option value="" selected>請選擇要盤點的商品類別</option>
+                            <!-- 商品種類搜尋 -->
+                        </select>
+                    </div>
+
+                    <!-- <input type="hidden" th:value="${session.employee.employeeId}" id="employeeId">  -->
+                    <div class="row invectoryCheck-row">
+
+                    </div>
+
+                    <div id="page">
+                        <ul class="pagination" id="pageUl">
+                        </ul>
+                    </div>
+
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+    <div th:replace="~{body/footer :: footer}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            fetchProductsAndRender();
+            getProductCategory();
+        }
+
+        // 抓取商品分類 並 塞入下拉式選單
+        function getProductCategory() {
+            axios.post('http://localhost:8080/marketMaster/product/findProductCategory')
+                .then(res => {
+                    categoryMaker(res.data)
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        }
+        // 塞入下拉式選單
+        function categoryMaker(data) {
+            const select = document.getElementById('productCategory')
+            data.forEach(element => {
+                const option = document.createElement('option')
+                option.value = element.productCategory
+                option.textContent = element.productCategory
+                document.getElementById('productCategory').appendChild(option)
+                select.appendChild(option)
+            });
+
+        }
+
+        //利用下拉式選單抓取商品資料
+        const select = document.getElementById('productCategory');
+        select.addEventListener('change', function () {
+
+            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getProductByCategory/json', {
+                productCategory: this.value,
+                pageSize: 10,
+                pageNumber: 1
+            })
+                .then(res => {
+                    const productsHTML = htmlMaker(res.data.content);
+                    document.querySelector('.invectoryCheck-row').innerHTML = productsHTML;
+                    pageMaker(res.data);
+                    setupRemarkListeners();
+                    submitListener();
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        })
+
+        // Global variables
+        let detailsList = [];
+        const inventoryCheckInsertDTO = {
+            employeeId: 'E001',
+            details: detailsList
+        };
+
+
+
+        function submitListener() {
+            // 先移除舊的事件監聽器
+            const submitButton = document.getElementById('submit');
+            const newSubmitButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+
+            newSubmitButton.addEventListener('click', function () {
+                detailsList = []; // 在添加新項目前清空列表
+                const actualInventoryInputs = document.querySelectorAll('.actualInventory');
+
+                let hasEmptyInput = false;
+                let emptyInputProductName = '';
+                let hasEmptyRemark = false;
+                let emptyRemarkProductName = '';
+
+                actualInventoryInputs.forEach((input, index) => {
+                    const actualInventoryValue = input.value.trim();
+                    const currentInventory = document.getElementsByClassName('numberOfInventory')[index].textContent;
+                    const remarkInput = document.getElementsByClassName('remark')[index];
+                    const productName = input.closest('.card').querySelector('.card-title').textContent;
+
+                    // 檢查盤點數量是否為空
+                    if (actualInventoryValue === '') {
+                        hasEmptyInput = true;
+                        emptyInputProductName = productName;
+                        return;
+                    }
+
+                    // 檢查當數量不符時，備註是否為空
+                    if (actualInventoryValue !== currentInventory && remarkInput.value.trim() === '') {
+                        hasEmptyRemark = true;
+                        emptyRemarkProductName = productName;
+                        return;
+                    }
+
+                    const detail = {
+                        productId: document.getElementsByClassName('productId')[index].value,
+                        currentInventory: currentInventory,
+                        actualInventory: actualInventoryValue,
+                        remark: remarkInput.value
+                    };
+                    detailsList.push(detail);
+                });
+
+                // 驗證檢查
+                if (hasEmptyInput) {
+                    alert(`請輸入所有商品的盤點數量。商品 "${emptyInputProductName}" 的盤點數量為空。`);
+                    return;
+                }
+
+                if (hasEmptyRemark) {
+                    alert(`商品 "${emptyRemarkProductName}" 的盤點數量與當前庫存不符，請填寫原因。`);
+                    return;
+                }
+
+                inventoryCheckInsertDTO.details = detailsList;
+                console.log(inventoryCheckInsertDTO);
+
+                // 禁用提交按鈕，避免重複提交
+                newSubmitButton.disabled = true;
+
+                // 修改 axios 請求
+                axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        console.log('新增成功:', response);
+                        alert('庫存盤點成功提交！');
+                        // 可選：重新載入數據
+                        // fetchProductsAndRender();
+                    })
+                    .catch(error => {
+                        console.error('添加庫存檢查時出錯:', error);
+                        if (error.response) {
+                            // 服務器回應了特定的錯誤信息
+                            alert(`提交失敗：${error.response.data || '請稍後再試'}`);
+                        } else if (error.request) {
+                            // 請求已經發出，但沒有收到回應
+                            alert('提交失敗：無法連接到服務器，請檢查網路連接');
+                        } else {
+                            // 發生了一些錯誤，導致請求無法發出
+                            alert('提交失敗：請稍後再試');
+                        }
+                    })
+                    .finally(() => {
+                        // 恢復提交按鈕
+                        newSubmitButton.disabled = false;
+                    });
+            });
+        }
+
+
+
+        function setupRemarkListeners() {
+            const actualInventoryInputs = document.querySelectorAll('.actualInventory');
+            actualInventoryInputs.forEach((input, index) => {
+                input.addEventListener('blur', function () {
+                    const actualInventoryValue = parseInt(this.value);
+                    const numberOfInventory = parseInt(document.getElementsByClassName('numberOfInventory')[index].textContent);
+                    const stockStatus = document.getElementsByClassName('stockStatus')[index];
+                    const remark = document.getElementsByClassName('remark')[index];
+
+                    if (actualInventoryValue === numberOfInventory) {
+                        stockStatus.textContent = '數量無誤';
+                        remark.readOnly = true;
+                        remark.value = '無誤';
+                        // 移除必填標記
+                        remark.removeAttribute('required');
+                    } else {
+                        stockStatus.textContent = '數量有誤';
+                        remark.readOnly = false;
+                        remark.value = '';
+                        // 添加必填標記
+                        remark.setAttribute('required', 'required');
+                        remark.focus();
+                    }
+                });
+            });
+        }
+
+        function htmlMaker(products) {
+            const baseUrl = '/marketMaster'; // Update this if needed
+            return products.map(product => `
+        <div class="card col-3 m-3" style="width: 18rem;">
+            <div class="h262 position-relative ">
+                ${product.productPhoto && product.productPhoto.length > 0
+                    ? `<img src="${baseUrl}/product/downloadProductPhoto?productId=${product.productId}" class="card-img-top">`
+                    : `<i class="fa-solid fa-file-image position-absolute top-50 start-50 translate-middle"></i>`
+                }
+            </div>
+            <div class="card-body text-center">
+                <input type="hidden" class="productId" value="${product.productId}">
+                <h5 class="card-title m-auto">${product.productName}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item ">
+                    當前庫存量: <span class="numberOfInventory">${product.numberOfInventory}</span>個
+                </li>
+                <li class="list-group-item">
+                    <div class="input-group">
+                        <span class="input-group-text">本次盤點量:</span>
+                        <input type="number" class="form-control actualInventory required invectoryCheck" min="0">
+                    </div>
+                </li>
+                <li class="list-group-item">庫存狀況
+                    <span class="stockStatus"></span>
+                </li>
+            </ul>
+            <div class="card-body">
+                <input type="text" required class="remark">
+            </div>
+        </div>
+    `).join('');
+        }
+
+        function fetchProductsAndRender(pageNumber = 1) {
+            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getAllProduct/json', {
+                pageSize: 10,
+                pageNumber: pageNumber
+            })
+                .then(response => {
+                    console.log(response);
+                    const productsHTML = htmlMaker(response.data.content);
+                    document.querySelector('.invectoryCheck-row').innerHTML = productsHTML;
+                    pageMaker(response.data);
+                    setupRemarkListeners();
+                    submitListener();
+                })
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                });
+        }
+
+        function pageMaker(data) {
+            const ul = document.getElementById("pageUl");
+            ul.innerHTML = ''; // Clear existing pagination
+
+            for (let i = 1; i <= data.totalPages; i++) {
+                const li = document.createElement("li");
+                li.className = "page-item";
+                const btn = document.createElement("button");
+                btn.className = "page-link";
+                btn.textContent = i;
+                btn.addEventListener('click', () => fetchProductsAndRender(i));
+                li.appendChild(btn);
+                ul.appendChild(li);
+            }
+        }
+    </script>
+
+</body>
+
+</html>
