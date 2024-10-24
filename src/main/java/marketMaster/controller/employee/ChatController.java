@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import marketMaster.bean.employee.ChatMessage;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.service.employee.ChatServiceImpl;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +33,7 @@ public class ChatController {
 	private ChatServiceImpl chatService;
 	
 	@Autowired
-	private EmployeeServiceImpl employeeService;
+	private EmployeeService employeeService;
 	
 	@GetMapping("/messages")
 	public String showChatMessages(Model model, HttpSession session) {
@@ -81,8 +81,7 @@ public class ChatController {
 	        List<ChatMessage> messages = chatService.getRecentMessages(employee.getEmployeeId(), otherUser, 50);
 	        return ResponseEntity.ok(messages != null ? messages : new ArrayList<>());
 	    } catch (Exception e) {
-	        // 記錄錯誤
-	        e.printStackTrace(); // 或使用日誌框架記錄錯誤
+	        e.printStackTrace();
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 	    }
 	}

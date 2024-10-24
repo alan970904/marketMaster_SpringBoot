@@ -14,6 +14,8 @@ import marketMaster.viewModel.EmployeeViewModel;
 
 public interface EmployeeService {
 
+	void init();
+
 	EmpBean login(String employeeId, String rawPassword);
 
 	boolean isFirstLogin(String employeeId);
@@ -49,4 +51,7 @@ public interface EmployeeService {
 	List<EmpBean> findAllEmp();
 
 	Page<EmpBean> getEmployeeById(String employeeId, Pageable pageable);
+
+	boolean resetPasswordAndSendEmail(String employeeId, String idCardLast4);
+
 }

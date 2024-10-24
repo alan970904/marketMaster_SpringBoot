@@ -31,7 +31,7 @@
         .nav-link.active {
             color: #007bff;
         }
-        
+
         .login-logo {
             font-size: 2.5rem;
             color: #84fab0;
@@ -56,14 +56,14 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                <span th:text="'歡迎，' + ${session.employee.employeeName}" style="color: white;">歡迎，使用者</span>
+                           <span th:text="'歡迎，' + ${session.employee.employeeName}" style="color: white;">歡迎，使用者</span>   
                                 <img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt=""
                                     style="width: 40px; height: 40px;">
                             </a>
                             <ul class="dropdown-menu bg-warning" aria-labelledby="navbarDropdown">
                                      <li><a class="dropdown-item"
-                                  th:href="@{/employee/details(employeeId=${session.employee.employeeId})}">個人資料</a> 
-                                </li>
+                                  th:href="@{/employee/details(employeeId=${session.employee.employeeId})}">個人資料</a>       
+                                </li>  
                                 <li><a class="dropdown-item" th:href="@{/employee/changePasswordPage}">修改密碼</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
@@ -171,7 +171,7 @@
                                         <a class="nav-link py-1" th:href="@{/product/findAll}">商品列表</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link py-1" th:href="@{/supplier/supplier}">XXX</a>
+                                        <a class="nav-link py-1" th:href="@{/inventoryCheck/home}">盤點列表</a>
                                     </li>
                                 </ul>
                             </li>

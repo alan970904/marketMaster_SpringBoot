@@ -27,11 +27,13 @@
                     <div class="card mt-3 w-50 mx-auto">
                         <div class="card-header text-center fs-4"><span>商品</span></div>
                         <div class="card-body row">
-                            <div class="col-3 align-self-center text-center">
+                            <th:block th:if="${product.productPhoto != null && product.productPhoto.length > 0}">
+                                <div class="col-3 align-self-center text-center">
+                                    <img class="w100"
+                                        th:src="@{/product/downloadProductPhoto(productId=${product.productId})}">
+                                </div>
+                            </th:block>
 
-                                <img class="w100"
-                                    th:src="@{/product/downloadProductPhoto(productId=${product.productId})}">
-                            </div>
                             <div class="col">
                                 <table class="m-auto mt-3">
                                     <tr>

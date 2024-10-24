@@ -24,13 +24,14 @@ public interface CheckoutDetailsRepository extends JpaRepository<CheckoutDetails
     List<CheckoutDetailsBean> searchByProductId(@Param("productId") String productId);
 
     // 計算商品退貨率
-    @Query("SELECT cd.productId as productId, CAST(ROUND((SUM(CASE WHEN rd.returnId IS NOT NULL THEN rd.numberOfReturn ELSE 0 END) * 100.0) / SUM(cd.numberOfCheckout), 2) AS java.math.BigDecimal) AS returnRate " +
+    @Query("SELECT cd.productId as productId, " +
+           "CAST(ROUND((SUM(CASE WHEN rd.returnId IS NOT NULL THEN rd.numberOfReturn ELSE 0 END) * 100.0) / NULLIF(SUM(cd.numberOfCheckout), 0), 2) AS java.math.BigDecimal) AS returnRate " +
            "FROM CheckoutDetailsBean cd LEFT JOIN cd.returnDetails rd " +
            "GROUP BY cd.productId")
     List<Map<String, Object>> getProductReturnRates();
 
     // 計算結帳總金額
-    @Query("SELECT COALESCE(CAST(SUM(cd.checkoutPrice) AS int), 0) FROM CheckoutDetailsBean cd WHERE cd.checkoutId = :checkoutId")
+    @Query("SELECT COALESCE(SUM(cd.checkoutPrice), 0) FROM CheckoutDetailsBean cd WHERE cd.checkoutId = :checkoutId")
     int calculateCheckoutTotal(@Param("checkoutId") String checkoutId);
 
     // 刪除特定結帳ID的所有明細
@@ -58,21 +59,18 @@ public interface CheckoutDetailsRepository extends JpaRepository<CheckoutDetails
                       @Param("returnQuantity") int returnQuantity, 
                       @Param("returnPrice") int returnPrice);
     
- // 新增方法：獲取特定結帳ID和商品ID的結帳明細
+    // 獲取特定結帳ID和商品ID的結帳明細
     @Query("FROM CheckoutDetailsBean cd WHERE cd.checkoutId = :checkoutId AND cd.productId = :productId")
     CheckoutDetailsBean findByCheckoutIdAndProductId(@Param("checkoutId") String checkoutId, @Param("productId") String productId);
 
-    // 新增方法：獲取特定商品的總銷售量
-    @Query("SELECT SUM(cd.numberOfCheckout) FROM CheckoutDetailsBean cd WHERE cd.productId = :productId")
+    // 獲取特定商品的總銷售量
+    @Query("SELECT COALESCE(SUM(cd.numberOfCheckout), 0) FROM CheckoutDetailsBean cd WHERE cd.productId = :productId")
     Integer getTotalSalesByProduct(@Param("productId") String productId);
 
-    // 新增方法：獲取銷售量最高的前N個商品
+    // 獲取銷售量最高的前N個商品
     @Query("SELECT cd.productId, SUM(cd.numberOfCheckout) as totalSales " +
            "FROM CheckoutDetailsBean cd " +
            "GROUP BY cd.productId " +
            "ORDER BY totalSales DESC")
     List<Map<String, Object>> getTopSellingProducts(Pageable pageable);
-    
-    
-    
 }

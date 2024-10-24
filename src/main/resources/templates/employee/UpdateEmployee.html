@@ -12,11 +12,11 @@
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
-            <main class="container mt-4">
+            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
                 <h1 class="mb-4">更新員工資訊</h1>
                 <form th:action="@{/employee/empUpdate}" method="post" onsubmit="return validateForm()"
                     enctype="multipart/form-data">
-                    <table class="table table-bordered" style="width: 60%;">
+                    <table class="table table-bordered">
                         <tr>
                             <th>員工編號:</th>
                             <td><input type="text" name="employeeId" id="employeeId"
@@ -72,8 +72,10 @@
                         </tr>
                     </table>
                     <button type="submit" class="btn btn-primary">更新</button>
+                	<div class="d-flex justify-content-start">
+					    <a th:href="@{/employee/empList}" class="btn btn-secondary mt-3">返回員工列表</a>
+					</div>
                 </form>
-                <a th:href="@{/employee/empList}" class="btn btn-secondary mt-3">返回員工列表</a>
             </main>
         </div>
     </div>

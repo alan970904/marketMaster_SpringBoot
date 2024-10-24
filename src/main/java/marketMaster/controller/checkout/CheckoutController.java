@@ -1,6 +1,7 @@
 package marketMaster.controller.checkout;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,9 @@ import marketMaster.service.checkout.CheckoutService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ecpay.payment.integration.AllInOne;
+import ecpay.payment.integration.domain.AioCheckOutALL;
 import marketMaster.exception.DataAccessException;
 
 import java.math.BigDecimal;
@@ -25,6 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 @Controller
@@ -96,11 +101,17 @@ public class CheckoutController {
             List<CheckoutDetailsBean> details = parseCheckoutDetails(requestData);
             validateCheckoutData(checkout, details);
 
-         // 處理非會員結帳（顧客手機為空）的情況
+            // 處理非會員結帳（顧客手機為空）的情況
             if (checkout.getCustomerTel() == null || checkout.getCustomerTel().isEmpty()) {
                 checkout.setBonusPoints(0);
                 checkout.setPointsDueDate(null);
             }
+            
+            // 設置發票號碼
+            checkout.setInvoiceNumber(generateInvoiceNumber());
+            
+            // 設置結帳狀態
+            checkout.setCheckoutStatus("正常");
             
             boolean success = checkoutService.insertCheckoutWithDetails(checkout, details);
 
@@ -146,6 +157,9 @@ public class CheckoutController {
             String customerTel = checkoutData.get("customerTel");
             existingCheckout.setCustomerTel(customerTel);
             existingCheckout.setEmployeeId(checkoutData.get("employeeId"));
+            existingCheckout.setInvoiceNumber(checkoutData.get("invoiceNumber"));
+            existingCheckout.setCheckoutStatus(checkoutData.get("checkoutStatus"));
+            existingCheckout.setRelatedReturnId(checkoutData.get("relatedReturnId"));
 
             String checkoutDateStr = checkoutData.get("checkoutDate");
             if (checkoutDateStr != null && !checkoutDateStr.isEmpty()) {
@@ -291,8 +305,8 @@ public class CheckoutController {
     public ResponseEntity<Map<String, String>> updateTotalAndBonus(@RequestBody Map<String, Object> request) {
         try {
             String checkoutId = (String) request.get("checkoutId");
-            BigDecimal totalAmount = new BigDecimal(request.get("totalAmount").toString());
-            int bonusPoints = Integer.parseInt(request.get("bonusPoints").toString());
+            int totalAmount = Integer.parseInt(request.get("totalAmount").toString());
+            Integer bonusPoints = Integer.parseInt(request.get("bonusPoints").toString());
             
             checkoutService.updateTotalAndBonus(checkoutId, totalAmount, bonusPoints);
             return ResponseEntity.ok(Map.of("status", "success", "message", "總金額和紅利點數已更新"));
@@ -336,6 +350,17 @@ public class CheckoutController {
         return details;
     }
 
+    @GetMapping("/nextInvoiceNumber")
+    @ResponseBody
+    public ResponseEntity<String> getNextInvoiceNumber() {
+        try {
+            return ResponseEntity.ok(checkoutService.generateNextInvoiceNumber());
+        } catch (DataAccessException e) {
+            logger.severe("生成下一個發票號碼失敗: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("生成發票號碼失敗");
+        }
+    }
+    
     private void validateCheckoutData(CheckoutBean checkout, List<CheckoutDetailsBean> details) throws InvalidCheckoutDataException {
         if (checkout.getCheckoutId() == null || checkout.getCheckoutId().isEmpty()) {
             throw new InvalidCheckoutDataException("結帳 ID 不能為空");
@@ -357,6 +382,7 @@ public class CheckoutController {
         }
     }
     
+    // 輔助方法：更新結帳明細
     private void updateCheckoutDetails(String checkoutId, Map<String, String> checkoutData) throws Exception {
         String detailsJson = checkoutData.get("checkoutDetails");
         if (detailsJson != null && !detailsJson.isEmpty()) {
@@ -375,5 +401,73 @@ public class CheckoutController {
         }
     }
     
+    // 新增方法：根據日期範圍獲取結帳記錄
+    @GetMapping("/byDateRange")
+    public String getCheckoutsByDateRange(
+            @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date startDate,
+            @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date endDate,
+            Model model) {
+        try {
+            List<CheckoutBean> checkouts = checkoutService.getCheckoutsByDateRange(startDate, endDate);
+            model.addAttribute("checkouts", checkouts);
+            return "checkout/checkout/CheckoutsByDateRange";
+        } catch (DataAccessException e) {
+            logger.severe("獲取指定日期範圍的結帳記錄失敗: " + e.getMessage());
+            model.addAttribute("error", "獲取結帳記錄失敗，請稍後再試");
+            return "error";
+        }
+    }
 
+    // 新增方法：獲取特定日期的銷售總額
+    @GetMapping("/dailySalesTotal")
+    @ResponseBody
+    public ResponseEntity<Integer> getDailySalesTotal(@RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date date) {
+        try {
+            Integer total = checkoutService.getDailySalesTotal(date);
+            return ResponseEntity.ok(total);
+        } catch (DataAccessException e) {
+            logger.severe("獲取每日銷售總額失敗: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
+    @PostMapping("/updateStatus")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> updateCheckoutStatus(@RequestBody Map<String, String> request) {
+        try {
+            String checkoutId = request.get("checkoutId");
+            String status = request.get("status");
+            checkoutService.updateCheckoutStatus(checkoutId, status);
+            return ResponseEntity.ok(Map.of("status", "success", "message", "結帳狀態更新成功"));
+        } catch (DataAccessException e) {
+            logger.severe("更新結帳狀態失敗: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", "更新結帳狀態失敗: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/byInvoice")
+    public String getCheckoutByInvoiceNumber(@RequestParam String invoiceNumber, Model model) {
+        try {
+            CheckoutBean checkout = checkoutService.findByInvoiceNumber(invoiceNumber);
+            if (checkout != null) {
+                model.addAttribute("checkout", checkout);
+                return "checkout/checkout/GetCheckout";
+            } else {
+                model.addAttribute("error", "找不到對應的結帳記錄");
+                return "error";
+            }
+        } catch (DataAccessException e) {
+            logger.severe("根據發票號碼查詢結帳記錄失敗: " + e.getMessage());
+            model.addAttribute("error", "查詢結帳記錄失敗，請稍後再試");
+            return "error";
+        }
+    }
+
+    // 輔助方法：生成發票號碼
+    private String generateInvoiceNumber() throws DataAccessException {
+        return checkoutService.generateNextInvoiceNumber();
+    }
+    
+    
 }

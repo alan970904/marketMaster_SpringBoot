@@ -16,6 +16,7 @@ public class MarketMasterApplication {
         SpringApplication.run(MarketMasterApplication.class, args);
     }
 
+    
     @Bean
     public WebMvcConfigurer webMvcConfigurer() {
         return new WebMvcConfigurer() {
@@ -28,5 +29,4 @@ public class MarketMasterApplication {
             }
         };
     }
-    
 }

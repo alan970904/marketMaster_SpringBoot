@@ -1,7 +1,12 @@
 package marketMaster.bean.product;
 
 import jakarta.persistence.*;
+import marketMaster.bean.restock.SupplierProductsBean;
+
 import java.io.Serializable;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
@@ -42,10 +47,10 @@ public class ProductBean implements Serializable {
 
 	@Column(name = "number_of_remove")
 	private int numberOfRemove;
-	
+
 	@Column(name = "product_available")
 	private boolean productAvailable;
-	
+
 	@Column(name = "is_perishable")
 	private boolean isPerishable;
 
@@ -53,14 +58,18 @@ public class ProductBean implements Serializable {
 	@Column(name = "product_photo")
 	private byte[] productPhoto;
 
+	@OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+	@JsonIgnore
+	private List<SupplierProductsBean>  supplierProductBean;
+	
 	public ProductBean() {
 		super();
 	}
 
 	public ProductBean(String productId, String productCategory, String productName, int productPrice,
-			int productSafeInventory, int numberOfShelve, int numberOfInventory, int numberOfSale, int numberOfExchange,
-			int numberOfDestruction, int numberOfRemove, boolean productAvailable, boolean isPerishable,
-			byte[] productPhoto) {
+					   int productSafeInventory, int numberOfShelve, int numberOfInventory, int numberOfSale, int numberOfExchange,
+					   int numberOfDestruction, int numberOfRemove, boolean productAvailable, boolean isPerishable,
+					   byte[] productPhoto) {
 		super();
 		this.productId = productId;
 		this.productCategory = productCategory;
@@ -189,12 +198,22 @@ public class ProductBean implements Serializable {
 	public void setProductPhoto(byte[] productPhoto) {
 		this.productPhoto = productPhoto;
 	}
+	
+	
+
+	public List<SupplierProductsBean> getSupplierProductBean() {
+		return supplierProductBean;
+	}
+
+	public void setSupplierProductBean(List<SupplierProductsBean> supplierProductBean) {
+		this.supplierProductBean = supplierProductBean;
+	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
 
 
-	
+
 
 }

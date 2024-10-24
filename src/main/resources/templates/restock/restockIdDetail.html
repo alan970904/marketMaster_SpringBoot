@@ -80,7 +80,10 @@
     </form>
 </div>
 
+<!-- 引入 Axios 和 Bootstrap JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- 在此处添加 Bootstrap JavaScript 引用 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
         bindTableActions();
@@ -96,7 +99,7 @@
                         console.log(`/restockDetail/deleteByRestockDetailId?detailId=${detailId}`);
                         axios.delete(`/marketMaster/restockDetail/deleteByRestockDetailId?detailId=${detailId}`)
                             .then(res => {
-                                if (res.data === "刪除成功並更新總金額！") {
+                                if (res.status === 200) {
                                     console.log("刪除成功", res);
                                     // 刪除成功後，從 DOM 中移除該行
                                     const row = button.closest('tr');
@@ -150,8 +153,8 @@
                                 }).then(res => {
                                     console.log("更新成功", res);
                                     $(this).dialog("close");
-                                    const row = button.closest('tr');
-                                    updateRow(row, res.data);
+                                    window.location.reload();
+
                                 }).catch(error => {
                                     console.error("更新失敗", error);
                                     if (error.response) {
@@ -177,8 +180,6 @@
             row.querySelector('td:nth-child(6)').textContent = data.priceAtRestock;  // 更新商品價格
             row.querySelector('td:nth-child(7)').textContent = data.restockTotalPrice; // 更新總金額
         }
-
-
     });
 </script>
 </body>

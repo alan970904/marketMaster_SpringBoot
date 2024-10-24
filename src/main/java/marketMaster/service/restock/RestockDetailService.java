@@ -5,9 +5,6 @@ import jakarta.transaction.Transactional;
 import marketMaster.DTO.restock.restock.RestockDTO;
 import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.bean.restock.RestockDetailsBean;
-import marketMaster.bean.restock.RestocksBean;
-import marketMaster.bean.restock.SupplierAccountsBean;
-import marketMaster.bean.restock.SupplierProductsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +27,8 @@ public class RestockDetailService {
     private SupplierAccountsRepository accountsRepository;
     @Autowired
     private SupplierProductsRepository supplierProductRepository;
+    @Autowired
+    private SupplierAccountsRepository supplierAccountsRepository;
 
     //  拿到最新DetailId
     public String getLastedDetailId() {
@@ -85,6 +84,9 @@ public class RestockDetailService {
         // 4. 更新進貨商總應付金額
         String supplierId = detail.getSupplier().getSupplierId();
         updateSupplierTotalAmount(supplierId);
+        // 5. 更新進貨商未付款總金額
+        updateSupplierUnpaidAmount(supplierId);
+
     }
 
     // 刪除明細並更新總金額
@@ -101,6 +103,9 @@ public class RestockDetailService {
         updateRestockTotalPrice(restockId);
         //4.更新進貨商總應付金額
         updateSupplierTotalAmount(supplierId);
+        // 5. 更新進貨商未付款總金額
+        updateSupplierUnpaidAmount(supplierId);
+
     }
 
 
@@ -133,6 +138,18 @@ public class RestockDetailService {
         accountsRepository.updateSupplierTotalAmount(supplierId,newTotalAmount);
 
     }
+    //根據 供應商id找到供應商供應商的totalAmount  減去paidAmount 計算新的 unpaidAmount
+    private void updateSupplierUnpaidAmount(String supplierId){
+        int totalAmount=  supplierAccountsRepository.getTotalAmountBySupplierId(supplierId);
+        int paidAmount =  supplierAccountsRepository.getPaidAmountBySupplierId(supplierId);
+        int newUnpaidAmount = totalAmount - paidAmount;
+        System.out.println( "newUnpaidAmount"+newUnpaidAmount);
+        supplierAccountsRepository.updateSupplierUnpaidAmount(supplierId,newUnpaidAmount);
+    }
+
+
+
+
 
 
 

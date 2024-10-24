@@ -13,6 +13,11 @@ import marketMaster.bean.restock.SupplierProductsBean;
 import marketMaster.bean.restock.SuppliersBean;
 import marketMaster.service.employee.EmployeeRepository;
 import marketMaster.service.product.ProductRepository;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -162,6 +169,35 @@ public class RestockService {
     public Page<RestockDTO> getRestockDetailsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
         return restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate,pageable);
     }
+        //匯出excel
+        public byte[]exportRestockDetailsToExcel(LocalDate startDate, LocalDate endDate) throws IOException {
+            List<RestockDTO> restocks = restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate, Pageable.unpaged()).getContent();
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Restock Details");
+            Row headerRow = sheet.createRow(0);
+            String[]headers={"進貨編號","員工編號與姓名","進貨日期","進貨總金額"};
+            for(int i=0;i<headers.length;i++){
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+            int rowIdx=1;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            for (RestockDTO restock : restocks) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(restock.getRestockId());
+                row.createCell(1).setCellValue(restock.getEmployeeId()+"-"+restock.getEmployeeName());
+                row.createCell(2).setCellValue(restock.getRestockDate().format(formatter));
+                row.createCell(3).setCellValue(restock.getRestockTotalPrice());
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+            return outputStream.toByteArray();
+
+
+        }
+
 
     }
 

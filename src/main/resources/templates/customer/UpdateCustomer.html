@@ -12,7 +12,7 @@
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
-            <main class="container mt-4">
+            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
                 <h1 class="mb-4">更新會員</h1>
 
                 <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
@@ -49,8 +49,10 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">更新會員</button>
+                	<div class="d-flex justify-content-start">
+					    <a class="btn btn-secondary mt-3" th:href="@{/customer/cusList}">返回會員列表</a>
+					</div>
                 </form>
-                <a class="btn btn-secondary mt-3" th:href="@{/customer/cusList}">返回會員列表</a>
             </main>
         </div>
     </div>

@@ -8,40 +8,46 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
-import marketMaster.service.employee.EmployeeServiceImpl;
+import marketMaster.annotation.RequiresPermission;
+import marketMaster.service.authorization.AuthorizationService;
+import marketMaster.service.employee.EmployeeService;
 import marketMaster.viewModel.EmployeeViewModel;
 
 @Controller
 public class ChangePasswordController {
 
     @Autowired
-    private EmployeeServiceImpl employeeService;
+    private EmployeeService employeeService;
+    
+	@Autowired
+	private AuthorizationService authService;
 
     @GetMapping("/employee/changePasswordPage")
+    @RequiresPermission(value = "changePassword", resource = "employee")
     public String showChangePasswordPage(HttpSession session, Model model) {
-        EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
-        if (employee == null) {
-            return "redirect:/employee/loginPage";
-        }
+        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+        int authority = currentEmployee.getAuthority();
         
-        boolean isFirstLogin = employeeService.isFirstLogin(employee.getEmployeeId());
+        boolean isFirstLogin = employeeService.isFirstLogin(currentEmployee.getEmployeeId());
         model.addAttribute("isFirstLogin", isFirstLogin);
+        model.addAttribute("currentAuthority", authority);
         
         return "employee/ChangePassword";
     }
 
     @PostMapping("/employee/changePassword")
+    @RequiresPermission(value = "changePassword", resource = "employee")
     public String changePassword(@RequestParam String newPassword, HttpSession session, Model model) {
-        EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
+        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
 
-        if (employee == null) {
+        if (currentEmployee == null) {
             return "redirect:/employee/loginPage";
         }
 
         try {
-            boolean success = employeeService.updatePassword(employee.getEmployeeId(), newPassword);
+            boolean success = employeeService.updatePassword(currentEmployee.getEmployeeId(), newPassword);
             if (success) {
-                EmployeeViewModel updatedEmployee = employeeService.getEmployeeViewModel(employee.getEmployeeId());
+                EmployeeViewModel updatedEmployee = employeeService.getEmployeeViewModel(currentEmployee.getEmployeeId());
                 session.setAttribute("employee", updatedEmployee);
                 return "redirect:/employee/loginPage";
             } else {
@@ -61,13 +67,9 @@ public class ChangePasswordController {
 
     @PostMapping("/employee/forgotPassword")
     public String processForgotPassword(@RequestParam String employeeId, @RequestParam String idCardLast4, Model model) {
-        boolean isValid = employeeService.validateEmployeeInfo(employeeId, idCardLast4);
-        if (isValid) {
-            // 生成臨時密碼
-            String tempPassword = employeeService.generateTempPassword();
-            employeeService.updatePassword(employeeId, tempPassword);
-            model.addAttribute("message", "臨時密碼已生成，請使用臨時密碼登入後立即修改密碼。");
-            model.addAttribute("tempPassword", tempPassword);
+        boolean isResetSuccessful  = employeeService.resetPasswordAndSendEmail(employeeId, idCardLast4);
+        if (isResetSuccessful ) {
+            model.addAttribute("message", "密碼重置郵件已發送到您的電子郵箱。請檢查您的郵箱並使用臨時密碼登入。");
         } else {
             model.addAttribute("error", "員工編號或身份證號碼後四位不正確。");
         }
