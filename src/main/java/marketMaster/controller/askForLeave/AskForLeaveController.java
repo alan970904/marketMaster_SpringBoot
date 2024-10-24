@@ -1,8 +1,12 @@
 package marketMaster.controller.askForLeave;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +25,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import marketMaster.bean.askForLeave.AskForLeave;
-import marketMaster.bean.askForLeave.LeaveCategory;
+import jakarta.servlet.http.HttpServletRequest;
+import marketMaster.bean.askForLeave.AskForLeaveBean;
+import marketMaster.bean.askForLeave.LeaveCategoryBean;
 import marketMaster.bean.employee.EmpBean;
+import marketMaster.bean.schedule.ScheduleBean;
 import marketMaster.service.askForLeave.AskForLeaveService;
 import marketMaster.service.askForLeave.LeaveCategoryService;
 import marketMaster.service.askForLeave.LeaveRecordService;
 import marketMaster.service.employee.EmployeeService;
+import marketMaster.service.schedule.ScheduleService;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class AskForLeaveController {
@@ -45,24 +51,22 @@ public class AskForLeaveController {
 	private LeaveCategoryService leaveCategoryService;
 
 	@Autowired
-	private LeaveRecordService leaveRecordService;
+	private ScheduleService scheduleService;
 
-	@GetMapping("/askForLeave/home")
-	public String homePage() {
-		return "askForLeave/homeAsl";
-	}
+	@Autowired
+	private LeaveRecordService leaveRecordService;
 
 	@GetMapping("/askForLeave/search")
 	public String findAslByEmpId(@RequestParam("id") String employeeId,
 			@RequestParam(value = "p", defaultValue = "1") Integer pageNum, Model model) {
-		EmpBean employee = empService.getEmployee(employeeId);
 
+		EmpBean employee = empService.getEmployee(employeeId);
 		if (employee == null) {
 			model.addAttribute("error", "找不到該員工");
 			return "askForLeave/homeAsl";
 		}
 
-		Page<AskForLeave> page = aslService.findAslByEmpId(employeeId, pageNum);
+		Page<AskForLeaveBean> page = aslService.findAslByEmpId(employeeId, pageNum);
 
 		model.addAttribute("empBean", employee);
 		model.addAttribute("leaves", page.getContent());
@@ -72,10 +76,61 @@ public class AskForLeaveController {
 		return "askForLeave/emPage";
 	}
 
+//	@GetMapping("/askForLeave/findByData")
+//	@ResponseBody
+//	public Map<String, Object> findByData(@RequestParam("id") String employeeId,
+//			@RequestParam(value = "search[value]", required = false) String searchTerm,
+//			@RequestParam(value = "start", defaultValue = "0") Integer start,
+//			@RequestParam(value = "length", defaultValue = "10") Integer length,
+//			@RequestParam(value = "order[0][column]", defaultValue = "0") Integer orderColumn,
+//			@RequestParam(value = "order[0][dir]", defaultValue = "asc") String orderDir,
+//			@RequestParam(value = "startTime", required = false) String startTime,
+//			@RequestParam(value = "endTime", required = false) String endTime,
+//			@RequestParam(value = "approvedStatus", required = false) String approvedStatus,
+//			HttpServletRequest request) {
+//
+//		System.out.println("findAslByEmpId employeeId: " + employeeId);
+//		int pageNum = start / length + 1;
+//
+//		LocalDateTime startDateTime = (startTime != null && !startTime.isEmpty()) ? LocalDateTime.parse(startTime)
+//				: null;
+//		LocalDateTime endDateTime = (endTime != null && !endTime.isEmpty()) ? LocalDateTime.parse(endTime) : null;
+//
+//		Page<AskForLeaveBean> page = aslService.filterFindAsl(employeeId, startDateTime, endDateTime, searchTerm,
+//				approvedStatus, pageNum);
+//
+//		Map<String, Object> response = new HashMap<>();
+//		response.put("draw", request.getParameter("draw"));
+//		response.put("recordsTotal", page.getTotalElements());
+//		response.put("recordsFiltered", page.getTotalElements());
+//		response.put("data", page.getContent());
+//		System.out.println("response=" + response);
+//		return response;
+//	}
+
+	@GetMapping("/askForLeave/filter")
+	@ResponseBody
+	public ResponseEntity<Page<AskForLeaveBean>> filterAskForLeaves(@RequestParam(required = false) String employeeId,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startTime,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endTime,
+			@RequestParam(required = false) String leaveCategory, @RequestParam(required = false) String approvedStatus,
+			@RequestParam(defaultValue = "1") int pageNum) {
+
+		employeeId = (employeeId != null && !employeeId.isEmpty()) ? employeeId : null;
+		leaveCategory = (leaveCategory != null && !leaveCategory.isEmpty()) ? leaveCategory : null;
+		approvedStatus = (approvedStatus != null && !approvedStatus.isEmpty()) ? approvedStatus : null;
+
+		Page<AskForLeaveBean> result = aslService.filterFindAsl(employeeId,
+				startTime != null ? startTime.atStartOfDay() : null,
+				endTime != null ? endTime.atTime(23, 59, 59) : null, leaveCategory, approvedStatus, pageNum);
+
+		return ResponseEntity.ok(result);
+	}
+
 	@GetMapping("/askForLeave/image/{leaveId}")
 	@ResponseBody
 	public ResponseEntity<byte[]> getImage(@PathVariable String leaveId) {
-		AskForLeave askForLeave = aslService.findAslById(leaveId);
+		AskForLeaveBean askForLeave = aslService.findAslById(leaveId);
 		if (askForLeave != null) {
 
 			MediaType mediaType = aslService.getMediaTypeForFile(askForLeave.getProofImage());
@@ -93,11 +148,11 @@ public class AskForLeaveController {
 			return null;
 		}
 
-		AskForLeave newAsl = new AskForLeave();
+		AskForLeaveBean newAsl = new AskForLeaveBean();
 		newAsl.setLeaveId(aslService.generateId());
 		newAsl.setEmpBean(empBean);
 
-		List<LeaveCategory> leaveCategories = leaveCategoryService.findAllLeaveCategories();
+		List<LeaveCategoryBean> leaveCategories = leaveCategoryService.findAllLeaveCategories();
 
 		model.addAttribute("askForLeave", newAsl);
 		model.addAttribute("employeeId", employeeId);
@@ -120,14 +175,21 @@ public class AskForLeaveController {
 			return "redirect:/askForLeave/search?id=" + employeeId;
 		}
 
+		leaveRecordService.checkLeaveRecord(employeeId, categoryId, endTime);
+
+		List<ScheduleBean> schedulesByDateTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
+				startTime, endTime);
+		int totalScheduleHours = schedulesByDateTimeRange.stream().mapToInt(ScheduleBean::getScheduleHour).sum();
+
 		String leaveId = aslService.generateId();
-		AskForLeave askForLeave = new AskForLeave();
+		AskForLeaveBean askForLeave = new AskForLeaveBean();
 		askForLeave.setLeaveId(leaveId);
-		LeaveCategory leaveCategory = leaveCategoryService.getLeaveCategoryById(categoryId);
+		LeaveCategoryBean leaveCategory = leaveCategoryService.getLeaveCategoryById(categoryId);
 		askForLeave.setLeaveCategory(leaveCategory);
 		askForLeave.setReasonLeave(reasonLeave);
 		askForLeave.setStarTime(startTime);
 		askForLeave.setEndTime(endTime);
+		askForLeave.setLeaveHours(totalScheduleHours);
 		askForLeave.setApprovedStatus(approvedStatus);
 
 		EmpBean empBean = empService.getEmployee(employeeId);
@@ -150,13 +212,13 @@ public class AskForLeaveController {
 
 	@GetMapping("/askForLeave/edit/{id}")
 	public String showEditAslForm(@PathVariable String id, Model model) {
-		AskForLeave existAsl = aslService.findAslById(id);
+		AskForLeaveBean existAsl = aslService.findAslById(id);
 		if (existAsl != null) {
 
 			EmpBean empBean = empService.getEmployee(existAsl.getEmpBean().getEmployeeId());
 
 			if (empBean != null) {
-				List<LeaveCategory> leaveCategories = leaveCategoryService.findAllLeaveCategories();
+				List<LeaveCategoryBean> leaveCategories = leaveCategoryService.findAllLeaveCategories();
 				existAsl.setEmpBean(empBean);
 				model.addAttribute("askForLeave", existAsl);
 				model.addAttribute("employeeName", empBean.getEmployeeName());
@@ -176,21 +238,28 @@ public class AskForLeaveController {
 			@RequestParam String approvedStatus, @RequestParam(required = false) MultipartFile proofImage,
 			RedirectAttributes redirectAtb) {
 
-		AskForLeave existAsl = aslService.findAslById(id);
+		AskForLeaveBean existAsl = aslService.findAslById(id);
 
 		if (existAsl != null) {
-			if (!startTime.equals(existAsl.getStarTime()) || !endTime.equals(existAsl.getEndTime())) {
+			LocalDateTime endTime2 = existAsl.getEndTime();
+			LocalDateTime startTime2 = existAsl.getStarTime();
+			if (!startTime.equals(startTime2) || !endTime.equals(endTime2)) {
 				if (aslService.isLeaveTimeOverlapping(employeeId, startTime, endTime)) {
 					redirectAtb.addFlashAttribute("duplicateError", "同時間已有請假，不可重複");
 					return "redirect:/askForLeave/search?id=" + employeeId;
 				}
 			}
 
-			LeaveCategory leaveCategory = leaveCategoryService.getLeaveCategoryById(categoryId);
+			List<ScheduleBean> addschedulesTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
+					startTime, endTime);
+			int addScheduleHours = addschedulesTimeRange.stream().mapToInt(ScheduleBean::getScheduleHour).sum();
+
+			LeaveCategoryBean leaveCategory = leaveCategoryService.getLeaveCategoryById(categoryId);
 			existAsl.setLeaveCategory(leaveCategory);
 			existAsl.setReasonLeave(reasonLeave);
 			existAsl.setStarTime(startTime);
 			existAsl.setEndTime(endTime);
+			existAsl.setLeaveHours(addScheduleHours);
 			existAsl.setApprovedStatus(approvedStatus);
 
 			if (proofImage != null && !proofImage.isEmpty()) {
@@ -211,7 +280,6 @@ public class AskForLeaveController {
 	@ResponseBody
 	public ResponseEntity<String> deleteLeave(@PathVariable String leaveId) {
 		try {
-			System.out.println("Attempting to delete leave with ID: " + leaveId); // 輸出請假 ID
 			aslService.deleteAsl(leaveId);
 			return ResponseEntity.ok("刪除成功");
 		} catch (Exception e) {
@@ -220,20 +288,11 @@ public class AskForLeaveController {
 		}
 	}
 
-	@GetMapping("/askForLeave/findAll")
-	public String findAllAsl(@RequestParam(value = "p", defaultValue = "1") Integer pageNum, Model model) {
-		Page<AskForLeave> page = aslService.findAslPage(pageNum);
-		model.addAttribute("askForLeaves", page.getContent());
-		model.addAttribute("currentPage", pageNum);
-		model.addAttribute("totalPages", page.getTotalPages());
-		return "askForLeave/showAll";
-	}
-
 	@GetMapping("/askForLeave/approval")
 	public String findByRank(@RequestParam("id") String employeeId,
 			@RequestParam(value = "p", defaultValue = "1") Integer pageNum, Model model) {
 
-		Page<AskForLeave> askForLeave = aslService.findAllByRank(employeeId, pageNum);
+		Page<AskForLeaveBean> askForLeave = aslService.findAllByRank(employeeId, pageNum);
 		EmpBean employee = empService.getEmployee(employeeId);
 
 		model.addAttribute("empBean", employee);
@@ -248,6 +307,13 @@ public class AskForLeaveController {
 	@ResponseBody
 	public ResponseEntity<String> approveLeave(@RequestParam String leaveId) {
 		try {
+			AskForLeaveBean aslById = aslService.findAslById(leaveId);
+			String employeeId = aslById.getEmpBean().getEmployeeId();
+			Integer leaveHours = aslById.getLeaveHours();
+			LocalDateTime endTime = aslById.getEndTime();
+			Integer categoryId = aslById.getLeaveCategory().getCategoryId();
+
+			leaveRecordService.addLeaveHours(employeeId, categoryId, endTime, leaveHours);
 			aslService.approveLeave(leaveId);
 			return ResponseEntity.ok("請假申請已核准");
 		} catch (Exception e) {
@@ -259,8 +325,14 @@ public class AskForLeaveController {
 	@ResponseBody
 	public ResponseEntity<String> rejectLeave(@RequestParam String leaveId, @RequestParam String rejectionReason) {
 		try {
-			System.out.println("----------------------------------------");
-			System.out.println("leaveId="+leaveId);
+			AskForLeaveBean aslById = aslService.findAslById(leaveId);
+			String employeeId = aslById.getEmpBean().getEmployeeId();
+			Integer leaveHours = aslById.getLeaveHours();
+			LocalDateTime endTime = aslById.getEndTime();
+			Integer categoryId = aslById.getLeaveCategory().getCategoryId();
+
+			leaveRecordService.minusLeaveHours(employeeId, categoryId, endTime, leaveHours);
+
 			aslService.rejectLeave(leaveId, rejectionReason);
 			return ResponseEntity.ok("請假申請已拒絕");
 		} catch (Exception e) {

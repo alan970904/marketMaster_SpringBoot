@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -16,7 +18,7 @@ import marketMaster.bean.employee.EmpBean;
 
 @Entity
 @Table(name = "ask_for_leave")
-public class AskForLeave {
+public class AskForLeaveBean {
 
 	@Id
 	@Column(name = "leave_id")
@@ -28,18 +30,14 @@ public class AskForLeave {
 
 	@ManyToOne
 	@JoinColumn(name = "category_id")
-	private LeaveCategory leaveCategory;
-
-	@ManyToOne
-	@JoinColumn(name = "record_id")
-	private LeaveRecord leaveRecord;
+	private LeaveCategoryBean leaveCategory;
 
 	@Column(name = "start_time")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
 	private LocalDateTime starTime;
 
 	@Column(name = "end_time")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
 	private LocalDateTime endTime;
 
 	@Column(name = "reason_leave")
@@ -51,31 +49,31 @@ public class AskForLeave {
 
 	@Column(name = "approved_status")
 	private String approvedStatus;
-	
-	@Column(name = "rejection_reason")
-    private String rejectionReason;
 
-	public AskForLeave() {
+	@Column(name = "leave_hours")
+	private Integer leaveHours;
+
+	@Column(name = "rejection_reason")
+	private String rejectionReason;
+
+
+	public AskForLeaveBean() {
 	}
 
-
-
-	public AskForLeave(String leaveId, EmpBean empBean, LeaveCategory leaveCategory, LeaveRecord leaveRecord,
-			LocalDateTime starTime, LocalDateTime endTime, String reasonLeave, byte[] proofImage, String approvedStatus,
+	public AskForLeaveBean(String leaveId, EmpBean empBean, LeaveCategoryBean leaveCategory, LocalDateTime starTime,
+			LocalDateTime endTime, String reasonLeave, byte[] proofImage, String approvedStatus, Integer leaveHours,
 			String rejectionReason) {
 		this.leaveId = leaveId;
 		this.empBean = empBean;
 		this.leaveCategory = leaveCategory;
-		this.leaveRecord = leaveRecord;
 		this.starTime = starTime;
 		this.endTime = endTime;
 		this.reasonLeave = reasonLeave;
 		this.proofImage = proofImage;
 		this.approvedStatus = approvedStatus;
+		this.leaveHours = leaveHours;
 		this.rejectionReason = rejectionReason;
 	}
-
-
 
 	public String getLeaveId() {
 		return leaveId;
@@ -93,20 +91,12 @@ public class AskForLeave {
 		this.empBean = empBean;
 	}
 
-	public LeaveCategory getLeaveCategory() {
+	public LeaveCategoryBean getLeaveCategory() {
 		return leaveCategory;
 	}
 
-	public void setLeaveCategory(LeaveCategory leaveCategory) {
+	public void setLeaveCategory(LeaveCategoryBean leaveCategory) {
 		this.leaveCategory = leaveCategory;
-	}
-
-	public LeaveRecord getLeaveRecord() {
-		return leaveRecord;
-	}
-
-	public void setLeaveRecord(LeaveRecord leaveRecord) {
-		this.leaveRecord = leaveRecord;
 	}
 
 	public LocalDateTime getStarTime() {
@@ -149,6 +139,14 @@ public class AskForLeave {
 		this.approvedStatus = approvedStatus;
 	}
 
+	public Integer getLeaveHours() {
+		return leaveHours;
+	}
+
+	public void setLeaveHours(Integer leaveHours) {
+		this.leaveHours = leaveHours;
+	}
+
 	public String getRejectionReason() {
 		return rejectionReason;
 	}
@@ -156,6 +154,6 @@ public class AskForLeave {
 	public void setRejectionReason(String rejectionReason) {
 		this.rejectionReason = rejectionReason;
 	}
-	
+
 
 }

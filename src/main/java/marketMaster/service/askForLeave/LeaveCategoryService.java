@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import marketMaster.bean.askForLeave.LeaveCategory;
+import marketMaster.bean.askForLeave.LeaveCategoryBean;
 
 @Service
 public class LeaveCategoryService {
@@ -13,11 +13,11 @@ public class LeaveCategoryService {
 	@Autowired
 	private LeaveCategoryRepository leaveCategoryRepo;
 	
-	public LeaveCategory getLeaveCategoryById(Integer id) {
+	public LeaveCategoryBean getLeaveCategoryById(Integer id) {
         return leaveCategoryRepo.findById(id).orElse(null); 
     }
 	
-	public List<LeaveCategory> findAllLeaveCategories() {
+	public List<LeaveCategoryBean> findAllLeaveCategories() {
         return leaveCategoryRepo.findAll();
     }
 
