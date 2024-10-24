@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import marketMaster.DTO.employee.MonthlyStatisticsDTO;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
@@ -53,5 +54,8 @@ public interface EmployeeService {
 	Page<EmpBean> getEmployeeById(String employeeId, Pageable pageable);
 
 	boolean resetPasswordAndSendEmail(String employeeId, String idCardLast4);
+	
+	// 員工圖表
+	List<MonthlyStatisticsDTO> getMonthlyEmployeesStatistics();
 
 }
