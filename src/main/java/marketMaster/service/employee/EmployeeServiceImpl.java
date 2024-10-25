@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import marketMaster.DTO.employee.MonthlyStatisticsDTO;
 import marketMaster.annotation.NotificationTrigger;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
@@ -329,6 +331,17 @@ public class EmployeeServiceImpl implements EmployeeService{
 		}
 		
 		return false;
+	}
+
+	@Override
+	public List<MonthlyStatisticsDTO> getMonthlyEmployeesStatistics() {
+	    List<Object[]> results = employeeRepository.getMonthlyStatistics();
+	    return results.stream()
+	        .map(row -> new MonthlyStatisticsDTO(
+	            ((Number) row[0]).intValue(),    // 月份
+	            ((Number) row[1]).longValue(),   // 在職人數
+	            ((Number) row[2]).longValue()))  // 離職人數
+	        .collect(Collectors.toList());
 	}
 
 }

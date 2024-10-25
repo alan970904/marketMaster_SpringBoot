@@ -21,12 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+import marketMaster.DTO.employee.MonthlyStatisticsDTO;
 import marketMaster.annotation.RequiresPermission;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.employee.RankLevelBean;
 import marketMaster.exception.EmpDataAccessException;
-import marketMaster.service.authorization.AuthorizationService;
-import marketMaster.service.employee.EmployeeService;
+import marketMaster.service.authorization.AuthorizationServiceImpl;
+import marketMaster.service.employee.EmployeeServiceImpl;
 import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +37,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class EmployeeController {
 
 	@Autowired
-	private EmployeeService employeeService;
+	private EmployeeServiceImpl employeeService;
 
 	@Autowired
-	private AuthorizationService authService;
+	private AuthorizationServiceImpl authService;
 
 	@GetMapping("/empList")
 	@RequiresPermission(value = "viewList", resource = "employee")
@@ -243,4 +244,26 @@ public class EmployeeController {
 		model.addAttribute("errorMessage", "權限不足，無法操作");
 		return "unauthorized";
 	}
+	
+	// 員工圖表
+	@GetMapping("/statistics")
+	@ResponseBody //返回JSON數據
+	@RequiresPermission(value = "viewChart", resource = "employee")
+	public ResponseEntity<List<MonthlyStatisticsDTO>> getEmployeeStatistics(HttpSession session) {
+	    try {
+	        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+	        if (currentEmployee == null) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        }
+	        
+	        List<MonthlyStatisticsDTO> statistics = employeeService.getMonthlyEmployeesStatistics();
+	        return ResponseEntity.ok()
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .body(statistics);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
+	}
+	
 }

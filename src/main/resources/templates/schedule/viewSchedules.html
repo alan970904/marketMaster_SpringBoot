@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" th:replace="~{body/head :: head}" />
+  <title>排班表</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" />
+
+  <style>
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .calendar-day {
+      border: 1px solid #ccc;
+      padding: 5px;
+      min-height: 100px;
+      position: relative;
+      height: 190px;
+    }
+
+    .calendar-day .fw-bold {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .empty {
+      background-color: #f0f0f0;
+    }
+
+    .form-container {
+      position: absolute;
+      top: 80px;
+      left: -300px;
+      /* 初始隱藏在左邊 */
+      width: 450px;
+      background-color: #f8f9fa;
+      border: 1px solid #ccc;
+      padding: 20px;
+      display: none;
+      /* 初始隱藏 */
+      box-shadow: 5px 0px 10px rgba(0, 0, 0, 0.1);
+      /* 修正為右側顯示陰影 */
+    }
+
+    .form-container.active {
+      left: 200px;
+      /* 顯示時，滑入畫面 */
+      display: block;
+      /* 顯示表單 */
+    }
+
+    .form-container.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div th:replace="~{body/header :: header}">
+    <div th:fragment="content">
+      <div class="container mt-5 sc">
+        <h1 class="text-center mb-4" id="year-month" th:attr="data-year=${year}, data-month=${month} "
+          th:text="${year} + '年' + ${month} + '月排班表'"></h1>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <button id="prevMonth" class="btn btn-primary">
+              <i class="fa-solid fa-angle-left"></i>上一個月
+            </button>
+          </div>
+          <div class="ms-3">
+            <button type="button" class="btn btn-warning" id="editButton">
+              <i class="fas fa-edit"></i> 編輯
+            </button>
+          </div>
+          <div class="input-group mx-auto" style="width: 360px">
+            <input type="text" class="form-control" id="inputYear" aria-label="年" placeholder="yyyy" pattern="\d{4}" />
+            <span class="input-group-text">年</span> <input type="text" class="form-control" id="inputMonth"
+              aria-label="月" placeholder="MM" pattern="\d{1,2}" /><span class="input-group-text">月</span>
+            <button id="searchButton" class="btn btn-primary">
+              <i class="fa-solid fa-magnifying-glass"></i>搜尋
+            </button>
+          </div>
+          <div>
+            <button id="nextMonth" class="btn btn-primary">
+              下一個月<i class="fa-solid fa-angle-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="schedule-container" class="calendar">
+          <div class="fw-bold text-center">週日</div>
+          <div class="fw-bold text-center">週一</div>
+          <div class="fw-bold text-center">週二</div>
+          <div class="fw-bold text-center">週三</div>
+          <div class="fw-bold text-center">週四</div>
+          <div class="fw-bold text-center">週五</div>
+          <div class="fw-bold text-center">週六</div>
+
+          <th:block th:each="day : ${#numbers.sequence(1, daysInMonth)}">
+            <div class="calendar-day" th:style="${day == 1 ? 'grid-column-start: ' + (firstDayOfWeek + 1) : ''}">
+              <div class="fw-bold" th:text="${day}"></div>
+              <div th:each="entry : ${schedulesByDayAndTime.get(day)}">
+                <div class="schedule-item"
+                  th:attr="data-day=${day}, data-time=${entry.key}, data-year=${year}, data-month=${month} ">
+                  <span th:text="${entry.key}"></span> <span th:each="schedule, iterStat : ${entry.value}"> <input
+                      type="hidden" class="schedule-id" th:value="${schedule.scheduleId}" /> <span
+                      th:text="${schedule.employeeName}"></span> <span th:if="${not iterStat.last}">,</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </th:block>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-container" id="formContainer">
+    <h4 class="text-center mb-3">編輯排班</h4>
+    <form id="scheduleForm">
+      <div class="mb-3">
+        <label for="scheduleDate" class="form-label">日期</label>
+        <div class="input-group">
+          <div class="col-6">
+            <span class="input-group-text" id="yearMonthDisplay"></span>
+          </div>
+          <div class="col-6">
+            <input type="text" class="form-control" id="dayInput" placeholder="dd" required pattern="\d{1,2}" />
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="startTime" class="form-label">開始時間</label> <input type="time" class="form-control"
+          id="startTimePicker" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="endTime" class="form-label">結束時間</label> <input type="time" class="form-control" id="endTimePicker"
+          required />
+      </div>
+      <button type="button" class="btn btn-primary w-30 text-center" id="searchSchedule">搜尋</button><span
+        class="text-muted mt-2" style="display: block; font-size: 0.9em;">修改/刪除前請先搜尋日期,時間</span>
+      <div class="mb-3 mt-3">
+        <label for="employeeSelect" class="form-label">員工</label> <select class="form-select" id="employeeSelect"
+          multiple required></select>
+      </div>
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-primary w-30" id="addSchedule">
+          新增</button>
+        <button type="button" class="btn btn-warning w-30" id="updateButton">
+          修改</button>
+        <button type="button" class="btn btn-danger w-30" id="deleteButton">
+          刪除</button>
+        <button type="button" class="btn btn-secondary w-30" id="cancelButton">取消</button>
+      </div>
+    </form>
+    <div id="totalHours"></div>
+  </div>
+
+  <div th:replace="~{body/footer :: footer}"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+
+  <script th:inline="javascript">
+    $(document).ready(function () {
+      let currentYear = /*[[${year}]]*/ 2024;
+      let currentMonth = /*[[${month}]]*/ 1;
+      getEmployeeHours(currentYear, currentMonth);
+      function updateCalendar(
+        year,
+        month,
+        schedules,
+        firstDayOfWeek,
+        daysInMonth
+      ) {
+        $("#year-month").text(year + "年" + month + "月排班表");
+        $("#year-month").attr("data-year", year);
+        $("#year-month").attr("data-month", month);
+
+        let calendarHtml = generateCalendarHeader();
+        calendarHtml += generateCalendarDays(
+          year,
+          month,
+          schedules,
+          firstDayOfWeek,
+          daysInMonth
+        );
+        $("#schedule-container").html(calendarHtml);
+      }
+
+      function generateCalendarHeader() {
+        return `
+                      <div class="fw-bold text-center">週日</div>
+                      <div class="fw-bold text-center">週一</div>
+                      <div class="fw-bold text-center">週二</div>
+                      <div class="fw-bold text-center">週三</div>
+                      <div class="fw-bold text-center">週四</div>
+                      <div class="fw-bold text-center">週五</div>
+                      <div class="fw-bold text-center">週六</div>
+                  `;
+      }
+
+      function generateCalendarDays(
+        year,
+        month,
+        schedules,
+        firstDayOfWeek,
+        daysInMonth
+      ) {
+        let calendarHtml = "";
+        for (let day = 1; day <= daysInMonth; day++) {
+          let style =
+            day === 1 ? `grid-column-start: ${firstDayOfWeek + 1}` : "";
+          calendarHtml += `
+                          <div class="calendar-day" style="${style}">
+                              <div class="fw-bold">${day}</div>
+                              ${generateScheduleItems(
+            schedules[day],
+            day,
+            year,
+            month
+          )}
+                          </div>
+                      `;
+        }
+        return calendarHtml;
+      }
+
+      function generateScheduleItems(daySchedules, day, year, month) {
+        if (!daySchedules) return "";
+        let scheduleHtml = "";
+        for (let [time, schedules] of Object.entries(daySchedules)) {
+          scheduleHtml += `
+                          <div class="schedule-item" data-day="${day}" data-time="${time}" data-year="${year}" data-month="${month}">
+                              ${time} ${schedules
+              .map((schedule) => schedule.employeeName)
+              .join(", ")}
+                          </div>
+                      `;
+        }
+        return scheduleHtml;
+      }
+
+      function changeMonth(direction) {
+        $.ajax({
+          url:
+            direction === "prev"
+              ? "/marketMaster/schedules/previousMonth"
+              : "/marketMaster/schedules/nextMonth",
+          method: "GET",
+          data: {
+            year: currentYear,
+            month: currentMonth,
+          },
+          success: function (response) {
+            currentYear = response.year;
+            currentMonth = response.month;
+            updateCalendar(
+              response.year,
+              response.month,
+              response.schedules,
+              response.firstDayOfWeek,
+              response.daysInMonth
+            );
+            getEmployeeHours(currentYear, currentMonth);
+          },
+          error: function (xhr, status, error) {
+            console.error("無法獲取排班數據:", error);
+            alert("無法獲取排班數據，請稍後再試。");
+          },
+        });
+      }
+
+      $("#prevMonth").click(function () {
+        changeMonth("prev");
+      });
+
+      $("#nextMonth").click(function () {
+        changeMonth("next");
+      });
+
+      $("#searchButton").click(function () {
+        const year = $("#inputYear").val();
+        const month = $("#inputMonth").val();
+
+        if (!year || !month) {
+          alert("請輸入完整的年和月");
+          return;
+        }
+
+        if (!/^\d{4}$/.test(year) || !/^(0?[1-9]|1[0-2])$/.test(month)) {
+          alert("請輸入有效的年份和月份");
+          return;
+        }
+
+        const yearNum = parseInt(year, 10);
+        const monthNum = parseInt(month, 10);
+
+        $.ajax({
+          url: "/marketMaster/schedules/search",
+          method: "GET",
+          data: {
+            year: yearNum,
+            month: monthNum,
+          },
+          success: function (response) {
+            currentYear = response.year;
+            currentMonth = response.month;
+            updateCalendar(
+              response.year,
+              response.month,
+              response.schedules,
+              response.firstDayOfWeek,
+              response.daysInMonth
+            );
+          },
+          error: function (xhr, status, error) {
+            console.error("無法獲取指定年月的排班數據:", error);
+            alert("無法獲取指定年月的排班數據，請稍後再試。");
+          },
+        });
+      });
+
+      $("#editButton").click(function () {
+        $("#schedule-container").animate(
+          {
+            marginLeft: "250px", // 將排班表向右移動 250px
+          },
+          500
+        ); // 動畫持續 500 毫秒
+
+        $("#formContainer").addClass("active"); // 顯示表單
+
+        // 加載員工資料
+        $.ajax({
+          url: "/marketMaster/schedules/getEmployee",
+          method: "GET",
+          success: function (response) {
+            const employeeSelect = $("#employeeSelect");
+            employeeSelect.empty(); // 清空現有的選項
+
+            // 將員工資料添加到選擇框中
+            response.forEach((employee) => {
+              employeeSelect.append(
+                `<option value="${employee.id}">${employee.name}</option>`
+              );
+            });
+          },
+          error: function (xhr, status, error) {
+            console.error("獲取員工資料失敗:", error);
+            alert("無法獲取員工資料，請稍後再試。");
+          },
+        });
+      });
+
+      // 在表單中顯示 yyyy/MM
+      function updateYearMonthDisplay() {
+        const yearMonthStr = `${currentYear}-${currentMonth
+          .toString()
+          .padStart(2, "0")}`;
+        $("#yearMonthDisplay").text(yearMonthStr);
+      }
+
+      updateYearMonthDisplay(); // 頁面載入時執行
+
+      // 提交表單時，將完整的日期組合起來
+      $("#scheduleForm").on("submit", function (e) {
+        e.preventDefault(); // 阻止默認表單提交
+
+        const day = $("#dayInput").val(); // 獲取使用者輸入的 dd
+
+        if (!/^\d{1,2}$/.test(day)) {
+          alert("請輸入有效的日期 (dd)");
+          return;
+        }
+
+        // 組合完整的日期
+        const fullDate = `${currentYear}/${currentMonth
+          .toString()
+          .padStart(2, "0")}/${day.padStart(2, "0")}`;
+        console.log("完整日期:", fullDate);
+      });
+
+      // 修改月份時同步更新表單中的 yyyy/MM
+      $("#prevMonth, #nextMonth, #searchButton").on("click", function () {
+        setTimeout(updateYearMonthDisplay, 500); // 等待排班表更新後再更新顯示的 yyyy/MM
+      });
+
+      $("#cancelButton").click(function () {
+        $("#formContainer").removeClass("active"); // 隱藏表單
+        $("#scheduleForm")[0].reset(); // 清空表單
+
+        // 排班表復原位置
+        $("#schedule-container").animate(
+          {
+            marginLeft: "0px", // 將排班表移回原位
+          },
+          500
+        ); // 動畫持續 500 毫秒
+      });
+
+      $("#addSchedule").click(function () {
+        // 獲取表單資料
+        const year = currentYear;
+        const month = currentMonth;
+        const day = $("#dayInput").val();
+        const startTime = $("#startTimePicker").val();
+        const endTime = $("#endTimePicker").val(); // 獲取結束時間
+        const employeeIds = $("#employeeSelect").val(); // 取得選中的員工
+
+        // 檢查日期、時間與員工是否正確填寫
+        if (
+          !day ||
+          !startTime ||
+          !endTime ||
+          !employeeIds ||
+          employeeIds.length === 0
+        ) {
+          alert("請完整填寫日期、開始時間、結束時間與員工");
+          return;
+        }
+
+        // 發送 AJAX 請求
+        $.ajax({
+          url: "/marketMaster/schedules/add",
+          method: "POST",
+          contentType: "application/x-www-form-urlencoded",
+          data: {
+            year: year,
+            month: month,
+            day: day,
+            startTime: startTime, // 開始時間
+            endTime: endTime, // 結束時間
+            employeeIds: employeeIds,
+          },
+          success: function (response) {
+            alert("排班新增成功");
+            currentYear = response.year;
+            currentMonth = response.month;
+            updateCalendar(
+              response.year,
+              response.month,
+              response.schedules,
+              response.firstDayOfWeek,
+              response.daysInMonth
+            );
+          },
+          error: function (xhr, status, error) {
+            console.error("新增排班失敗:", error);
+            alert("新增排班失敗。");
+          },
+        });
+      });
+      let allScheduleIds = [];
+      $("#searchSchedule").on("click", function () {
+        const yearMonth = $("#yearMonthDisplay").text(); // 取得日期
+        const day = $("#dayInput").val();
+        const scheduleDate = `${yearMonth}-${day}`;
+        const startTime = $("#startTimePicker").val(); // 取得開始時間
+        const endTime = $("#endTimePicker").val(); // 取得結束時間
+
+        // 向後端發送查詢請求
+        $.ajax({
+          url: "/marketMaster/schedules/searchDateTime",
+          type: "GET",
+          data: {
+            scheduleDate: scheduleDate, // 日期
+            startTime: startTime, // 開始時間
+            endTime: endTime, // 結束時間
+          },
+          success: function (data) {
+            // 迭代回傳的排程資料，更新選取狀態
+            const employeeSelect = $("#employeeSelect");
+            const currentOptions = employeeSelect.find("option");
+
+            // 首先將所有選項設為未選取
+            currentOptions.prop("selected", false);
+
+            data.forEach(function (schedule) {
+              const employee = schedule.empBean; // 假設排程物件裡有員工資訊
+
+              // 根據員工 ID 找到對應的選項並設為選取狀態
+              currentOptions.each(function () {
+                if ($(this).val() === employee.employeeId) {
+                  $(this).prop("selected", schedule.scheduleActive); // 設定選取狀態
+                  $(this).data("schedule-id", schedule.scheduleId); // 儲存 scheduleId
+                  allScheduleIds.push(schedule.scheduleId);
+                }
+              });
+            });
+          },
+          error: function (xhr, status, error) {
+            console.error("查詢失敗: ", error);
+          },
+        });
+      });
+
+      $("#deleteButton").on("click", function () {
+        // 取得已選中的排班 ID，假設是從下拉選單中獲取
+        const selectedSchedules =
+          $("#employeeSelect").find("option:selected");
+
+        if (selectedSchedules.length === 0) {
+          alert("請選擇至少一個排班來刪除");
+          return;
+        }
+
+        // 取得所有選中的 scheduleId
+        const year = currentYear;
+        const month = currentMonth;
+        const scheduleIds = selectedSchedules
+          .map(function () {
+            return $(this).data("schedule-id");
+          })
+          .get();
+
+        // 發送刪除請求到後端
+        $.ajax({
+          url: "/marketMaster/schedules/delete",
+          type: "POST",
+          data: {
+            year: year,
+            month: month,
+            scheduleIds: scheduleIds,
+          },
+          success: function (response) {
+            alert(response); // 顯示後端回傳的訊息
+
+            selectedSchedules.remove();
+            currentYear = response.year;
+            currentMonth = response.month;
+            updateCalendar(
+              response.year,
+              response.month,
+              response.schedules,
+              response.firstDayOfWeek,
+              response.daysInMonth
+            );
+          },
+          error: function (xhr, status, error) {
+            console.error("刪除失敗: ", error);
+            alert("刪除失敗，請稍後再試");
+          },
+        });
+      });
+
+      $("#updateButton").click(function () {
+        const selectedSchedules =
+          $("#employeeSelect").find("option:selected");
+
+        if (selectedSchedules.length === 0) {
+          alert("請選擇至少一個排班來修改");
+          return;
+        }
+
+        // 獲取表單資料
+        const year = currentYear;
+        const month = currentMonth;
+        const day = $("#dayInput").val();
+        const startTime = $("#startTimePicker").val();
+        const endTime = $("#endTimePicker").val();
+        const employeeIds = selectedSchedules
+          .map(function () {
+            return $(this).val();
+          })
+          .get();
+
+        // 檢查日期、時間與員工是否正確填寫
+        if (!day || !startTime || !endTime || employeeIds.length === 0) {
+          alert("請完整填寫日期、開始時間、結束時間與員工");
+          return;
+        }
+
+        // 發送 AJAX 請求
+        $.ajax({
+          url: "/marketMaster/schedules/update",
+          method: "POST",
+          contentType: "application/x-www-form-urlencoded",
+          data: {
+            scheduleId: allScheduleIds.join(","),
+            year: year,
+            month: month,
+            day: day,
+            startTime: startTime,
+            endTime: endTime,
+            employeeIds: employeeIds,
+          },
+          success: function (response) {
+            alert("排班修改成功");
+            currentYear = response.year;
+            currentMonth = response.month;
+            updateCalendar(
+              response.year,
+              response.month,
+              response.schedules,
+              response.firstDayOfWeek,
+              response.daysInMonth
+            );
+          },
+          error: function (xhr, status, error) {
+            console.error("修改排班失敗:", error);
+            alert("修改排班失敗。");
+          },
+        });
+      });
+
+
+
+      // 發送 AJAX 請求
+      function getEmployeeHours(year, month) {
+        $.ajax({
+          url: '/marketMaster/schedules/totalHours',
+          method: 'GET',
+          data: {
+            year: year,
+            month: month
+          },
+          dataType: 'json',
+          success: function (data) {
+            let hoursHtml = '<ul>';
+            for (const employeeName in data) {
+              hoursHtml += `<li>員工: ${employeeName} - 本月時數: ${data[employeeName]} 小時</li>`;
+            }
+            hoursHtml += '</ul>';
+            $('#totalHours').html(hoursHtml);  // 將工時顯示在 div 中
+          },
+          error: function (xhr, status, error) {
+            console.error('AJAX 請求失敗:', status, error);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

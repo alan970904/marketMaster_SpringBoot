@@ -1,15 +1,13 @@
-    package marketMaster;
+package marketMaster;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    import org.springframework.boot.SpringApplication;
-    import org.springframework.boot.autoconfigure.SpringBootApplication;
+@SpringBootApplication
+public class MarketMasterApplication {
 
-    @SpringBootApplication
-    public class MarketMasterApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(MarketMasterApplication.class, args);
+	}
 
-        public static void main(String[] args) {
-            SpringApplication.run(MarketMasterApplication.class, args);
-        }
-
-
-    }
+}
