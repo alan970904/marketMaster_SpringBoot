@@ -1,6 +1,7 @@
 package marketMaster.controller.checkout.front;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 
 import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
+import marketMaster.bean.product.InventoryCheckBean;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.exception.DataAccessException;
 import marketMaster.service.checkout.CheckoutService;
+import marketMaster.service.product.InventoryCheckService;
 import marketMaster.service.product.ProductService;
 
 import java.util.Base64;
@@ -19,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * 前台購物車控制器
@@ -36,10 +40,24 @@ public class ShoppingCartController {
     @Autowired
     private ProductService productService;
     
+    @Autowired
+	private InventoryCheckService inventoryCheckService;
+    
+    
+    @GetMapping
+	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
+			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
+		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
+		List<InventoryCheckBean> inventoryCheck = inventoryCheckService.findAllInventoryCheck();
+		m.addAttribute("products", products);
+		m.addAttribute("inventoryCheck", inventoryCheck);
+		return "checkout/checkout/cart/testCart";
+	}
+    
     /**
      * 顯示購物車主頁
      */
-    @GetMapping
+    @GetMapping("/cart")
     public String showShoppingCart(Model model) {
         try {
             // 獲取商品類別列表
@@ -155,36 +173,25 @@ public class ShoppingCartController {
      */
     @PostMapping("/validate-cart")
     @ResponseBody
-    public ResponseEntity<?> validateCartItems(@RequestBody List<Map<String, Object>> cartItems) {
+    public ResponseEntity<?> validateCart(@RequestBody List<Map<String, Object>> cartItems) {
         try {
-            boolean isValid = true;
-            Map<String, Object> invalidItems = new HashMap<>();
-            
-            for (Map<String, Object> item : cartItems) {
-                String productId = (String) item.get("productId");
-                int quantity = ((Number) item.get("quantity")).intValue();
-                
-                ProductBean product = productService.getProduct(productId);
-                if (product == null) {
-                    isValid = false;
-                    invalidItems.put(productId, "商品不存在");
-                } else if (product.getNumberOfInventory() < quantity) {
-                    isValid = false;
-                    invalidItems.put(productId, "庫存不足，目前剩餘: " + product.getNumberOfInventory());
-                }
-            }
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("isValid", isValid);
-            if (!isValid) {
-                response.put("invalidItems", invalidItems);
-            }
-            
-            return ResponseEntity.ok(response);
+            // 轉換購物車項目為CheckoutDetailsBean列表
+            List<CheckoutDetailsBean> details = cartItems.stream()
+                .map(item -> {
+                    CheckoutDetailsBean detail = new CheckoutDetailsBean();
+                    detail.setProductId((String) item.get("productId"));
+                    detail.setNumberOfCheckout(((Number) item.get("quantity")).intValue());
+                    detail.setProductPrice(((Number) item.get("price")).intValue());
+                    return detail;
+                })
+                .collect(Collectors.toList());
+
+            Map<String, Object> validationResult = checkoutService.validateCartItems(details);
+            return ResponseEntity.ok(validationResult);
         } catch (Exception e) {
-            logger.severe("驗證購物車內容失敗: " + e.getMessage());
+            logger.severe("驗證購物車失敗: " + e.getMessage());
             return ResponseEntity.badRequest()
-                .body(Map.of("error", "驗證購物車內容失敗: " + e.getMessage()));
+                .body(Map.of("error", "驗證購物車失敗: " + e.getMessage()));
         }
     }
     

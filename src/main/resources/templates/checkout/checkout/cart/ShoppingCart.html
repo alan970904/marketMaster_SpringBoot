@@ -67,14 +67,15 @@
 </head>
 <body>
 <div th:replace="~{body/headerEmployee :: headerEmployee}">
+     <!-- 主要內容區域 -->
     <div th:fragment="content">
         <div role="main">
             <div class="container">
-                <!-- 頁面標題和類別選擇 -->
+                <!-- 標題和類別選擇區域 -->
                 <div class="d-flex my-3">
-                    <h3 class="me-auto">購物車</h3>
-                    <div class="d-flex align-items-center">
-                        <label class="me-2">選擇商品類別：</label>
+                    <h3>結帳購物車</h3>
+                    <div class="ms-auto">
+                        <label>請選擇要購買的商品類別：</label>
                         <select id="categorySelect" class="form-select" style="width: auto;" onchange="loadProducts()">
                             <option value="">請選擇類別</option>
                             <option value="肉品海鮮">肉品海鮮</option>
@@ -87,43 +88,41 @@
                 </div>
 
                 <!-- 商品列表區域 -->
-                <div class="row" id="productGrid">
+                <div class="row shopping-cart-row">
                     <!-- 商品卡片將在這裡動態生成 -->
                 </div>
 
-                <!-- 購物車面板 -->
-                <div class="card position-fixed end-0 top-0 h-100" style="width: 300px;">
+                <!-- 購物車結帳區域 -->
+                <div class="card mt-3">
                     <div class="card-header bg-primary text-white">
-                        購物車內容
+                        <h5 class="mb-0">購物車內容</h5>
                     </div>
-                    <div class="card-body d-flex flex-column" style="height: calc(100vh - 60px);">
-                        <div id="cartItems" class="flex-grow-1 overflow-auto">
+                    <div class="card-body">
+                        <div id="cartItems">
                             <!-- 購物車項目將在這裡動態生成 -->
                         </div>
-                        <div class="cart-total border-top pt-3">
-                            <div id="cartSummary" class="mb-3">
-                                <!-- 總計將在這裡顯示 -->
-                            </div>
-                            <div class="checkout-section">
-                                <select id="employeeSelect" class="form-select mb-2">
-                                    <option value="">請選擇結帳員工</option>
-                                    <option th:each="emp : ${employees}"
-                                            th:value="${emp.employeeId}"
-                                            th:text="${emp.employeeName}">
-                                    </option>
-                                </select>
-                                <input type="tel" id="customerTel" class="form-control mb-2" 
-                                       placeholder="會員手機號碼（選填）">
-                                <button onclick="processCheckout()" class="btn btn-primary w-100">
-                                    結帳
-                                </button>
-                            </div>
+                        <div id="cartSummary" class="mt-3">
+                            <!-- 總計將在這裡顯示 -->
+                        </div>
+                        <div class="checkout-section mt-3">
+                            <select id="employeeSelect" class="form-select mb-2">
+                                <option value="">請選擇結帳員工</option>
+                                <option th:each="emp : ${employees}"
+                                        th:value="${emp.employeeId}"
+                                        th:text="${emp.employeeName}">
+                                </option>
+                            </select>
+                            <input type="tel" id="customerTel" class="form-control mb-2" 
+                                   placeholder="會員手機號碼（選填）">
+                            <button onclick="processCheckout()" class="btn btn-primary">
+                                確認結帳
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+     </div>   
 </div>
 	<div th:replace="~{body/footer :: footer}"></div>
 	<!-- jQuery -->
@@ -141,58 +140,54 @@
         let cart = [];
         let products = [];
 
-        // 載入商品
+        // 載入商品列表
         async function loadProducts() {
             const category = document.getElementById('categorySelect').value;
-            if (!category) {
-                document.getElementById('productGrid').innerHTML = '';
-                return;
-            }
-
+            if (!category) return;
+            
             try {
                 const response = await axios.get(`/front/cart/products?category=${category}`);
                 products = response.data;
-                renderProducts();
+                renderProductCards();
             } catch (error) {
                 console.error('載入商品失敗：', error);
                 alert('載入商品失敗，請稍後再試');
             }
         }
 
-        // 渲染商品列表
-        function renderProducts() {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
+        // 渲染商品卡片
+        function renderProductCards() {
+            const row = document.querySelector('.shopping-cart-row');
+            row.innerHTML = '';
 
             products.forEach(product => {
                 const col = document.createElement('div');
                 col.className = 'col-md-3 mb-4';
                 col.innerHTML = `
-                    <div class="card product-card">
-                        <img src="${product.productImage || '/api/placeholder/200/200'}" 
-                             alt="${product.productName}"
-                             class="product-image">
+                    <div class="card h-100">
+                        <div class="h-262 position-relative">
+                            <img src="${product.productImage || '/api/placeholder/200/200'}" 
+                                 class="card-img-top h-100 object-fit-cover"
+                                 alt="${product.productName}">
+                        </div>
                         <div class="card-body">
-                            <h5 class="card-title">${product.productName}</h5>
+                            <h5 class="card-title text-center">${product.productName}</h5>
                             <p class="card-text">
                                 商品編號：${product.productId}<br>
                                 價格：${product.productPrice}元<br>
                                 庫存：${product.numberOfInventory}個
                             </p>
-                            <div class="quantity-control">
-                                <button class="quantity-btn" 
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-secondary" type="button"
                                         onclick="adjustQuantity('${product.productId}', -1)">-</button>
-                                <input type="number"
+                                <input type="number" class="form-control text-center"
                                        id="quantity-${product.productId}"
-                                       class="quantity-input"
-                                       value="0"
-                                       min="0"
-                                       max="${product.numberOfInventory}"
+                                       value="0" min="0" max="${product.numberOfInventory}"
                                        onchange="validateQuantity('${product.productId}')">
-                                <button class="quantity-btn"
+                                <button class="btn btn-outline-secondary" type="button"
                                         onclick="adjustQuantity('${product.productId}', 1)">+</button>
                             </div>
-                            <button class="btn btn-primary w-100"
+                            <button class="btn btn-primary w-100" 
                                     onclick="addToCart('${product.productId}')"
                                     ${product.numberOfInventory === 0 ? 'disabled' : ''}>
                                 加入購物車
@@ -200,11 +195,11 @@
                         </div>
                     </div>
                 `;
-                grid.appendChild(col);
+                row.appendChild(col);
             });
         }
 
-        // 數量控制
+        // 數量調整
         function adjustQuantity(productId, delta) {
             const input = document.getElementById(`quantity-${productId}`);
             const product = products.find(p => p.productId === productId);
@@ -215,7 +210,7 @@
             }
         }
 
-        // 驗證數量
+        // 數量驗證
         function validateQuantity(productId) {
             const input = document.getElementById(`quantity-${productId}`);
             const product = products.find(p => p.productId === productId);
@@ -234,7 +229,6 @@
             
             if (!quantity || quantity <= 0) return;
 
-            // 檢查購物車中是否已有此商品
             const existingItem = cart.find(item => item.productId === productId);
             if (existingItem) {
                 const newQuantity = existingItem.quantity + quantity;
@@ -263,27 +257,51 @@
             const cartSummary = document.getElementById('cartSummary');
 
             if (cart.length === 0) {
-                cartItems.innerHTML = '<div class="p-3 text-center text-muted">購物車是空的</div>';
+                cartItems.innerHTML = '<p class="text-center text-muted">購物車是空的</p>';
                 cartSummary.innerHTML = '';
                 return;
             }
 
-            cartItems.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <div class="fw-bold">${item.productName}</div>
-                    <div>數量：${item.quantity} × ${item.price}元</div>
-                    <div>小計：${item.quantity * item.price}元</div>
-                    <button class="btn btn-sm btn-danger mt-2"
-                            onclick="removeFromCart('${item.productId}')">
-                        移除
-                    </button>
+            cartItems.innerHTML = `
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>商品名稱</th>
+                                <th>數量</th>
+                                <th>單價</th>
+                                <th>小計</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${cart.map(item => `
+                                <tr>
+                                    <td>${item.productName}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.price}元</td>
+                                    <td>${item.quantity * item.price}元</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm"
+                                                onclick="removeFromCart('${item.productId}')">
+                                            移除
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </div>
-            `).join('');
+            `;
 
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const bonusPoints = Math.floor(total / 100);
+            
             cartSummary.innerHTML = `
-                <h5>總計：${total}元</h5>
-                <div>可獲得紅利點數：${Math.floor(total / 100)}點</div>
+                <div class="text-end">
+                    <h4>總計：${total}元</h4>
+                    <p class="text-muted">可獲得紅利點數：${bonusPoints}點</p>
+                </div>
             `;
         }
 
