@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
 import marketMaster.annotation.RequiresPermission;
 import marketMaster.service.authorization.AuthorizationService;
-import marketMaster.service.employee.EmployeeService;
+import marketMaster.service.employee.EmployeeServiceImpl;
 import marketMaster.viewModel.EmployeeViewModel;
 
 @Controller
 public class ChangePasswordController {
 
     @Autowired
-    private EmployeeService employeeService;
+    private EmployeeServiceImpl employeeService;
     
 	@Autowired
 	private AuthorizationService authService;
@@ -66,7 +66,6 @@ public class ChangePasswordController {
     }
 
     @PostMapping("/employee/forgotPassword")
-    @RequiresPermission(value = "forgotPassword", resource = "employee")
     public String processForgotPassword(@RequestParam String employeeId, @RequestParam String idCardLast4, Model model) {
         boolean isResetSuccessful  = employeeService.resetPasswordAndSendEmail(employeeId, idCardLast4);
         if (isResetSuccessful ) {

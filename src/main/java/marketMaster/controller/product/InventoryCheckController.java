@@ -66,4 +66,11 @@ public class InventoryCheckController {
 		return "/product/inventoryChecksPage";
 	}
 	
+	@ResponseBody
+	@GetMapping("/inventoryCheck/update")
+	public ResponseEntity<?> updateCheck(@RequestBody InventoryCheckBean inventoryCheck) {
+		inventoryCheckService.updateInventoryCheck(inventoryCheck);
+		return ResponseEntity.ok(null);
+	}
+	
 }

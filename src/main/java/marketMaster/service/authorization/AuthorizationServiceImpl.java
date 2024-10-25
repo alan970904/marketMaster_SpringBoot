@@ -107,11 +107,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 		case "viewList":
 		case "search":
 		case "update":
-		case "chagePassword":
+		case "changePassword":
 		case "forgotPassword":
 			return userAuthority >= 1; // 權限級別 1 或以上可以執行這些操作
 		case "add":
 		case "delete":
+		case "viewChart":
 			return userAuthority >= 2; // 權限級別 2 或以上可以添加和刪除員工
 		default:
 			return false;

@@ -21,21 +21,31 @@ import java.util.Map;
 
 @Service
 public class PaymentService {
-    @Autowired
-    private PaymentsRepository paymentsRepository;
+
+    private final PaymentsRepository paymentsRepository;
+
+
+    private final PaymentRecordsRepository paymentRecordsRepository;
+
+
+    private final SupplierAccountsRepository supplierAccountsRepository;
+
+    private final RestockDetailsRepository restockDetailsRepository;
+
+    private final ECPayConfig ecPayConfig;
 
     @Autowired
-    private PaymentRecordsRepository paymentRecordsRepository;
-
-    @Autowired
-    private SupplierAccountsRepository supplierAccountsRepository;
-
-    @Autowired
-    private RestockDetailsRepository restockDetailsRepository;
-
-    @Autowired
-    private ECPayConfig ecPayConfig;
-
+    public PaymentService(PaymentsRepository paymentsRepository,
+                     PaymentRecordsRepository paymentRecordsRepository,
+                     SupplierAccountsRepository supplierAccountsRepository,
+                     RestockDetailsRepository restockDetailsRepository,
+                     ECPayConfig ecPayConfig) {
+        this.paymentsRepository = paymentsRepository;
+        this.paymentRecordsRepository = paymentRecordsRepository;
+        this.supplierAccountsRepository = supplierAccountsRepository;
+        this.restockDetailsRepository = restockDetailsRepository;
+        this.ecPayConfig = ecPayConfig;
+    }
 
 
 
