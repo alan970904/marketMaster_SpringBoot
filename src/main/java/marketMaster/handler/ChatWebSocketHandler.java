@@ -1,5 +1,6 @@
 package marketMaster.handler;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,6 +12,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import marketMaster.bean.employee.ChatMessage;
 import marketMaster.service.employee.ChatServiceImpl;
@@ -25,15 +27,23 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
 	// 用於存儲所有活動的WebSocket會話
 	private static final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper;
 
 	@Autowired
 	private ChatServiceImpl chatService;
 
+    public ChatWebSocketHandler() {
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
+    }
+	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		String userId = getUserId(session);
-		sessions.put(userId, session);
+		// 從session中獲取員工ID
+		String employeeId  = extractEmployeeId(session);
+		if (employeeId  != null) {
+			sessions.put(employeeId , session);
+		}
 	}
 
 	@Override
@@ -42,25 +52,40 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 		// 使用 ObjectMapper 進行 JSON 和 Java 對象之間的轉換。
 		ChatMessage chatMessage = objectMapper.readValue(payload, ChatMessage.class);
 
+        // 如果timestamp為null，設置當前時間
+        if (chatMessage.getTimestamp() == null) {
+            chatMessage.setTimestamp(LocalDateTime.now());
+        }
+		
 		// 保存消息到數據庫
 		chatService.saveMessage(chatMessage);
+		
+		String messageJson = objectMapper.writeValueAsString(chatMessage);
 
 		// 發送消息給接收者
 		WebSocketSession recipientSession = sessions.get(chatMessage.getToUser());
 		if (recipientSession != null && recipientSession.isOpen()) {
-			recipientSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(chatMessage)));
+			recipientSession.sendMessage(new TextMessage(messageJson));
+		}
+		
+		// 發送確認消息給發送者
+		WebSocketSession senderSession = sessions.get(chatMessage.getFromUser());
+		if (senderSession != null && senderSession.isOpen()) {
+			senderSession.sendMessage(new TextMessage(messageJson));
 		}
 	}
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-		String userId = getUserId(session);
-		sessions.remove(userId);
+		String employeeId  = extractEmployeeId(session);
+		if (employeeId  != null) {
+			sessions.remove(employeeId );
+		}
 	}
 
-	private String getUserId(WebSocketSession session) {
-		// 從 session 中獲取用戶 ID
-		return (String) session.getAttributes().get("userId");
+	private String extractEmployeeId(WebSocketSession session) {
+		Map<String, Object> attributes = session.getAttributes();
+		return attributes.get("employeeId") != null ? attributes.get("employeeId").toString() : null;
 	}
 
 }

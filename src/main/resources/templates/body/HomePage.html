@@ -52,83 +52,92 @@
 	            </div>
 	        </div>
 	    </div>
+	    
+	    <!-- 邏輯思路：
+	    SQL查詢 
+		  → JPA將結果映射到DTO 
+		    → Controller轉換為JSON 
+		      → 前端接收JSON 
+		        → data.map提取特定欄位資料
+		          → Chart.js使用資料繪圖
+	     -->
     <!-- 圖表初始化腳本 -->
-<script th:inline="javascript">
-document.addEventListener('DOMContentLoaded', function() {
-    fetch('/marketMaster/employee/statistics')
-        .then(response => response.json())
-        .then(data => {
-            const months = ['一月', '二月', '三月', '四月', '五月', '六月', 
-                          '七月', '八月', '九月', '十月', '十一月', '十二月'];
-            
-            const ctx = document.getElementById('employeeChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: '在職人數',
-                        data: data.map(item => item.activeCount),
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    }, {
-                        label: '離職人數',
-                        data: data.map(item => item.resignedCount),
-                        type: 'line',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        yAxisID: 'y1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            position: 'left',
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '在職人數'
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            position: 'right',
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '離職人數'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: '員工每月在職/離職統計'
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => {
-            console.error('載入資料時發生錯誤:', error);
-            // 顯示錯誤訊息給使用者
-            const container = document.querySelector('.chart-container');
-            container.innerHTML = '<div class="alert alert-danger">載入圖表資料時發生錯誤</div>';
-        });
-});
-</script>
+	<script th:inline="javascript">
+	document.addEventListener('DOMContentLoaded', function() {
+	    fetch('/marketMaster/employee/statistics')
+	        .then(response => response.json())
+	        .then(data => {
+	            const months = ['一月', '二月', '三月', '四月', '五月', '六月', 
+	                          '七月', '八月', '九月', '十月', '十一月', '十二月'];
+	            
+	            const ctx = document.getElementById('employeeChart').getContext('2d');
+	            new Chart(ctx, {
+	                type: 'bar',
+	                data: {
+	                    labels: months,
+	                    datasets: [{
+	                        label: '在職人數',
+	                        data: data.map(item => item.activeCount),
+	                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+	                        borderColor: 'rgba(54, 162, 235, 1)',
+	                        borderWidth: 1,
+	                        yAxisID: 'y'
+	                    }, {
+	                        label: '離職人數',
+	                        data: data.map(item => item.resignedCount),
+	                        type: 'line',
+	                        borderColor: 'rgba(255, 99, 132, 1)',
+	                        borderWidth: 2,
+	                        fill: false,
+	                        yAxisID: 'y1'
+	                    }]
+	                },
+	                options: {
+	                    responsive: true,
+	                    scales: {
+	                        y: {
+	                            type: 'linear',
+	                            position: 'left',
+	                            beginAtZero: true,
+	                            title: {
+	                                display: true,
+	                                text: '在職人數'
+	                            }
+	                        },
+	                        y1: {
+	                            type: 'linear',
+	                            position: 'right',
+	                            beginAtZero: true,
+	                            title: {
+	                                display: true,
+	                                text: '離職人數'
+	                            },
+	                            grid: {
+	                                drawOnChartArea: false
+	                            }
+	                        }
+	                    },
+	                    plugins: {
+	                        title: {
+	                            display: true,
+	                            text: '員工每月在職/離職統計'
+	                        },
+	                        tooltip: {
+	                            mode: 'index',
+	                            intersect: false
+	                        }
+	                    }
+	                }
+	            });
+	        })
+	        .catch(error => {
+	            console.error('載入資料時發生錯誤:', error);
+	            // 顯示錯誤訊息給使用者
+	            const container = document.querySelector('.chart-container');
+	            container.innerHTML = '<div class="alert alert-danger">載入圖表資料時發生錯誤</div>';
+	        });
+	});
+	</script>
     </div>
     </div>
     <!-- Bootstrap Bundle with Popper -->
