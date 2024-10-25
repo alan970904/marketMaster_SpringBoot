@@ -198,7 +198,7 @@ CREATE TABLE checkout_details (
 CREATE TABLE checkout (
     checkout_id VARCHAR(30) NOT NULL PRIMARY KEY, -- 結帳編號，編號開頭用C
 	invoice_number VARCHAR(30) NOT NULL, -- 發票號碼，編號用IN開頭，後面接8號碼
-	customer_tel VARCHAR(30), -- 顧客手機
+	customer_tel VARCHAR(30), -- 會員手機
     employee_id VARCHAR(30) NOT NULL, -- 員工編號
     checkout_total_price INT NOT NULL, -- 結帳金額
     checkout_date DATE NOT NULL, -- 結帳日
@@ -219,10 +219,13 @@ CREATE TABLE ranklevel (
 
 -- 創建排班表
 CREATE TABLE schedule (
-    schedule_id INT IDENTITY(1,1) PRIMARY KEY,
-    employee_id VARCHAR(30) NOT NULL, -- 員工編號
-    start_time DATETIME2 NOT NULL, -- 開始時間
-    end_time DATETIME2 NOT NULL -- 結束時間
+    schedule_id INT IDENTITY(1,1) PRIMARY KEY, -- 排班ID
+    employee_id VARCHAR(30) NOT NULL,          -- 員工編號
+	schedule_date DATE NOT NULL ,              -- 排班日期
+    start_time TIME NOT NULL,                   -- 班次開始時間
+	end_time TIME NOT NULL,                     -- 班次結束時間
+	schedule_hour INT,                          -- 時數
+	schedule_active BIT NOT NULL DEFAULT 1     --排班意願
 );
 
 -- 創建請假表
@@ -235,36 +238,37 @@ CREATE TABLE ask_for_leave (
     proof_image VARBINARY(MAX),                -- 請假證明
     approved_status NVARCHAR(30) NOT NULL,     -- 批准狀態
     category_id INT NOT NULL,                  -- 請假類別ID
-    record_id INT ,                            -- 請假記錄ID
+	leave_hours INT NOT NULL,					--請假時數
 	rejection_reason NVARCHAR(255)	           -- 駁回原因
 );
 
--- 創建請假額度表
+-- 創建 請假類別表
 CREATE TABLE leave_category (
     category_id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,  -- id
-    leave_type NVARCHAR(50) NOT NULL,                    -- 請假類別
-    limit_hours INT NOT NULL                             -- 額度時數
+    leave_type NVARCHAR(50) NOT NULL,                   -- 請假類別
+	max_hours INT NULL				                     --最大時數 
 );
 
--- 創建請假記錄表
+-- 創建請假紀錄表
 CREATE TABLE leave_record (
     record_id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,  -- id
     employee_id VARCHAR(30) NOT NULL,                  -- 員工編號
     category_id INT NOT NULL,                          -- 請假類別ID
-    year INT NOT NULL,                                 -- 年份
-    actual_hours INT NULL DEFAULT 0                    -- 實際時數，預設為 0
+    expiration_date Date NOT NULL,                       -- 到期日
+    actual_hours INT NULL DEFAULT 0 ,                  -- 實際時數，預設為 0
+	limit_hours INT										-- 額度時數
 );
 
 -- 創建會員表
 CREATE TABLE customer (
-    customer_tel VARCHAR(30) NOT NULL PRIMARY KEY, -- 顧客手機
-    customer_name VARCHAR(30) NOT NULL, -- 顧客姓名
+    customer_tel VARCHAR(30) NOT NULL PRIMARY KEY, -- 會員手機
+    customer_name VARCHAR(30) NOT NULL, -- 會員姓名
     customer_email VARCHAR(30) NOT NULL, -- email
     date_of_registration DATE NOT NULL, -- 註冊日期
     total_points INT  NOT NULL -- 累積紅利點數 --Create時先設定為0
 );
 
--- 創建紅利兌換商品表
+-- 創建紅利兌換商品表ㄆ
 CREATE TABLE bonus_exchange (
     exchange_id VARCHAR(30) NOT NULL PRIMARY KEY, -- 兌換編號，編號開頭用H
     product_id VARCHAR(30) NOT NULL, -- 商品編號REFERENCES products(product_id)
@@ -274,7 +278,7 @@ CREATE TABLE bonus_exchange (
     exchange_date DATE NOT NULL, -- 兌換日期
 );
 
---創建紅利紀錄表
+-- 創建紅利紀錄表
 CREATE TABLE points_history (
     points_history_id INT IDENTITY(1,1) PRIMARY KEY, -- 紅利編號
     customer_tel VARCHAR(30) NOT NULL, -- 會員手機REFERENCES customer(customer_tel)
@@ -413,7 +417,7 @@ INSERT INTO payment_records (record_id, payment_id, detail_id, payment_amount) V
 	('REC005', 'PMT006', 'RD005', 2450), -- S004: RD005
 	('REC006', 'PMT006', 'RD006', 1200); -- S005: RD006 部分支付
 
---新增職級和員工
+-- 新增職級和員工
 INSERT INTO ranklevel (position_id, position_name, limits_of_authority, salary_level)
 VALUES
 	('M01', '經理', 3, 'SSS'),
@@ -427,95 +431,207 @@ VALUES
 	('E003', '阿瑋', '0900789789', 'C123456789', 'aaa0003@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E004', '阿翔', '0900321321', 'D123456789', 'aaa0004@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E005', '阿翰', '0900654654', 'E123456789', 'aaa0005@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
-	('E006', '阿鼎', '0900987987', 'F123456789', 'ricekevin22@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL);
+	('E006', '阿鼎', '0900987987', 'F123456789', 'ricekevin22@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL),
+	('E007', '阿文', '0933654654', 'G123456789', 'aaa0006@gmail.com', '0000', 'M03', '2024-06-20', '2024-08-31',0, NULL),
+	('E008', '阿航', '0974147414', 'H123456789', 'aaa0007@gmail.com', '0000', 'M02', '2024-06-20', '2024-10-15',0, NULL),
+	('E009', '阿棟', '0955885885', 'J123456789', 'aaa0008@gmail.com', '0000', 'M03', '2024-06-21', '2024-10-20',0, NULL),
+	('E010', '阿璋', '0911236236', 'K123456789', 'aaa0009@gmail.com', '0000', 'M03', '2024-07-12', NULL,1, NULL),
+	('E011', '阿貓', '0914236556', 'L123456789', 'aaa0010@gmail.com', '0000', 'M03', '2024-09-18', NULL,1, NULL);
 
+-- 新增聊天
 INSERT INTO chat_messages (from_user, to_user, content, timestamp)
 VALUES 
-	('E006', 'E001', N'Hey, how are you?', '2024-10-12 10:00:00'),
-	('E001', 'E006', N'I am good, thanks! How about you?', '2024-10-12 10:05:00'),
-	('E006', 'E001', N'Pretty busy with work. Lots to do.', '2024-10-12 10:10:00'),
-	('E001', 'E006', N'I can imagine. Let me know if you need help.', '2024-10-12 10:15:00'),
-	('E006', 'E001', N'Thanks, I appreciate it.', '2024-10-12 10:20:00'),
-	('E006', 'E002', N'Good morning! Are you joining the meeting today?', '2024-10-12 09:30:00'),
-	('E002', 'E006', N'Good morning! Yes, I will be there.', '2024-10-12 09:35:00'),
-	('E006', 'E002', N'Great! See you there.', '2024-10-12 09:40:00'),
-	('E002', 'E006', N'Looking forward to it.', '2024-10-12 09:45:00'),
-	('E006', 'E002', N'Let me know if you need any preparation.', '2024-10-12 09:50:00');
+-- 阿綸(E001)發送給其他人的訊息
+('E001', 'E002', '哲哥早安，今天下午兩點的專案會議記得要準備第一季的銷售報表喔', '2024-06-15 08:30:00'),
+('E001', 'E003', '瑋瑋，可以幫我看一下系統維護的時程安排嗎？客戶在催了', '2024-07-05 09:15:00'),
+('E001', 'E006', '阿鼎，下週的部門預算會議的資料準備得如何了？', '2024-08-12 10:20:00'),
+('E001', 'E010', '璋哥，新來的實習生我先安排在你那邊學習可以嗎？', '2024-09-05 11:30:00'),
+('E001', 'E002', '記得下班前把會議紀錄傳給我過目一下，謝謝', '2024-10-15 16:45:00'),
 
---新增會員
+-- 阿哲(E002)發送給其他人的訊息
+('E002', 'E001', '好的綸哥，我已經整理好報表了，等等會先傳給你過目', '2024-06-15 08:35:00'),
+('E002', 'E006', '鼎哥，技術部那邊的新系統測試結果出來了嗎？', '2024-07-18 13:20:00'),
+('E002', 'E003', '瑋瑋，麻煩幫我看一下伺服器負載的問題，客戶反應系統有點慢', '2024-08-25 14:15:00'),
+('E002', 'E010', '下週二的教育訓練你要來分享業務開發經驗對吧？簡報準備好了嗎', '2024-09-18 15:30:00'),
+('E002', 'E001', '綸哥，會議紀錄已經發到你信箱了，請過目', '2024-10-15 17:30:00'),
+
+-- 阿瑋(E003)發送給其他人的訊息
+('E003', 'E001', '好的主管，我正在處理系統維護的事情，預計下午就能給你時程表', '2024-06-20 09:20:00'),
+('E003', 'E002', '哲哥，我剛檢查過了，是資料庫需要優化，我已經在處理了', '2024-07-28 14:20:00'),
+('E003', 'E006', '鼎哥，新功能的測試環境我已經架設好了，你要來驗收嗎？', '2024-08-15 11:45:00'),
+('E003', 'E010', '璋哥，幫我看一下這個客戶的需求規格是不是有點問題？', '2024-09-22 13:50:00'),
+('E003', 'E001', '主管，維護時程表已經放在共用資料夾了，麻煩你過目', '2024-10-18 15:00:00'),
+
+-- 阿鼎(E006)發送給其他人的訊息
+('E006', 'E001', '主管，部門預算報告已經完成初稿，我等等傳給你', '2024-06-25 10:25:00'),
+('E006', 'E002', '哲哥，系統測試還在進行中，預計明天上午能出結果', '2024-08-02 13:25:00'),
+('E006', 'E003', '收到，我下午三點過去看測試環境', '2024-09-10 11:50:00'),
+('E006', 'E010', '小璋，聽說你接了一個大案子？需要支援嗎？', '2024-09-28 14:30:00'),
+('E006', 'E001', '主管，預算報告已經發到你信箱了，請查收', '2024-10-20 16:15:00'),
+
+-- 阿璋(E010)發送給其他人的訊息
+('E010', 'E001', '好的主管，我很樂意帶新人，請安排他過來吧', '2024-07-15 11:35:00'),
+('E010', 'E002', '是的，簡報已經準備好了，主要會分享最近幾個成功案例', '2024-08-20 15:35:00'),
+('E010', 'E003', '謝謝提醒，我看過規格書了，確實有幾個點需要釐清，我再和客戶確認', '2024-09-15 14:00:00'),
+('E010', 'E006', '謝謝關心，目前還可以應付，如果需要支援我再告訴你', '2024-10-01 14:35:00'),
+('E010', 'E001', '主管，新人的學習計劃我已經打好草稿，等等傳給你參考', '2024-10-22 16:00:00');
+
+-- 新增會員
 INSERT INTO customer (customer_tel, customer_name, customer_email, date_of_registration, total_points)
 VALUES
-	('0912123123', '假挖', 'cus001@gmail.com', '2024-07-01', '0'),
-	('0912321321', '系窩', 'cus002@gmail.com', '2024-07-01', '0'),
-	('0912231231', '嗨博內', 'cus003@gmail.com', '2024-07-01', '0'),
-	('0933345345', '斯拚', 'cus004@gmail.com', '2024-07-01', '0'),
-	('0933543543', '色類', 'cus005@gmail.com', '2024-07-01', '0'),
-	('0933534534', '張三', 'cus006@gmail.com', '2024-07-01', '0'),
-	('0966789789', '李四', 'cus007@gmail.com', '2024-07-01', '0'),
-	('0966987987', '王五', 'cus008@gmail.com', '2024-07-01', '0'),
-	('0966879879', '全六', 'cus009@gmail.com', '2024-07-01', '0'),
-	('0955951951', '小七', 'cus010@gmail.com', '2024-07-01', '0'),
-	('0955159159', '老八', 'cus011@gmail.com', '2024-07-01', '0'),
-	('0955591591', '好九', 'cus012@gmail.com', '2024-07-01', '0'),
-	('0988753753', '吳十', 'cus013@gmail.com', '2024-07-01', '0'),
-	('0988537537', '新一', 'cus014@gmail.com', '2024-07-01', '0'),
-	('0944852258', '有二', 'cus015@gmail.com', '2024-07-01', '0');
+('0912345678', '陳大文', 'dawen.chen@email.com', '2024-06-15', 8),
+('0923456789', '林小美', 'xiaomei.lin@email.com', '2024-06-18', 12),
+('0934567890', '王建國', 'jianguo.wang@email.com', '2024-06-21', 5),
+('0945678901', '張美玲', 'meiling.zhang@email.com', '2024-06-24', 15),
+('0956789012', '李志明', 'zhiming.li@email.com', '2024-06-27', 3),
+('0967890123', '吳淑芬', 'shufen.wu@email.com', '2024-06-30', 7),
+('0978901234', '黃麗華', 'lihua.huang@email.com', '2024-07-03', 11),
+('0989012345', '劉俊傑', 'junjie.liu@email.com', '2024-07-06', 4),
+('0990123456', '周雅婷', 'yating.zhou@email.com', '2024-07-09', 9),
+('0901234567', '謝宗翰', 'zonghan.xie@email.com', '2024-07-12', 13),
+('0912345679', '楊佳琳', 'jialin.yang@email.com', '2024-07-15', 6),
+('0923456788', '郭雅文', 'yawen.guo@email.com', '2024-07-18', 2),
+('0934567899', '許志豪', 'zhihao.xu@email.com', '2024-07-21', 14),
+('0945678900', '朱美珍', 'meizhen.zhu@email.com', '2024-07-24', 8),
+('0956789013', '潘建志', 'jianzhi.pan@email.com', '2024-07-27', 11),
+('0967890124', '范文芳', 'wenfang.fan@email.com', '2024-07-30', 5),
+('0978901235', '蔡明宏', 'minghong.cai@email.com', '2024-08-02', 15),
+('0989012346', '沈雅琪', 'yaqi.shen@email.com', '2024-08-05', 7),
+('0990123457', '馮志偉', 'zhiwei.feng@email.com', '2024-08-08', 3),
+('0901234568', '鄭惠美', 'huimei.zheng@email.com', '2024-08-11', 12),
+('0912345670', '盧建宇', 'jianyu.lu@email.com', '2024-08-14', 6),
+('0923456781', '唐淑華', 'shuhua.tang@email.com', '2024-08-17', 9),
+('0934567892', '葉俊賢', 'junxian.ye@email.com', '2024-08-20', 4),
+('0945678903', '施雅芳', 'yafang.shi@email.com', '2024-08-23', 13),
+('0956789014', '彭建國', 'jianguo.peng@email.com', '2024-08-26', 8),
+('0967890125', '董麗娟', 'lijuan.dong@email.com', '2024-08-29', 2),
+('0978901236', '江志成', 'zhicheng.jiang@email.com', '2024-09-01', 10),
+('0989012347', '侯雅玲', 'yaling.hou@email.com', '2024-09-04', 15),
+('0990123458', '韓建華', 'jianhua.han@email.com', '2024-09-07', 7),
+('0901234569', '傅淑惠', 'shuhui.fu@email.com', '2024-09-10', 5),
+('0912345671', '趙明德', 'mingde.zhao@email.com', '2024-09-13', 11),
+('0923456782', '童雅萍', 'yaping.tong@email.com', '2024-09-16', 3),
+('0934567893', '方志遠', 'zhiyuan.fang@email.com', '2024-09-19', 14),
+('0945678904', '白淑芳', 'shufang.bai@email.com', '2024-09-22', 6),
+('0956789015', '石建龍', 'jianlong.shi@email.com', '2024-09-25', 9),
+('0967890126', '龔雅如', 'yaru.gong@email.com', '2024-09-28', 12),
+('0978901237', '何志強', 'zhiqiang.he@email.com', '2024-10-01', 4),
+('0989012348', '湯雅婷', 'yating.tang@email.com', '2024-10-04', 8),
+('0990123459', '任建成', 'jiancheng.ren@email.com', '2024-10-07', 15),
+('0901234560', '巫淑玲', 'shuling.wu@email.com', '2024-10-10', 7),
+('0912345672', '康明山', 'mingshan.kang@email.com', '2024-10-13', 10),
+('0923456783', '章雅惠', 'yahui.zhang@email.com', '2024-10-16', 5),
+('0934567894', '馬志豪', 'zhihao.ma@email.com', '2024-10-18', 13),
+('0945678905', '時淑貞', 'shuzhen.shi@email.com', '2024-10-19', 2),
+('0956789016', '嚴建文', 'jianwen.yan@email.com', '2024-10-20', 11),
+('0967890127', '米雅莉', 'yali.mi@email.com', '2024-10-21', 6),
+('0978901238', '梁志明', 'zhiming.liang@email.com', '2024-10-22', 9),
+('0989012349', '湯雅晴', 'yaqing.tang@email.com', '2024-10-23', 4),
+('0990123450', '邱建安', 'jianan.qiu@email.com', '2024-10-24', 14),
+('0901234561', '溫淑儀', 'shuyi.wen@email.com', '2024-10-24', 8);
 
--- 新增請假單
-INSERT INTO ask_for_leave (leave_id, employee_id, start_time, end_time, reason_leave, proof_image, approved_status, category_id, record_id) VALUES 
-('L0001', 'E001', '2024-10-01 08:00', '2024-10-01 12:00', '因病無法上班', NULL, '已批准', 1, 1),
-('L0002', 'E001', '2024-10-02 09:00', '2024-10-02 17:00', '家中有急事需要處理', NULL, '待審核', 2, 2),
-('L0003', 'E002', '2024-09-15 08:00', '2024-09-15 12:00', '利用特休休假', NULL, '已批准', 3, 3),
-('L0004', 'E003', '2024-10-05 08:00', '2024-10-05 17:00', '結婚需要請假', NULL, '已批准', 4, 4),
-('L0005', 'E003', '2024-10-10 08:00', '2024-10-10 12:00', '突發病情需要請假', NULL, '已批准', 1, 5),
-('L0006', 'E004', '2024-09-20 08:00', '2024-09-20 17:00', '家庭事務繁忙', NULL, '待審核', 2, 6),
-('L0007', 'E005', '2024-08-25 08:00', '2024-08-25 12:00', '年假使用', NULL, '已批准', 3, 7),
-('L0008', 'E005', '2024-09-30 09:00', '2024-09-30 17:00', '親人過世需請喪假', NULL, '已批准', 5, 8),
-('L0009', 'E006', '2024-10-05 08:00', '2024-10-05 12:00', '因病無法上班', NULL, '待審核', 1, 9),
-('L0010', 'E002', '2024-09-16 08:00', '2024-09-16 17:00', '家中有事需要請假', NULL, '已批准', 2, 10),
-('L0011', 'E001', '2024-09-20 09:00', '2024-09-20 17:00', '利用特休休假', NULL, '已批准', 3, 11),
-('L0012', 'E003', '2024-10-12 08:00', '2024-10-12 12:00', '結婚需要請假', NULL, '已批准', 4, 12),
-('L0013', 'E006', '2024-09-25 08:00', '2024-09-25 17:00', '突發疾病需要請病假', NULL, '待審核', 1, 13),
-('L0014', 'E004', '2024-10-01 08:00', '2024-10-01 12:00', '親人過世需請喪假', NULL, '已批准', 5, 14),
-('L0015', 'E005', '2024-10-08 08:00', '2024-10-08 17:00', '家中事務需要請事假', NULL, '已批准', 2, 15),
-('L0016', 'E001', '2024-10-15 08:00', '2024-10-15 12:00', '因病無法上班', NULL, '待審核', 1, 16),
-('L0017', 'E001', '2024-10-18 09:00', '2024-10-18 17:00', '家中有事需要處理', NULL, '已批准', 2, 17),
-('L0018', 'E001', '2024-10-20 08:00', '2024-10-20 12:00', '利用特休休假', NULL, '待審核', 3, 18),
-('L0019', 'E001', '2024-10-22 09:00', '2024-10-22 17:00', '結婚需要請假', NULL, '已批准', 4, 19),
-('L0020', 'E001', '2024-10-25 08:00', '2024-10-25 12:00', '因病無法上班', NULL, '待審核', 1, 20),
-('L0021', 'E001', '2024-10-28 09:00', '2024-10-28 17:00', '家中有事需要處理', NULL, '已批准', 2, 21),
-('L0022', 'E001', '2024-10-30 08:00', '2024-10-30 12:00', '利用特休休假', NULL, '待審核', 3, 22),
-('L0023', 'E001', '2024-11-01 09:00', '2024-11-01 17:00', '結婚需要請假', NULL, '已批准', 4, 23),
-('L0024', 'E001', '2024-11-05 08:00', '2024-11-05 12:00', '因病無法上班', NULL, '待審核', 1, 24),
-('L0025', 'E001', '2024-11-08 09:00', '2024-11-08 17:00', '家中有事需要處理', NULL, '已批准', 2, 25),
-('L0026', 'E001', '2024-11-10 08:00', '2024-11-10 12:00', '利用特休休假', NULL, '待審核', 3, 26),
-('L0027', 'E001', '2024-11-12 09:00', '2024-11-12 17:00', '結婚需要請假', NULL, '已批准', 4, 27);
+-- 插入 ask_for_leave 請假表資料
+INSERT INTO ask_for_leave (leave_id, employee_id, start_time, end_time, reason_leave, proof_image, approved_status, category_id, leave_hours, rejection_reason)
+VALUES
+('L00001', 'E001', '2024-01-05 09:00', '2024-01-05 17:00', '因私人事務請假', NULL, '已批准', 1, 8, NULL),
+('L00002', 'E001', '2024-01-10 09:00', '2024-01-10 17:00', '因健康問題請假', NULL, '待審核', 2, 8, NULL),
+('L00003', 'E002', '2024-02-03 09:00', '2024-02-03 17:00', '因家庭需求請假', NULL, '已退簽', 3, 8, '缺證明'),
+('L00004', 'E003', '2024-02-07 09:00', '2024-02-07 17:00', '參加婚禮請假', NULL, '已批准', 4, 8, NULL),
+('L00005', 'E004', '2024-03-01 09:00', '2024-03-01 17:00', '因親人去世請假', NULL, '已批准', 5, 8, NULL),
+('L00006', 'E005', '2024-03-05 09:00', '2024-03-05 17:00', '因個人事務請假', NULL, '已退簽', 1, 8, '病情不符'),
+('L00007', 'E006', '2024-04-08 09:00', '2024-04-08 17:00', '因健康檢查請假', NULL, '待審核', 2, 8, NULL),
+('L00008', 'E001', '2024-04-12 09:00', '2024-04-12 17:00', '因個人事務請假', NULL, '已批准', 3, 8, NULL),
+('L00009', 'E002', '2024-05-01 09:00', '2024-05-01 17:00', '參加親友婚禮請假', NULL, '待審核', 4, 8, NULL),
+('L00010', 'E003', '2024-05-05 09:00', '2024-05-05 17:00', '因親人去世請假', NULL, '已批准', 5, 8, NULL),
+('L00011', 'E004', '2024-06-01 09:00', '2024-06-01 17:00', '因私人事務請假', NULL, '已批准', 1, 8, NULL),
+('L00012', 'E005', '2024-06-08 09:00', '2024-06-08 17:00', '因健康問題請假', NULL, '待審核', 2, 8, NULL),
+('L00013', 'E006', '2024-07-01 09:00', '2024-07-01 17:00', '因個人事務請假', NULL, '已批准', 3, 8, NULL),
+('L00014', 'E001', '2024-07-10 09:00', '2024-07-10 17:00', '參加婚禮請假', NULL, '已退簽', 4, 8, '證明不齊'),
+('L00015', 'E002', '2024-08-01 09:00', '2024-08-01 17:00', '因親人去世請假', NULL, '已批准', 5, 8, NULL),
+('L00016', 'E003', '2024-08-10 09:00', '2024-08-10 17:00', '因私人事務請假', NULL, '待審核', 1, 8, NULL),
+('L00017', 'E004', '2024-09-01 09:00', '2024-09-01 17:00', '因健康問題請假', NULL, '已批准', 2, 8, NULL),
+('L00018', 'E005', '2024-09-05 09:00', '2024-09-05 17:00', '因假期重複請假', NULL, '已退簽', 3, 8, '假期重複'),
+('L00019', 'E006', '2024-10-01 09:00', '2024-10-01 17:00', '參加婚禮請假', NULL, '待審核', 4, 8, NULL),
+('L00020', 'E001', '2024-10-05 09:00', '2024-10-05 17:00', '因親人去世請假', NULL, '已批准', 5, 8, NULL),
+('L00021', 'E002', '2024-11-01 09:00', '2024-11-01 17:00', '因私人事務請假', NULL, '待審核', 1, 8, NULL),
+('L00022', 'E003', '2024-11-10 09:00', '2024-11-10 17:00', '因健康問題請假', NULL, '已批准', 2, 8, NULL),
+('L00023', 'E004', '2024-12-01 09:00', '2024-12-01 17:00', '因假期重複請假', NULL, '待審核', 3, 8, NULL),
+('L00024', 'E005', '2024-12-05 09:00', '2024-12-05 17:00', '因參加婚禮請假', NULL, '已退簽', 4, 8, '請假時間不符合規定'),
+('L00025', 'E006', '2024-12-10 09:00', '2024-12-10 17:00', '因親人去世請假', NULL, '已批准', 5, 8, NULL),
+('L00026', 'E001', '2024-01-15 09:00', '2024-01-15 17:00', '因健康檢查請假', NULL, '已批准', 1, 8, NULL),
+('L00027', 'E001', '2024-02-10 09:00', '2024-02-10 17:00', '因家庭問題請假', NULL, '待審核', 2, 8, NULL),
+('L00028', 'E001', '2024-03-15 09:00', '2024-03-15 17:00', '因私人事務請假', NULL, '已退簽', 3, 8, '缺證明'),
+('L00029', 'E001', '2024-04-20 09:00', '2024-04-20 17:00', '因參加工作坊請假', NULL, '已批准', 4, 8, NULL),
+('L00030', 'E001', '2024-05-10 09:00', '2024-05-10 17:00', '因旅遊請假', NULL, '待審核', 5, 8, NULL),
+('L00031', 'E001', '2024-06-15 09:00', '2024-06-15 17:00', '因私事請假', NULL, '已批准', 1, 8, NULL),
+('L00032', 'E001', '2024-07-10 09:00', '2024-07-10 17:00', '因親友婚禮請假', NULL, '已退簽', 2, 8, '證明不齊'),
+('L00033', 'E001', '2024-08-20 09:00', '2024-08-20 17:00', '因健康問題請假', NULL, '已批准', 3, 8, NULL);
 
+-- 新增請假記錄
+INSERT INTO leave_record (employee_id, category_id, expiration_date, actual_hours, limit_hours)
+VALUES
+('E001', 1, '2025-06-13', 8, 112),
+('E001', 2, '2025-06-13', 8, 240),
+('E002', 3, '2025-06-13', 8, 24),
+('E003', 4, '2025-06-13', 8, 64),
+('E004', 5, '2025-06-13', 8, 64),
+('E005', 1, '2025-06-13', 8, 112),
+('E006', 2, '2025-06-13', 8, 240),
+('E001', 3, '2025-06-13', 8, 24),
+('E002', 4, '2025-06-13', 8, 64),
+('E003', 5, '2025-06-13', 8, 64),
+('E004', 1, '2025-06-13', 8, 112),
+('E005', 2, '2025-06-13', 8, 240),
+('E006', 3, '2025-06-13', 8, 24),
+('E001', 4, '2025-06-13', 8, 64),
+('E002', 5, '2025-06-13', 8, 64),
+('E003', 1, '2025-06-13', 8, 112),
+('E004', 2, '2025-06-13', 8, 240),
+('E005', 3, '2025-06-13', 8, 24),
+('E006', 4, '2025-06-13', 8, 64),
+('E001', 5, '2025-06-13', 8, 112),
+('E002', 1, '2025-06-13', 8, 240),
+('E003', 2, '2025-06-13', 8, 24),
+('E004', 3, '2025-06-13', 8, 64),
+('E005', 4, '2025-06-13', 8, 112),
+('E006', 5, '2025-06-13', 8, 240);
 
--- 插入 leave_category 表
-INSERT INTO leave_category (leave_type, limit_hours) VALUES 
-('病假', 50),     -- 額度時數 50 小時
-('事假', 80),     -- 額度時數 80 小時
-('特休', 30),     -- 額度時數 30 小時
-('婚假', 56),     -- 額度時數 56 小時
-('喪假', 40);     -- 額度時數 40 小時
+--- 插入 請假類別
+INSERT INTO leave_category (leave_type, max_hours)
+VALUES
+('事假', 112),
+('病假', 240),           
+('特休假', 240),
+('婚假', 64),         
+('喪假', 64),          
+('公傷假', 240),        
+('公假', 240);          
 
-
---新增排班表
-INSERT INTO schedule (employee_id, start_time, end_time) VALUES
-	('E002', '2024-10-01 09:00', '2024-10-01 12:00'),
-	('E001', '2024-10-01 09:00', '2024-10-01 12:00'),
-	('E003', '2024-10-01 12:00', '2024-10-01 17:00'),
-	('E005', '2024-10-01 12:00', '2024-10-01 17:00'),
-	('E002', '2024-10-02 10:00', '2024-10-02 18:00'),
-	('E003', '2024-10-03 08:30', '2024-10-03 16:30'),
-	('E004', '2024-10-04 09:00', '2024-10-04 17:00'),
-	('E005', '2024-10-05 10:00', '2024-10-05 18:00'),
-	('E006', '2024-10-06 08:00', '2024-10-06 16:00'),
-	('E001', '2024-10-07 09:30', '2024-10-07 17:30'),
-	('E002', '2024-10-08 10:00', '2024-10-08 18:00'),
-	('E003', '2024-10-09 08:00', '2024-10-09 16:00'),
-	('E004', '2024-10-10 09:00', '2024-10-10 17:00');
+-- 插入排班表資料
+INSERT INTO schedule (employee_id, schedule_date, start_time, end_time, schedule_hour, schedule_active)
+VALUES
+('E001', '2024-10-18', '08:00', '12:00', 4, 1),
+('E002', '2024-10-18', '08:00', '12:00', 4, 1),
+('E003', '2024-10-18', '12:00', '16:00', 4, 1),
+('E004', '2024-10-18', '12:00', '16:00', 4, 1),
+('E005', '2024-10-18', '16:00', '20:00', 4, 1),
+('E006', '2024-10-18', '16:00', '20:00', 4, 1),
+('E001', '2024-10-19', '08:00', '12:00', 4, 1),
+('E002', '2024-10-19', '08:00', '12:00', 4, 1),
+('E003', '2024-10-19', '12:00', '16:00', 4, 1),
+('E004', '2024-10-19', '12:00', '16:00', 4, 1),
+('E005', '2024-10-19', '16:00', '20:00', 4, 1),
+('E006', '2024-10-19', '16:00', '20:00', 4, 1),
+('E001', '2024-10-20', '08:00', '12:00', 4, 1),
+('E002', '2024-10-20', '08:00', '12:00', 4, 1),
+('E003', '2024-10-20', '12:00', '16:00', 4, 1),
+('E004', '2024-10-20', '12:00', '16:00', 4, 1),
+('E005', '2024-10-20', '16:00', '20:00', 4, 1),
+('E006', '2024-10-20', '16:00', '20:00', 4, 1),
+('E001', '2024-09-18', '08:00', '12:00', 4, 1),
+('E002', '2024-09-18', '08:00', '12:00', 4, 1),
+('E003', '2024-09-18', '12:00', '16:00', 4, 1),
+('E004', '2024-09-18', '12:00', '16:00', 4, 1);
 
 -- 新增結帳單
 INSERT INTO checkout (checkout_id,invoice_number , customer_tel, employee_id, checkout_total_price,checkout_date,bonus_points,points_due_date, checkout_status, related_return_id)
@@ -529,7 +645,6 @@ VALUES
 	('C00000007','IN00000007','', 'E005', 105 , '2024-07-16',0, '','正常',''),
 	('C00000008','IN00000008','0912123123', 'E006', 750 , '2024-07-17',7, '2025-07-17','正常','');
 	
-
 -- 新增結帳明細        
 INSERT INTO checkout_details(checkout_id,product_id,number_of_checkout,product_price,checkout_price)
 VALUES
@@ -569,7 +684,7 @@ VALUES
 	('H00000001', 'PSN003', '0912123123', 15,1,'2024-7-30'),
 	('H00000002', 'PVF001', '0912321321', 20,1,'2024-7-30');
 
---新增有會員點數做紅利兌換商品測試
+-- 新增有會員點數做紅利兌換商品測試
 INSERT INTO customer (customer_tel, customer_name, customer_email, date_of_registration, total_points)
 VALUES
 	('0955993322', '阿偉', 'cus021@gmail.com', '2024-07-01', 500),
@@ -654,9 +769,21 @@ REFERENCES employee(employee_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION;
 
--- 建立排班表的employee_id與員工的employee_id外鍵關係
 ALTER TABLE schedule
 ADD CONSTRAINT schedule_employee_id_FK
+FOREIGN KEY (employee_id)
+REFERENCES employee(employee_id);
+
+ALTER TABLE schedule
+ADD CONSTRAINT FK_shift_period
+FOREIGN KEY (shift_id) REFERENCES shift_period(shift_id);
+
+ALTER TABLE schedule
+ADD CONSTRAINT FK_shift_quota
+FOREIGN KEY (quota_id) REFERENCES shift_quota(quota_id);
+
+ALTER TABLE shift_quota
+ADD CONSTRAINT shift_quota_employee_id_FK
 FOREIGN KEY (employee_id)
 REFERENCES employee(employee_id);
 
@@ -665,6 +792,24 @@ ALTER TABLE ask_for_leave
 ADD CONSTRAINT ask_for_leave_employee_id_FK
 FOREIGN KEY (employee_id)
 REFERENCES employee(employee_id);
+
+-- 建立請假的category_id與請假類別的category_id外鍵關係
+ALTER TABLE ask_for_leave
+ADD CONSTRAINT ask_for_leave_category_id_FK
+FOREIGN KEY (category_id)
+REFERENCES leave_category(category_id);
+
+-- 外鍵關聯到員工表的 employee_id
+ALTER TABLE leave_record
+ADD CONSTRAINT leave_record_employee_id_FK
+FOREIGN KEY (employee_id)
+REFERENCES employee(employee_id);
+
+-- 外鍵關聯到請假類別表的 category_id
+ALTER TABLE leave_record
+ADD CONSTRAINT leave_record_category_id_FK
+FOREIGN KEY (category_id)
+REFERENCES leave_category(category_id);
 
 -- 設定進貨的employee_id與員工的employee_id建立外鍵關係
 ALTER TABLE restocks
@@ -769,7 +914,7 @@ ADD CONSTRAINT bonus_exchange_product_id_FK
 FOREIGN KEY (product_id)
 REFERENCES products(product_id);
 
--- 紅利兌換商品的customer_tel與顧客的customer_tel建立外鍵關係
+-- 紅利兌換商品的customer_tel與會員的customer_tel建立外鍵關係
 ALTER TABLE bonus_exchange
 ADD CONSTRAINT bonus_exchange_customer_tel_FK
 FOREIGN KEY (customer_tel)
@@ -869,6 +1014,7 @@ SELECT * FROM points_history;
 --TRUNCATE TABLE checkout;
 --TRUNCATE TABLE ranklevel;
 --TRUNCATE TABLE employee;
+--TRUNCATE TABLE chat_messages;
 --TRUNCATE TABLE schedule;
 --TRUNCATE TABLE ask_for_leave;
 --TRUNCATE TABLE leave_record;
@@ -891,6 +1037,7 @@ DROP TABLE checkout_details;
 DROP TABLE checkout;
 DROP TABLE ranklevel;
 DROP TABLE employee;
+DROP TABLE chat_messages;
 DROP TABLE schedule;
 DROP TABLE ask_for_leave;
 DROP TABLE leave_record;

@@ -163,7 +163,6 @@ public class SupplierController {
         ecpayParams.put("MerchantTradeDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
         ecpayParams.put("PaymentType", "aio");
         ecpayParams.put("TotalAmount", String.valueOf(totalAmount));
-        System.out.println(totalAmount);
         ecpayParams.put("TradeDesc", "供應商付款");
         ecpayParams.put("ItemName", "供應商付款"); // 根據實際需求設置
         ecpayParams.put("ReturnURL", ecPayConfig.getReturnUrl());
@@ -188,8 +187,10 @@ public class SupplierController {
     @PostMapping("/ecpayReturn")
     @ResponseBody
     public String handleECPayReturn(@RequestParam Map<String, String> params) {
+        System.out.println("有執行回傳");
         boolean isValid = paymentService.verifyECPayReturn(params);
         System.out.println(params);
+        System.out.println("1234");
         if (isValid) {
             String merchantTradeNo = params.get("MerchantTradeNo"); // payment_id
             String paymentStatus = params.get("RtnCode");
