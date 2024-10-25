@@ -17,6 +17,50 @@
 	max-height: 70vh;
 	overflow-y: auto;
 }
+
+.table th {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 150px;
+}
+
+.nav-link.btn-blue-background {
+	background-color: white;
+	color: black;
+	border: 1px solid #ddd;
+	transition: background-color 0.3s ease;
+}
+
+.nav-link.btn-blue-background:hover {
+	background-color: lightblue;
+	color: black;
+}
+
+.nav-link.btn-blue-background.active {
+	background-color: var(--bs-primary);
+	color: white;
+}
+
+.nav-link.btn-lightblue {
+	background-color: lightblue;
+	color: black;
+	border: none;
+}
+
+.table th.start-time, .table th.end-time {
+	width: 300px !important;
+}
+
+.nav-pills .nav-link {
+	padding: 10px 15px;
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+.nav-pills .nav-item {
+	margin: 0 10px;
+}
 </style>
 
 </head>
@@ -38,7 +82,6 @@
 					</div>
 				</div>
 				<hr />
-
 				<div
 					th:if="${askForLeave != null and not #lists.isEmpty(askForLeave)}">
 					<table class="table table-striped table-bordered">
@@ -118,20 +161,23 @@
 										class="fa-regular fa-eye-slash"></i>
 								</span>
 								</td>
-								<td class="text-center">
-									<button class="btn btn-success btn-sm approve-btn"
-										th:if="${leave.approvedStatus != '已批准'}"
-										th:data-id="${leave.leaveId}">
-										<i class="fa-solid fa-check"></i>批准
-									</button> <span th:if="${leave.approvedStatus == '已批准'}"> <i
-										class="fas fa-lock"></i> 已批准
-								</span>
-									<button class="btn btn-danger btn-sm reject-btn"
-										th:data-id="${leave.leaveId}" data-bs-toggle="modal"
-										data-bs-target="#rejectionModal">
-										<i class="fa-solid fa-xmark"></i>拒絕
-									</button>
-								</td>
+								<td class="text-center"><span
+									th:if="${leave.approvedStatus != '待審核' && leave.approvedStatus != '已退簽'}">
+										<i class="fas fa-lock"></i>
+								</span> <span th:if="${leave.approvedStatus == '待審核'}">
+										<button class="btn btn-success btn-sm approve-btn"
+											th:data-id="${leave.leaveId}">
+											<i class="fa-solid fa-check"></i>批准
+										</button>
+								</span> <span th:if="${leave.approvedStatus != '已退簽'}">
+										<button class="btn btn-danger btn-sm reject-btn"
+											th:data-id="${leave.leaveId}" data-bs-toggle="modal"
+											data-bs-target="#rejectionModal">
+											<i class="fa-solid fa-xmark"></i>拒絕
+										</button>
+								</span><span th:if="${leave.approvedStatus == '已退簽'}"> <i
+										class="fas fa-lock"></i>
+								</span></td>
 							</tr>
 						</tbody>
 					</table>
@@ -311,163 +357,8 @@
         modalBody.text(reason); // 顯示在模態框中
     });
     
- function updateTable(data) {
-    const tbody = document.querySelector('tbody');
-    tbody.innerHTML = ''; // 清空表格
 
-    data.content.forEach(leave => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="text-center" style="vertical-align: middle;" th:text="${leave.leaveId}"></td>
-            <td class="text-center" style="vertical-align: middle;" th:text="${leave.empBean.employeeId}"></td>
-            <td class="text-center" style="vertical-align: middle;" th:text="${leave.empBean.employeeName}"></td>
-            <td class="text-center" style="vertical-align: middle;" th:text="${formatDate(leave.starTime)}"></td>
-            <td class="text-center" style="vertical-align: middle;" th:text="${formatDate(leave.endTime)}"></td>
-            <td class="text-center" style="vertical-align: middle;" th:text="${leave.leaveCategory.leaveType}"></td>
-            <td class="text-center" style="vertical-align: middle;">
-                <button class="btn btn-sm btn-primary" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#Rlmodal" 
-                    th:if="${leave.reasonLeave != null}" 
-                    th:data-reason="${leave.reasonLeave}">
-                    <i class="fa-regular fa-eye"></i>檢視
-                </button>
-                <span style="display: ${leave.reasonLeave ? 'none' : 'inline'};">
-                    <i class="fa-regular fa-eye-slash"></i>
-                </span>
-            </td>
-            <td class="text-center" style="vertical-align: middle;" th:text="${leave.approvedStatus}"></td>
-            <td class="text-center" style="vertical-align: middle;">
-                <a href="/askForLeave/image/${leave.leaveId}" 
-                   target="_blank" 
-                   class="btn btn-primary btn-sm" 
-                   style="display: ${leave.proofImage ? 'inline' : 'none'};">
-                    <i class="fa-regular fa-eye"></i>檢視
-                </a>
-                <span style="display: ${leave.proofImage ? 'none' : 'inline'};">
-                    <i class="fa-regular fa-eye-slash"></i>
-                </span>
-            </td>
-            <td class="text-center" style="vertical-align: middle;">
-                <button class="btn btn-sm btn-primary" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#RRmodal" 
-                    th:if="${leave.rejectionReason != null}" 
-                    th:data-reason="${leave.rejectionReason}">
-                    <i class="fa-regular fa-eye"></i>檢視
-                </button>
-                <span style="display: ${leave.rejectionReason ? 'none' : 'inline'};">
-                    <i class="fa-regular fa-eye-slash"></i>
-                </span>
-            </td>
-            <td class="text-center">
-                <div style="display: inline-block;">
-                    <button class="btn btn-success btn-sm approve-btn" 
-                        th:if="${leave.approvedStatus != '已批准'}" 
-                        th:data-id="${leave.leaveId}">
-                        <i class="fa-solid fa-check"></i>批准
-                    </button>
-                    <span style="display: ${leave.approvedStatus === '已批准' ? 'inline' : 'none'};">
-                        <i class="fas fa-lock"></i> 已批准
-                    </span>
-                    <button class="btn btn-danger btn-sm reject-btn" 
-                        th:data-id="${leave.leaveId}" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#rejectionModal">
-                        <i class="fa-solid fa-xmark"></i>拒絕
-                    </button>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-// 格式化日期函數，根據需要調整格式
-function formatDate(date) {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false };
-    return new Date(date).toLocaleString('zh-TW', options).replace(',', '');
-}
-
-
-function updatePagination(data) {
-    const pagination = document.querySelector('.pagination');
-    const currentPage = data.number + 1; // 因為後端的 page number 是從 0 開始
-    const totalPages = data.totalPages;
-
-    pagination.innerHTML = ''; // 清空現有的分頁
-
-    // Previous Button
-    const prevItem = document.createElement('li');
-    prevItem.classList.add('page-item');
-    if (currentPage === 1) {
-        prevItem.classList.add('disabled');
-    }
-    prevItem.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})"><i class="fas fa-chevron-left"></i></a>`;
-    pagination.appendChild(prevItem);
-
-    // Page Numbers
-    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-        const pageItem = document.createElement('li');
-        pageItem.classList.add('page-item');
-        if (pageNum === currentPage) {
-            pageItem.classList.add('active');
-        }
-        pageItem.innerHTML = `<a class="page-link" href="#" onclick="changePage(${pageNum})">${pageNum}</a>`;
-        pagination.appendChild(pageItem);
-    }
-
-    // Next Button
-    const nextItem = document.createElement('li');
-    nextItem.classList.add('page-item');
-    if (currentPage === totalPages) {
-        nextItem.classList.add('disabled');
-    }
-    nextItem.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})"><i class="fas fa-chevron-right"></i></a>`;
-    pagination.appendChild(nextItem);
-}
-
-function changePage(pageNum) {
-    // 這裡可以再調用過濾的邏輯以獲取相應頁面的數據
-    const startTimeInput = document.querySelector('[data-filter="startTime"]');
-    const endTimeInput = document.querySelector('[data-filter="endTime"]');
-    
-    const filters = {
-        startTime: startTimeInput.value || '',
-        endTime: endTimeInput.value || '',
-        leaveCategory: document.querySelector('[data-filter="leaveCategory"]').value || '',
-        approvedStatus: document.querySelector('[data-filter="approvedStatus"]').value || '',
-        employeeId: document.querySelector('[data-filter="employeeName"]').value || '',
-        pageNum: pageNum // 傳遞當前頁碼
-    };
-
-    fetch('/marketMaster/askForLeave/filter?' + new URLSearchParams(filters), {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('網絡錯誤');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data && data.content) {
-            updateTable(data);
-            updatePagination(data); // 更新分頁
-        } else {
-            console.error('返回的數據格式錯誤:', data);
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching filtered data:', error);
-    });
-}
 });
-
-
 </script>
 </body>
 </html>

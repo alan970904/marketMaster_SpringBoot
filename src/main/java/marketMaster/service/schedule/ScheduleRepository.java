@@ -30,10 +30,12 @@ public interface ScheduleRepository extends JpaRepository<ScheduleBean, Integer>
 	List<ScheduleBean> findByScheduleDateAndTimeNative(@Param("scheduleDate") String scheduleDate,
 			@Param("startTime") String startTime, @Param("endTime") String endTime);
 
-	 @Query("SELECT s FROM ScheduleBean s WHERE s.empBean.employeeId = :employeeId AND " +
-	           "CONCAT(s.scheduleDate, ' ', s.startTime) <= :endDateTime AND CONCAT(s.scheduleDate, ' ', s.endTime) >= :startDateTime")
-	    List<ScheduleBean> findByEmployeeIdAndDateTimeRange(@Param("employeeId") String employeeId,
-	                                                        @Param("startDateTime") LocalDateTime startDateTime,
-	                                                        @Param("endDateTime") LocalDateTime endDateTime);
+	@Query("SELECT s FROM ScheduleBean s WHERE s.empBean.employeeId = :employeeId AND " +
+		       "CAST(CONCAT(s.scheduleDate, ' ', s.startTime) AS LocalDateTime) >= :startDateTime AND " +
+		       "CAST(CONCAT(s.scheduleDate, ' ', s.endTime) AS LocalDateTime) <= :endDateTime")
+		List<ScheduleBean> findByEmployeeIdAndDateTimeRange(
+		    @Param("employeeId") String employeeId,
+		    @Param("startDateTime") LocalDateTime startDateTime,
+		    @Param("endDateTime") LocalDateTime endDateTime);
 
 }
