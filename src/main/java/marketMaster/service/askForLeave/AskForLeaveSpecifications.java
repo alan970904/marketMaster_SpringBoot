@@ -17,6 +17,15 @@ public class AskForLeaveSpecifications {
         };
     }
     
+    public static Specification<AskForLeaveBean> filterByEmployeeName(String employeeName) {
+        return (root, query, criteriaBuilder) -> {
+            if (employeeName == null || employeeName.isEmpty()) {
+                return criteriaBuilder.conjunction(); 
+            }
+            return criteriaBuilder.like(root.get("empBean").get("employeeName"), "%" + employeeName + "%");
+        };
+    }
+    
     
 
     public static Specification<AskForLeaveBean> filterByStartTime(LocalDateTime startTime) {

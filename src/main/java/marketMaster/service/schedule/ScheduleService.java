@@ -186,7 +186,8 @@ public class ScheduleService {
 	}
 	
 	 public List<ScheduleBean> findSchedulesByDateTimeRange(String employeeId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-	        return scheduleRepo.findByEmployeeIdAndDateTimeRange(employeeId, startDateTime, endDateTime);
+	        List<ScheduleBean> schedule = scheduleRepo.findByEmployeeIdAndDateTimeRange(employeeId, startDateTime, endDateTime);
+	        return schedule;
 	    }
 
 }
