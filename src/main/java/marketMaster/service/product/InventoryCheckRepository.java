@@ -11,4 +11,5 @@ public interface InventoryCheckRepository extends JpaRepository<InventoryCheckBe
 	
 	@Query("SELECT MAX(ic.inventoryCheckId) FROM InventoryCheckBean ic")
 	String findMaxId();
+	
 }

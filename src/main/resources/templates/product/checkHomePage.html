@@ -75,7 +75,6 @@
             getProductCategory();
         }
 
-        // 抓取商品分類 並 塞入下拉式選單
         function getProductCategory() {
             axios.post('http://localhost:8080/marketMaster/product/findProductCategory')
                 .then(res => {
@@ -85,23 +84,19 @@
                     console.error(err);
                 })
         }
-        // 塞入下拉式選單
+
         function categoryMaker(data) {
             const select = document.getElementById('productCategory')
             data.forEach(element => {
                 const option = document.createElement('option')
                 option.value = element.productCategory
                 option.textContent = element.productCategory
-                document.getElementById('productCategory').appendChild(option)
                 select.appendChild(option)
             });
-
         }
 
-        //利用下拉式選單抓取商品資料
         const select = document.getElementById('productCategory');
         select.addEventListener('change', function () {
-
             axios.post('http://localhost:8080/marketMaster/inventoryCheck/getProductByCategory/json', {
                 productCategory: this.value,
                 pageSize: 10,
@@ -119,23 +114,19 @@
                 })
         })
 
-        // Global variables
         let detailsList = [];
         const inventoryCheckInsertDTO = {
             employeeId: 'E001',
             details: detailsList
         };
 
-
-
         function submitListener() {
-            // 先移除舊的事件監聽器
             const submitButton = document.getElementById('submit');
             const newSubmitButton = submitButton.cloneNode(true);
             submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
 
             newSubmitButton.addEventListener('click', function () {
-                detailsList = []; // 在添加新項目前清空列表
+                detailsList = [];
                 const actualInventoryInputs = document.querySelectorAll('.actualInventory');
 
                 let hasEmptyInput = false;
@@ -145,18 +136,16 @@
 
                 actualInventoryInputs.forEach((input, index) => {
                     const actualInventoryValue = input.value.trim();
-                    const currentInventory = document.getElementsByClassName('numberOfInventory')[index].textContent;
+                    const currentInventory = document.getElementsByClassName('form-control')[index].value; // 更新：獲取當前庫存的值
                     const remarkInput = document.getElementsByClassName('remark')[index];
                     const productName = input.closest('.card').querySelector('.card-title').textContent;
 
-                    // 檢查盤點數量是否為空
                     if (actualInventoryValue === '') {
                         hasEmptyInput = true;
                         emptyInputProductName = productName;
                         return;
                     }
 
-                    // 檢查當數量不符時，備註是否為空
                     if (actualInventoryValue !== currentInventory && remarkInput.value.trim() === '') {
                         hasEmptyRemark = true;
                         emptyRemarkProductName = productName;
@@ -172,7 +161,6 @@
                     detailsList.push(detail);
                 });
 
-                // 驗證檢查
                 if (hasEmptyInput) {
                     alert(`請輸入所有商品的盤點數量。商品 "${emptyInputProductName}" 的盤點數量為空。`);
                     return;
@@ -186,10 +174,8 @@
                 inventoryCheckInsertDTO.details = detailsList;
                 console.log(inventoryCheckInsertDTO);
 
-                // 禁用提交按鈕，避免重複提交
                 newSubmitButton.disabled = true;
 
-                // 修改 axios 請求
                 axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO, {
                     headers: {
                         'Content-Type': 'application/json'
@@ -198,91 +184,64 @@
                     .then(response => {
                         console.log('新增成功:', response);
                         alert('庫存盤點成功提交！');
-                        // 可選：重新載入數據
-                        // fetchProductsAndRender();
                     })
                     .catch(error => {
                         console.error('添加庫存檢查時出錯:', error);
                         if (error.response) {
-                            // 服務器回應了特定的錯誤信息
                             alert(`提交失敗：${error.response.data || '請稍後再試'}`);
                         } else if (error.request) {
-                            // 請求已經發出，但沒有收到回應
                             alert('提交失敗：無法連接到服務器，請檢查網路連接');
                         } else {
-                            // 發生了一些錯誤，導致請求無法發出
                             alert('提交失敗：請稍後再試');
                         }
                     })
                     .finally(() => {
-                        // 恢復提交按鈕
                         newSubmitButton.disabled = false;
                     });
             });
         }
 
-
-
         function setupRemarkListeners() {
             const actualInventoryInputs = document.querySelectorAll('.actualInventory');
             actualInventoryInputs.forEach((input, index) => {
                 input.addEventListener('blur', function () {
-                    const actualInventoryValue = parseInt(this.value);
-                    const numberOfInventory = parseInt(document.getElementsByClassName('numberOfInventory')[index].textContent);
-                    const stockStatus = document.getElementsByClassName('stockStatus')[index];
-                    const remark = document.getElementsByClassName('remark')[index];
+                    // 找到當前商品卡片
+                    const card = this.closest('.card');
 
-                    if (actualInventoryValue === numberOfInventory) {
-                        stockStatus.textContent = '數量無誤';
-                        remark.readOnly = true;
-                        remark.value = '無誤';
-                        // 移除必填標記
-                        remark.removeAttribute('required');
+                    // 獲取當前庫存量（從readonly的input中獲取）
+                    const currentInventoryInput = card.querySelector('.list-group-item:first-child .form-control');
+                    const numberOfInventory = parseInt(currentInventoryInput.value);
+
+                    // 獲取實際盤點數量
+                    const actualInventoryValue = parseInt(this.value || 0);
+
+                    // 獲取狀態和備註輸入框
+                    const stockStatusInput = card.querySelector('.stockStatus');
+                    const remarkInput = card.querySelector('.remark');
+
+                    if (!isNaN(actualInventoryValue) && actualInventoryValue === numberOfInventory) {
+                        // 數量相符的情況
+                        stockStatusInput.value = '數量無誤';
+                        remarkInput.readOnly = true;
+                        remarkInput.value = '數量無誤';
+                        remarkInput.removeAttribute('required');
+                    } else if (!isNaN(actualInventoryValue)) {
+                        // 數量不符的情況
+                        stockStatusInput.value = '數量有誤';
+                        remarkInput.readOnly = false;
+                        remarkInput.value = '';
+                        remarkInput.setAttribute('required', 'required');
+                        remarkInput.focus();
                     } else {
-                        stockStatus.textContent = '數量有誤';
-                        remark.readOnly = false;
-                        remark.value = '';
-                        // 添加必填標記
-                        remark.setAttribute('required', 'required');
-                        remark.focus();
+                        // 輸入無效的情況
+                        this.value = ''; // 清空無效輸入
+                        stockStatusInput.value = '';
+                        remarkInput.readOnly = true;
+                        remarkInput.value = '';
+                        remarkInput.removeAttribute('required');
                     }
                 });
             });
-        }
-
-        function htmlMaker(products) {
-            const baseUrl = '/marketMaster'; // Update this if needed
-            return products.map(product => `
-        <div class="card col-3 m-3" style="width: 18rem;">
-            <div class="h262 position-relative ">
-                ${product.productPhoto && product.productPhoto.length > 0
-                    ? `<img src="${baseUrl}/product/downloadProductPhoto?productId=${product.productId}" class="card-img-top">`
-                    : `<i class="fa-solid fa-file-image position-absolute top-50 start-50 translate-middle"></i>`
-                }
-            </div>
-            <div class="card-body text-center">
-                <input type="hidden" class="productId" value="${product.productId}">
-                <h5 class="card-title m-auto">${product.productName}</h5>
-            </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item ">
-                    當前庫存量: <span class="numberOfInventory">${product.numberOfInventory}</span>個
-                </li>
-                <li class="list-group-item">
-                    <div class="input-group">
-                        <span class="input-group-text">本次盤點量:</span>
-                        <input type="number" class="form-control actualInventory required invectoryCheck" min="0">
-                    </div>
-                </li>
-                <li class="list-group-item">庫存狀況
-                    <span class="stockStatus"></span>
-                </li>
-            </ul>
-            <div class="card-body">
-                <input type="text" required class="remark">
-            </div>
-        </div>
-    `).join('');
         }
 
         function fetchProductsAndRender(pageNumber = 1) {
@@ -305,7 +264,7 @@
 
         function pageMaker(data) {
             const ul = document.getElementById("pageUl");
-            ul.innerHTML = ''; // Clear existing pagination
+            ul.innerHTML = '';
 
             for (let i = 1; i <= data.totalPages; i++) {
                 const li = document.createElement("li");
@@ -317,6 +276,50 @@
                 li.appendChild(btn);
                 ul.appendChild(li);
             }
+        }
+
+        function htmlMaker(products) {
+            const baseUrl = '/marketMaster';
+            return products.map(product => `
+        <div class="card col-3 m-3 shadow p-3 mb-5 rounded-4 " style="width: 18rem;">
+            <div class="h262 position-relative ">
+                ${product.productPhoto && product.productPhoto.length > 0
+                    ? `<img src="${baseUrl}/product/downloadProductPhoto?productId=${product.productId}" class="card-img-top">`
+                    : `<i class="fa-solid fa-file-image position-absolute top-50 start-50 translate-middle"></i>`
+                }
+            </div>
+            <div class="card-body text-center">
+                <input type="hidden" class="productId" value="${product.productId}">
+                <h5 class="card-title m-auto">${product.productName}</h5>
+            </div>
+            <ul class="list-group list-group-flush ">
+                <li class="list-group-item hstack">
+                    <div class="input-group">
+                    <span class="input-group-text">當前庫存量:</span>
+                        <input type="number" class="form-control" readonly value="${product.numberOfInventory}">
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="input-group">
+                        <span class="input-group-text">本次盤點量:</span>
+                        <input type="number" class="form-control actualInventory required invectoryCheck" min="0">
+                    </div>
+                </li>
+                <li class="list-group-item hstack">
+                    <div class="input-group">
+                    <span class="input-group-text">庫存狀況:</span>
+                    <input type="text" class="form-control stockStatus">
+                    </div>
+                </li>
+                <li class="list-group-item hstack">
+                    <div class="input-group">
+                        <span class="input-group-text">異動原因:</span>
+                        <input type="text" required class="form-control remark">
+                    </div>
+                    </li>
+            </ul>
+        </div>
+    `).join('');
         }
     </script>
 

@@ -74,6 +74,11 @@ public class ProductService {
 		Page<ProductBean> products = productRepo.findByProductCategory(productCategory, pgb);
 		return products;
 	}
+	public Page<ProductBean> findProductByCategoryAndAvilable(String productCategory,boolean isAvailable, Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
+		Page<ProductBean> products = productRepo.findByProductAvailableAndProductCategory(isAvailable,productCategory, pgb);
+		return products;
+	}
 
 	public Page<ProductBean> findProductAvailable(boolean isAvailable, Integer pageNumber, Integer pageSize) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, 10);

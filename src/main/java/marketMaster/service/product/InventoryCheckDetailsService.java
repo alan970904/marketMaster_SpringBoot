@@ -1,5 +1,6 @@
 package marketMaster.service.product;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +54,7 @@ public class InventoryCheckDetailsService {
 		if (optional.isPresent()) {
 			InventoryCheckDetailsBean detail = optional.get();
 			detail.setActualInventory(actualInventory);
-			detail.setDifferentialInventory(detail.getCurrentInventory()-actualInventory);
+			detail.setDifferentialInventory(actualInventory-detail.getCurrentInventory());
 			detail.setRemark(remark);
 		}
 	}

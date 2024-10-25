@@ -46,11 +46,7 @@ public class InventoryCheckService {
 	
 	public List<InventoryCheckBean> findAllInventoryCheck() {
 		List<InventoryCheckBean> inventoryChecks = inventoryCheckRepo.findAll();
-//		for (InventoryCheckBean inventoryCheckBean : inventoryChecks) {
-//			String inventoryCheckId = inventoryCheckBean.getInventoryCheckId();
-//			
-//			boolean checkStatus = inventoryCheckDetailsService.findCheckStatus(inventoryCheckId);
-//		}
+
 		return inventoryChecks;
 	}
 

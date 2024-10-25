@@ -39,9 +39,7 @@ public class InventoryCheckController {
 	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
 		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
-		List<InventoryCheckBean> inventoryCheck = inventoryCheckService.findAllInventoryCheck();
 		m.addAttribute("products", products);
-		m.addAttribute("inventoryCheck", inventoryCheck);
 		return "/product/checkHomePage";
 	}
 

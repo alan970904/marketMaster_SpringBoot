@@ -32,15 +32,21 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
 
     //JPA 自帶的模糊查詢
     Page<ProductBean> findByProductNameContaining(@Param("productName")String productName ,Pageable pgb);
+    
+    Page<ProductBean> findByProductAvailableAndProductCategory(
+    	    boolean productAvailable, 
+    	    String productCategory, 
+    	    Pageable pageable
+    	);
+    
 
-    Page<ProductBean>  findByProductAvailable(boolean productAvailable ,Pageable pgb);
-
-
+    @Query("SELECT p FROM ProductBean p WHERE p.productAvailable = :productAvailable")
+    Page<ProductBean> findByProductAvailable(@Param("productAvailable") boolean productAvailable, Pageable pgb);
+    
     @Query(value = "select * from products where Number_of_inventory <  product_safeinventory AND product_available = 1",nativeQuery = true)
     Page<ProductBean> findInventoryNotEnough(Pageable pgb);
 
     Page<ProductBean> findByProductCategory(String productCategory,Pageable pgb);
-    
     
     //   ===============更新進貨數量用的=============
     
