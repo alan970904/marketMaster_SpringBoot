@@ -69,15 +69,15 @@
                 <nav aria-label="Page navigation" th:if="${totalPages > 1}">
                     <ul class="pagination justify-content-center">
                         <li class="page-item" th:classappend="${currentPage == 0} ? disabled">
-                            <a class="page-link" th:href="@{/front/cusList(page=${currentPage - 1})}"
+                            <a class="page-link" th:href="@{/customer/front/cusList(page=${currentPage - 1})}"
                                 tabindex="-1">上一頁</a>
                         </li>
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                             th:classappend="${currentPage == i} ? active">
-                            <a class="page-link" th:href="@{/front/cusList(page=${i})}" th:text="${i + 1}"></a>
+                            <a class="page-link" th:href="@{/customer/front/cusList(page=${i})}" th:text="${i + 1}"></a>
                         </li>
                         <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? disabled">
-                            <a class="page-link" th:href="@{/front/cusList(page=${currentPage + 1})}">下一頁</a>
+                            <a class="page-link" th:href="@{/customer/front/cusList(page=${currentPage + 1})}">下一頁</a>
                         </li>
                     </ul>
                 </nav>
