@@ -1,8 +1,8 @@
 package marketMaster.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -12,18 +12,24 @@ import marketMaster.handler.ChatWebSocketHandler;
 
 @Configuration
 @EnableWebSocket // 啟用WebSocket支持
-@Profile("!test") // 指定這個配置在非測試環境下生效
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    @Autowired
+    private ChatWebSocketHandler chatWebSocketHandler;
+	
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		// 將其映射到 "/chat" 路徑
-		registry.addHandler(new ChatWebSocketHandler(), "/chat").setAllowedOrigins("*");
+		// 註冊後台聊天的 WebSocket 處理器
+		registry.addHandler(chatWebSocketHandler, "/chat").setAllowedOrigins("*").addInterceptors(new WebSocketHandshakeInterceptor());
+		// 註冊前台聊天的 WebSocket 處理器
+		registry.addHandler(chatWebSocketHandler, "/front/chat").setAllowedOrigins("*").addInterceptors(new WebSocketHandshakeInterceptor());
 	}
 
 	@Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+        container.setMaxTextMessageBufferSize(8192);
+        container.setMaxBinaryMessageBufferSize(8192);
         container.setMaxSessionIdleTimeout(15 * 60 * 1000L); // 設置最大會話的閒置時間
         return container;
     }
