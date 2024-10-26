@@ -148,6 +148,7 @@ public class CustomerController {
 	    return Map.of("exists", customerRepository.existsById(tel));
 	}
 	
+	// 購物車結帳驗證是否有會員電話號碼
 	@GetMapping("/check/{tel}")
 	@ResponseBody
 	public Map<String, Boolean> checkCustomerTel(@PathVariable String tel) {
