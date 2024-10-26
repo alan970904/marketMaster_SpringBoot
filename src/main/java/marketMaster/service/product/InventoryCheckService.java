@@ -78,9 +78,6 @@ public class InventoryCheckService {
 			
 			inventoryCheckDetailsService.addInventoryCheckDetail(inventoryCheckDetail);
 
-//				if (detail.getCurrentInventory() != detail.getActualInventory()) {
-//					productService.updateProductByInsertCheck(product.getProductId(), detail.getActualInventory());
-//				}
 		}
 
 	}

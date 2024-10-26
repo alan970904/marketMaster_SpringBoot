@@ -43,7 +43,9 @@
 
                             <th:block th:each="inventoryCheckDetail : ${inventoryCheckDetails}">
                                 <tr>
-                                    <td class="my-auto detailId" th:text="${inventoryCheckDetail.detailId}" th:data-inventorycheckid ="${inventoryCheckDetail.inventoryCheck.inventoryCheckId}">
+                                    <td class="my-auto detailId" th:text="${inventoryCheckDetail.detailId}"
+                                        th:data-inventorycheckid="${inventoryCheckDetail.inventoryCheck.inventoryCheckId}"
+                                        th:data-verifystatus="${inventoryCheckDetail.inventoryCheck.verifyStatus}">
                                     </td>
                                     <td class="productId" th:text="${inventoryCheckDetail.product.productId}"></td>
                                     <td th:text="${inventoryCheckDetail.product.productName}"></td>
@@ -219,71 +221,48 @@
                         console.error(err);
                     })
 
-
-
-
                 // 關閉modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                 modal.hide();
             });
         });
-        document.addEventListener('DOMContentLoaded', function () {
-            btnCheck();
-        })
 
-        function btnCheck() {
+
+        document.addEventListener('DOMContentLoaded', verifyListener)
+        function verifyListener() {
+            const verifyBtn = document.getElementById('verify')
+            verifyBtn.addEventListener('click', function () {
+                const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
+                console.log(checkId)
+
+            })
+        }
+        document.addEventListener('DOMContentLoaded', verifyCheck)
+        function verifyCheck() {
+            const verifyStatus = document.getElementsByClassName('detailId')[0].dataset.verifystatus
+
             const getUpdateBtn = document.getElementsByClassName('getUpdate')
             const getDeleteBtn = document.getElementsByClassName('getDelete')
-            const productId = document.getElementsByClassName('productId')
+
             for (let i = 0; i < getUpdateBtn.length; i++) {
-                const dId = detailId[i].innerText
-                const pId = productId[i].innerText
-                axios.post('http://localhost:8080/marketMaster/inventoryCheckDetails/isNewestDetail', {
-                    detailId: dId,
-                    productId: pId
-                })
-                    .then(res => {
-                        console.log(res.data)
-                        if (!res.data) {
-                            getDeleteBtn[i].classList.remove('btn-danger')
+                if (verifyStatus === 'true') {
+                    getDeleteBtn[i].classList.remove('btn-danger')
                             getDeleteBtn[i].classList.add('btn-danger', 'opacity-50')
                             getDeleteBtn[i].removeAttribute('data-bs-toggle')
                             new bootstrap.Tooltip(getDeleteBtn[i], {
-                                title: '此紀錄不是最新的，無法刪除'
+                                title: '此盤點單已核准，無法刪除'
                             })
                             getUpdateBtn[i].classList.remove('btn-secondary')
                             getUpdateBtn[i].classList.add('btn-secondary', 'opacity-50')
                             getUpdateBtn[i].removeAttribute('data-bs-toggle')
                             new bootstrap.Tooltip(getUpdateBtn[i], {
-                                title: '此紀錄不是最新的，無法刪除'
+                                title: '此盤點單已核准，無法更改'
                             })
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                    })
-            }
-
-        }
-        function btnAvailable(data) {
-            const getUpdateBtn = document.getElementsByClassName('getUpdate')
-            const getDeleteBtn = document.getElementsByClassName('getDelete')
-            for (let i = 0; i < array.length; i++) {
-                if (!data) {
-
                 }
-
-
+                    
+                
+                
             }
-        }
-        document.addEventListener('DOMContentLoaded',verifyListener )
-        function verifyListener(){
-            const verifyBtn = document.getElementById('verify')
-            verifyBtn.addEventListener('click',function(){
-                const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid 
-                console.log(checkId)
-
-            })
         }
 
     </script>

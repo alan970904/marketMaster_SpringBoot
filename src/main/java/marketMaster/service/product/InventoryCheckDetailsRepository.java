@@ -25,5 +25,7 @@ public interface InventoryCheckDetailsRepository extends JpaRepository<Inventory
  
 	Optional<InventoryCheckDetailsBean> findFirstByProduct_ProductIdOrderByDetailIdDesc(String productId);
 
+	@Query("SELECT EXISTS (SELECT 1 FROM InventoryCheckDetailsBean icd WHERE icd.product.productId = :productId AND icd.inventoryCheck.verifyStatus = :verifyStatus)")
+	boolean findVerifyByProductId(@Param("productId") String productId ,@Param("verifyStatus") boolean verifyStatus);
 	
 }

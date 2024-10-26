@@ -1,9 +1,11 @@
 package marketMaster.service.product;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +32,16 @@ public class InventoryCheckDetailsService {
 		return inventoryCheckDetailsRepo.findDetailByInventoryCheckId(inventoryCheckId);
 	}
 
-	public InventoryCheckDetailsBean addInventoryCheckDetail(InventoryCheckDetailsBean inventoryCheckDetailsBean) {
+	public boolean addInventoryCheckDetail(InventoryCheckDetailsBean inventoryCheckDetailsBean) {
+		boolean insertSuccess = false;
 		String detailId = inventoryCheckDetailsBean.getDetailId();
 		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findById(detailId);
 		if (optional.isEmpty()) {
-			return inventoryCheckDetailsRepo.save(inventoryCheckDetailsBean);
+			inventoryCheckDetailsRepo.save(inventoryCheckDetailsBean);
+			insertSuccess = true;
+			return insertSuccess;
 		}
-		return null;
+		return insertSuccess;
 	}
 	
 	public boolean findCheckStatus(String inventoryCheckId) {
