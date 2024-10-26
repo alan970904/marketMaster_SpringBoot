@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org/">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
@@ -101,7 +101,7 @@
 
         // 原有的全域變數不變
         let cartItems = [];
-        const cartStorage = 'marketMasterCart';
+        const cartStorage = 'checkoutData';
 
         function init() {
             fetchProductsAndRender();
@@ -109,7 +109,7 @@
             initCart();
         }
 
-        // 原有的商品類別和商品載入函數保持不變
+        // 取得商品分類
         function getProductCategory() {
             axios.post('http://localhost:8080/marketMaster/product/findProductCategory')
                 .then(res => {
@@ -126,13 +126,12 @@
                 const option = document.createElement('option')
                 option.value = element.productCategory
                 option.textContent = element.productCategory
-                document.getElementById('productCategory').appendChild(option)
                 select.appendChild(option)
             });
         }
 
-        const select = document.getElementById('productCategory');
-        select.addEventListener('change', function () {
+        // 選擇商品分類後顯示對應商品
+        document.getElementById('productCategory').addEventListener('change', function () {
             axios.post('http://localhost:8080/marketMaster/inventoryCheck/getProductByCategory/json', {
                 productCategory: this.value,
                 pageSize: 10,
@@ -144,65 +143,48 @@
                     pageMaker(res.data);
                     initializeQuantityControls();
                 })
-                .catch(err => {
-                    console.error(err);
-                })
+                .catch(err => console.error(err));
         });
 
+        // 動態生成商品卡片的HTML
         function htmlMaker(products) {
             return products.map(product => `
-        <div class="card col-3 m-3" style="width: 18rem;">
-            <div class="h262 position-relative">
-                ${product.productPhoto && product.productPhoto.length > 0
-                    ? `<img src="/marketMaster/product/downloadProductPhoto?productId=${product.productId}" class="card-img-top">`
-                    : `<i class="fa-solid fa-file-image position-absolute top-50 start-50 translate-middle"></i>`
-                }
-            </div>
-            <div class="card-body text-center">
-                <h5 class="card-title m-auto">${product.productName}</h5>
-                <p class="card-text">價格: ${product.productPrice}元</p>
-                <p class="card-text">庫存: ${product.numberOfInventory}個</p>
-                <div class="input-group mb-3">
-                    <button class="btn btn-outline-secondary decrease-quantity" type="button" 
-                            data-product-id="${product.productId}">-</button>
-                    <input type="number" class="form-control quantity-input" 
-                           value="0" min="0" max="${product.numberOfInventory}"
-                           data-product-id="${product.productId}">
-                    <button class="btn btn-outline-secondary increase-quantity" type="button"
-                            data-product-id="${product.productId}">+</button>
+                <div class="card col-3 m-3" style="width: 18rem;">
+                    <div class="h262 position-relative">
+                        ${product.productPhoto ? `<img src="/marketMaster/product/downloadProductPhoto?productId=${product.productId}" class="card-img-top">`
+                    : `<i class="fa-solid fa-file-image position-absolute top-50 start-50 translate-middle"></i>`}
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title m-auto">${product.productName}</h5>
+                        <p class="card-text">價格: ${product.productPrice}元</p>
+                        <p class="card-text">庫存: ${product.numberOfInventory}個</p>
+                        <div class="input-group mb-3">
+                            <button class="btn btn-outline-secondary decrease-quantity" type="button" data-product-id="${product.productId}">-</button>
+                            <input type="number" class="form-control quantity-input" value="0" min="0" max="${product.numberOfInventory}" data-product-id="${product.productId}">
+                            <button class="btn btn-outline-secondary increase-quantity" type="button" data-product-id="${product.productId}">+</button>
+                        </div>
+                        <button class="btn btn-primary w-100 add-to-cart" data-product-id="${product.productId}" data-product-name="${product.productName}" data-product-price="${product.productPrice}">加入購物車</button>
+                    </div>
                 </div>
-                <button class="btn btn-primary w-100 add-to-cart"
-                        data-product-id="${product.productId}"
-                        data-product-name="${product.productName}"
-                        data-product-price="${product.productPrice}">
-                    加入購物車
-                </button>
-            </div>
-        </div>
-    `).join('');
+            `).join('');
         }
 
+        // 載入商品並顯示
         function fetchProductsAndRender(pageNumber = 1) {
-            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getAllProduct/json', {
-                pageSize: 10,
-                pageNumber: pageNumber
-            })
+            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getAllProduct/json', { pageSize: 10, pageNumber: pageNumber })
                 .then(response => {
                     const productsHTML = htmlMaker(response.data.content);
                     document.querySelector('.invectoryCheck-row').innerHTML = productsHTML;
                     pageMaker(response.data);
                     initializeQuantityControls();
                 })
-                .catch(error => {
-                    console.error('Error fetching products:', error);
-                });
+                .catch(error => console.error('Error fetching products:', error));
         }
 
-        // 原有的分頁函數保持不變
+        // 分頁顯示商品
         function pageMaker(data) {
             const ul = document.getElementById("pageUl");
             ul.innerHTML = '';
-
             for (let i = 1; i <= data.totalPages; i++) {
                 const li = document.createElement("li");
                 li.className = "page-item";
@@ -215,13 +197,13 @@
             }
         }
 
-        // 購物車相關功能
+        // 購物車初始化
         function initCart() {
             loadCartFromStorage();
-            const checkoutBtn = document.querySelector('#cartFloating button');
-            checkoutBtn.addEventListener('click', proceedToCheckout);
+            document.getElementById('checkoutBtn').addEventListener('click', proceedToCheckout);
         }
 
+        // 設定數量控制
         function initializeQuantityControls() {
             // 數量減少按鈕
             document.querySelectorAll('.decrease-quantity').forEach(button => {
@@ -229,9 +211,7 @@
                     const productId = this.dataset.productId;
                     const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
                     const currentValue = parseInt(input.value) || 0;
-                    if (currentValue > 0) {
-                        input.value = currentValue - 1;
-                    }
+                    if (currentValue > 0) input.value = currentValue - 1;
                 });
             });
 
@@ -242,9 +222,7 @@
                     const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
                     const currentValue = parseInt(input.value) || 0;
                     const maxValue = parseInt(input.max);
-                    if (currentValue < maxValue) {
-                        input.value = currentValue + 1;
-                    }
+                    if (currentValue < maxValue) input.value = currentValue + 1;
                 });
             });
 
@@ -265,6 +243,7 @@
             });
         }
 
+        // 加入商品至購物車
         function addToCart(product) {
             const existingItemIndex = cartItems.findIndex(item => item.productId === product.productId);
             if (existingItemIndex !== -1) {
@@ -274,86 +253,69 @@
             }
             updateCartDisplay();
             saveCartToStorage();
-
-            // 清空輸入框
             document.querySelector(`.quantity-input[data-product-id="${product.productId}"]`).value = 0;
             alert(`已加入購物車: ${product.productName}`);
         }
 
+        // 更新購物車顯示
         function updateCartDisplay() {
-            const cartCount = document.getElementById('cartCount');
-            const cartTotal = document.getElementById('cartTotal');
-            const checkoutBtn = document.querySelector('#cartFloating button');
-
             const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
             const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-            cartCount.textContent = totalItems;
-            cartTotal.textContent = totalAmount;
-            checkoutBtn.disabled = totalItems === 0;
+            document.getElementById('cartCount').textContent = totalItems;
+            document.getElementById('cartTotal').textContent = totalAmount;
+            document.getElementById('checkoutBtn').disabled = totalItems === 0;
         }
 
+        // 儲存購物車至 localStorage
         function saveCartToStorage() {
-            localStorage.setItem(cartStorage, JSON.stringify(cartItems));
+            sessionStorage.setItem(cartStorage, JSON.stringify(cartItems));
         }
 
+        // 從 localStorage 載入購物車
         function loadCartFromStorage() {
-            const savedCart = localStorage.getItem(cartStorage);
+            const savedCart = sessionStorage.getItem(cartStorage);
             if (savedCart) {
                 cartItems = JSON.parse(savedCart);
                 updateCartDisplay();
             }
         }
 
-        async function proceedToCheckout() {
-            if (cartItems.length === 0) return;
-
+        // 驗證購物車內容
+        async function validateCart() {
+            if (cartItems.length === 0) {
+                alert('購物車是空的！');
+                return false;
+            }
             try {
-                // 驗證購物車內容
-                const validateResponse = await axios.post('/checkout/validate-cart', cartItems);
-
-                if (validateResponse.data.isValid) {
-                    // 獲取結帳編號和發票號碼
-                    const [checkoutIdRes, invoiceNumberRes] = await Promise.all([
-                        axios.get('/checkout/nextId'),
-                        axios.get('/checkout/nextInvoiceNumber')
-                    ]);
-
-                    const checkoutId = checkoutIdRes.data;
-                    const invoiceNumber = invoiceNumberRes.data;
-
-                    // 構建結帳數據
-                    const checkoutData = {
-                        checkoutId: checkoutId,
-                        invoiceNumber: invoiceNumber,
-                        details: cartItems.map(item => ({
-                            productId: item.productId,
-                            productName: item.productName,
-                            quantity: item.quantity,
-                            price: item.price,
-                            checkoutPrice: item.quantity * item.price
-                        }))
-                    };
-
-                    // 保存到 sessionStorage
-                    sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
-
-                    // 跳轉到結帳頁面
-                    window.location.href = '/checkout/add';
-
-                } else {
+                const response = await axios.post('http://localhost:8080/marketMaster/front/cart/validate-cart', { items: cartItems });
+                if (response.data.isValid) return true;
+                else {
                     let errorMessage = '以下商品庫存不足：\n';
-                    for (const [productId, message] of Object.entries(validateResponse.data.invalidItems)) {
+                    for (const [productId, message] of Object.entries(response.data.invalidItems)) {
                         const item = cartItems.find(i => i.productId === productId);
                         errorMessage += `${item.productName}: ${message}\n`;
                     }
                     alert(errorMessage);
+                    return false;
                 }
             } catch (error) {
-                console.error('處理結帳失敗:', error);
+                console.error('驗證購物車失敗:', error);
                 alert('系統錯誤，請稍後再試');
+                return false;
             }
         }
+
+
+        // 前往結帳頁面
+        async function proceedToCheckout() {
+            if (await validateCart()) {
+                // 儲存資料結構包含 items
+                sessionStorage.setItem(cartStorage, JSON.stringify({ items: cartItems }));
+                window.location.href = 'http://localhost:8080/marketMaster/checkout/add';
+            }
+        }
+
+
     </script>
 
 </body>
