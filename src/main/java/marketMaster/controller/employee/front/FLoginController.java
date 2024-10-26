@@ -58,8 +58,9 @@ public class FLoginController {
     }
     
     @GetMapping("/mainPage")
-    public String homePage() {
-        return "employeePage/MainPage";
+    public String homePage(HttpSession session, Model model) {
+    	model.addAttribute("employee", session.getAttribute("employee"));
+    	return "employeePage/MainPage";
     }
 	
 }

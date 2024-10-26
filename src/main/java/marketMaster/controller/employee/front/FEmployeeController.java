@@ -181,15 +181,16 @@ public class FEmployeeController {
 			return "redirect:/unauthorized";
 		}
 
-		if (authority == 1) {
-			// 權限1只能更新自己的某些欄位
+		try {
 			EmpBean existingEmp = employeeService.getEmployee(emp.getEmployeeId());
+
+			// 權限1只能更新自己的某些欄位
+			if (authority == 1) {
 			existingEmp.setEmployeeName(emp.getEmployeeName());
 			existingEmp.setEmployeeTel(emp.getEmployeeTel());
 			emp = existingEmp;
-		}
+			}
 
-		try {
 			boolean success = employeeService.updateEmployee(emp, file);
 			if (success) {
 				redirectAttributes.addFlashAttribute("message", "員工更新成功");
