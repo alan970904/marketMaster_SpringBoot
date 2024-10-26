@@ -1,4 +1,4 @@
-package marketMaster.controller.schedule;
+ package marketMaster.controller.schedule;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -50,6 +50,52 @@ public class ScheduleController {
 
 		return "schedule/viewSchedules";
 	}
+	
+	@GetMapping("/useView")
+	public String useView(Model model) {
+		LocalDate now = LocalDate.now();
+		int year = now.getYear();
+		int month = now.getMonthValue();
+
+		Map<Integer, Map<String, List<Map<String, Object>>>> schedulesByDayAndTime = scheduleService
+				.getSchedulesByYearAndMonth(year, month);
+
+		LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+		int firstDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() % 7;
+		int daysInMonth = firstDayOfMonth.lengthOfMonth();
+
+		model.addAttribute("schedulesByDayAndTime", schedulesByDayAndTime);
+		model.addAttribute("year", year);
+		model.addAttribute("month", month);
+		model.addAttribute("firstDayOfWeek", firstDayOfWeek);
+		model.addAttribute("daysInMonth", daysInMonth);
+
+		return "schedule/useView";
+	}
+	
+	@GetMapping("/miniView")
+	public String miniView(@RequestParam("id") String employeeId ,Model model) {
+		LocalDate now = LocalDate.now();
+		int year = now.getYear();
+		int month = now.getMonthValue();
+
+		Map<Integer, Map<String, List<Map<String, Object>>>> schedulesByDayAndTime = scheduleService
+				.getSchedulesByYearAndMonth(year, month);
+
+		LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+		int firstDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() % 7;
+		int daysInMonth = firstDayOfMonth.lengthOfMonth();
+
+		model.addAttribute("schedulesByDayAndTime", schedulesByDayAndTime);
+		model.addAttribute("year", year);
+		model.addAttribute("month", month);
+		model.addAttribute("firstDayOfWeek", firstDayOfWeek);
+		model.addAttribute("daysInMonth", daysInMonth);
+
+		return "schedule/miniView";
+	}
+
+
 
 	@GetMapping("/search")
 	@ResponseBody
