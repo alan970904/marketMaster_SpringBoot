@@ -1,6 +1,7 @@
 package marketMaster.service.restock;
 
 import ecpay.payment.integration.ecpayOperator.EcpayFunction;
+import lombok.val;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.PaymentRecordInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.RestockDetailPaymentDTO;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -34,7 +37,6 @@ public class PaymentService {
 
     private final ECPayConfig ecPayConfig;
 
-    @Autowired
     public PaymentService(PaymentsRepository paymentsRepository,
                      PaymentRecordsRepository paymentRecordsRepository,
                      SupplierAccountsRepository supplierAccountsRepository,
@@ -52,7 +54,10 @@ public class PaymentService {
     // 找所有有關於SupplierId的進貨明細
     public List<RestockDetailPaymentDTO> getPaymentDetailsBySupplierId(String supplierId) {
         List<RestockDetailsBean> restockDetails = restockDetailsRepository.findBySupplierId(supplierId);
-        List<RestockDetailPaymentDTO> restockDetailPaymentDTOS = new ArrayList<>();
+        List<RestockDetailPaymentDTO> restockDetailPaymentDTO = new ArrayList<>();
+//        restockDetails.stream().map()
+//        Map<String, RestockDetailsBean> collect = restockDetails.stream().collect(Collectors.toMap(RestockDetailsBean::getDetailId, Function.identity()));
+////
         for (RestockDetailsBean details : restockDetails) {
             RestockDetailPaymentDTO dto = new RestockDetailPaymentDTO();
             dto.setDetailId(details.getDetailId());
@@ -63,9 +68,9 @@ public class PaymentService {
             // 檢查是否為 null
             Integer paidAmount = paymentRecordsRepository.sumPaymentAmountByDetailId(details.getDetailId());
             dto.setPaidAmount(paidAmount != null ? paidAmount : 0);  // 如果為 null，則設置為 0
-            restockDetailPaymentDTOS.add(dto);
+            restockDetailPaymentDTO.add(dto);
         }
-        return restockDetailPaymentDTOS;
+        return restockDetailPaymentDTO;
     }
 
     // 插入多筆付款資訊

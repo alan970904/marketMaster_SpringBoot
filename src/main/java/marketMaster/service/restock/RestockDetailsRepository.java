@@ -37,6 +37,7 @@ public interface RestockDetailsRepository extends JpaRepository<RestockDetailsBe
 
 
 
+
     //跟新進貨明細表 商品數量價格 商品進貨價格 跟總金額
     @Transactional
     @Modifying
