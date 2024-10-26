@@ -51,6 +51,14 @@ public class InventoryCheckService {
 	}
 
 	public void addInventoryCheck(InventoryCheckInsertDTO inventoryCheckInsertDTO) {
+		List<InventoryCheckDetailDTO> detailsList = inventoryCheckInsertDTO.getDetails();
+		for (InventoryCheckDetailDTO detail : detailsList) {
+			String productId = detail.getProductId();
+			
+			inventoryCheckDetailsRepo.findVerifyByProductId(productId, false);
+			
+		}
+		
 		LocalDate now = LocalDate.now();
 		InventoryCheckBean inventoryCheck = new InventoryCheckBean();
 
@@ -62,7 +70,6 @@ public class InventoryCheckService {
 
 		inventoryCheckRepo.save(inventoryCheck);
 
-		List<InventoryCheckDetailDTO> detailsList = inventoryCheckInsertDTO.getDetails();
 		for (InventoryCheckDetailDTO detail : detailsList) {
 			InventoryCheckDetailsBean inventoryCheckDetail = new InventoryCheckDetailsBean();
 
@@ -76,7 +83,9 @@ public class InventoryCheckService {
 			inventoryCheckDetail.setDifferentialInventory(detail.getActualInventory() - detail.getCurrentInventory());
 			inventoryCheckDetail.setRemark(detail.getRemark());
 			
-			inventoryCheckDetailsService.addInventoryCheckDetail(inventoryCheckDetail);
+			boolean isSuccess = inventoryCheckDetailsService.addInventoryCheckDetail(inventoryCheckDetail);
+			
+			
 
 		}
 
