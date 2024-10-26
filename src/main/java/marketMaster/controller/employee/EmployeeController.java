@@ -45,8 +45,8 @@ public class EmployeeController {
 	@GetMapping("/empList")
 	@RequiresPermission(value = "viewList", resource = "employee")
 	public String getAllEmployee(@RequestParam(defaultValue = "false") boolean showAll,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model,
-			HttpSession session) {
+								 @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model,
+								 HttpSession session) {
 		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
 		int authority = currentEmployee.getAuthority();
 
@@ -103,8 +103,8 @@ public class EmployeeController {
 	@GetMapping("/search")
 	@RequiresPermission(value = "search", resource = "employee")
 	public String searchEmployees(@RequestParam String searchName,
-			@RequestParam(defaultValue = "false") boolean showAll, @RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size, Model model, HttpSession session) {
+								  @RequestParam(defaultValue = "false") boolean showAll, @RequestParam(defaultValue = "0") int page,
+								  @RequestParam(defaultValue = "10") int size, Model model, HttpSession session) {
 
 		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
 		int authority = currentEmployee.getAuthority();
@@ -174,8 +174,8 @@ public class EmployeeController {
 	@PostMapping("/empUpdate")
 	@RequiresPermission(value = "update", resource = "employee")
 	public String updateEmployee(@ModelAttribute("emp") EmpBean emp,
-			@RequestParam(value = "file", required = false) MultipartFile file, RedirectAttributes redirectAttributes,
-			HttpSession session) {
+								 @RequestParam(value = "file", required = false) MultipartFile file, RedirectAttributes redirectAttributes,
+								 HttpSession session) {
 		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
 		int authority = currentEmployee.getAuthority();
 
@@ -203,22 +203,22 @@ public class EmployeeController {
 		} catch (EmpDataAccessException e) {
 			redirectAttributes.addFlashAttribute("message", "更新失敗：" + e.getMessage());
 		}
-		
+
 		return "redirect:/employee/empList";
 	}
 
 	@GetMapping("/delete")
 	@RequiresPermission(value = "delete", resource = "employee")
 	public String deleteEmployee(@RequestParam String employeeId, RedirectAttributes redirectAttributes,
-			HttpSession session) {
+								 HttpSession session) {
 		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
 		int authority = currentEmployee.getAuthority();
 
 		// 添加額外檢查，確保權限2不能刪除權限3的用戶
-	    EmpBean employeeToDelete = employeeService.getEmployee(employeeId);
-	    if (authority == 2 && employeeToDelete.getAuthority() == 3) {
-	        return "redirect:/unauthorized";
-	    }
+		EmpBean employeeToDelete = employeeService.getEmployee(employeeId);
+		if (authority == 2 && employeeToDelete.getAuthority() == 3) {
+			return "redirect:/unauthorized";
+		}
 
 		boolean deleted = employeeService.deleteEmployee(employeeId);
 		if (deleted) {
@@ -238,11 +238,11 @@ public class EmployeeController {
 			return ResponseEntity.notFound().build();
 		}
 	}
-	
+
 	@GetMapping("/unauthorized")
 	public String unauthorizedAccess(Model model) {
-	    model.addAttribute("errorMessage", "權限不足，無法操作");
-	    return "unauthorized";
+		model.addAttribute("errorMessage", "權限不足，無法操作");
+		return "unauthorized";
 	}
 	
 	// 員工圖表
