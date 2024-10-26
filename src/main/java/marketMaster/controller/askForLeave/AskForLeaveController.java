@@ -61,10 +61,7 @@ public class AskForLeaveController {
 			@RequestParam(value = "p", defaultValue = "1") Integer pageNum, Model model) {
 
 		EmpBean employee = empService.getEmployee(employeeId);
-		if (employee == null) {
-			model.addAttribute("error", "找不到該員工");
-			return "askForLeave/homeAsl";
-		}
+	
 
 		Page<AskForLeaveBean> page = aslService.findAslByEmpId(employeeId, pageNum);
 
@@ -74,6 +71,23 @@ public class AskForLeaveController {
 		model.addAttribute("totalPages", page.getTotalPages());
 
 		return "askForLeave/emPage";
+	}
+	
+	@GetMapping("/askForLeave/usefind")
+	public String useFindAslByEmpId(@RequestParam("id") String employeeId,
+			@RequestParam(value = "p", defaultValue = "1") Integer pageNum, Model model) {
+
+		EmpBean employee = empService.getEmployee(employeeId);
+	
+
+		Page<AskForLeaveBean> page = aslService.findAslByEmpId(employeeId, pageNum);
+
+		model.addAttribute("empBean", employee);
+		model.addAttribute("leaves", page.getContent());
+		model.addAttribute("currentPage", pageNum);
+		model.addAttribute("totalPages", page.getTotalPages());
+
+		return "askForLeave/front/useEmPage";
 	}
 
 	@GetMapping("/askForLeave/filter")
@@ -131,6 +145,27 @@ public class AskForLeaveController {
 
 		return "askForLeave/addAsl";
 	}
+	@GetMapping("/askForLeave/useAdd")
+	public String useAddAslForm(@RequestParam String employeeId, Model model) {
+		EmpBean empBean = empService.getEmployee(employeeId);
+		if (empBean == null) {
+			model.addAttribute("error", "找不到該員工");
+			return null;
+		}
+
+		AskForLeaveBean newAsl = new AskForLeaveBean();
+		newAsl.setLeaveId(aslService.generateId());
+		newAsl.setEmpBean(empBean);
+
+		List<LeaveCategoryBean> leaveCategories = leaveCategoryService.findAllLeaveCategories();
+
+		model.addAttribute("askForLeave", newAsl);
+		model.addAttribute("employeeId", employeeId);
+		model.addAttribute("employeeName", empBean.getEmployeeName());
+		model.addAttribute("leaveCategories", leaveCategories);
+
+		return "askForLeave/front/useAddAsl";
+	}
 
 	@PostMapping("/askForLeave/addpost")
 	public String addAsl(@RequestParam String employeeId, @RequestParam Integer categoryId,
@@ -181,6 +216,56 @@ public class AskForLeaveController {
 		aslService.saveAsl(askForLeave);
 		return "redirect:/askForLeave/search?id=" + employeeId;
 	}
+	
+	@PostMapping("/askForLeave/useAddpost")
+	public String useAddAsl(@RequestParam String employeeId, @RequestParam Integer categoryId,
+			@RequestParam String reasonLeave,
+			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startTime,
+			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endTime,
+			@RequestParam String approvedStatus, @RequestParam("proofImage") MultipartFile proofImageFile, Model model,
+			RedirectAttributes redirectAtb) {
+
+		if (aslService.isLeaveTimeOverlapping(employeeId, startTime, endTime)) {
+			redirectAtb.addFlashAttribute("duplicateError", "同時間已有請假，不可重複");
+			return "redirect:/askForLeave/usefind?id=" + employeeId;
+		}
+
+		List<ScheduleBean> schedulesByDateTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
+				startTime, endTime);
+		int totalScheduleHours = schedulesByDateTimeRange.stream().mapToInt(ScheduleBean::getScheduleHour).sum();
+		if (schedulesByDateTimeRange.isEmpty()) {
+			redirectAtb.addFlashAttribute("scheduleError", "沒有找到排班，請檢查時間範圍");
+			return "redirect:/askForLeave/usefind?id=" + employeeId;
+		}
+
+		String leaveId = aslService.generateId();
+		AskForLeaveBean askForLeave = new AskForLeaveBean();
+		askForLeave.setLeaveId(leaveId);
+		LeaveCategoryBean leaveCategory = leaveCategoryService.getLeaveCategoryById(categoryId);
+		askForLeave.setLeaveCategory(leaveCategory);
+		askForLeave.setReasonLeave(reasonLeave);
+		askForLeave.setStarTime(startTime);
+		askForLeave.setEndTime(endTime);
+		askForLeave.setLeaveHours(totalScheduleHours);
+		askForLeave.setApprovedStatus(approvedStatus);
+
+		EmpBean empBean = empService.getEmployee(employeeId);
+		askForLeave.setEmpBean(empBean);
+
+		if (!proofImageFile.isEmpty()) {
+			try {
+				byte[] proofImageBytes = proofImageFile.getBytes();
+				askForLeave.setProofImage(proofImageBytes);
+			} catch (IOException e) {
+				model.addAttribute("fileError", "上傳檔案時發生錯誤");
+				return null;
+			}
+		} else {
+			askForLeave.setProofImage(null);
+		}
+		aslService.saveAsl(askForLeave);
+		return "redirect:/askForLeave/usefind?id=" + employeeId;
+	}
 
 	@GetMapping("/askForLeave/edit/{id}")
 	public String showEditAslForm(@PathVariable String id, Model model) {
@@ -197,6 +282,26 @@ public class AskForLeaveController {
 				model.addAttribute("leaveCategories", leaveCategories);
 			}
 			return "askForLeave/editAsl";
+		} else {
+			return null;
+		}
+	}
+	
+	@GetMapping("/askForLeave/useEdit/{id}")
+	public String useEditAslForm(@PathVariable String id, Model model) {
+		AskForLeaveBean existAsl = aslService.findAslById(id);
+		if (existAsl != null) {
+
+			EmpBean empBean = empService.getEmployee(existAsl.getEmpBean().getEmployeeId());
+
+			if (empBean != null) {
+				List<LeaveCategoryBean> leaveCategories = leaveCategoryService.findAllLeaveCategories();
+				existAsl.setEmpBean(empBean);
+				model.addAttribute("askForLeave", existAsl);
+				model.addAttribute("employeeName", empBean.getEmployeeName());
+				model.addAttribute("leaveCategories", leaveCategories);
+			}
+			return "askForLeave/front/useEditAsl";
 		} else {
 			return null;
 		}
@@ -239,6 +344,48 @@ public class AskForLeaveController {
 
 			aslService.saveAsl(existAsl);
 			return "redirect:/askForLeave/search?id=" + existAsl.getEmpBean().getEmployeeId();
+		} else {
+			return null;
+		}
+	}
+	
+	@PostMapping("/askForLeave/useUpdate/{id}")
+	public String useUpdateAsl(@PathVariable String id, @RequestParam String employeeId, @RequestParam Integer categoryId,
+			@RequestParam String reasonLeave,
+			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startTime,
+			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endTime,
+			@RequestParam String approvedStatus, @RequestParam(required = false) MultipartFile proofImage,
+			RedirectAttributes redirectAtb) {
+
+		AskForLeaveBean existAsl = aslService.findAslById(id);
+
+		if (existAsl != null) {
+		
+			List<ScheduleBean> addschedulesTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
+					startTime, endTime);
+			if (addschedulesTimeRange.isEmpty()) {
+				redirectAtb.addFlashAttribute("scheduleError", "沒有找到排班，請檢查時間範圍");
+				return "redirect:/askForLeave/usefind?id=" + employeeId;
+			}
+			int addScheduleHours = addschedulesTimeRange.stream().mapToInt(ScheduleBean::getScheduleHour).sum();
+
+			LeaveCategoryBean leaveCategory = leaveCategoryService.getLeaveCategoryById(categoryId);
+			existAsl.setLeaveCategory(leaveCategory);
+			existAsl.setReasonLeave(reasonLeave);
+			existAsl.setStarTime(startTime);
+			existAsl.setEndTime(endTime);
+			existAsl.setLeaveHours(addScheduleHours);
+			existAsl.setApprovedStatus(approvedStatus);
+
+			if (proofImage != null && !proofImage.isEmpty()) {
+				try {
+					existAsl.setProofImage(proofImage.getBytes());
+				} catch (IOException e) {
+				}
+			}
+
+			aslService.saveAsl(existAsl);
+			return "redirect:/askForLeave/usefind?id=" + existAsl.getEmpBean().getEmployeeId();
 		} else {
 			return null;
 		}

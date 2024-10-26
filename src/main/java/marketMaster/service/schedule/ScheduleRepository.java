@@ -24,6 +24,8 @@ public interface ScheduleRepository extends JpaRepository<ScheduleBean, Integer>
 	void deleteByScheduleId(List<Integer> scheduleIds);
 
 	List<ScheduleBean> findByScheduleDateBetween(LocalDate startDate, LocalDate endDate);
+	
+	List<ScheduleBean> findByEmpBean_employeeIdAndScheduleDateBetween(String employeeId,LocalDate startDate, LocalDate endDate);
 
 	@Query(value = "SELECT * FROM schedule s WHERE s.schedule_date = :scheduleDate "
 			+ "AND s.start_time = :startTime AND s.end_time = :endTime", nativeQuery = true)

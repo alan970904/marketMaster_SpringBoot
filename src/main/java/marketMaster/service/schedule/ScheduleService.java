@@ -59,6 +59,27 @@ public class ScheduleService {
 
 		return groupedSchedules;
 	}
+	
+	public Map<Integer, Map<String, List<Map<String, Object>>>> getMiniSchedules(String employeeId, int year, int month) {
+		LocalDate startDate = LocalDate.of(year, month, 1);
+		LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+		List<ScheduleBean> schedules = scheduleRepo.findByEmpBean_employeeIdAndScheduleDateBetween(employeeId,startDate, endDate);
+
+		Map<Integer, Map<String, List<Map<String, Object>>>> groupedSchedules = new HashMap<>();
+
+		for (ScheduleBean schedule : schedules) {
+			int dayOfMonth = schedule.getScheduleDate().getDayOfMonth();
+
+			Map<String, Object> scheduleDetails = new HashMap<>();
+			scheduleDetails.put("scheduleId", schedule.getScheduleId());
+			scheduleDetails.put("employeeId", employeeId);
+			scheduleDetails.put("employeeName", schedule.getEmpBean().getEmployeeName());
+
+			groupedSchedules.putIfAbsent(dayOfMonth, new HashMap<>());
+		}
+
+		return groupedSchedules;
+	}
 
 	// 計算下一個月的年份和月份
 	public Map<String, Integer> getNextMonth(Integer year, Integer month) {
