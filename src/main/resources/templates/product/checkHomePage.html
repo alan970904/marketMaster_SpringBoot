@@ -121,128 +121,119 @@
         };
 
         function submitListener() {
-            const submitButton = document.getElementById('submit');
-            const newSubmitButton = submitButton.cloneNode(true);
-            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+    const submitButton = document.getElementById('submit');
+    const newSubmitButton = submitButton.cloneNode(true);
+    submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
 
-            newSubmitButton.addEventListener('click', function () {
-                detailsList = [];
-                const actualInventoryInputs = document.querySelectorAll('.actualInventory');
+    newSubmitButton.addEventListener('click', function () {
+        detailsList = [];
+        const actualInventoryInputs = document.querySelectorAll('.actualInventory');
 
-                let hasEmptyInput = false;
-                let emptyInputProductName = '';
-                let hasEmptyRemark = false;
-                let emptyRemarkProductName = '';
+        let hasEmptyInput = false;
+        let emptyInputProductName = '';
+        let hasEmptyRemark = false;
+        let emptyRemarkProductName = '';
 
-                actualInventoryInputs.forEach((input, index) => {
-                    const actualInventoryValue = input.value.trim();
-                    const currentInventory = document.getElementsByClassName('form-control')[index].value; // 更新：獲取當前庫存的值
-                    const remarkInput = document.getElementsByClassName('remark')[index];
-                    const productName = input.closest('.card').querySelector('.card-title').textContent;
+        actualInventoryInputs.forEach((input, index) => {
+            const actualInventoryValue = input.value.trim();
+            const currentInventory = parseInt(document.getElementsByClassName('form-control')[index].value);
+            const remarkInput = document.getElementsByClassName('remark')[index];
+            const productName = input.closest('.card').querySelector('.card-title').textContent;
 
-                    if (actualInventoryValue === '') {
-                        hasEmptyInput = true;
-                        emptyInputProductName = productName;
-                        return;
-                    }
+            if (actualInventoryValue === '') {
+                hasEmptyInput = true;
+                emptyInputProductName = productName;
+                return;
+            }
 
-                    if (actualInventoryValue !== currentInventory && remarkInput.value.trim() === '') {
-                        hasEmptyRemark = true;
-                        emptyRemarkProductName = productName;
-                        return;
-                    }
+            if (parseInt(actualInventoryValue) !== currentInventory && remarkInput.value.trim() === '') {
+                hasEmptyRemark = true;
+                emptyRemarkProductName = productName;
+                return;
+            }
 
-                    const detail = {
-                        productId: document.getElementsByClassName('productId')[index].value,
-                        currentInventory: currentInventory,
-                        actualInventory: actualInventoryValue,
-                        remark: remarkInput.value
-                    };
-                    detailsList.push(detail);
-                });
+            const detail = {
+                productId: document.getElementsByClassName('productId')[index].value,
+                currentInventory: currentInventory,
+                actualInventory: parseInt(actualInventoryValue), // 確保轉換為整數
+                remark: remarkInput.value,
+                // 移除 stockStatus 欄位，因為它不是整數類型
+            };
+            detailsList.push(detail);
+        });
 
-                if (hasEmptyInput) {
-                    alert(`請輸入所有商品的盤點數量。商品 "${emptyInputProductName}" 的盤點數量為空。`);
-                    return;
-                }
-
-                if (hasEmptyRemark) {
-                    alert(`商品 "${emptyRemarkProductName}" 的盤點數量與當前庫存不符，請填寫原因。`);
-                    return;
-                }
-
-                inventoryCheckInsertDTO.details = detailsList;
-                console.log(inventoryCheckInsertDTO);
-
-                newSubmitButton.disabled = true;
-
-                axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => {
-                        console.log('新增成功:', response);
-                        alert('庫存盤點成功提交！');
-                    })
-                    .catch(error => {
-                        console.error('添加庫存檢查時出錯:', error);
-                        if (error.response) {
-                            alert(`提交失敗：${error.response.data || '請稍後再試'}`);
-                        } else if (error.request) {
-                            alert('提交失敗：無法連接到服務器，請檢查網路連接');
-                        } else {
-                            alert('提交失敗：請稍後再試');
-                        }
-                    })
-                    .finally(() => {
-                        newSubmitButton.disabled = false;
-                    });
-            });
+        if (hasEmptyInput) {
+            alert(`請輸入所有商品的盤點數量。商品 "${emptyInputProductName}" 的盤點數量為空。`);
+            return;
         }
 
-        function setupRemarkListeners() {
-            const actualInventoryInputs = document.querySelectorAll('.actualInventory');
-            actualInventoryInputs.forEach((input, index) => {
-                input.addEventListener('blur', function () {
-                    // 找到當前商品卡片
-                    const card = this.closest('.card');
-
-                    // 獲取當前庫存量（從readonly的input中獲取）
-                    const currentInventoryInput = card.querySelector('.list-group-item:first-child .form-control');
-                    const numberOfInventory = parseInt(currentInventoryInput.value);
-
-                    // 獲取實際盤點數量
-                    const actualInventoryValue = parseInt(this.value || 0);
-
-                    // 獲取狀態和備註輸入框
-                    const stockStatusInput = card.querySelector('.stockStatus');
-                    const remarkInput = card.querySelector('.remark');
-
-                    if (!isNaN(actualInventoryValue) && actualInventoryValue === numberOfInventory) {
-                        // 數量相符的情況
-                        stockStatusInput.value = '數量無誤';
-                        remarkInput.readOnly = true;
-                        remarkInput.value = '數量無誤';
-                        remarkInput.removeAttribute('required');
-                    } else if (!isNaN(actualInventoryValue)) {
-                        // 數量不符的情況
-                        stockStatusInput.value = '數量有誤';
-                        remarkInput.readOnly = false;
-                        remarkInput.value = '';
-                        remarkInput.setAttribute('required', 'required');
-                        remarkInput.focus();
-                    } else {
-                        // 輸入無效的情況
-                        this.value = ''; // 清空無效輸入
-                        stockStatusInput.value = '';
-                        remarkInput.readOnly = true;
-                        remarkInput.value = '';
-                        remarkInput.removeAttribute('required');
-                    }
-                });
-            });
+        if (hasEmptyRemark) {
+            alert(`商品 "${emptyRemarkProductName}" 的盤點數量與當前庫存不符，請填寫原因。`);
+            return;
         }
+
+        inventoryCheckInsertDTO.details = detailsList;
+        console.log(inventoryCheckInsertDTO);
+
+        newSubmitButton.disabled = true;
+
+        axios.post('/marketMaster/inventoryCheck/addCheck', inventoryCheckInsertDTO, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                console.log('新增成功:', response);
+                alert('庫存盤點成功提交！');
+            })
+            .catch(error => {
+                console.error('添加庫存檢查時出錯:', error);
+                if (error.response) {
+                    alert(`提交失敗：${error.response.data || '請稍後再試'}`);
+                } else if (error.request) {
+                    alert('提交失敗：無法連接到服務器，請檢查網路連接');
+                } else {
+                    alert('提交失敗：請稍後再試');
+                }
+            })
+            .finally(() => {
+                newSubmitButton.disabled = false;
+            });
+    });
+}
+
+function setupRemarkListeners() {
+    const actualInventoryInputs = document.querySelectorAll('.actualInventory');
+    actualInventoryInputs.forEach((input, index) => {
+        input.addEventListener('blur', function () {
+            const card = this.closest('.card');
+            const currentInventoryInput = card.querySelector('.list-group-item:first-child .form-control');
+            const numberOfInventory = parseInt(currentInventoryInput.value);
+            const actualInventoryValue = parseInt(this.value || 0);
+            const stockStatusInput = card.querySelector('.stockStatus');
+            const remarkInput = card.querySelector('.remark');
+
+            if (!isNaN(actualInventoryValue) && actualInventoryValue === numberOfInventory) {
+                stockStatusInput.value = '數量無誤';
+                remarkInput.readOnly = true;
+                remarkInput.value = '數量無誤';
+                remarkInput.removeAttribute('required');
+            } else if (!isNaN(actualInventoryValue)) {
+                stockStatusInput.value = '數量有誤';
+                remarkInput.readOnly = false;
+                remarkInput.value = '';
+                remarkInput.setAttribute('required', 'required');
+                remarkInput.focus();
+            } else {
+                this.value = '';
+                stockStatusInput.value = '';
+                remarkInput.readOnly = true;
+                remarkInput.value = '';
+                remarkInput.removeAttribute('required');
+            }
+        });
+    });
+}
 
         function fetchProductsAndRender(pageNumber = 1) {
             axios.post('http://localhost:8080/marketMaster/inventoryCheck/getAllProduct/json', {

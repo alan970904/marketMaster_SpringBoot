@@ -27,6 +27,7 @@
                     <th>盤點單編號</th>
                     <th>盤點員工</th>
                     <th>盤點日期</th>
+                    <th>核准狀態</th>
                     <th>操作</th>
                   
                 </tr>
@@ -38,6 +39,11 @@
                         <td class="my-auto" th:text="${inventoryCheck.inventoryCheckId}"></td>
                         <td th:text="${inventoryCheck.employee.employeeName}"></td>
                         <td th:text="${inventoryCheck.inventoryCheckDate}"></td>
+                        <td>
+    <span th:if="${inventoryCheck.verifyStatus}" th:text="'已核准'"></span>
+    <span th:unless="${inventoryCheck.verifyStatus}" th:text="'未核准'"></span>
+</td>
+                        
                         <td class="d-flex justify-content-evenly">
                             <form method="get" th:action="@{/inventoryCheckDetails/findByCheckId}">
                                 <input type="hidden" th:value="${inventoryCheck.inventoryCheckId}" name="inventoryCheckId">

@@ -75,7 +75,7 @@ public class InventoryCheckService {
 			inventoryCheckDetail.setActualInventory(detail.getActualInventory());
 			inventoryCheckDetail.setDifferentialInventory(detail.getActualInventory() - detail.getCurrentInventory());
 			inventoryCheckDetail.setRemark(detail.getRemark());
-
+			
 			inventoryCheckDetailsService.addInventoryCheckDetail(inventoryCheckDetail);
 
 //				if (detail.getCurrentInventory() != detail.getActualInventory()) {
