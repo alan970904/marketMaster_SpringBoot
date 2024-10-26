@@ -134,5 +134,13 @@ public class RestockDataInitializer {
             System.out.println(latestPayment);
         }
 
-    }
+        @Test
+    public void  goo123(){
+        String supplierId ="S003";
+        paymentService.getPaymentDetailsBySupplierId(supplierId);
+            }
+        }
+
+
+
 
