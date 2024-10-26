@@ -3,6 +3,8 @@ package marketMaster.service.checkout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import marketMaster.DTO.checkout.CartDTO;
 import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.bean.employee.EmpBean;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -375,4 +378,37 @@ public class CheckoutService {
         }
         return result;
     }
+    
+ // 在 CheckoutService.java 中新增以下方法
+    @Transactional
+    public boolean processCartCheckout(CartDTO cartDTO, String customerTel, String employeeId) throws DataAccessException {
+        try {
+            // 創建結帳記錄
+            CheckoutBean checkout = new CheckoutBean();
+            checkout.setCheckoutId(generateNextCheckoutId());
+            checkout.setCustomerTel(customerTel);
+            checkout.setEmployeeId(employeeId);
+            checkout.setCheckoutDate(new Date());
+            checkout.setInvoiceNumber(generateNextInvoiceNumber());
+            checkout.setCheckoutStatus("正常");
+
+            // 轉換購物車項目為結帳明細
+            List<CheckoutDetailsBean> details = cartDTO.getItems().stream()
+                .map(item -> {
+                    CheckoutDetailsBean detail = new CheckoutDetailsBean();
+                    detail.setCheckoutId(checkout.getCheckoutId());
+                    detail.setProductId(item.getProductId());
+                    detail.setNumberOfCheckout(item.getQuantity());
+                    detail.setProductPrice(item.getPrice());
+                    return detail;
+                })
+                .collect(Collectors.toList());
+
+            // 執行結帳處理
+            return insertCheckoutWithDetails(checkout, details);
+        } catch (Exception e) {
+            throw new DataAccessException("處理購物車結帳失敗: " + e.getMessage());
+        }
+    }
+    
 }
