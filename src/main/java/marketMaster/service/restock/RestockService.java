@@ -55,6 +55,8 @@ public class RestockService {
 
     @Autowired
     private SupplierAccountService supplierAccountService; ;
+    @Autowired
+    private SupplierAccountsRepository accountRepository;
 
     public String getLatestRestockId() {
         // 取得當天的日期，格式為 YYYYMMDD
@@ -160,7 +162,10 @@ public class RestockService {
             System.out.println("Supplier ID: " + supplierId + " New Total Amount: " + newTotalAmount);
             accountsRepository.updateSupplierTotalAmount(supplierId, newTotalAmount);
         }
-
+        // 更新未付款金額
+        for (String supplierId : supplierAmountMap.keySet()) {
+            updateSupplierUnpaidAmount(supplierId); // 更新未付款金額
+        }
 
     }
 
@@ -197,9 +202,17 @@ public class RestockService {
 
 
         }
-
-
+    private void updateSupplierUnpaidAmount(String supplierId){
+        int totalAmount=  accountRepository.getTotalAmountBySupplierId(supplierId);
+        int paidAmount =  accountRepository.getPaidAmountBySupplierId(supplierId);
+        int newUnpaidAmount = totalAmount - paidAmount;
+        System.out.println( "newUnpaidAmount"+newUnpaidAmount);
+        accountRepository.updateSupplierUnpaidAmount(supplierId,newUnpaidAmount);
     }
+
+
+
+}
 
 
 
