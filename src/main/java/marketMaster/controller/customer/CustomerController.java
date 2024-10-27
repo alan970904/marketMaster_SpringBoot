@@ -19,6 +19,7 @@ import marketMaster.service.customer.CustomerServiceImpl;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -145,6 +146,14 @@ public class CustomerController {
 	@ResponseBody
 	public Map<String, Boolean> validateCustomerTel(@RequestParam String tel) {
 	    return Map.of("exists", customerRepository.existsById(tel));
+	}
+	
+	// 購物車結帳驗證是否有會員電話號碼
+	@GetMapping("/check/{tel}")
+	@ResponseBody
+	public Map<String, Boolean> checkCustomerTel(@PathVariable String tel) {
+	    boolean exists = customerRepository.existsById(tel);
+	    return Map.of("exists", exists);
 	}
     
 }
