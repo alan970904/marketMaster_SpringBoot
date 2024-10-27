@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org/">
 
 <head>
-    <meta charset="UTF-8" th:replace="~{body/head :: head}">
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
     <title>商品資料</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,19 +18,13 @@
 </style>
 
 <body>
-    <div th:replace="~{body/header :: header}">
+    <div th:replace="~{body/headerEmployee :: headerEmployee}">
         <div th:fragment="content">
             <main>
                 <div class="container mt-3">
                     <div class="d-flex justify-content-between">
                         <div>
-
-
-                            <a class="btn btn-primary"
-                                th:href="@{/product/findProductAvailable(available=${true})}">查詢在銷售商品</a>
-                            <a class="btn btn-primary"
-                                th:href="@{/product/findProductAvailable(available=${false})}">查詢已下架商品</a>
-                            <a class="btn btn-primary" th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
+                            <a class="btn btn-primary" th:href="@{/product/front/findProductInventoryNotEnough}">查詢庫存不足商品</a>
                         </div>
 
 
@@ -64,7 +58,7 @@
                                     <td class="my-auto" th:text="${product.productId}"></td>
                                     <td th:text="${product.productCategory}"></td>
                                     <td><a th:text="${product.productName}"
-                                            th:href="@{/product/findOne(productId=${product.productId})}"></a>
+                                            th:href="@{/product/front/findOne(productId=${product.productId})}"></a>
                                     </td>
                                     <td th:text="${product.productPrice}"></td>
                                     <td th:text="${product.productSafeInventory}"
@@ -79,20 +73,16 @@
                                     <td th:text="${product.numberOfDestruction}"></td>
                                     <td th:text="${product.numberOfRemove}"></td>
                                     <td class="d-flex justify-content-evenly">
-                                        <form method="get" th:action="@{/product/getUpdate}">
+                                        <form method="get" th:action="@{/product/front/getUpdate}">
                                             <input type="hidden" th:value="${product.productId}" name="productId">
                                             <button type="submit" class="btn btn-secondary updateBtn">修改</button>
                                         </form>
 
-                                        <form method="get" th:action="@{/product/getShelve}">
+                                        <form method="get" th:action="@{/product/front/getShelve}">
                                             <input type="hidden" th:value="${product.productId}" name="productId">
                                             <button type="submit" class="btn btn-warning shelveBtn">上架</button>
                                         </form>
 
-                                        <form method="post" th:action="@{/product/remove}">
-                                            <input type="hidden" th:value="${product.productId}" name="productId">
-                                            <button type="button" class="btn btn-danger removeBtn">下架</button>
-                                        </form>
                                         <input type="hidden" th:value="${product.productAvailable}" class="status" />
                                     </td>
                                 </tr>
@@ -102,18 +92,18 @@
                     <div class="d-flex justify-content-between">
 
 
-                        <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
+                        <a class="btn btn-primary" th:href="@{/product/front/addPage}">新增商品資訊</a>
                         <th:block th:if="${pages.totalPages > 0}">
                             <div id="page">
                                 <ul class="pagination m-0" id="pageUl">
                                     <th:block th:switch="${pages.number + 1 == 1}">
 
                                         <li th:case="${true}" class="page-item disabled">
-                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}'
+                                            <a class="page-link" th:href='@{/product/front/findProductAvailable(available=${true},page=${pages.number})}'
                                                 th:text="上一頁"></a>
                                         </li>
                                         <li th:case="${false}" class="page-item">
-                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}'
+                                            <a class="page-link" th:href='@{/product/front/findProductAvailable(available=${true},page=${pages.number})}'
                                                 th:text="上一頁"></a>
                                         </li>
                                     </th:block>
@@ -122,11 +112,11 @@
                                         <th:block th:switch="${pages.number + 1 == aNumber}">
                                             <li th:case="${true}" class="page-item disabled">
                                                 <a class="page-link"
-                                                    th:href='@{/product/findAll(page=${aNumber})}'><span
+                                                    th:href='@{/product/front/findProductAvailable(available=${true},page=${aNumber})}'><span
                                                         th:text="${aNumber}"></span></a>
                                             </li>
                                             <li th:case="${false}" class="page-item"><a class="page-link"
-                                                    th:href='@{/product/findAll(page=${aNumber})}'><span
+                                                    th:href='@{/product/front/findProductAvailable(available=${true},page=${aNumber})}'><span
                                                         th:text="${aNumber}"></span></a>
                                             </li>
 
@@ -135,11 +125,11 @@
                                     <th:block th:switch="${pages.number + 1 == pages.totalPages}">
 
                                         <li th:case="${true}" class="page-item disabled">
-                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}'
+                                            <a class="page-link" th:href='@{/product/findProductAvailable(available=${true},page=${pages.number+2})}'
                                                 th:text="下一頁"></a>
                                         </li>
                                         <li th:case="${false}" class="page-item">
-                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}'
+                                            <a class="page-link" th:href='@{/product/findProductAvailable(available=${true},page=${pages.number+2})}'
                                                 th:text="下一頁"></a>
                                         </li>
                                     </th:block>

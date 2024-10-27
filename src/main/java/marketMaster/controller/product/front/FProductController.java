@@ -33,7 +33,7 @@ public class FProductController {
 	
 	@GetMapping("/product/front/test")
 	public String testPage() {
-		return "/product/front/test";
+		return "/product/front/frontTest";
 	}
 	
 	@GetMapping("/product/front/addPage")
@@ -41,7 +41,7 @@ public class FProductController {
 		List<ProductCategoryDTO> productCategory = productRestController.getProductCategory();
 
 		m.addAttribute("categorys", productCategory);
-		return "/product/front/insertProduct";
+		return "/product/front/frontInsertProduct";
 	}
 
 	@Transactional
@@ -54,12 +54,12 @@ public class FProductController {
 		if (newProduct == null) {
 			m.addAttribute("errorMsg", "商品編號已存在");
 
-			return "/product/front/insertProduct";
+			return "/product/front/frontInsertProduct";
 		}
 		m.addAttribute("message", "新增商品資料成功");
 
 		m.addAttribute("product", newProduct);
-		return "/product/front/showChangePage";
+		return "/product/front/frontShowChangePage";
 	}
 
 	@GetMapping("/product/front/downloadProductPhoto")
@@ -82,7 +82,7 @@ public class FProductController {
 
 		System.out.println(productPhotoByte);
 		m.addAttribute("product", product);
-		return "product/findOnePage";
+		return "/product/front/frontFindOnePage";
 	}
 
 	@GetMapping("/product/front/findProductAvailable") // 測試中 先預設false
@@ -95,7 +95,7 @@ public class FProductController {
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
 
-		return "product/findAllPage";
+		return "/product/front/frontFindAllPage";
 	}
 
 	@GetMapping("/product/front/findProductInventoryNotEnough")
@@ -105,7 +105,7 @@ public class FProductController {
 
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
-		return "product/findAllPage";
+		return "/product/front/frontFindAllPage";
 	}
 
 	@GetMapping("/product/front/findAll")
@@ -117,7 +117,7 @@ public class FProductController {
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
 
-		return "product/findAllPage";
+		return "/product/front/frontFindAllPage";
 	}
 
 	@GetMapping("/product/front/getUpdate")
@@ -125,7 +125,7 @@ public class FProductController {
 		ProductBean product = productService.findOneProduct(productId);
 
 		m.addAttribute("product", product);
-		return "product/getUpdatePage";
+		return "/product/front/frontGetUpdatePage";
 	}
 
 	@Transactional
@@ -135,12 +135,12 @@ public class FProductController {
 		ProductBean newProduct = productService.updateProduct(product,photo);
 		m.addAttribute("message", "成功更新商品資料");
 		m.addAttribute("product", newProduct);
-		return "/product/front/showChangePage";
+		return "/product/front/frontShowChangePage";
 	}
 
 	@GetMapping("/product/front/getphotopage")
 	public String updatephotopage() {
-		return "/product/front/getupdatephoto";
+		return "/product/front/frontGetupdatephoto";
 	}
 
 	@Transactional
@@ -159,7 +159,7 @@ public class FProductController {
 		ProductBean product = productService.findOneProduct(productId);
 
 		m.addAttribute("product", product);
-		return "product/getShelvePage";
+		return "/product/front/frontGetShelvePage";
 	}
 
 	@Transactional
@@ -169,7 +169,7 @@ public class FProductController {
 
 		m.addAttribute("message", "成功上架商品");
 		m.addAttribute("product", newProduct);
-		return "/product/front/showChangePage";
+		return "/product/front/frontShowChangePage";
 	}
 
 	@Transactional

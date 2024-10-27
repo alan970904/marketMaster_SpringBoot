@@ -103,7 +103,13 @@
               <i class="fas fa-shopping-bag"></i> 商品管理</a>
             <ul class="collapse list-unstyled submenu" id="produuctSubmenu">
               <li>
-                <a th:href="@{/product/findAll}" class="sidebar-link"> 商品列表</a>
+                <a th:href="@{/product/front/findProductAvailable(available=${true})}" class="sidebar-link"> 商品列表</a>
+              </li>
+              <li>
+                <a th:href="@{/inventoryCheck/front/findAll}" class="sidebar-link"> 盤點列表</a>
+              </li>
+              <li>
+                <a th:href="@{/inventoryCheck/front/home}" class="sidebar-link"> 盤點</a>
               </li>
             </ul>
           </li>

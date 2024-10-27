@@ -32,7 +32,7 @@ public class FInventoryCheckController {
 
 	@GetMapping("/inventoryCheck/front/home")
 	public String homePage() {
-		return "/product/front/checkHomePage";
+		return "/product/front/frontCheckHomePage";
 	}
 
 	@GetMapping("/inventoryCheck/front/getAllProduct")
@@ -40,7 +40,7 @@ public class FInventoryCheckController {
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
 		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
 		m.addAttribute("products", products);
-		return "/product/front/checkHomePage";
+		return "/product/front/frontCheckHomePage";
 	}
 
 	@PostMapping("/inventoryCheck/front/addCheck")
@@ -63,7 +63,7 @@ public class FInventoryCheckController {
 			System.out.println(inventoryCheckBean.getInventoryCheckId());
 		}
 		m.addAttribute("inventoryChecks", inventoryChecks);
-		return "/product/front/inventoryChecksPage";
+		return "/product/front/frontInventoryChecksPage";
 	}
 	
 	@ResponseBody

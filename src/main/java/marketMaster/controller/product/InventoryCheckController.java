@@ -1,6 +1,7 @@
 package marketMaster.controller.product;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -67,10 +68,10 @@ public class InventoryCheckController {
 	}
 	
 	@ResponseBody
-	@GetMapping("/inventoryCheck/update")
+	@PostMapping("/inventoryCheck/update")
 	public ResponseEntity<?> updateCheck(@RequestBody InventoryCheckBean inventoryCheck) {
 		inventoryCheckService.updateInventoryCheck(inventoryCheck);
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().body(Map.of("message","審核成功"));
 	}
 	
 	

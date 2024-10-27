@@ -50,7 +50,7 @@ public class FInventoryCheckDetailsController {
 	public String findByInventoryCheck(@RequestParam String inventoryCheckId,Model m) {
 		List<InventoryCheckDetailsBean> inventoryCheckDetails = inventoryCheckDetailsService.findByInventoryCheckDetailId(inventoryCheckId);
 		m.addAttribute("inventoryCheckDetails", inventoryCheckDetails);
-		return "/product/front/inventoryChecksDetailsPage";
+		return "/product/front/frontInventoryChecksDetailsPage";
 	}
 	
 	@PostMapping("/inventoryCheckDetails/front/deleteByDetailId")

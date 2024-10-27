@@ -234,6 +234,17 @@
             verifyBtn.addEventListener('click', function () {
                 const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
                 console.log(checkId)
+                axios.post('http://localhost:8080/marketMaster/inventoryCheck/update',{
+                inventoryCheckId:checkId
+            })
+            .then(res => {
+                console.log(res)
+                alert('核准成功')
+                location.reload()
+            })
+            .catch(err => {
+                console.error(err); 
+            })
 
             })
         }
@@ -247,23 +258,28 @@
             for (let i = 0; i < getUpdateBtn.length; i++) {
                 if (verifyStatus === 'true') {
                     getDeleteBtn[i].classList.remove('btn-danger')
-                            getDeleteBtn[i].classList.add('btn-danger', 'opacity-50')
-                            getDeleteBtn[i].removeAttribute('data-bs-toggle')
-                            new bootstrap.Tooltip(getDeleteBtn[i], {
-                                title: '此盤點單已核准，無法刪除'
-                            })
-                            getUpdateBtn[i].classList.remove('btn-secondary')
-                            getUpdateBtn[i].classList.add('btn-secondary', 'opacity-50')
-                            getUpdateBtn[i].removeAttribute('data-bs-toggle')
-                            new bootstrap.Tooltip(getUpdateBtn[i], {
-                                title: '此盤點單已核准，無法更改'
-                            })
+                    getDeleteBtn[i].classList.add('btn-danger', 'opacity-50')
+                    getDeleteBtn[i].removeAttribute('data-bs-toggle')
+                    new bootstrap.Tooltip(getDeleteBtn[i], {
+                        title: '此盤點單已核准，無法刪除'
+                    })
+                    getUpdateBtn[i].classList.remove('btn-secondary')
+                    getUpdateBtn[i].classList.add('btn-secondary', 'opacity-50')
+                    getUpdateBtn[i].removeAttribute('data-bs-toggle')
+                    new bootstrap.Tooltip(getUpdateBtn[i], {
+                        title: '此盤點單已核准，無法更改'
+                    })
                 }
-                    
-                
-                
+
+
+
             }
         }
+
+        // document.getElementById('verify').addEventListener('click', function () {
+        //     const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
+            
+        // })
 
     </script>
 
