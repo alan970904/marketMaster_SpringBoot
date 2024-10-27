@@ -1,4 +1,4 @@
-package marketMaster.controller.product;
+package marketMaster.controller.product.front;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-public class InventoryCheckController {
+public class FInventoryCheckController {
 
 	@Autowired
 	private InventoryCheckService inventoryCheckService;
@@ -30,44 +30,44 @@ public class InventoryCheckController {
 	@Autowired
 	private ProductService productService;
 
-	@GetMapping("/inventoryCheck/home")
+	@GetMapping("/inventoryCheck/front/home")
 	public String homePage() {
-		return "/product/checkHomePage";
+		return "/product/front/checkHomePage";
 	}
 
-	@GetMapping("/inventoryCheck/getAllProduct")
+	@GetMapping("/inventoryCheck/front/getAllProduct")
 	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
 		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
 		m.addAttribute("products", products);
-		return "/product/checkHomePage";
+		return "/product/front/checkHomePage";
 	}
 
-	@PostMapping("/inventoryCheck/addCheck")
+	@PostMapping("/inventoryCheck/front/addCheck")
 	@ResponseBody
 	public ResponseEntity<?> addInventoryCheck(@RequestBody InventoryCheckInsertDTO inventoryCheckInsertDTO) {
 		ResponseEntity<?> response = inventoryCheckService.addInventoryCheck(inventoryCheckInsertDTO);
 		return response;
 	}
 
-	@PostMapping("/inventoryCheck/delete")
+	@PostMapping("/inventoryCheck/front/delete")
 	public String deleteInventoryCheck(@RequestParam String inventoryCheckId) {
 		inventoryCheckService.deleteInventoryCheck(inventoryCheckId);
 		return null;
 	}
 	
-	@GetMapping("/inventoryCheck/findAll")
+	@GetMapping("/inventoryCheck/front/findAll")
 	public String findAllCheck(Model m) {
 		List<InventoryCheckBean> inventoryChecks = inventoryCheckService.findAllInventoryCheck();
 		for (InventoryCheckBean inventoryCheckBean : inventoryChecks) {
 			System.out.println(inventoryCheckBean.getInventoryCheckId());
 		}
 		m.addAttribute("inventoryChecks", inventoryChecks);
-		return "/product/inventoryChecksPage";
+		return "/product/front/inventoryChecksPage";
 	}
 	
 	@ResponseBody
-	@GetMapping("/inventoryCheck/update")
+	@GetMapping("/inventoryCheck/front/update")
 	public ResponseEntity<?> updateCheck(@RequestBody InventoryCheckBean inventoryCheck) {
 		inventoryCheckService.updateInventoryCheck(inventoryCheck);
 		return ResponseEntity.ok(null);

@@ -1,12 +1,16 @@
 package marketMaster.service.product;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import marketMaster.DTO.product.InventoryCheckDetailDTO;
@@ -50,15 +54,25 @@ public class InventoryCheckService {
 		return inventoryChecks;
 	}
 
-	public void addInventoryCheck(InventoryCheckInsertDTO inventoryCheckInsertDTO) {
+	public ResponseEntity<?> addInventoryCheck(InventoryCheckInsertDTO inventoryCheckInsertDTO) {
 		List<InventoryCheckDetailDTO> detailsList = inventoryCheckInsertDTO.getDetails();
+		List<Map<String, Object>> existingProducts = new ArrayList<>();
+		List<InventoryCheckDetailDTO> validDetails = new ArrayList<>();
+
 		for (InventoryCheckDetailDTO detail : detailsList) {
-			String productId = detail.getProductId();
-			
-			inventoryCheckDetailsRepo.findVerifyByProductId(productId, false);
-			
+			boolean hasNoVerify = inventoryCheckDetailsRepo.findVerifyByProductId(detail.getProductId(), false);
+
+			if (hasNoVerify) {
+				ProductBean product = productService.findOneProduct(detail.getProductId());
+				existingProducts.add(Map.of("productId", product.getProductId(), "productName",
+						product.getProductName(), "message", "此商品已在盤點單內"));
+
+			} else {
+				validDetails.add(detail);
+			}
+
 		}
-		
+
 		LocalDate now = LocalDate.now();
 		InventoryCheckBean inventoryCheck = new InventoryCheckBean();
 
@@ -70,7 +84,7 @@ public class InventoryCheckService {
 
 		inventoryCheckRepo.save(inventoryCheck);
 
-		for (InventoryCheckDetailDTO detail : detailsList) {
+		for (InventoryCheckDetailDTO detail : validDetails) {
 			InventoryCheckDetailsBean inventoryCheckDetail = new InventoryCheckDetailsBean();
 
 			ProductBean product = productService.findOneProduct(detail.getProductId());
@@ -82,12 +96,19 @@ public class InventoryCheckService {
 			inventoryCheckDetail.setActualInventory(detail.getActualInventory());
 			inventoryCheckDetail.setDifferentialInventory(detail.getActualInventory() - detail.getCurrentInventory());
 			inventoryCheckDetail.setRemark(detail.getRemark());
-			
-			boolean isSuccess = inventoryCheckDetailsService.addInventoryCheckDetail(inventoryCheckDetail);
-			
-			
+
+			inventoryCheckDetailsService.addInventoryCheckDetail(inventoryCheckDetail);
+
+			HashMap<String, Object> response = new HashMap<>();
+
+			response.put("existingProducts", existingProducts);
+			response.put("failCount", existingProducts.size());
 
 		}
+		if (validDetails.size() == 0) {
+			inventoryCheckRepo.delete(inventoryCheck);
+		}
+		return ResponseEntity.ok(existingProducts);
 
 	}
 

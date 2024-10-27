@@ -32,16 +32,12 @@ public class InventoryCheckDetailsService {
 		return inventoryCheckDetailsRepo.findDetailByInventoryCheckId(inventoryCheckId);
 	}
 
-	public boolean addInventoryCheckDetail(InventoryCheckDetailsBean inventoryCheckDetailsBean) {
-		boolean insertSuccess = false;
+	public void addInventoryCheckDetail(InventoryCheckDetailsBean inventoryCheckDetailsBean) {
 		String detailId = inventoryCheckDetailsBean.getDetailId();
 		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findById(detailId);
 		if (optional.isEmpty()) {
 			inventoryCheckDetailsRepo.save(inventoryCheckDetailsBean);
-			insertSuccess = true;
-			return insertSuccess;
 		}
-		return insertSuccess;
 	}
 	
 	public boolean findCheckStatus(String inventoryCheckId) {

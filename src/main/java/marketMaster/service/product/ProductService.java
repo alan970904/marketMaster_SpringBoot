@@ -68,6 +68,12 @@ public class ProductService {
 
 		return products;
 	}
+	public Page<ProductBean> findProductByLikeAndAvilable(String productName,boolean isAvailable, Integer pageNumber) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
+		Page<ProductBean> products = productRepo.findByProductNameContainingAndProductAvailable(productName,isAvailable, pgb);
+		
+		return products;
+	}
 
 	public Page<ProductBean> findProductByCategory(String productCategory, Integer pageNumber, Integer pageSize) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);

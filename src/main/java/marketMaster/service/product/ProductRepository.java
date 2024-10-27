@@ -31,7 +31,8 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     List<ProductIdDTO>findAllProductIdByProductName(@Param("productName")String productName);
 
     //JPA 自帶的模糊查詢
-    Page<ProductBean> findByProductNameContaining(@Param("productName")String productName ,Pageable pgb);
+    Page<ProductBean> findByProductNameContaining(@Param("productName")String productName,Pageable pgb);
+    Page<ProductBean> findByProductNameContainingAndProductAvailable(@Param("productName")String productName,@Param("productAvailable")boolean productAvailable ,Pageable pgb);
     
     Page<ProductBean> findByProductAvailableAndProductCategory(
     	    boolean productAvailable, 

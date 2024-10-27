@@ -45,6 +45,17 @@ public class InventoryCheckRestController {
 		return products;
 	}
 	
+	@PostMapping("/inventoryCheck/getProductByName/json")
+	public Page<ProductBean> getProductByNameJson(@RequestBody ProductPageDTO productPageDTO , Model m) {
+		Integer pageNumber = productPageDTO.getPageNumber();
+		String productName = productPageDTO.getProductName();
+		boolean isAvailable = true;
+		
+		Page<ProductBean> products = productService.findProductByLikeAndAvilable(productName,isAvailable,pageNumber);
+		m.addAttribute("products", products);
+		return products;
+	}
+	
 	@GetMapping("/inventoryCheck/findByCheckId")
 	public InventoryCheckBean findDetailsByCheckId(String inventoryCheckId) {
 		InventoryCheckBean details = inventoryCheckService.findDetailsBycheckId(inventoryCheckId);
