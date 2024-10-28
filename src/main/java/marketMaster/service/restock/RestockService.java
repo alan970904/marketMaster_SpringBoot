@@ -3,9 +3,9 @@ package marketMaster.service.restock;
 
 import marketMaster.DTO.employee.EmployeeInfoDTO;
 import marketMaster.DTO.restock.restock.RestockDTO;
-import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.DTO.restock.restock.RestockDetailsInsertDTO;
 import marketMaster.DTO.restock.restock.RestockInsertDTO;
+
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.restock.RestockDetailsBean;
 import marketMaster.bean.restock.RestocksBean;
@@ -143,7 +143,6 @@ public class RestockService {
         List<String> detailIds =restockDetailsRepository.findDetailIdByRestockId(restockId);
         //透過detailId找 supplier and restockTotalPrice
         List<Object[]> supplierData=restockDetailsRepository.findSupplierIdAndTotalPriceByDetailIds(detailIds);
-        restocksRepository.deleteById(restockId);
         restocksRepository.deleteById(restockId); // 確保刪除操作先執行
         //記錄每個供應商的總金額
         Map<String,Integer>supplierAmountMap=new HashMap<>();
@@ -152,6 +151,7 @@ public class RestockService {
             int restockTotalPrice = (Integer) data[1];
             supplierAmountMap.put(supplierId, supplierAmountMap.getOrDefault(supplierId, 0) + restockTotalPrice);
         }
+
         //更新每個供應商的進貨總金額
         for (String supplierId : supplierAmountMap.keySet()) {
             int newTotalAmount =0;
