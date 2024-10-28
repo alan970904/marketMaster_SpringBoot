@@ -1014,6 +1014,7 @@ SELECT * FROM points_history;
 --TRUNCATE TABLE checkout;
 --TRUNCATE TABLE ranklevel;
 --TRUNCATE TABLE employee;
+--TRUNCATE TABLE notification;
 --TRUNCATE TABLE chat_messages;
 --TRUNCATE TABLE schedule;
 --TRUNCATE TABLE ask_for_leave;
