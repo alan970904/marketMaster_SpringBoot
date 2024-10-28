@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/checkout")
@@ -469,5 +470,27 @@ public class CheckoutController {
         return checkoutService.generateNextInvoiceNumber();
     }
     
-    
+    @PostMapping("/validate-cart")
+    @ResponseBody
+    public ResponseEntity<?> validateCartItems(@RequestBody List<Map<String, Object>> cartItems) {
+        try {
+            // 轉換購物車項目為 CheckoutDetailsBean
+            List<CheckoutDetailsBean> details = cartItems.stream()
+                .map(item -> {
+                    CheckoutDetailsBean detail = new CheckoutDetailsBean();
+                    detail.setProductId((String) item.get("productId"));
+                    detail.setNumberOfCheckout(((Number) item.get("quantity")).intValue());
+                    detail.setProductPrice(((Number) item.get("price")).intValue());
+                    return detail;
+                })
+                .collect(Collectors.toList());
+
+            Map<String, Object> validationResult = checkoutService.validateCartItems(details);
+            return ResponseEntity.ok(validationResult);
+        } catch (Exception e) {
+            logger.severe("驗證購物車失敗: " + e.getMessage());
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "驗證購物車失敗: " + e.getMessage()));
+        }
+    }
 }
