@@ -19,86 +19,339 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+
+    <style th:inline="css">
+        main {
+
+            /* 全局樣式 */
+            body {
+                background-color: #f0f2f5;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #333;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            /* 卡片樣式 */
+            .card {
+                background-color: #ffffff;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                padding: 2.5rem;
+                margin: 2rem auto;
+                max-width: 800px;
+            }
+
+            .card h2 {
+                color: #2c3e50;
+                margin-bottom: 2rem;
+                text-align: center;
+                font-size: 2.2rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            /* 表單網格布局 */
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+            }
+
+            /* 表單组樣式 */
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.7rem;
+                color: #34495e;
+                font-weight: 500;
+                font-size: 1.1rem;
+            }
+
+            .form-control {
+                width: 100%;
+                padding: 0.8rem 1rem;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #3498db;
+                box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            }
+
+            /* 電話號碼输入框樣式 */
+            .phone-group .phone-inputs {
+                display: flex;
+                align-items: center;
+            }
+
+            .phone-group .form-control {
+                flex: 1;
+            }
+
+            .phone-separator {
+                margin: 0 10px;
+                color: #34495e;
+                font-weight: bold;
+            }
+
+            /* 下拉選單樣式 */
+            select.form-control {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2334495e' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 1rem center;
+                background-size: 12px;
+                padding-right: 2.5rem;
+            }
+
+            /* 按鈕樣式 */
+            .btn {
+                background-color: #3498db;
+                color: white;
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.1rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .btn:hover {
+                background-color: #2980b9;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+            }
+
+            #addProduct {
+                margin-top: 1.5rem;
+                margin-bottom: 1.5rem;
+                background-color: #2ecc71;
+            }
+
+            #addProduct:hover {
+                background-color: #27ae60;
+            }
+
+            /* 產品列表樣式 */
+            .product-list {
+                margin-top: 1.5rem;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 1.5rem;
+                background-color: #f9f9f9;
+            }
+
+            .product-list p {
+                margin-bottom: 1rem;
+                padding: 1rem;
+                background-color: #fff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: all 0.3s ease;
+            }
+
+            .product-list p:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .removeProduct {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 0.5rem 0.8rem;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+            }
+
+            .removeProduct:hover {
+                background-color: #c0392b;
+                transform: translateY(-1px);
+            }
+
+            /* 錯誤消息樣式（已移除） */
+            .error-message {
+                display: none;
+                height: 0;
+                margin: 0;
+                padding: 0;
+                border: none;
+            }
+
+            /* 返回按鈕樣式 */
+            #back {
+                background-color: #95a5a6;
+                color: white;
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.1rem;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-top: 1.5rem;
+                margin-bottom: 0;
+            }
+
+            #back:hover {
+                background-color: #7f8c8d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(149, 165, 166, 0.3);
+            }
+
+            /* 響應式設計 */
+            @media (max-width: 768px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .card {
+                    padding: 1.5rem;
+                }
+
+                .btn,
+                #back {
+                    width: 100%;
+                }
+            }
+
+        }
+    </style>
 </head>
 
 <body>
     <div th:replace="~{body/header :: header}">
-
         <div th:fragment="content">
-            <div role="main">
-                <div id="checkout" class="section section active">
-                    <div class="error-message" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+            <main>
 
+                <section id="checkout" class="section active">
+                    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
                     <div class="card">
-                        <div class="card-body">
-                            <h2>新增結帳記錄</h2>
-
-                            <form id="checkoutForm">
-                                <div class="form-group mb-3">
+                        <h2>新增結帳記錄</h2>
+                        <form id="checkoutForm" th:action="@{/checkout/add}" method="post"
+                            onsubmit="return validateForm()">
+                            <input type="hidden" name="action" value="insert">
+                            <div class="form-grid">
+                                <div class="form-group">
                                     <label for="checkoutId">結帳編號:</label>
-                                    <input type="text" id="checkoutId" class="form-control" readonly>
+                                    <input type="text" id="checkoutId" name="checkoutId" class="form-control"
+                                        style="width: 85%" readonly>
                                 </div>
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="invoiceNumber">發票號碼:</label>
-                                    <input type="text" id="invoiceNumber" class="form-control" readonly>
+                                    <input type="text" class="form-control" id="invoiceNumber" name="invoiceNumber"
+                                        readonly>
                                 </div>
-                                <div class="form-group mb-3">
+                                <div class="form-group phone-group">
                                     <label for="customerTel">顧客手機:</label>
-                                    <input type="text" id="customerTel" class="form-control" pattern="[0-9]{10}">
+                                    <div class="phone-inputs">
+                                        <input type="text" id="customerTel1" name="customerTel1" class="form-control"
+                                            maxlength="4">
+                                        <span class="phone-separator">-</span>
+                                        <input type="text" id="customerTel2" name="customerTel2" class="form-control"
+                                            maxlength="6">
+                                    </div>
                                 </div>
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="employeeId">員工編號:</label>
-                                    <select id="employeeId" class="form-select" required>
-                                        <option value="" selected disabled>請選擇員工</option>
+                                    <select id="employeeId" name="employeeId" class="form-control" required>
+                                        <option value="">請選擇員工</option>
                                         <option th:each="emp : ${employees}" th:value="${emp.employeeId}"
-                                            th:text="${emp.employeeName}"></option>
+                                            th:text="${emp.employeeId + ' - ' + emp.employeeName}">
+                                        </option>
                                     </select>
                                 </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="checkoutDate">結帳日期:</label>
-                                    <input type="date" id="checkoutDate" class="form-control" readonly>
+                                <div class="form-group">
+                                    <label for="productCategory">產品類別:</label>
+                                    <select id="product_category" name="productCategory" class="form-control">
+                                        <option value="">請選擇產品類別</option>
+                                        <option value="肉品海鮮">肉品海鮮</option>
+                                        <option value="飲品">飲品</option>
+                                        <option value="米飯麵條">米飯麵條</option>
+                                        <option value="零食點心">零食點心</option>
+                                        <option value="蔬菜水果">蔬菜水果</option>
+                                    </select>
                                 </div>
-
-                                <div class="form-group mb-3">
-                                    <label>商品明細:</label>
-                                    <div id="productList" class="table-responsive">
-                                        <!-- JavaScript 將在此生成購物車商品表格 -->
-                                    </div>
+                                <div class="form-group">
+                                    <label for="product_name">商品名稱:</label>
+                                    <select id="product_name" name="product_name" class="form-control">
+                                        <option value="">請選擇商品名稱</option>
+                                    </select>
                                 </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="totalAmount">總結帳金額:</label>
-                                    <input type="text" id="totalAmount" class="form-control" readonly>
+                                <div class="form-group">
+                                    <label for="productId">商品編號:</label>
+                                    <input type="text" id="product_id" name="productId" class="form-control" readonly>
                                 </div>
-                                <div id="bonusPointsSection" style="display:none">
-                                    <div class="form-group mb-3">
-                                        <label for="bonusPoints">紅利點數:</label>
-                                        <input type="text" id="bonusPoints" class="form-control" readonly>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="pointsDueDate">紅利點數到期日:</label>
-                                        <input type="date" id="pointsDueDate" class="form-control" readonly>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="quantity">商品數量:</label>
+                                    <input type="number" id="quantity" name="quantity" class="form-control" min="1"
+                                        style="width: 85%;">
                                 </div>
-
-                                <div class="d-flex justify-content-between mt-4">
-                                    <button type="button" class="btn btn-secondary"
-                                        onclick="location.href='/marketMaster/front/cart'">
-                                        返回購物
-                                    </button>
-                                    <button type="submit" class="btn btn-primary">新增結帳記錄</button>
+                                <div class="form-group">
+                                    <label for="productPrice">商品價格:</label>
+                                    <input type="number" id="product_price" name="productPrice" class="form-control"
+                                        readonly>
                                 </div>
-                            </form>
-
-                            <div id="errorMessages" class="error-message"></div>
-                        </div>
+                                <div class="form-group">
+                                    <label for="subtotal">小計:</label>
+                                    <input type="number" id="subtotal" name="subtotal" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <button type="button" id="addProduct" class="btn">添加商品</button>
+                            <div id="productList" class="product-list"></div>
+                            <div class="form-group">
+                                <label for="totalAmount">總結帳金額:</label>
+                                <input type="number" id="totalAmount" name="totalAmount" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="checkoutDate">結帳日期:</label>
+                                <input type="date" id="checkoutDate" name="checkoutDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="bonusPoints">紅利點數:</label>
+                                <input type="number" id="bonusPoints" name="bonusPoints" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="pointsDueDateDisplay">紅利點數到期日:</label>
+                                <input type="text" id="pointsDueDateDisplay" class="form-control"
+                                    placeholder="yyyy/mm/dd" readonly>
+                                <input type="date" id="pointsDueDate" name="pointsDueDate" class="form-control"
+                                    style="display: none;" readonly>
+                            </div>
+                            <button type="submit" class="btn">新增結帳記錄</button>
+                        </form>
+                        <br>
+                        <button id="back" class="action-button">返回主頁</button>
+                        <div id="errorMessages" class="error-message"></div>
                     </div>
-                </div>
-            </div>
+                </section>
+
+            </main>
         </div>
     </div>
-
     <div th:replace="~{body/footer :: footer}"></div>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -111,182 +364,286 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
     <script th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', async function () {
-            await initCheckoutPage();
-        });
+        $(document).ready(function () {
+            // 自動生成結帳編號
+            axios.get(/*[[@{/checkout/nextId}]]*/ '/checkout/nextId')
+                .then(function (response) {
+                    $("#checkoutId").val(response.data);
+                })
+                .catch(function (error) {
+                    console.error('獲取結帳編號失敗:', error);
+                });
 
-        async function initCheckoutPage() {
-            try {
-                // 從 sessionStorage 獲取購物車資料
-                const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
-                if (!cartData || !cartData.items || cartData.items.length === 0) {
-                    alert('購物車是空的！');
-                    window.location.href = '/marketMaster/front/cart';
-                    return;
+            // 自動生成發票號碼
+            axios.get(/*[[@{/checkout/nextInvoiceNumber}]]*/ '/checkout/nextInvoiceNumber')
+                .then(function (response) {
+                    $("#invoiceNumber").val(response.data);
+                })
+                .catch(function (error) {
+                    console.error('獲取發票號碼失敗:', error);
+                });
+
+            // 產品類別變更時獲取對應的商品
+            $('#product_category').change(function () {
+                var category = $(this).val();
+                if (category) {
+                    axios.get(/*[[@{/checkout/products}]]*/ '/checkout/products', {
+                        params: { category: category }
+                    })
+                        .then(function (response) {
+                            var productSelect = $('#product_name');
+                            productSelect.empty();
+                            productSelect.append($('<option>').text('請選擇商品名稱').attr('value', ''));
+                            $.each(response.data, function (i, product) {
+                                productSelect.append($('<option>')
+                                    .text(product.productName)
+                                    .attr('value', product.productId)
+                                    .data('productId', product.productId)
+                                    .data('productPrice', product.productPrice));
+                            });
+                        })
+                        .catch(function (error) {
+                            console.error('獲取商品名稱失敗:', error);
+                            alert('獲取商品名稱時出錯，請稍後再試');
+                        });
+                } else {
+                    $('#product_name').empty().append($('<option>').text('請選擇商品名稱').attr('value', ''));
+                    $('#product_id').val('');
+                    $('#product_price').val('');
                 }
+            });
 
-                // 獲取結帳編號和發票號碼
-                const [checkoutIdRes, invoiceNumberRes] = await Promise.all([
-                    axios.get('/marketMaster/checkout/nextId'),
-                    axios.get('/marketMaster/checkout/nextInvoiceNumber')
-                ]);
-
-                // 設置基本資料
-                document.getElementById('checkoutId').value = checkoutIdRes.data;
-                document.getElementById('invoiceNumber').value = invoiceNumberRes.data;
-                document.getElementById('checkoutDate').valueAsDate = new Date();
-
-                // 渲染購物車商品
-                renderCartItems(cartData.items);
-
-                // 綁定事件
-                document.getElementById('customerTel').addEventListener('blur', handleCustomerTelBlur);
-                document.getElementById('checkoutForm').addEventListener('submit', handleCheckout);
-            } catch (error) {
-                console.error('初始化結帳頁面失敗:', error);
-                alert('系統錯誤，請稍後再試');
-            }
-        }
-
-        function renderCartItems(items) {
-            const productList = document.getElementById('productList');
-            let totalAmount = 0;
-
-            if (!items || items.length === 0) {
-                productList.innerHTML = '<p>購物車是空的</p>';
-                return;
+            // 如果沒有員工數據，則通過 Axios 獲取
+            if ($('#employeeId option').length <= 1) {
+                axios.get(/*[[@{/checkout/employees}]]*/ '/checkout/employees')
+                    .then(function (response) {
+                        var employeeSelect = $('#employeeId');
+                        $.each(response.data, function (i, emp) {
+                            employeeSelect.append($('<option>')
+                                .text(emp.employeeId + ' - ' + emp.employeeName)
+                                .attr('value', emp.employeeId));
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error('獲取員工資料失敗:', error);
+                        alert('獲取員工資料時出錯，請稍後再試');
+                    });
             }
 
-            const tableHtml = `
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>商品名稱</th>
-                        <th>數量</th>
-                        <th>單價</th>
-                        <th>小計</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${items.map(item => {
-                const subtotal = item.price * item.quantity;
-                totalAmount += subtotal;
-                return `
-                            <tr>
-                                <td>${item.productName}</td>
-                                <td>
-                                    <button onclick="updateQuantity('${item.productId}', -1)">-</button>
-                                    ${item.quantity}
-                                    <button onclick="updateQuantity('${item.productId}', 1)">+</button>
-                                </td>
-                                <td>${item.price}</td>
-                                <td>${subtotal}</td>
-                                <td><button onclick="removeItem('${item.productId}')">刪除</button></td>
-                            </tr>
-                        `;
-            }).join('')}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3" class="text-end fw-bold">總計：</td>
-                        <td class="fw-bold">${totalAmount}</td>
-                    </tr>
-                </tfoot>
-            </table>
-        `;
+            // 商品名稱變更時更新商品編號和價格
+            $('#product_name').change(function () {
+                var selectedOption = $(this).find('option:selected');
+                var productId = selectedOption.val();
+                var productPrice = selectedOption.data('productPrice');
+                $('#product_id').val(productId);
+                $('#product_price').val(productPrice);
+                calculateSubtotal();
+            });
 
-            productList.innerHTML = tableHtml;
-            document.getElementById('totalAmount').value = totalAmount;
-        }
+            // 設置當前日期
+            var today = new Date().toISOString().split('T')[0];
+            $("#checkoutDate").val(today);
 
-        function updateQuantity(productId, change) {
-            const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
-            const item = cartData.items.find(i => i.productId === productId);
-            if (item) {
-                item.quantity += change;
-                if (item.quantity <= 0) {
-                    cartData.items = cartData.items.filter(i => i.productId !== productId);
+            // 顧客手機號碼自動跳轉
+            $("#customerTel1").on('input', function () {
+                if (this.value.length === 4) {
+                    $("#customerTel2").focus();
                 }
-            }
-            sessionStorage.setItem('checkoutData', JSON.stringify(cartData));
-            renderCartItems(cartData.items);
-        }
+            });
 
-        function removeItem(productId) {
-            const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
-            cartData.items = cartData.items.filter(i => i.productId !== productId);
-            sessionStorage.setItem('checkoutData', JSON.stringify(cartData));
-            renderCartItems(cartData.items);
-        }
-
-        async function handleCustomerTelBlur(event) {
-            const customerTel = event.target.value.trim();
-            const bonusPointsSection = document.getElementById('bonusPointsSection');
-
-            if (customerTel && /^[0-9]{10}$/.test(customerTel)) {
-                try {
-                    const response = await axios.get(`/marketMaster/customer/check/${customerTel}`);
-                    if (response.data.exists) {
-                        const totalAmount = parseInt(document.getElementById('totalAmount').value);
-                        const bonusPoints = Math.floor(totalAmount / 100);
-
-                        const dueDate = new Date();
-                        dueDate.setFullYear(dueDate.getFullYear() + 1);
-
-                        document.getElementById('bonusPoints').value = bonusPoints;
-                        document.getElementById('pointsDueDate').valueAsDate = dueDate;
-                        bonusPointsSection.style.display = 'block';
-                    } else {
-                        bonusPointsSection.style.display = 'none';
+            // 新增 - 會員驗證
+            $("#customerTel2").on('blur', async function () {
+                if (this.value.length === 6) {
+                    const tel = $('#customerTel1').val() + $('#customerTel2').val();
+                    try {
+                        const response = await axios.get(/*[[@{/customer/validate}]]*/ '/customer/validate', {
+                            params: { tel: tel }
+                        });
+                        if (!response.data.exists) {
+                            alert('此手機號碼尚未註冊會員，將導向會員註冊頁面');
+                            window.location.href = /*[[@{/customer/cusAddForm}]]*/ '/customer/cusAddForm';
+                        }
+                    } catch (error) {
+                        console.error('驗證會員失敗:', error);
+                        alert('驗證會員失敗，請稍後再試');
                     }
-                } catch (error) {
-                    console.error('檢查會員失敗:', error);
-                    bonusPointsSection.style.display = 'none';
                 }
-            } else {
-                bonusPointsSection.style.display = 'none';
+            });
+
+            // 計算小計
+            function calculateSubtotal() {
+                var quantity = $("#quantity").val();
+                var price = $("#product_price").val();
+                var subtotal = quantity * price;
+                $("#subtotal").val(subtotal.toFixed(2));
             }
-        }
+            $("#quantity").on('input', calculateSubtotal);
 
-        async function handleCheckout(event) {
-            event.preventDefault();
+            // 添加商品按鈕點擊事件
+            $("#addProduct").click(function () {
+                var productName = $("#product_name option:selected").text();
+                var productId = $("#product_id").val();
+                var quantity = $("#quantity").val();
+                var price = $("#product_price").val();
+                var subtotal = (parseFloat(quantity) * parseFloat(price)).toFixed(2);
 
-            try {
-                const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
-                if (!cartData || !cartData.items || cartData.items.length === 0) {
-                    alert('購物車資料錯誤，請重新嘗試');
-                    window.location.href = '/marketMaster/front/cart';
+                if (productName && quantity && price) {
+                    var productHtml = '<p data-product-id="' + productId + '">' +
+                        productName + ' - 數量: <span class="quantity">' + quantity + '</span> x ' +
+                        '價格: $<span class="price">' + price + '</span> = ' +
+                        '小計: $<span class="subtotal">' + subtotal + '</span>' +
+                        '<button class="removeProduct">刪除</button></p>';
+                    $("#productList").append(productHtml);
+                    calculateTotal();
+                    resetProductInputs();
+                } else {
+                    alert('請填寫所有商品信息');
+                }
+            });
+
+            // 刪除商品事件（使用事件委託）
+            $("#productList").on('click', '.removeProduct', function () {
+                $(this).parent().remove();
+                calculateTotal();
+            });
+
+            // 計算總金額
+            function calculateTotal() {
+                var total = 0;
+                $("#productList p").each(function () {
+                    var subtotal = parseFloat($(this).find('.subtotal').text());
+                    total += subtotal;
+                });
+                $("#totalAmount").val(total.toFixed(2));
+                calculateBonusPoints(total);
+            }
+
+            // 重置商品輸入欄位
+            function resetProductInputs() {
+                $("#product_category").val("");
+                $("#product_name").empty().append($('<option>').text('請選擇商品名稱').attr('value', ''));
+                $("#product_id").val("");
+                $("#quantity").val("");
+                $("#product_price").val("");
+                $("#subtotal").val("");
+            }
+
+            // 設置紅利點數到期日 日期格式
+            $("#pointsDueDateDisplay").val("yyyy/mm/dd");
+
+            // 計算紅利點數
+            function calculateBonusPoints(total) {
+                var points = Math.floor(total / 100);
+                $("#bonusPoints").val(points);
+
+                if ($("#customerTel1").val() && $("#customerTel2").val()) {
+                    var dueDate = new Date();
+                    dueDate.setFullYear(dueDate.getFullYear() + 1);
+                    var formattedDate = dueDate.getFullYear() + '/' +
+                        ('0' + (dueDate.getMonth() + 1)).slice(-2) + '/' +
+                        ('0' + dueDate.getDate()).slice(-2);
+                    $("#pointsDueDate").val(dueDate.toISOString().split('T')[0]);
+                    $("#pointsDueDateDisplay").val(formattedDate);
+                } else {
+                    $("#bonusPoints").val(0);
+                    $("#pointsDueDate").val("");
+                    $("#pointsDueDateDisplay").val("yyyy/mm/dd");
+                }
+            }
+
+            // 表單提交事件
+            $('#checkoutForm').submit(async function (e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
                     return;
                 }
 
-                const formData = {
-                    checkoutId: document.getElementById('checkoutId').value,
-                    customerTel: document.getElementById('customerTel').value,
-                    employeeId: document.getElementById('employeeId').value,
-                    items: cartData.items.map(item => ({
-                        productId: item.productId,
-                        quantity: item.quantity,
-                        price: item.price
-                    }))
+                const tel = $('#customerTel1').val() + $('#customerTel2').val();
+                if (tel) {
+                    try {
+                        const response = await axios.get(/*[[@{/customer/validate}]]*/ '/customer/validate', {
+                            params: { tel: tel }
+                        });
+                        if (!response.data.exists) {
+                            alert('請先完成會員註冊');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('驗證會員失敗:', error);
+                        alert('驗證會員失敗，請稍後再試');
+                        return;
+                    }
+                }
+
+                var products = [];
+                $('#productList p').each(function () {
+                    var $product = $(this);
+                    products.push({
+                        productId: $product.data('product-id'),
+                        quantity: parseInt($product.find('.quantity').text()),
+                        price: parseFloat($product.find('.price').text())
+                    });
+                });
+
+                if (products.length === 0) {
+                    alert('請至少添加一件商品');
+                    return;
+                }
+
+                var formData = {
+                    checkoutId: $('#checkoutId').val(),
+                    invoiceNumber: $('#invoiceNumber').val(),
+                    customerTel: tel,
+                    employeeId: $('#employeeId').val(),
+                    checkoutTotalPrice: parseFloat($('#totalAmount').val()),
+                    checkoutDate: $('#checkoutDate').val(),
+                    bonusPoints: parseInt($('#bonusPoints').val()),
+                    pointsDueDate: $('#pointsDueDate').val(),
+                    details: products
                 };
 
-                const response = await axios.post('/marketMaster/front/cart/add-checkout', formData);
-
-                if (response.data.status === 'success') {
-                    alert('結帳成功！');
-                    sessionStorage.removeItem('checkoutData');
-                    window.location.href = '/marketMaster/checkout/list';
-                } else {
-                    alert(response.data.message || '結帳失敗，請稍後再試');
+                try {
+                    const response = await axios.post(/*[[@{/checkout/add}]]*/ '/checkout/add', formData);
+                    if (response.data.status === 'success') {
+                        alert('結帳成功');
+                        window.location.href = /*[[@{/checkout/list}]]*/ '/checkout/list';
+                    } else {
+                        alert(response.data.message || '結帳失敗');
+                    }
+                } catch (error) {
+                    console.error('結帳失敗:', error);
+                    alert('系統錯誤，請稍後再試');
                 }
-            } catch (error) {
-                console.error('結帳失敗:', error);
-                alert('系統錯誤，請稍後再試');
+            });
+       
+
+        function validateForm() {
+            var errorMessages = [];
+            var errorMessageDiv = document.getElementById('errorMessages');
+            errorMessageDiv.innerHTML = '';
+
+            if (!$('#employeeId').val()) {
+                errorMessages.push("請選擇員工");
             }
+
+            if ($('#productList').children().length === 0) {
+                errorMessages.push("請至少添加一件商品");
+            }
+
+            if (errorMessages.length > 0) {
+                errorMessageDiv.innerHTML = errorMessages.join('<br>');
+                return false;
+            }
+
+            return true;
         }
+
+        document.getElementById('back').addEventListener('click', function () {
+            window.location.href = /*[[@{/checkout/checkoutMain}]]*/ '/checkout/checkoutMain';
+        });
+    });
     </script>
 </body>
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:align-items="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
@@ -222,7 +222,7 @@
 
             <!-- 中下：結帳按鈕、退貨按鈕與查詢會員紅利按鈕 -->
             <div class="checkout-buttons">
-                <button class="btn btn-primary btn-custom">結帳</button>
+                <button id="addCart" class="btn btn-primary btn-custom">結帳</button>
                 <button class="btn btn-danger btn-custom">退貨</button>
                 <!-- 查詢會員紅利 -->
                 <button class="btn-bonus">查詢會員紅利</button>
@@ -316,6 +316,10 @@
 
     document.getElementById('addRestock').addEventListener('click',function (){
         window.location.href="/marketMaster/restock/restockInsert"
+    })
+    
+    document.getElementById('addCart').addEventListener('click',function (){
+        window.location.href="/marketMaster/front/cart"
     })
 
     document.getElementById('exportExcel').addEventListener('click', function() {
