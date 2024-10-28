@@ -18,6 +18,9 @@ public interface AskForLeaveRepository extends JpaRepository<AskForLeaveBean, St
 	String findMaxLeaveId();
 
 	List<AskForLeaveBean> findByEmpBeanEmployeeId(String employeeId);
+	
+	List<AskForLeaveBean> findByEmpBeanEmployeeIdAndApprovedStatusIn(String employeeId, List<String> approvedStatus);
+
 
 	Page<AskForLeaveBean> findByEmpBeanEmployeeId(String employeeId, Pageable pageable);
 

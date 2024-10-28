@@ -82,6 +82,9 @@
               <li>
                 <a th:href="@{/schedules/miniView(id=${session.employee?.employeeId})}" class="sidebar-link"> test排班</a>
               </li>
+              <li>
+                <a th:href="@{/askForLeave/waitStatus(id=${session.employee?.employeeId})}" class="sidebar-link"> test請假</a>
+              </li>
             </ul>
           </li>
 
