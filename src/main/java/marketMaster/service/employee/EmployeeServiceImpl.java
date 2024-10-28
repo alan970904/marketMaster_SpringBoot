@@ -152,6 +152,10 @@ public class EmployeeServiceImpl implements EmployeeService{
 		return showAll ? employeeRepository.findAll(pageable) : employeeRepository.findByResigndateIsNull(pageable);
 	}
 	
+	public List<EmpBean> findAllEmployees(boolean showAll) {
+		return showAll ? employeeRepository.findAll() : employeeRepository.findByResigndateIsNull();
+	}
+	
 	@Override
 	public Page<EmpBean> searchEmployees(String searchName, boolean showAll, Pageable pageable) {
 		return showAll

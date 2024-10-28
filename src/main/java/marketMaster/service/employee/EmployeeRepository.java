@@ -22,6 +22,8 @@ public interface EmployeeRepository extends JpaRepository<EmpBean,String> {
 	
 	Page<EmpBean> findByResigndateIsNull(Pageable pageable);
 	
+	List<EmpBean> findByResigndateIsNull();
+	
 	Page<EmpBean> findByEmployeeNameContainingAndResigndateIsNull(String name, Pageable pageable);
 	
 	Page<EmpBean> findByEmployeeNameContaining(String name, Pageable pageable);

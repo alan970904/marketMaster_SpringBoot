@@ -68,30 +68,29 @@ body {
 
 /* 請假單狀態與請假按鈕 */
 .leave-status {
-	grid-column: 1/3;
-	grid-row: 4/5;
-	background-color: #f8f9fa;
-	/* Match others */
-	padding: 5px;
-	border-radius: 5px;
-	height: 300px;
-	box-sizing: border-box;
-	flex-direction: column;
-	justify-content: space-between;
-	margin-top: -300px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	position: relative;
-	overflow: hidden;
-	/* Move upwards */
+    grid-column: 1/3;
+    grid-row: 4/5;
+    width: 100%; /* 讓寬度自適應父容器 */
+    max-width: 700px; /* 設置最大寬度為 700px */
+    background-color: #f8f9fa;
+    padding: 5px;
+    border-radius: 5px;
+    height: 300px; /* 固定高度以便顯示滾動條 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 將內容對齊到頂部 */
+    align-items: stretch; /* 讓內部元素撐滿寬度 */
+    position: relative;
+    overflow: hidden;
 }
+
 
 .waitStatus {
 	width: 100%; /* 讓寬度佔滿容器 */
 	height: 100%; /* 讓高度佔滿容器 */
 	overflow-y: auto; /* 垂直滾動條 */
-	padding: 10px; /* 增加內邊距 */
+	padding: 5px; /* 增加內邊距 */
 	box-sizing: border-box; /* 包含內邊距和邊框 */
 }
 
@@ -159,7 +158,7 @@ body {
 	/* 統一按鈕高度 */
 }
 
-ㄌ .btn-bonus {
+.btn-bonus {
 	background-color: yellow;
 	color: black;
 	width: 100%;
@@ -251,7 +250,10 @@ body {
 				</div>
 
 				<!-- 左下：請假單狀態與請假按鈕 -->
-				<div class="leave-status"><div id="waitStatus"></div></div>
+				<div class="leave-status">
+					<div id="waitStatus" class="waitStatus"></div>
+				</div>
+
 
 				<!-- 中下：結帳按鈕、退貨按鈕與查詢會員紅利按鈕 -->
 				<div class="checkout-buttons">

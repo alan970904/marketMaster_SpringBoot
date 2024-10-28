@@ -171,10 +171,11 @@ public class ScheduleController {
 	@ResponseBody
 	public ResponseEntity<?> getAllEmployees() {
 		try {
-			List<EmpBean> employees = empService.findAllEmp();
+			List<EmpBean> employees = empService.findAllEmployees(false);
 			List<Map<String, String>> employeeList = employees.stream()
 					.map(emp -> Map.of("id", emp.getEmployeeId(), "name", emp.getEmployeeName()))
 					.collect(Collectors.toList());
+			System.out.println("Employee List: " + employeeList);
 			return ResponseEntity.ok(employeeList);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("獲取員工資料失敗：" + e.getMessage());
