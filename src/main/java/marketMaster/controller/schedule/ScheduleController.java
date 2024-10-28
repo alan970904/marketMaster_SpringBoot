@@ -94,6 +94,8 @@ public class ScheduleController {
 
 		return "schedule/miniView";
 	}
+	
+
 
 
 

@@ -2,6 +2,7 @@ package marketMaster.service.askForLeave;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +37,13 @@ public class AskForLeaveService {
 	public List<AskForLeaveBean> findAllAskForLeaves() {
 		return aslRepo.findAll();
 	}
-
+	
+	public List<AskForLeaveBean> findAslByEmpIdStatus(String employeeId) {
+		List<String> approvedStatuses = Arrays.asList("待審核", "已退簽");
+		List<AskForLeaveBean> leaves = aslRepo.findByEmpBeanEmployeeIdAndApprovedStatusIn(employeeId, approvedStatuses);
+		return leaves;
+	}
+	
 	public Page<AskForLeaveBean> findAslByEmpId(String employeeId, Integer pageNum) {
 		Pageable pgb = PageRequest.of(pageNum - 1, 10, Sort.Direction.DESC, "leaveId");
 		return aslRepo.findByEmpBeanEmployeeId(employeeId, pgb);

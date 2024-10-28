@@ -61,7 +61,6 @@ public class AskForLeaveController {
 			@RequestParam(value = "p", defaultValue = "1") Integer pageNum, Model model) {
 
 		EmpBean employee = empService.getEmployee(employeeId);
-	
 
 		Page<AskForLeaveBean> page = aslService.findAslByEmpId(employeeId, pageNum);
 
@@ -72,13 +71,12 @@ public class AskForLeaveController {
 
 		return "askForLeave/emPage";
 	}
-	
+
 	@GetMapping("/askForLeave/usefind")
 	public String useFindAslByEmpId(@RequestParam("id") String employeeId,
 			@RequestParam(value = "p", defaultValue = "1") Integer pageNum, Model model) {
 
 		EmpBean employee = empService.getEmployee(employeeId);
-	
 
 		Page<AskForLeaveBean> page = aslService.findAslByEmpId(employeeId, pageNum);
 
@@ -88,6 +86,15 @@ public class AskForLeaveController {
 		model.addAttribute("totalPages", page.getTotalPages());
 
 		return "askForLeave/front/useEmPage";
+	}
+
+	@GetMapping("/askForLeave/waitStatus")
+	public String waitStatus(@RequestParam("id") String employeeId, Model model) {
+	    System.out.println("employeeId=" + employeeId);
+	    List<AskForLeaveBean> aslBean = aslService.findAslByEmpIdStatus(employeeId);
+	    model.addAttribute("leaves", aslBean);
+
+	    return "askForLeave/front/waitStatus";
 	}
 
 	@GetMapping("/askForLeave/filter")
@@ -104,7 +111,7 @@ public class AskForLeaveController {
 		leaveCategory = (leaveCategory != null && !leaveCategory.isEmpty()) ? leaveCategory : null;
 		approvedStatus = (approvedStatus != null && !approvedStatus.isEmpty()) ? approvedStatus : null;
 
-		Page<AskForLeaveBean> result = aslService.filterFindAsl(employeeId,employeeName,
+		Page<AskForLeaveBean> result = aslService.filterFindAsl(employeeId, employeeName,
 				startTime != null ? startTime.atStartOfDay() : null,
 				endTime != null ? endTime.atTime(23, 59, 59) : null, leaveCategory, approvedStatus, pageNum);
 
@@ -145,6 +152,7 @@ public class AskForLeaveController {
 
 		return "askForLeave/addAsl";
 	}
+
 	@GetMapping("/askForLeave/useAdd")
 	public String useAddAslForm(@RequestParam String employeeId, Model model) {
 		EmpBean empBean = empService.getEmployee(employeeId);
@@ -216,7 +224,7 @@ public class AskForLeaveController {
 		aslService.saveAsl(askForLeave);
 		return "redirect:/askForLeave/search?id=" + employeeId;
 	}
-	
+
 	@PostMapping("/askForLeave/useAddpost")
 	public String useAddAsl(@RequestParam String employeeId, @RequestParam Integer categoryId,
 			@RequestParam String reasonLeave,
@@ -286,7 +294,7 @@ public class AskForLeaveController {
 			return null;
 		}
 	}
-	
+
 	@GetMapping("/askForLeave/useEdit/{id}")
 	public String useEditAslForm(@PathVariable String id, Model model) {
 		AskForLeaveBean existAsl = aslService.findAslById(id);
@@ -318,7 +326,7 @@ public class AskForLeaveController {
 		AskForLeaveBean existAsl = aslService.findAslById(id);
 
 		if (existAsl != null) {
-		
+
 			List<ScheduleBean> addschedulesTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
 					startTime, endTime);
 			if (addschedulesTimeRange.isEmpty()) {
@@ -348,10 +356,10 @@ public class AskForLeaveController {
 			return null;
 		}
 	}
-	
+
 	@PostMapping("/askForLeave/useUpdate/{id}")
-	public String useUpdateAsl(@PathVariable String id, @RequestParam String employeeId, @RequestParam Integer categoryId,
-			@RequestParam String reasonLeave,
+	public String useUpdateAsl(@PathVariable String id, @RequestParam String employeeId,
+			@RequestParam Integer categoryId, @RequestParam String reasonLeave,
 			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startTime,
 			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endTime,
 			@RequestParam String approvedStatus, @RequestParam(required = false) MultipartFile proofImage,
@@ -360,7 +368,7 @@ public class AskForLeaveController {
 		AskForLeaveBean existAsl = aslService.findAslById(id);
 
 		if (existAsl != null) {
-		
+
 			List<ScheduleBean> addschedulesTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
 					startTime, endTime);
 			if (addschedulesTimeRange.isEmpty()) {
