@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增結帳記錄</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .phone-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phone-separator {
+            font-size: 18px;
+            color: #6c757d;
+        }
+
+        .product-item {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-details {
+            flex-grow: 1;
+        }
+
+        .product-price {
+            text-align: right;
+            min-width: 120px;
+        }
+
+        .bonus-section {
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .total-amount {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .quantity-control {
+            display: inline-flex;
+            align-items: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div th:replace="~{body/headerEmployee :: headerEmployee}">
+
+        <div th:fragment="content">
+            <div class="main-content">
+                <div class="container">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title mb-4 text-center">新增結帳記錄</h2>
+
+                            <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+                            <form id="checkoutForm" class="needs-validation" novalidate>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="checkoutId" class="form-label">結帳編號</label>
+                                        <input type="text" class="form-control" id="checkoutId" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="invoiceNumber" class="form-label">發票號碼</label>
+                                        <input type="text" class="form-control" id="invoiceNumber" required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">顧客手機</label>
+                                        <div class="phone-group">
+                                            <input type="text" class="form-control" id="customerTel1" maxlength="4"
+                                                placeholder="0912" required style="width: 100px">
+                                            <span class="phone-separator">-</span>
+                                            <input type="text" class="form-control" id="customerTel2" maxlength="6"
+                                                placeholder="345678" required style="width: 150px">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="employeeId" class="form-label">員工編號</label>
+                                        <select class="form-select" id="employeeId" required>
+                                            <option value="">請選擇員工</option>
+                                            <option th:each="emp : ${employees}" th:value="${emp.employeeId}"
+                                                th:text="${emp.employeeName}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="checkoutDate" class="form-label">結帳日期</label>
+                                        <input type="date" class="form-control" id="checkoutDate" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="totalAmount" class="form-label">總結帳金額</label>
+                                        <input type="text" class="form-control total-amount" id="totalAmount" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label class="form-label">商品明細</label>
+                                        <div id="productList" class="product-list">
+                                            <!-- 商品明細將由 JavaScript 動態添加 -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="bonusPointsSection" class="bonus-section" style="display:none">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="bonusPoints" class="form-label">紅利點數</label>
+                                            <input type="number" class="form-control" id="bonusPoints" readonly>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="bonusExpireDate" class="form-label">紅利點數到期日</label>
+                                            <input type="date" class="form-control" id="bonusExpireDate" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check me-1"></i>新增結帳記錄
+                                    </button>
+                                    <a href="/marketMaster/front/cart" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>返回購物
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{body/footer :: footer}"></div>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script th:inline="javascript">
+        // 保留原有的初始化
+        document.addEventListener('DOMContentLoaded', async function () {
+            await initCheckoutPage();
+            setupPhoneValidation(); // 新增手機號碼驗證初始化
+        });
+
+        // 原有功能 - 初始化結帳頁面
+        async function initCheckoutPage() {
+            try {
+                // 從 sessionStorage 獲取購物車資料
+                const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
+                if (!cartData || !cartData.items || cartData.items.length === 0) {
+                    alert('購物車是空的！');
+                    window.location.href = '/marketMaster/front/cart';
+                    return;
+                }
+
+                // 獲取結帳編號和發票號碼
+                const [checkoutIdRes, invoiceNumberRes] = await Promise.all([
+                    axios.get('/marketMaster/checkout/nextId'),
+                    axios.get('/marketMaster/checkout/nextInvoiceNumber')
+                ]);
+
+                // 設置基本資料
+                document.getElementById('checkoutId').value = checkoutIdRes.data;
+                document.getElementById('invoiceNumber').value = invoiceNumberRes.data;
+                document.getElementById('checkoutDate').valueAsDate = new Date();
+
+                // 渲染購物車商品
+                renderCartItems(cartData.items);
+
+                // 綁定事件
+                document.getElementById('checkoutForm').addEventListener('submit', handleCheckout);
+            } catch (error) {
+                console.error('初始化結帳頁面失敗:', error);
+                alert('系統錯誤，請稍後再試');
+            }
+        }
+
+        // 原有功能 - 渲染購物車商品，但使用新的樣式
+        function renderCartItems(items) {
+            const productList = document.getElementById('productList');
+            let totalAmount = 0;
+
+            if (!items || items.length === 0) {
+                productList.innerHTML = '<p>購物車是空的</p>';
+                return;
+            }
+
+            const cartHtml = items.map(item => {
+                const subtotal = item.price * item.quantity;
+                totalAmount += subtotal;
+                return `
+                    <div class="product-item">
+                        <div class="product-info">
+                            <div class="product-details">
+                                <h6 class="mb-1">${item.productName}</h6>
+                                <small class="text-muted">商品編號: ${item.productId}</small>
+                                <div class="quantity-control mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('${item.productId}', -1)">-</button>
+                                    <span class="mx-2">${item.quantity}</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('${item.productId}', 1)">+</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-3" onclick="removeItem('${item.productId}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-price">
+                                <div>單價: ${formatPrice(item.price)}</div>
+                                <div class="text-primary fw-bold mt-2">小計: ${formatPrice(subtotal)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            productList.innerHTML = cartHtml;
+            document.getElementById('totalAmount').value = formatPrice(totalAmount);
+        }
+
+        // 原有功能 - 更新商品數量
+        function updateQuantity(productId, change) {
+            const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
+            const item = cartData.items.find(i => i.productId === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    cartData.items = cartData.items.filter(i => i.productId !== productId);
+                }
+            }
+            sessionStorage.setItem('checkoutData', JSON.stringify(cartData));
+            renderCartItems(cartData.items);
+        }
+
+        // 原有功能 - 移除商品
+        function removeItem(productId) {
+            const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
+            cartData.items = cartData.items.filter(i => i.productId !== productId);
+            sessionStorage.setItem('checkoutData', JSON.stringify(cartData));
+            renderCartItems(cartData.items);
+        }
+
+        // 原有功能 - 處理結帳
+        async function handleCheckout(event) {
+            event.preventDefault();
+
+            try {
+                const cartData = JSON.parse(sessionStorage.getItem('checkoutData'));
+                if (!cartData || !cartData.items || cartData.items.length === 0) {
+                    alert('購物車資料錯誤，請重新嘗試');
+                    window.location.href = '/marketMaster/front/cart';
+                    return;
+                }
+
+                const tel = document.getElementById('customerTel1').value +
+                    document.getElementById('customerTel2').value;
+
+                const formData = {
+                    checkoutId: document.getElementById('checkoutId').value,
+                    customerTel: tel,
+                    employeeId: document.getElementById('employeeId').value,
+                    items: cartData.items.map(item => ({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price: item.price
+                    }))
+                };
+
+                const response = await axios.post('/marketMaster/front/cart/add-checkout', formData);
+
+                if (response.data.status === 'success') {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: '結帳成功！',
+                        text: '交易已完成'
+                    });
+                    sessionStorage.removeItem('checkoutData');
+                    window.location.href = '/marketMaster/front/cart';
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '結帳失敗',
+                        text: response.data.message || '請稍後再試'
+                    });
+                }
+            } catch (error) {
+                console.error('結帳失敗:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '系統錯誤',
+                    text: '請稍後再試'
+                });
+            }
+        }
+
+        // 新增功能 - 設置手機號碼驗證
+        function setupPhoneValidation() {
+            const tel1Input = document.getElementById('customerTel1');
+            const tel2Input = document.getElementById('customerTel2');
+
+            // 限制只能輸入數字
+            tel1Input.addEventListener('input', function (e) {
+                this.value = this.value.replace(/\D/g, '');
+                if (this.value.length === 4) {
+                    tel2Input.focus();
+                }
+            });
+
+            tel2Input.addEventListener('input', function (e) {
+                this.value = this.value.replace(/\D/g, '');
+            });
+
+            // 檢查會員
+            tel2Input.addEventListener('blur', async function () {
+                if (this.value.length === 6 && tel1Input.value.length === 4) {
+                    const tel = tel1Input.value + tel2Input.value;
+                    try {
+                        const response = await axios.get(`/marketMaster/customer/validate?tel=${tel}`);
+
+                        if (!response.data.exists) {
+                            const result = await Swal.fire({
+                                title: '查無會員資料',
+                                text: '是否要立即註冊新會員？',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonText: '是，立即註冊',
+                                cancelButtonText: '否，稍後再說'
+                            });
+
+                            if (result.isConfirmed) {
+                                window.location.href = `/marketMaster/customer/cusAddForm?phone=${tel}`;
+                            }
+                        } else {
+                            const memberResponse = await axios.get(`/marketMaster/customer/details/api?customerTel=${tel}`);
+                            const bonusSection = document.getElementById('bonusPointsSection');
+
+                            if (memberResponse.data) {
+                                bonusSection.style.display = 'block';
+                                // 修正金額計算，先取得總金額並轉換
+                                const totalAmountStr = document.getElementById('totalAmount').value;
+                                const totalAmount = parseInt(totalAmountStr.replace(/[^\d]/g, '')); // 移除非數字字符
+                                const bonusPoints = Math.floor(totalAmount / 100);
+
+                                document.getElementById('bonusPoints').value = bonusPoints;
+
+                                const expireDate = new Date();
+                                expireDate.setFullYear(expireDate.getFullYear() + 1);
+                                document.getElementById('bonusExpireDate').value = expireDate.toISOString().split('T')[0];
+                            }
+                        }
+                    } catch (error) {
+                        console.error('驗證會員失敗:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: '驗證失敗',
+                            text: '請稍後再試'
+                        });
+                    }
+                }
+            });
+        }
+
+        // 工具函數 - 格式化價格
+        function formatPrice(price) {
+            return new Intl.NumberFormat('zh-TW', {
+                style: 'currency',
+                currency: 'TWD',
+                minimumFractionDigits: 0
+            }).format(price);
+        }
+
+        // 新增 - 更新紅利點數功能
+        document.addEventListener('DOMContentLoaded', function () {
+            // 監聽購物車數量變更
+            const originalUpdateQuantity = window.updateQuantity;
+            window.updateQuantity = function (productId, change) {
+                // 先執行原有的更新數量功能
+                originalUpdateQuantity(productId, change);
+                // 更新紅利點數
+                updateBonusPoints();
+            }
+
+            // 監聽移除商品
+            const originalRemoveItem = window.removeItem;
+            window.removeItem = function (productId) {
+                // 先執行原有的移除功能
+                originalRemoveItem(productId);
+                // 更新紅利點數
+                updateBonusPoints();
+            }
+        });
+
+        // 新增 - 更新紅利點數
+        function updateBonusPoints() {
+            const tel1 = document.getElementById('customerTel1');
+            const tel2 = document.getElementById('customerTel2');
+            if (tel1 && tel2 && tel1.value && tel2.value &&
+                tel1.value.length === 4 && tel2.value.length === 6) {
+                // 如果會員欄位已填，重新計算紅利點數
+                const totalAmountStr = document.getElementById('totalAmount').value;
+                const totalAmount = parseInt(totalAmountStr.replace(/[^\d]/g, ''));
+                const bonusPoints = Math.floor(totalAmount / 100);
+
+                document.getElementById('bonusPoints').value = bonusPoints;
+            }
+        }
+
+        // 新增 - 處理返回購物車
+        document.querySelector('a[href="/marketMaster/front/cart"]').addEventListener('click', function (e) {
+            e.preventDefault();
+            // 標記為返回操作
+            sessionStorage.setItem('returnToCart', 'true');
+            window.location.href = this.getAttribute('href');
+        });
+    </script>
+</body>
+
+</html>

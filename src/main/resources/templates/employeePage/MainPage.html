@@ -180,8 +180,8 @@
 
                     <!-- 中下：結帳按鈕、退貨按鈕與查詢會員紅利按鈕 -->
                     <div class="checkout-buttons">
-                        <button class="btn btn-primary btn-custom"><i class="fa-solid fa-cart-shopping"></i> 結帳</button>
-                        <button class="btn btn-danger btn-custom"><i class="fa-solid fa-face-flushed"></i> 退貨</button>
+                        <button  id="addCart" class="btn btn-primary btn-custom"><i class="fa-solid fa-cart-shopping"></i> 結帳</button>
+                        <button  id="addReturn" class="btn btn-danger btn-custom"><i class="fa-solid fa-face-flushed"></i> 退貨</button>
                     </div>
                 </div>
 
@@ -281,6 +281,14 @@
 
         document.getElementById('addRestock').addEventListener('click', function () {
             window.location.href = "/marketMaster/restock/restockInsert"
+        });
+        
+        document.getElementById('addCart').addEventListener('click', function () {
+            window.location.href = "/marketMaster/front/cart"
+        });
+        
+        document.getElementById('addReturn').addEventListener('click', function () {
+            window.location.href = "/marketMaster/front/returnProduct/add"
         });
 
         document.getElementById('exportExcel').addEventListener('click', function () {
