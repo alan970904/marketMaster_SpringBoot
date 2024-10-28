@@ -14,7 +14,7 @@
     <style>
         .card-img-top {
             max-height: 100%;
-            width: auto;
+            width: 100%;
         }
 
         .w20 {
@@ -103,7 +103,22 @@
         let cartItems = [];
         const cartStorage = 'checkoutData';
 
+        // 修改 init 函數
         function init() {
+            // 檢查是否為返回操作
+            const isReturn = sessionStorage.getItem('returnToCart');
+            if (isReturn) {
+                // 是返回操作，保留購物車內容
+                sessionStorage.removeItem('returnToCart');
+                // 載入已有的購物車內容
+                loadCartFromStorage();
+            } else {
+                // 不是返回操作，初始化購物車
+                cartItems = [];
+                sessionStorage.removeItem(cartStorage);
+            }
+
+            // 執行原有的初始化
             fetchProductsAndRender();
             getProductCategory();
             initCart();
@@ -266,12 +281,12 @@
             document.getElementById('checkoutBtn').disabled = totalItems === 0;
         }
 
-        // 儲存購物車至 localStorage
+        // 儲存購物車至 sessionStorage
         function saveCartToStorage() {
             sessionStorage.setItem(cartStorage, JSON.stringify(cartItems));
         }
 
-        // 從 localStorage 載入購物車
+        // 從 sessionStorage 載入購物車
         function loadCartFromStorage() {
             const savedCart = sessionStorage.getItem(cartStorage);
             if (savedCart) {
@@ -311,7 +326,7 @@
             if (await validateCart()) {
                 // 儲存資料結構包含 items
                 sessionStorage.setItem(cartStorage, JSON.stringify({ items: cartItems }));
-                window.location.href = 'http://localhost:8080/marketMaster/checkout/add';
+                window.location.href = 'http://localhost:8080/marketMaster/front/checkout/add';
             }
         }
 

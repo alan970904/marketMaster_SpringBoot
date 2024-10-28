@@ -60,7 +60,7 @@ public class ShoppingCartController {
             m.addAttribute("products", cart.getItems());
             m.addAttribute("inventoryCheck", inventoryCheck);
             m.addAttribute("categories", productService.getAllCategories());
-            return "checkout/checkout/cart/testCart";
+            return "checkout/checkout/front/ShoppingCart";
         } catch (Exception e) {
             logger.severe("載入商品列表失敗: " + e.getMessage());
             m.addAttribute("error", "系統錯誤，請稍後再試");
