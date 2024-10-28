@@ -15,6 +15,11 @@
     td {
         vertical-align: middle;
     }
+
+    .w100 {
+        width: 100%;
+        
+    }
 </style>
 
 <body>
@@ -23,14 +28,15 @@
             <main>
                 <div class="container mt-3">
                     <div class="d-flex justify-content-between">
-                        <div>
+                        <div  class="btn-group">
+                            <a class="btn btn-outline-secondary"
+                            th:href="@{/product/findAll}">查詢所有商品</a>
 
-
-                            <a class="btn btn-primary"
+                            <a class="btn btn-outline-secondary"
                                 th:href="@{/product/findProductAvailable(available=${true})}">查詢在銷售商品</a>
-                            <a class="btn btn-primary"
+                            <a class="btn btn-outline-secondary"
                                 th:href="@{/product/findProductAvailable(available=${false})}">查詢已下架商品</a>
-                            <a class="btn btn-primary" th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
+                            <a class="btn btn-outline-secondary" th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
                         </div>
 
 
@@ -63,8 +69,9 @@
                                 <tr>
                                     <td class="my-auto" th:text="${product.productId}"></td>
                                     <td th:text="${product.productCategory}"></td>
-                                    <td><a th:text="${product.productName}"
-                                            th:href="@{/product/findOne(productId=${product.productId})}"></a>
+                                    <td><a class="findOneSrc" href="#" th:text="${product.productName}"
+                                            data-bs-toggle="modal" data-bs-target="#findOneModal"
+                                            th:data-productid="${product.productId}"></a>
                                     </td>
                                     <td th:text="${product.productPrice}"></td>
                                     <td th:text="${product.productSafeInventory}"
@@ -148,6 +155,25 @@
                         </th:block>
                     </div>
                 </div>
+                <!-- Modal -->
+                <div class="modal" tabindex="-1" id="findOneModal">
+                    <div class=" modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">商品詳情</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="productContainer">
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -165,6 +191,118 @@
             removeBtnDisabled();
             removeProductDoubleCheck();
         }
+
+
+
+        //  ====================  單個商品詳細資料 modal   =================       
+        const findOneSrc = document.getElementsByClassName('findOneSrc')
+
+        function getProduct(productId) {
+
+            axios.post("/marketMaster/product/findOne/json", {
+                productId: productId
+            })
+                .then(res => {
+                    console.log(res)
+
+                    const card = createProductCard(res.data)
+                    const productContainer =document.getElementById('productContainer')
+                    productContainer.appendChild(card)
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        }
+
+        for (let i = 0; i < findOneSrc.length; i++) {
+            findOneSrc[i].addEventListener('click', function () {
+                document.getElementById('productContainer').innerHTML = ""
+                const productId = findOneSrc[i].dataset.productid
+                console.log(productId)
+                getProduct(productId)
+            })
+        }
+
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.classList.add('card', 'mb-3');
+            card.style.maxWidth = '800px';  // 調整寬度以適應更多內容
+
+            // 建立卡片的主要 row
+            const row = document.createElement('div');
+            row.classList.add('row', 'g-0');
+
+            // 圖片區塊
+            const imgCol = document.createElement('div');
+            imgCol.classList.add('col-md-4','d-flex', 'align-items-center');
+
+            if (product.productPhoto && product.productPhoto.length > 0) {
+                const img = document.createElement('img');
+                img.src = `/marketMaster/product/downloadProductPhoto?productId=${product.productId}`;
+                img.classList.add('img-fluid', 'rounded-start');
+                img.alt = product.productName;
+                imgCol.appendChild(img);
+            }
+
+            // 內容區塊
+            const contentCol = document.createElement('div');
+            contentCol.classList.add('col-md-8');
+
+            const cardBody = document.createElement('div');
+            cardBody.classList.add('card-body');
+
+            // 標題
+            const title = document.createElement('h5');
+            title.classList.add('card-title');
+            title.textContent = product.productName;
+
+            // 主要內容
+            const mainContent = document.createElement('div');
+            mainContent.classList.add('card-text');
+
+            // 將表格改為更簡潔的顯示方式
+            mainContent.innerHTML = `
+        <div class="row mb-2">
+            <div class="col-6">
+                <p><strong>商品編號:</strong> ${product.productId}</p>
+                <p><strong>商品類別:</strong> ${product.productCategory}</p>
+                <p><strong>商品售價:</strong> ${product.productPrice}</p>
+                <p><strong>安全庫存量:</strong> ${product.productSafeInventory}</p>
+            </div>
+            <div class="col-6">
+                <p><strong>庫存數量:</strong> ${product.numberOfInventory}</p>
+                <p><strong>上架數量:</strong> ${product.numberOfShelve}</p>
+                <p><strong>銷售數量:</strong> ${product.numberOfSale}</p>
+                <p><strong>兌換數量:</strong> ${product.numberOfExchange}</p>
+            </div>
+        </div>
+    `;
+
+            // 最後更新時間（選擇性添加）
+            const updateTime = document.createElement('p');
+            updateTime.classList.add('card-text');
+            updateTime.innerHTML = `
+        <small class="text-muted">
+            下架數量: ${product.numberOfRemove} | 
+            銷毀數量: ${product.numberOfDestruction}
+        </small>
+    `;
+
+            // 組裝卡片
+            cardBody.appendChild(title);
+            cardBody.appendChild(mainContent);
+            cardBody.appendChild(updateTime);
+            contentCol.appendChild(cardBody);
+
+            row.appendChild(imgCol);
+            row.appendChild(contentCol);
+            card.appendChild(row);
+
+            return card;
+        }
+
+        
+        //  ====================  單個商品詳細資料 modal   ================= 
 
         function safeInventory() {
             const rows = document.querySelectorAll('#tbody tr')

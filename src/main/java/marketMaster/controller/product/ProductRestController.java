@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,6 +59,14 @@ public class ProductRestController {
 	public List<ProductCategoryDTO> getProductCategory() {
 		List<ProductCategoryDTO> productCategory = productService.findProductCategory();
 		return productCategory;
+	}
+	
+	@PostMapping("/product/findOne/json")
+	public ProductBean getOneProduct(@RequestBody ProductBean productBean) {
+		String productId = productBean.getProductId();
+		ProductBean product = productService.findOneProduct(productId);
+
+		return product;
 	}
 
 

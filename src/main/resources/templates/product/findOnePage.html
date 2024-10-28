@@ -26,7 +26,8 @@
 
                     <div class="card mt-3 w-50 mx-auto">
                         <div class="card-header text-center fs-4"><span>商品</span></div>
-                        <div class="card-body row">
+                        <div id="productContainer"></div>
+                        <!-- <div class="card-body row">
                             <th:block th:if="${product.productPhoto != null && product.productPhoto.length > 0}">
                                 <div class="col-3 align-self-center text-center">
                                     <img class="w100"
@@ -105,7 +106,7 @@
                                 </table>
                             </div>
 
-                        </div>
+                        </div> -->
 
                         <div class="ms-2 my-2 d-flex justify-content-center">
                             <a type="button" class="btn btn-dark" th:href="@{/product/findAll}">返回商品庫存</a>
@@ -122,7 +123,91 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
+        function createProductCard(product) {
+            const cardBody = document.createElement('div');
+            cardBody.classList.add('card-body', 'row');
 
+            // 檢查商品圖片是否存在
+            if (product.productPhoto && product.productPhoto.length > 0) {
+                const photoDiv = document.createElement('div');
+                photoDiv.classList.add('col-3', 'align-self-center', 'text-center');
+                photoDiv.innerHTML = `<img class="w100" src="/marketMaster/product/downloadProductPhoto?productId=${product.productId}">`;
+                cardBody.appendChild(photoDiv);
+            }
+
+            // 創建商品詳細資料的表格
+            const detailsDiv = document.createElement('div');
+            detailsDiv.classList.add('col');
+            const tableHTML = `
+        <table class="m-auto mt-3">
+            <tr>
+                <td>商品編號:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.productId}"></td>
+            </tr>
+            <tr>
+                <td>商品類別名稱:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.productCategory}"></td>
+            </tr>
+            <tr>
+                <td>商品名稱:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.productName}"></td>
+            </tr>
+            <tr>
+                <td>商品售價:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.productPrice}"></td>
+            </tr>
+            <tr>
+                <td>安全庫存量:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.productSafeInventory}"></td>
+            </tr>
+            <tr>
+                <td>上架數量:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.numberOfShelve}"></td>
+            </tr>
+            <tr>
+                <td>庫存數量:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.numberOfInventory}"></td>
+            </tr>
+            <tr>
+                <td>銷售數量:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.numberOfSale}"></td>
+            </tr>
+            <tr>
+                <td>兌換數量:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.numberOfExchange}"></td>
+            </tr>
+            <tr>
+                <td>銷毀數量:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.numberOfDestruction}"></td>
+            </tr>
+            <tr>
+                <td>下架數量:</td>
+                <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" disabled value="${product.numberOfRemove}"></td>
+            </tr>
+        </table>
+    `;
+            detailsDiv.innerHTML = tableHTML;
+            cardBody.appendChild(detailsDiv);
+
+            // 插入到HTML的某個元素中，例如插入到id為 "productContainer" 的元素中
+            document.getElementById('productContainer').appendChild(cardBody);
+        }
+function getProduct(){
+
+    axios.post("/marketMaster/product/findOne/json",{
+        productId:'PMS001'
+    })
+    .then(res => {
+        console.log(res)
+        createProductCard(res.data)
+    })
+    .catch(err => {
+        console.error(err); 
+    })
+}
+document.addEventListener('DOMContentLoaded', function () {
+    getProduct()
+})
     </script>
 
 </body>
