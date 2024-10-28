@@ -141,6 +141,14 @@
             color: red;
             margin-top: 10px;
         }
+        
+        /* 圖片樣式 */
+        .restock-excel-buttons img {
+            width: 50px; /* 設定圖片寬度為50px */
+            height: auto;
+            object-fit: contain;
+            align-self: center; /* 圖片居中 */
+        }
     </style>
 </head>
 
@@ -181,7 +189,7 @@
                 <div class="right-column">
                     <div class="restock-excel-buttons">
                         <!-- 進貨單按鈕 -->
-                        <button id="addRestock" class="btn btn-success btn-custom"><i class="fa-solid fa-truck-fast"></i> 新增進貨單</button>
+                        <button id="addRestock" class="btn btn-success btn-custom"><img th:src="@{/img/購物車.png}" alt="無法顯示"> 新增進貨單</button>
                         <!-- 日期選擇器 -->
                         <div class="date-picker">
                             <label>選擇日期範圍：</label>
@@ -197,7 +205,7 @@
                             </div>
                         </div>
                         <!-- 匯出 Excel 按鈕 -->
-                        <button id="exportExcel" class="btn btn-info btn-custom"><i class="fa-regular fa-file-excel"></i> 匯出進貨明細Excel</button>
+                        <button id="exportExcel" class="btn btn-info btn-custom"><img th:src="@{/img/下載.png}" alt="無法顯示2"> 匯出進貨明細Excel</button>
                     </div>
 
                     <!-- 右下：會員按鈕 -->
