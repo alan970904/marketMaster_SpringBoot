@@ -23,7 +23,8 @@
             <main>
                 <div class="container mt-3">
                     <div>
-                        <button id="verify">審核</button>
+                        <button class="btn btn-warning" id="verify" data-bs-toggle="modal"
+                            data-bs-target="#verifyModal">審核</button>
                     </div>
                     <table class="table table-striped text-center mt-2">
                         <thead class="table-dark">
@@ -129,6 +130,27 @@
                             </div>
                         </div>
                     </div>
+                    <!-- 新增的審核確認 Modal -->
+                    <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="verifyModalLabel">確認審核</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    確定要審核此盤點單嗎？審核後將無法修改或刪除。
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <button type="button" class="btn btn-primary" id="confirmVerify">確認審核</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -227,27 +249,7 @@
             });
         });
 
-
-        document.addEventListener('DOMContentLoaded', verifyListener)
-        function verifyListener() {
-            const verifyBtn = document.getElementById('verify')
-            verifyBtn.addEventListener('click', function () {
-                const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
-                console.log(checkId)
-                axios.post('http://localhost:8080/marketMaster/inventoryCheck/update',{
-                inventoryCheckId:checkId
-            })
-            .then(res => {
-                console.log(res)
-                alert('核准成功')
-                location.reload()
-            })
-            .catch(err => {
-                console.error(err); 
-            })
-
-            })
-        }
+       
         document.addEventListener('DOMContentLoaded', verifyCheck)
         function verifyCheck() {
             const verifyStatus = document.getElementsByClassName('detailId')[0].dataset.verifystatus
@@ -276,11 +278,26 @@
             }
         }
 
-        // document.getElementById('verify').addEventListener('click', function () {
-        //     const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
-            
-        // })
+        // 新的審核確認邏輯
+        document.getElementById('confirmVerify').addEventListener('click', function () {
+            const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid;
 
+            axios.post('http://localhost:8080/marketMaster/inventoryCheck/update', {
+                inventoryCheckId: checkId
+            })
+                .then(res => {
+                    console.log(res);
+                    alert('核准成功');
+                    location.reload();
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+
+            // 關閉 Modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('verifyModal'));
+            modal.hide();
+        });
     </script>
 
 </body>
