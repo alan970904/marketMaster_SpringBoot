@@ -20,6 +20,39 @@
         width: 100%;
         
     }
+   
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+
+    .info-card {
+        transition: transform 0.2s;
+        border: none;
+        height: 100%;
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .product-icon {
+        font-size: 2rem;
+        color: #0d6efd;
+    }
+
+    .inventory-warning {
+        color: #dc3545;
+        font-weight: 500;
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+    }
+
 </style>
 
 <body>
@@ -384,68 +417,122 @@
         const baseUrl = /*[[@{/}]]*/ '/marketMaster';
 
 
-        function createProductRow(product) {
+        function createProductCard(product) {
+    const card = document.createElement('div');
+    card.classList.add('container-fluid', 'p-0');
 
-            return `
-    <tr>
-        <td>${product.productId}</td>
-        <td>${product.productCategory}</td>
-        <td><a href="${baseUrl}/product/findOne?productId=${product.productId}">${product.productName}</a></td>
-        <td>${product.productPrice}</td>
-        <td data-safeinventory="${product.productSafeInventory}">${product.productSafeInventory}</td>
-        <td data-shelve="${product.numberOfShelve}">${product.numberOfShelve}</td>
-        <td data-inventory="${product.numberOfInventory}">${product.numberOfInventory}</td>
-        <td>${product.numberOfSale}</td>
-        <td>${product.numberOfExchange}</td>
-        <td>${product.numberOfDestruction}</td>
-        <td>${product.numberOfRemove}</td>
-        <td class="d-flex justify-content-evenly m-0">
-            <form method="get" action="${baseUrl}/product/getUpdate">
-                <input type="hidden" value="${product.productId}" name="productId">
-                <button type="submit" class="btn btn-secondary">修改</button>
-            </form>
-      
-            <form method="get" action="${baseUrl}/product/getShelve">
-                <input type="hidden" value="${product.productId}" name="productId">
-                <button type="submit" class="btn btn-warning">上架</button>
-            </form>
-            <form method="post" action="${baseUrl}/product/remove">
-                <input type="hidden" value="${product.productId}" name="productId">
-                <button type="button" class="btn btn-danger removeBtn">下架</button>
-            </form>
-            <input type="hidden" th:value="${product.productAvailable}" name="status" />
-        </td>
-    </tr> `;
+    // 判斷庫存狀態
+    const isLowInventory = product.numberOfInventory < product.productSafeInventory;
+    const inventoryStatus = isLowInventory ? 
+        '<span class="badge bg-danger status-badge">庫存不足</span>' : 
+        '<span class="badge bg-success status-badge">庫存充足</span>';
 
-        }
+    card.innerHTML = `
+        <div class="row g-4">
+            <!-- 左側區塊：基本資訊 -->
+            <div class="col-md-6 border-end">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-light p-3 rounded-circle me-3">
+                        <i class="fas fa-box product-icon"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">${product.productName}</h4>
+                        <p class="text-muted mb-0">商品編號：${product.productId}</p>
+                    </div>
+                </div>
 
-        function pageMaker(data) {
-            const ul = document.getElementById("pageUl")
-            ul.innerHTML = "";  // 清空之前的分頁按鈕
+                <!-- 基本信息卡片 -->
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card bg-light info-card">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">商品類別</h6>
+                                <p class="card-text h5">${product.productCategory}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light info-card">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">商品售價</h6>
+                                <p class="card-text h5">NT$ ${product.productPrice}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            for (let i = 1; i <= data.totalPages; i++) {  // 根據回傳的總頁數來生成按鈕
-                const li = document.createElement("li");
-                const btn = document.createElement("button");
-                btn.className = "page-link"
-                btn.textContent = i;
-                btn.addEventListener('click', function () {
-                    const productName = document.getElementById('inputName').value
-                    axios.post(findByPageUrl, {
-                        productName: productName,
-                        pageNumber: i
-                    })  // 傳遞 productName 和頁碼
-                        .then(res => {
-                            htmlMaker(res.data);  // 更新產品表格
-                            init();
-                        })
-                        .catch(err => {
-                            console.error(err);
-                        });
-                });
-                li.appendChild(btn);
-                ul.appendChild(li);
-            }
-        }
+                <!-- 商品圖片 -->
+                ${product.productPhoto && product.productPhoto.length > 0 ? `
+                    <div class="mt-4">
+                        <img src="/marketMaster/product/downloadProductPhoto?productId=${product.productId}" 
+                             class="img-fluid rounded" 
+                             alt="${product.productName}">
+                    </div>
+                ` : ''}
+            </div>
+
+            <!-- 右側區塊：庫存資訊 -->
+            <div class="col-md-6">
+                <div class="position-relative">
+                    <h5 class="border-bottom pb-2 mb-3">庫存資訊</h5>
+                    ${inventoryStatus}
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card info-card ${isLowInventory ? 'bg-danger' : 'bg-success'} bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">庫存數量</h6>
+                                <p class="card-text h5 ${isLowInventory ? 'text-danger' : ''}">${product.numberOfInventory}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card info-card bg-warning bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">安全庫存量</h6>
+                                <p class="card-text h5">${product.productSafeInventory}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card info-card bg-info bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">上架數量</h6>
+                                <p class="card-text h5">${product.numberOfShelve}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card info-card bg-primary bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">銷售數量</h6>
+                                <p class="card-text h5">${product.numberOfSale}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他數量資訊 -->
+                <div class="mt-4 bg-light p-3 rounded">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">兌換數量</span>
+                        <span>${product.numberOfExchange}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">銷毀數量</span>
+                        <span>${product.numberOfDestruction}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">下架數量</span>
+                        <span>${product.numberOfRemove}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
 
     </script>
 

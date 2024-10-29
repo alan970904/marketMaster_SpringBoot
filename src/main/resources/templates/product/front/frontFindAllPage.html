@@ -15,7 +15,89 @@
     td {
         vertical-align: middle;
     }
-    
+
+    .modal-content {
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+
+    .info-group {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s;
+    }
+
+    .info-group:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-title {
+        color: #444;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .info-title i {
+        margin-right: 0.5rem;
+        color: #0d6efd;
+    }
+
+    .info-content {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .info-item {
+        padding: 0.5rem;
+        background: white;
+        border-radius: 0.25rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .product-photo {
+        max-height: 200px;
+        object-fit: contain;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .inventory-warning {
+        background: linear-gradient(45deg, #ff6b6b, #ff8787);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        display: inline-block;
+        margin-left: 0.5rem;
+        box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+    }
+
+    .product-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
 </style>
 
 <body>
@@ -25,7 +107,8 @@
                 <div class="container mt-3">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <a class="btn btn-outline-secondary" th:href="@{/product/front/findProductInventoryNotEnough}">查詢庫存不足商品</a>
+                            <a class="btn btn-outline-secondary"
+                                th:href="@{/product/front/findProductInventoryNotEnough}">查詢庫存不足商品</a>
                             <a class="btn btn-outline-secondary" th:href="@{/product/findAll}">查詢所有商品</a>
                         </div>
 
@@ -57,9 +140,8 @@
                                 <tr>
                                     <td class="my-auto" th:text="${product.productId}"></td>
                                     <td th:text="${product.productCategory}"></td>
-                                    <td><a class="findOneSrc" th:text="${product.productName}"
-                                            data-bs-toggle="modal" data-bs-target="#findOneModal"
-                                            th:data-productid="${product.productId}"></a>
+                                    <td><a class="findOneSrc" th:text="${product.productName}" data-bs-toggle="modal"
+                                            data-bs-target="#findOneModal" th:data-productid="${product.productId}"></a>
                                     </td>
                                     <td th:text="${product.productPrice}"></td>
                                     <td th:text="${product.productSafeInventory}"
@@ -100,11 +182,13 @@
                                     <th:block th:switch="${pages.number + 1 == 1}">
 
                                         <li th:case="${true}" class="page-item disabled">
-                                            <a class="page-link" th:href='@{/product/front/findProductAvailable(available=${true},page=${pages.number})}'
+                                            <a class="page-link"
+                                                th:href='@{/product/front/findProductAvailable(available=${true},page=${pages.number})}'
                                                 th:text="上一頁"></a>
                                         </li>
                                         <li th:case="${false}" class="page-item">
-                                            <a class="page-link" th:href='@{/product/front/findProductAvailable(available=${true},page=${pages.number})}'
+                                            <a class="page-link"
+                                                th:href='@{/product/front/findProductAvailable(available=${true},page=${pages.number})}'
                                                 th:text="上一頁"></a>
                                         </li>
                                     </th:block>
@@ -126,11 +210,13 @@
                                     <th:block th:switch="${pages.number + 1 == pages.totalPages}">
 
                                         <li th:case="${true}" class="page-item disabled">
-                                            <a class="page-link" th:href='@{/product/findProductAvailable(available=${true},page=${pages.number+2})}'
+                                            <a class="page-link"
+                                                th:href='@{/product/findProductAvailable(available=${true},page=${pages.number+2})}'
                                                 th:text="下一頁"></a>
                                         </li>
                                         <li th:case="${false}" class="page-item">
-                                            <a class="page-link" th:href='@{/product/findProductAvailable(available=${true},page=${pages.number+2})}'
+                                            <a class="page-link"
+                                                th:href='@{/product/findProductAvailable(available=${true},page=${pages.number+2})}'
                                                 th:text="下一頁"></a>
                                         </li>
                                     </th:block>
@@ -140,21 +226,22 @@
                     </div>
                 </div>
 
-                 <!-- Modal -->
-                 <div class="modal" tabindex="-1" id="findOneModal">
-                    <div class=" modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">商品詳情</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+                <!-- Modal -->
+                <div class="modal fade" tabindex="-1" id="findOneModal">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header bg-light">
+                                <h5 class="modal-title d-flex align-items-center">
+                                    <i class="fas fa-box-open me-2 text-primary"></i>
+                                    商品詳情
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body" id="productContainer">
-
+                            <div class="modal-body p-4" id="productContainer">
+                                <!-- 內容將由 JavaScript 動態填充 -->
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer bg-light">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-
                             </div>
                         </div>
                     </div>
@@ -189,7 +276,7 @@
                     console.log(res)
 
                     const card = createProductCard(res.data)
-                    const productContainer =document.getElementById('productContainer')
+                    const productContainer = document.getElementById('productContainer')
                     productContainer.appendChild(card)
                 })
                 .catch(err => {
@@ -208,83 +295,107 @@
 
         function createProductCard(product) {
             const card = document.createElement('div');
-            card.classList.add('card', 'mb-3');
-            card.style.maxWidth = '800px';  // 調整寬度以適應更多內容
 
-            // 建立卡片的主要 row
-            const row = document.createElement('div');
-            row.classList.add('row', 'g-0');
+            // 判斷庫存狀態
+            const isLowInventory = product.numberOfInventory < product.productSafeInventory;
 
-            // 圖片區塊
-            const imgCol = document.createElement('div');
-            imgCol.classList.add('col-md-4','d-flex', 'align-items-center');
+            // 組裝 HTML
+            let html = '';
 
+            // 商品圖片區域
             if (product.productPhoto && product.productPhoto.length > 0) {
-                const img = document.createElement('img');
-                img.src = `/marketMaster/product/downloadProductPhoto?productId=${product.productId}`;
-                img.classList.add('img-fluid', 'rounded-start');
-                img.alt = product.productName;
-                imgCol.appendChild(img);
+                html += `
+            <div class="text-center mb-4">
+                <img src="/marketMaster/product/downloadProductPhoto?productId=${product.productId}" 
+                     class="product-photo shadow-sm" 
+                     alt="${product.productName}">
+            </div>
+        `;
             }
 
-            // 內容區塊
-            const contentCol = document.createElement('div');
-            contentCol.classList.add('col-md-8');
+            // 商品標題
+            html += `
+        <div class="product-name d-flex align-items-center">
+            ${product.productName}
+            ${isLowInventory ? '<span class="inventory-warning"><i class="fas fa-exclamation-triangle me-1"></i>庫存不足</span>' : ''}
+        </div>
+    `;
 
-            const cardBody = document.createElement('div');
-            cardBody.classList.add('card-body');
-
-            // 標題
-            const title = document.createElement('h5');
-            title.classList.add('card-title');
-            title.textContent = product.productName;
-
-            // 主要內容
-            const mainContent = document.createElement('div');
-            mainContent.classList.add('card-text');
-
-            // 將表格改為更簡潔的顯示方式
-            mainContent.innerHTML = `
-        <div class="row mb-2">
-            <div class="col-6">
-                <p><strong>商品編號:</strong> ${product.productId}</p>
-                <p><strong>商品類別:</strong> ${product.productCategory}</p>
-                <p><strong>商品售價:</strong> ${product.productPrice}</p>
-                <p><strong>安全庫存量:</strong> ${product.productSafeInventory}</p>
+            // 基本信息組
+            html += `
+        <div class="info-group">
+            <div class="info-title">
+                <i class="fas fa-info-circle"></i>
+                基本資訊
             </div>
-            <div class="col-6">
-                <p><strong>庫存數量:</strong> ${product.numberOfInventory}</p>
-                <p><strong>上架數量:</strong> ${product.numberOfShelve}</p>
-                <p><strong>銷售數量:</strong> ${product.numberOfSale}</p>
-                <p><strong>兌換數量:</strong> ${product.numberOfExchange}</p>
+            <div class="info-content">
+                <div class="info-item">
+                    <div class="info-label">商品編號</div>
+                    <div class="info-value">${product.productId}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">商品類別</div>
+                    <div class="info-value">${product.productCategory}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">商品售價</div>
+                    <div class="info-value">NT$ ${product.productPrice}</div>
+                </div>
             </div>
         </div>
     `;
 
-            // 最後更新時間（選擇性添加）
-            const updateTime = document.createElement('p');
-            updateTime.classList.add('card-text');
-            updateTime.innerHTML = `
-        <small class="text-muted">
-            下架數量: ${product.numberOfRemove} | 
-            銷毀數量: ${product.numberOfDestruction}
-        </small>
+            // 庫存信息組
+            html += `
+        <div class="info-group">
+            <div class="info-title">
+                <i class="fas fa-warehouse"></i>
+                庫存資訊
+            </div>
+            <div class="info-content">
+                <div class="info-item">
+                    <div class="info-label">目前庫存</div>
+                    <div class="info-value ${isLowInventory ? 'text-danger' : ''}">${product.numberOfInventory}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">安全庫存</div>
+                    <div class="info-value">${product.productSafeInventory}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">上架數量</div>
+                    <div class="info-value">${product.numberOfShelve}</div>
+                </div>
+            </div>
+        </div>
     `;
 
-            // 組裝卡片
-            cardBody.appendChild(title);
-            cardBody.appendChild(mainContent);
-            cardBody.appendChild(updateTime);
-            contentCol.appendChild(cardBody);
+            // 銷售信息組
+            html += `
+        <div class="info-group">
+            <div class="info-title">
+                <i class="fas fa-chart-line"></i>
+                銷售統計
+            </div>
+            <div class="info-content">
+                <div class="info-item">
+                    <div class="info-label">銷售數量</div>
+                    <div class="info-value">${product.numberOfSale}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">兌換數量</div>
+                    <div class="info-value">${product.numberOfExchange}</div>
+                </div>
+            </div>
+        </div>
+    `;
 
-            row.appendChild(imgCol);
-            row.appendChild(contentCol);
-            card.appendChild(row);
-
+            card.innerHTML = html;
             return card;
         }
 
-        
+
+
+
         //  ====================  單個商品詳細資料 modal   ================= 
 
         function safeInventory() {

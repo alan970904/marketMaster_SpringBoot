@@ -17,16 +17,62 @@
             /* Header height */
             padding-left: 65px;
             /* Shift left by another 50px from previous 130px */
-            background-color: #FFF3E0;
+            background-color: #FFF3E0 !important;
             box-sizing: border-box;
         }
 
         .container {
             display: grid;
-            grid-template-columns: 40% 30% 30%; /* 調整左欄、中欄、右欄寬度 */
+            grid-template-columns: 40% 30% 30%;
+            /* 調整左欄、中欄、右欄寬度 */
             gap: 13px;
             padding: 10px;
             height: 100vh;
+        }
+
+        /* 日曆區域 */
+        .calendar {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 5px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #F1F8E9 !important;
+            box-sizing: border-box;
+        }
+
+        #miniViewContainer {
+            padding: 1px;
+            margin: 0;
+        }
+
+        /* 請假單狀態與請假按鈕 */
+        .leave-status {
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 5px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            /* 將內容對齊到頂部 */
+            align-items: stretch;
+            /* 讓內部元素撐滿寬度 */
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .waitStatus {
+            width: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            /* 包含內邊距和邊框 */
+            margin: 0 auto;
+            overflow-x: hidden;
         }
 
         /* 左欄 */
@@ -34,20 +80,6 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-        }
-
-        .calendar {
-            height: 70%;
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .leave-status {
-            height: 25%;
-            background-color: #FFF3E0;
-            padding: 10px;
-            border-radius: 8px;
         }
 
         /* 中欄 */
@@ -141,13 +173,15 @@
             color: red;
             margin-top: 10px;
         }
-        
+
         /* 圖片樣式 */
         .restock-excel-buttons img {
-            width: 50px; /* 設定圖片寬度為50px */
+            width: 50px;
+            /* 設定圖片寬度為50px */
             height: auto;
             object-fit: contain;
-            align-self: center; /* 圖片居中 */
+            align-self: center;
+            /* 圖片居中 */
         }
     </style>
 </head>
@@ -157,15 +191,16 @@
         <div th:fragment="content">
             <div class="container">
                 <div class="left-column">
+                    <input type="hidden" id="employeeId" th:value="${session.employee.employeeId}" />
                     <!-- 左上：排班月曆 -->
                     <div class="calendar">
-                        <div id="calendar"></div>
+                        <div id="miniViewContainer"></div>
                     </div>
-
                     <!-- 左下：請假單狀態與請假按鈕 -->
                     <div class="leave-status">
-                        <p>請假單狀態：<span id="leave-status-text">待審核</span></p>
-                        <button class="btn btn-warning btn-custom"><i class="fa-solid fa-champagne-glasses"></i> 請假</button>
+                        <div id="waitStatus" class="waitStatus ml-5"></div>
+                        <a th:href="@{/askForLeave/usefind(id=${session.employee?.employeeId})}"
+                            class="btn btn-warning btn-custom"><i class="fa-solid fa-champagne-glasses"></i> 請假</a>
                     </div>
                 </div>
 
@@ -176,11 +211,14 @@
                         <div id="productNotEnough"></div>
                         <!-- 添加更多項目以測試滾動 -->
                     </div>
-
                     <!-- 中下：結帳按鈕、退貨按鈕與查詢會員紅利按鈕 -->
                     <div class="checkout-buttons">
-                        <button  id="addCart" class="btn btn-primary btn-custom"><i class="fa-solid fa-cart-shopping"></i> 結帳</button>
-                        <button  id="addReturn" class="btn btn-danger btn-custom"><i class="fa-solid fa-face-flushed"></i> 退貨</button>
+                        <button id="addCart" class="btn btn-primary btn-custom">
+                            <i class="fa-solid fa-cart-shopping"></i> 結帳
+                        </button>
+                        <button id="addReturn" class="btn btn-danger btn-custom">
+                            <i class="fa-solid fa-face-flushed"></i> 退貨
+                        </button>
                     </div>
                 </div>
 
@@ -188,36 +226,44 @@
                 <div class="right-column">
                     <div class="restock-excel-buttons">
                         <!-- 進貨單按鈕 -->
-                        <button id="addRestock" class="btn btn-success btn-custom"><img th:src="@{/img/購物車.png}" alt="無法顯示"> 新增進貨單</button>
+                        <button id="addRestock" class="btn btn-success btn-custom">
+                            <img th:src="@{/img/購物車.png}" alt="無法顯示"> 新增進貨單
+                        </button>
                         <!-- 日期選擇器 -->
                         <div class="date-picker">
                             <label>選擇日期範圍：</label>
                             <div class="date-inputs">
                                 <div>
-                                    <label for="start-date">開始日期：</label>
-                                    <input type="date" id="start-date" class="form-control">
+                                    <label for="start-date">開始日期：</label> <input type="date" id="start-date"
+                                        class="form-control">
                                 </div>
                                 <div>
-                                    <label for="end-date">結束日期：</label>
-                                    <input type="date" id="end-date" class="form-control">
+                                    <label for="end-date">結束日期：</label> <input type="date" id="end-date"
+                                        class="form-control">
                                 </div>
                             </div>
                         </div>
                         <!-- 匯出 Excel 按鈕 -->
-                        <button id="exportExcel" class="btn btn-info btn-custom"><img th:src="@{/img/下載.png}" alt="無法顯示2"> 匯出進貨明細Excel</button>
+                        <button id="exportExcel" class="btn btn-info btn-custom">
+                            <img th:src="@{/img/下載.png}" alt="無法顯示2"> 匯出進貨明細Excel
+                        </button>
                     </div>
 
                     <!-- 右下：會員按鈕 -->
                     <div class="member-button">
-                        <button id="cusList" class="btn btn-secondary btn-custom"><i class="fa-solid fa-image-portrait"></i> 會員</button>
+                        <button id="cusList" class="btn btn-secondary btn-custom">
+                            <i class="fa-solid fa-image-portrait"></i> 會員
+                        </button>
                         <!-- 查詢會員紅利 -->
                         <input type="tel" id="customerPhone" class="phone-input" placeholder="請輸入會員手機號碼"
                             pattern="[0-9]{10}" maxlength="10">
                         <button id="queryCustomer" class="query-btn" onclick="queryCustomerBonus()">
-                        	<i class="fa-solid fa-magnifying-glass"></i> 查詢會員
+                            <i class="fa-solid fa-magnifying-glass"></i> 查詢會員
                         </button>
                         <div id="errorMsg" class="error-message"></div>
-                        <button id="cusBonus" class="btn btn-secondary btn-custom"><i class="fa-brands fa-product-hunt"></i> 紅利紀錄</button>
+                        <button id="cusBonus" class="btn btn-secondary btn-custom">
+                            <i class="fa-brands fa-product-hunt"></i> 紅利紀錄
+                        </button>
                     </div>
                 </div>
             </div>
@@ -231,61 +277,51 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var calendarEl = document.getElementById('calendar');
+            function loadMiniView() {
+                const employeeId = document.getElementById("employeeId").value;
 
-            var today = new Date();
-            var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            var endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next',
-                    center: 'title',
-                    right: ''
-                },
-                validRange: {
-                    start: startOfMonth,
-                    end: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1)
-                },
-                height: '100%', /* 調整為填滿容器 */
-                aspectRatio: 1.5,
-                themeSystem: 'bootstrap',
-                eventColor: '#0d6efd',
-                eventTextColor: '#ffffff',
-                editable: false,
-                eventLimit: false
-            });
-            calendar.render();
-
-            var prevButton = document.querySelector('.fc-prev-button');
-            var nextButton = document.querySelector('.fc-next-button');
-
-            if (prevButton) {
-                prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-                prevButton.disabled = true;
-                prevButton.style.pointerEvents = 'none';
-                prevButton.style.color = '#6c757d';
-                prevButton.title = '無法切換到前一個月份';
+                const url = `/marketMaster/schedules/miniView?id=${employeeId}`;
+                axios
+                    .get(url)
+                    .then((response) => {
+                        document.getElementById("miniViewContainer").innerHTML =
+                            response.data;
+                    })
+                    .catch((error) => {
+                        console.error("無法加載 miniView:", error);
+                    });
             }
 
-            if (nextButton) {
-                nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                nextButton.disabled = true;
-                nextButton.style.pointerEvents = 'none';
-                nextButton.style.color = '#6c757d';
-                nextButton.title = '無法切換到下一個月份';
+            loadMiniView();
+
+            function loadwaitStatus() {
+                const employeeId = document.getElementById("employeeId").value;
+
+                const url = `/marketMaster/askForLeave/waitStatus?id=${employeeId}`;
+                axios
+                    .get(url)
+                    .then((response) => {
+                        document.getElementById("waitStatus").innerHTML =
+                            response.data;
+                    })
+                    .catch((error) => {
+                        console.error("無法加載 miniView:", error);
+                    });
             }
+
+            loadwaitStatus();
         });
+
+
 
         document.getElementById('addRestock').addEventListener('click', function () {
             window.location.href = "/marketMaster/restock/restockInsert"
         });
-        
+
         document.getElementById('addCart').addEventListener('click', function () {
             window.location.href = "/marketMaster/front/cart"
         });
-        
+
         document.getElementById('addReturn').addEventListener('click', function () {
             window.location.href = "/marketMaster/front/returnProduct/add"
         });
@@ -368,62 +404,62 @@
                 errorMsg.style.display = 'none';
             }, 3000);
         }
-  
 
-    document.getElementById('addRestock').addEventListener('click',function (){
-        window.location.href="/marketMaster/restock/restockInsert"
-    })
 
-    document.getElementById('exportExcel').addEventListener('click', function() {
-        var startDate = document.getElementById('start-date').value;
-        var endDate = document.getElementById('end-date').value;
-
-        if (!startDate || !endDate) {
-            alert('請選擇匯出的開始日期和結束日期。');
-            return;
-        }
-
-        if (startDate > endDate) {
-            alert('開始日期不能晚於結束日期。');
-            return;
-        }
-
-        console.log('匯出 Excel 的日期範圍:', startDate, '至', endDate);
-        axios.get('/marketMaster/restockDetail/getExcelByDateRange',{
-            params: {
-                startDate: startDate,
-                endDate: endDate
-            },
-            responseType :'blob'
-        }).then(res =>{
-            const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-
-            a.href = downloadUrl;
-            a.download = `進貨明細_${startDate}_至_${endDate}.xlsx`; // 設置下載的文件名
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            // 釋放 URL 物件
-            window.URL.revokeObjectURL(downloadUrl);
-
-        }).catch(error => {
-            console.error('匯出失敗', error);
-            alert('匯出失敗，請檢查日期範圍並重試。');
+        document.getElementById('addRestock').addEventListener('click', function () {
+            window.location.href = "/marketMaster/restock/restockInsert"
         })
-    });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        getNotEnoughInventory()
+        document.getElementById('exportExcel').addEventListener('click', function () {
+            var startDate = document.getElementById('start-date').value;
+            var endDate = document.getElementById('end-date').value;
 
-    })
+            if (!startDate || !endDate) {
+                alert('請選擇匯出的開始日期和結束日期。');
+                return;
+            }
+
+            if (startDate > endDate) {
+                alert('開始日期不能晚於結束日期。');
+                return;
+            }
+
+            console.log('匯出 Excel 的日期範圍:', startDate, '至', endDate);
+            axios.get('/marketMaster/restockDetail/getExcelByDateRange', {
+                params: {
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                responseType: 'blob'
+            }).then(res => {
+                const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+
+                a.href = downloadUrl;
+                a.download = `進貨明細_${startDate}_至_${endDate}.xlsx`; // 設置下載的文件名
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // 釋放 URL 物件
+                window.URL.revokeObjectURL(downloadUrl);
+
+            }).catch(error => {
+                console.error('匯出失敗', error);
+                alert('匯出失敗，請檢查日期範圍並重試。');
+            })
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            getNotEnoughInventory()
+
+        })
 
         function getNotEnoughInventory() {
-            axios.post('http://localhost:8080/marketMaster/product/findProductInventoryNotEnough/json',{
-                page:1,
-                size:10
+            axios.post('http://localhost:8080/marketMaster/product/findProductInventoryNotEnough/json', {
+                page: 1,
+                size: 10
             })
                 .then(res => {
                     console.log(res.data.content)
@@ -435,55 +471,54 @@
         }
 
         function productHtmlMaker(data) {
-    const productNotEnough = document.getElementById('productNotEnough');
-    
-    data.forEach(product => {
-        const card = document.createElement('div');
-        card.classList.add('card', 'mb-3');
-        card.style.maxWidth = '800px';
+            const productNotEnough = document.getElementById('productNotEnough');
 
-        const row = document.createElement('div');
-        row.classList.add('row', 'g-0');
+            data.forEach(product => {
+                const card = document.createElement('div');
+                card.classList.add('card', 'mb-3');
+                card.style.maxWidth = '800px';
 
-        // 圖片區塊
-        const imgCol = document.createElement('div');
-        imgCol.classList.add('col-md-4', 'd-flex', 'align-items-center');
+                const row = document.createElement('div');
+                row.classList.add('row', 'g-0');
 
-        if (product.productPhoto && product.productPhoto.length > 0) {
-            const img = document.createElement('img');
-            img.src = `/marketMaster/product/downloadProductPhoto?productId=${product.productId}`;
-            img.classList.add('img-fluid', 'rounded-start' ,'mx-2');
-            img.alt = product.productName;
-            imgCol.appendChild(img);
-        }
+                const cardTitle = document.createElement('div');
+                cardTitle.classList.add('card-title','fs-2', 'text-center','my-0');
+                cardTitle.textContent = `${product.productName}`
 
-        // 內容區塊
-        const contentCol = document.createElement('div');
-        contentCol.classList.add('col-md-8');
+                // 圖片區塊
+                const imgCol = document.createElement('div');
+                imgCol.classList.add('col-md-4', 'd-flex', 'align-items-center');
 
-        const cardBody = document.createElement('div');
-        cardBody.classList.add('card-body');
+                if (product.productPhoto && product.productPhoto.length > 0) {
+                    const img = document.createElement('img');
+                    img.src = `/marketMaster/product/downloadProductPhoto?productId=${product.productId}`;
+                    img.classList.add('img-fluid', 'rounded-start', 'mx-2');
+                    img.alt = product.productName;
+                    imgCol.appendChild(img);
+                }
 
-        // 標題區域包含商品名稱和警告標籤
-        const titleRow = document.createElement('div');
-        titleRow.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-3');
+                // 內容區塊
+                const contentCol = document.createElement('div');
+                contentCol.classList.add('col-md-8');
 
-        const title = document.createElement('h5');
-        title.classList.add('card-title', 'm-0');
-        title.textContent = product.productName;
+                const cardBody = document.createElement('div');
+                cardBody.classList.add('card-body');
 
-        const warningBadge = document.createElement('span');
-        warningBadge.classList.add('badge', 'bg-danger');
-        warningBadge.textContent = '庫存不足 請盡速進貨';
+                // 標題區域包含商品名稱和警告標籤
+                const titleRow = document.createElement('div');
+                titleRow.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-3');
 
-        titleRow.appendChild(title);
-        titleRow.appendChild(warningBadge);
+                const warningBadge = document.createElement('span');
+                warningBadge.classList.add('badge', 'bg-danger');
+                warningBadge.textContent = '庫存不足 請盡速進貨';
 
-        // 主要內容
-        const mainContent = document.createElement('div');
-        mainContent.classList.add('card-text');
+                titleRow.appendChild(warningBadge);
 
-        mainContent.innerHTML = `
+                // 主要內容
+                const mainContent = document.createElement('div');
+                mainContent.classList.add('card-text');
+
+                mainContent.innerHTML = `
             <div class="row">
                 <div class="col-6">
                     <p><strong>商品編號:</strong> ${product.productId}</p>
@@ -491,30 +526,30 @@
                 </div>
                 <div class="col-6">
                     <p><strong>安全庫存量:</strong> ${product.productSafeInventory || '未設定'}</p>
-                    <p class="text-danger"><strong>差距數量:</strong> ${
-                        product.productSafeInventory ? 
-                        (product.productSafeInventory - product.numberOfInventory) : 
+                    <p class="text-danger"><strong>差距數量:</strong> ${product.productSafeInventory ?
+                        (product.productSafeInventory - product.numberOfInventory) :
                         '無法計算'
                     }</p>
                 </div>
             </div>
         `;
 
-        // 組裝卡片
-        cardBody.appendChild(titleRow);
-        cardBody.appendChild(mainContent);
-        contentCol.appendChild(cardBody);
+                // 組裝卡片
+                card.appendChild(cardTitle);
+                cardBody.appendChild(titleRow);
+                cardBody.appendChild(mainContent);
+                contentCol.appendChild(cardBody);
 
-        row.appendChild(imgCol);
-        row.appendChild(contentCol);
-        card.appendChild(row);
+                row.appendChild(imgCol);
+                row.appendChild(contentCol);
+                card.appendChild(row);
 
-        productNotEnough.appendChild(card);
-    });
-}
+                productNotEnough.appendChild(card);
+            });
+        }
 
-    
-</script>
+
+    </script>
 
 </body>
 
