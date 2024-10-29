@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -141,14 +142,14 @@ public class CustomerController {
 	    return "customer/UpdateCustomer";
 	}
 	
-	// 結帳時驗證是否有會員電話號碼
+	// 後台結帳時驗證是否有會員電話號碼
 	@GetMapping("/validate")
 	@ResponseBody
 	public Map<String, Boolean> validateCustomerTel(@RequestParam String tel) {
 	    return Map.of("exists", customerRepository.existsById(tel));
 	}
 	
-	// 購物車結帳驗證是否有會員電話號碼
+	// 前台購物車結帳驗證是否有會員電話號碼
 	@GetMapping("/check/{tel}")
 	@ResponseBody
 	public Map<String, Boolean> checkCustomerTel(@PathVariable String tel) {
@@ -156,4 +157,14 @@ public class CustomerController {
 	    return Map.of("exists", exists);
 	}
     
+	// API endpoint 用於前台購物車 AJAX 呼叫
+    @GetMapping("/details/api")
+    @ResponseBody
+    public ResponseEntity<CustomerBean> getCustomerDetails(@RequestParam String customerTel) {
+        Optional<CustomerBean> customer = customerService.getCustomer(customerTel);
+        return customer
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+	
 }
