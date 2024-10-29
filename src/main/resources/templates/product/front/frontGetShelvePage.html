@@ -12,107 +12,241 @@
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../../static/CSS/style.css">
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+            border-radius: 15px;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            max-width: 550px;
+            width: 100%;
+            margin: 1.5rem auto;
+        }
+
+        .card-header {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1rem 1.5rem;
+        }
+
+        .card-header .fs-4 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* 表格樣式 */
+        .info-table {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .info-table td {
+            padding: 8px;
+            vertical-align: middle;
+        }
+
+        .info-table td:first-child {
+            width: 120px;
+            color: #495057;
+            font-weight: 500;
+            text-align: right;
+            padding-right: 15px;
+            white-space: nowrap;
+        }
+
+        /* 輸入框樣式 */
+        .form-control {
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa !important;
+        }
+
+        .form-control:focus {
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.15);
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4dabf7, #3c8ce7);
+            border: none;
+        }
+
+        .btn-dark {
+            background: linear-gradient(45deg, #495057, #343a40);
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Modal 樣式 */
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+        }
+
+        .modal-header {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            border-radius: 15px 15px 0 0;
+            padding: 1rem 1.5rem;
+        }
+
+        .modal-body.text-danger {
+            color: #dc3545 !important;
+            padding: 2rem;
+        }
+
+        /* 數量警告樣式 */
+        .inventory-warning {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        /* 上架數量輸入框特殊樣式 */
+        #readyShelve {
+            background-color: white !important;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* 按鈕組樣式 */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
 
 <body>
     <div th:replace="~{body/headerEmployee :: headerEmployee}">
-    <div th:fragment="content">
-	<main>
-    <div class="container">
-        <div class="card w-50 mt-3 mx-auto">
-            <div class="card-header text-center fs-4">
-                當前商品資料
-            </div>
-            <div class="card-body">
-                <table class="m-auto mt-3">
-                    <tr>
-                        <td>商品編號:</td>
-                        <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" readonly
-                                th:value="${product.productId}"></td>
-                    </tr>
-                    <tr>
-                        <td>商品類別名稱:</td>
-                        <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" readonly
-                                th:value="${product.productCategory}"></td>
-                    </tr>
-                    <tr>
-                        <td>商品名稱:</td>
-                        <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" readonly
-                                th:value="${product.productName}"></td>
-                    </tr>
-                    <tr>
-                        <td>安全庫存量:</td>
-                        <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" readonly
-                                th:value="${product.productSafeInventory}" id="productSafeInventory"></td>
-                    </tr>
-                    <tr>
-                        <td>上架數量:</td>
-                        <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" readonly
-                                th:value="${product.numberOfShelve}" id="numberOfShelve"></td>
-                    </tr>
-                    <tr>
-                        <td>庫存數量:</td>
-                        <td><input type="text" class="form-control bg-secondary bg-opacity-10 text-center" readonly
-                                th:value="${product.numberOfInventory}" id="numberOfInventory"></td>
-                    </tr>
-                </table>
-            </div>
-            
-        </div>
+        <div th:fragment="content">
+            <main>
+                <div class="container">
+                    <!-- 當前商品資料卡片 -->
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h5 class="fs-4 mb-0">當前商品資料</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="info-table">
+                                <tr>
+                                    <td>商品編號：</td>
+                                    <td><input type="text" class="form-control text-center" readonly
+                                            th:value="${product.productId}"></td>
+                                </tr>
+                                <tr>
+                                    <td>商品類別：</td>
+                                    <td><input type="text" class="form-control text-center" readonly
+                                            th:value="${product.productCategory}"></td>
+                                </tr>
+                                <tr>
+                                    <td>商品名稱：</td>
+                                    <td><input type="text" class="form-control text-center" readonly
+                                            th:value="${product.productName}"></td>
+                                </tr>
+                                <tr>
+                                    <td>安全庫存：</td>
+                                    <td><input type="text" class="form-control text-center" readonly
+                                            th:value="${product.productSafeInventory}" id="productSafeInventory"></td>
+                                </tr>
+                                <tr>
+                                    <td>上架數量：</td>
+                                    <td><input type="text" class="form-control text-center" readonly
+                                            th:value="${product.numberOfShelve}" id="numberOfShelve"></td>
+                                </tr>
+                                <tr>
+                                    <td>庫存數量：</td>
+                                    <td><input type="text" class="form-control text-center" readonly
+                                            th:value="${product.numberOfInventory}" id="numberOfInventory"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
 
-        <div class="card w-50 mt-3 mx-auto">
-            <div class="card-header text-center fs-4">
-                上架物品數量更改
-            </div>
-            <div class="card-body">
-                <form method="post" th:action="@{/product/front/shelve}">
+                    <!-- 上架數量修改卡片 -->
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h5 class="fs-4 mb-0">上架物品數量更改</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" th:action="@{/product/front/shelve}">
+                                <table class="info-table">
+                                    <tr>
+                                        <td>商品編號：</td>
+                                        <td><input class="form-control text-center" type="text" readonly
+                                                th:value="${product.productId}" name="productId"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>上架數量：</td>
+                                        <td>
+                                            <input class="form-control text-center" type="number" name="numberOfShelve"
+                                                id="readyShelve" th:max="${product.numberOfInventory}" min="0">
+                                            <div class="inventory-warning" id="inventoryWarning">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                此數量會導致庫存低於安全庫存量
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                    <table class="m-auto mt-3">
-                        <tr>
-                            <td>商品編號:</td>
-                            <td><input class="form-control bg-secondary bg-opacity-10 text-center" type="text" readonly
-                                    th:value="${product.productId}" name="productId"></td>
-                        </tr>
-                        <tr>
-                            <td>要上架數量:</td>
-                            <td><input class="form-control bg-secondary bg-opacity-10 text-center" type="number"
-                                    name="numberOfShelve" id="readyShelve" th:max="${product.numberOfInventory}"
-                                    min="0">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="text-center pt-1"><input class="btn btn-primary" type="submit"
-                                    value="送出"></td>
-                        </tr>
-                    </table>
-                </form>
-
-
-
-            </div>
-		<div class="ms-2 mb-2 d-flex justify-content-center">
-				<a type="button" class="btn btn-dark" th:href="@{/product/front/findProductAvailable(available=${true})}">返回商品庫存</a>
-        </div>
-        </div>
-    </div>
-    <!------------ Modal ------------>
-    <div class="modal fade text-center" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header fs-4">
-                    庫存警告
+                                <div class="button-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check me-1"></i>確認上架
+                                    </button>
+                                    <a class="btn btn-dark" th:href="@{/product/front/findAll}">
+                                        <i class="fas fa-arrow-left me-1"></i>返回列表
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body text-danger fs-2">
-                    庫存數量低於安全庫存量
+
+                <!-- 警告 Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold mb-0">庫存警告</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-danger text-center">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                <p class="fs-4 mb-0">庫存數量低於安全庫存量</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                </div>
-            </div>
+            </main>
         </div>
-    </div>
-    </main>
-    </div>
     </div>
     <div th:replace="~{body/footer :: footer}"></div>
     <!------------ Modal ------------>
@@ -120,19 +254,30 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
-        const inventory = parseInt(document.getElementById("numberOfInventory").value)
-        const shelve = parseInt(document.getElementById("numberOfShelve").value)
-        const safeInventory = parseInt(document.getElementById("productSafeInventory").value)
+    document.addEventListener('DOMContentLoaded', function () {
+            const inventory = parseInt(document.getElementById("numberOfInventory").value);
+            const shelve = parseInt(document.getElementById("numberOfShelve").value);
+            const safeInventory = parseInt(document.getElementById("productSafeInventory").value);
+            const warningDiv = document.getElementById("inventoryWarning");
 
+            document.getElementById("readyShelve").addEventListener('input', function () {
+                const readyShelve = parseInt(this.value) || 0;
+                if ((inventory - readyShelve) < safeInventory) {
+                    warningDiv.style.display = 'block';
+                } else {
+                    warningDiv.style.display = 'none';
+                }
+            });
 
-        document.getElementById("readyShelve").addEventListener('blur', function () {
-            const readyShelve = parseInt(document.getElementById("readyShelve").value)
-            if ((inventory - readyShelve) < safeInventory) {
-                // alert("庫存量小於安全庫存量")
-                const modal = new bootstrap.Modal(document.getElementById('exampleModal'))
-                modal.show()
-            }
-        })
+            document.getElementById("readyShelve").addEventListener('blur', function () {
+                const readyShelve = parseInt(this.value) || 0;
+                if ((inventory - readyShelve) < safeInventory) {
+                    const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+                    modal.show();
+                }
+            });
+        });
+
 
 
 

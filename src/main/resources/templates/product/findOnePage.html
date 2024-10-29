@@ -26,88 +26,9 @@
 
                     <div class="card mt-3 w-50 mx-auto">
                         <div class="card-header text-center fs-4"><span>商品</span></div>
-                        <div id="productContainer"></div>
-                        <!-- <div class="card-body row">
-                            <th:block th:if="${product.productPhoto != null && product.productPhoto.length > 0}">
-                                <div class="col-3 align-self-center text-center">
-                                    <img class="w100"
-                                        th:src="@{/product/downloadProductPhoto(productId=${product.productId})}">
-                                </div>
-                            </th:block>
-
-                            <div class="col">
-                                <table class="m-auto mt-3">
-                                    <tr>
-                                        <td>商品編號:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.productId}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>商品類別名稱:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.productCategory}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>商品名稱:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.productName}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>商品售價:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.productPrice}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>安全庫存量:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.productSafeInventory}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>上架數量:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.numberOfShelve}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>庫存數量:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.numberOfInventory}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>銷售數量:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.numberOfSale}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>兌換數量:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.numberOfExchange}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>銷毀數量:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.numberOfDestruction}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>下架數量:</td>
-                                        <td><input type="text"
-                                                class="form-control bg-secondary bg-opacity-10 text-center" disabled
-                                                th:value="${product.numberOfRemove}"></td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                        </div> -->
-
+                        <div id="productContainer">
+                        </div>
+       
                         <div class="ms-2 my-2 d-flex justify-content-center">
                             <a type="button" class="btn btn-dark" th:href="@{/product/findAll}">返回商品庫存</a>
                         </div>

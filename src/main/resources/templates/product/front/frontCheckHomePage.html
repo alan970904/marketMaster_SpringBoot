@@ -38,17 +38,19 @@
         <div th:fragment="content">
             <main>
                 <div class="container">
-                    <div class="d-flex my-3">
+                    <div class="d-flex my-3 d-flex d-flex justify-content-between">
                         <button type="button" class="btn btn-primary mx-3" id="submit">完成盤點</button>
+                        <div class="hstack mx-6">
 
-                        <select class="form-select w-auto" name="" id="productCategory">
-                            <option value="" selected>請選擇要盤點的商品類別</option>
-                            <!-- 商品種類搜尋 -->
-                        </select>
-                        <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋商品名稱">
+                            <select class="form-select w-auto mx-3" name="" id="productCategory">
+                                <option value="" selected>請選擇要盤點的商品類別</option>
+                                <!-- 商品種類搜尋 -->
+                            </select>
+                            <input type="text" id="inputName" class="form-control w-50" placeholder="搜尋商品名稱">
+                        </div>
                     </div>
 
-                    <input type="hidden" th:value="${session.employee.employeeId}" id="employeeId"> 
+                    <input type="hidden" th:value="${session.employee.employeeId}" id="employeeId">
                     <div class="row invectoryCheck-row">
 
                     </div>
@@ -87,25 +89,25 @@
         }
 
         document.getElementById('inputName').addEventListener('change', function () {
-            
+
             const name = document.getElementById('inputName').value
-            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getProductByName/json',{
+            axios.post('http://localhost:8080/marketMaster/inventoryCheck/getProductByName/json', {
                 productName: name,
                 pageSize: 10,
                 pageNumber: 1
             })
-            .then(res => {
-                const productsHTML = htmlMaker(res.data.content);
+                .then(res => {
+                    const productsHTML = htmlMaker(res.data.content);
                     document.querySelector('.invectoryCheck-row').innerHTML = productsHTML;
                     pageMaker(res.data);
                     setupRemarkListeners();
                     submitListener();
-            })
-            .catch(err => {
-                console.error(err); 
-            })
+                })
+                .catch(err => {
+                    console.error(err);
+                })
         });
-        
+
 
         function categoryMaker(data) {
             const select = document.getElementById('productCategory')
@@ -214,10 +216,10 @@
                 })
                     .then(response => {
                         console.log('新增成功:', response.data);
-                        
-                        if(response.data.length === 0){
+
+                        if (response.data.length === 0) {
                             alert('庫存盤點成功提交！');
-                        }else{
+                        } else {
                             let productName = response.data.map(res => res.productName).join(', ');
                             alert('庫存盤點成功提交，但' + productName + '商品已在未核准的盤點單內。');
                         }

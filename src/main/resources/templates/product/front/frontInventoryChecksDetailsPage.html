@@ -15,6 +15,190 @@
     td {
         vertical-align: middle;
     }
+    .content-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    /* 審核按鈕樣式 */
+    .verify-btn {
+        background: linear-gradient(45deg, #ffc107, #ffab00);
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        color: #fff;
+    }
+
+    .verify-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+
+    .verify-btn i {
+        margin-right: 0.5rem;
+    }
+
+    /* 表格樣式 */
+    .table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-dark {
+        background: linear-gradient(45deg, #2c3e50, #3498db);
+        border: none;
+    }
+
+    .table-dark th {
+        color: white;
+        font-weight: 500;
+        padding: 1rem;
+        border: none;
+        font-size: 0.95rem;
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 操作按鈕樣式 */
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        min-width: 100px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .action-btn i {
+        margin-right: 0.5rem;
+    }
+
+    .btn-update {
+        background: linear-gradient(45deg, #6c757d, #495057);
+        color: white;
+    }
+
+    .btn-delete {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Modal 樣式 */
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+    }
+
+    /* Modal 表格樣式 */
+    .modal-table {
+        width: 100%;
+    }
+
+    .modal-table td {
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
+
+    .modal-table td:first-child {
+        width: 140px;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    /* 表單控制項樣式 */
+    .form-control {
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #4dabf7;
+        box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.15);
+    }
+
+    /* 差異數量樣式 */
+    .differential {
+        font-weight: 500;
+    }
+
+    .differential.positive {
+        color: #198754;
+    }
+
+    .differential.negative {
+        color: #dc3545;
+    }
+
+    /* 已核准狀態樣式 */
+    .disabled-btn {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Tooltip 樣式 */
+    .tooltip {
+        font-size: 0.875rem;
+    }
+
+    .tooltip-inner {
+        background-color: #2c3e50;
+        padding: 0.5rem 1rem;
+    }
+
+    /* 警告文字樣式 */
+    .warning-text {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: none;
+    }
 </style>
 
 <body>
@@ -22,101 +206,131 @@
         <div th:fragment="content">
             <main>
                 <div class="container mt-3">
-
-                    <table class="table table-striped text-center mt-2">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>盤點明細單編號</th>
-                                <th>商品編號</th>
-                                <th>商品名稱</th>
-                                <th>盤點當日庫存量</th>
-                                <th>盤點實際數量</th>
-                                <th>盤點數量差異</th>
-                                <th>原因</th>
-
-
-                            </tr>
-                        </thead>
-                        <tbody id="tbody" class="my-auto ">
-
-                            <th:block th:each="inventoryCheckDetail : ${inventoryCheckDetails}">
+                    <div class="content-container">
+                        <!-- 審核按鈕 -->
+                        <!-- <div class="mb-3">
+                            <button class="verify-btn" id="verify" data-bs-toggle="modal" data-bs-target="#verifyModal">
+                                <i class="fas fa-check-double"></i>審核盤點單
+                            </button>
+                        </div> -->
+                        <table class="table table-striped">
+                            <thead class="table-dark">
                                 <tr>
-                                    <td class="my-auto detailId" th:text="${inventoryCheckDetail.detailId}"
-                                        th:data-inventorycheckid="${inventoryCheckDetail.inventoryCheck.inventoryCheckId}"
-                                        th:data-verifystatus="${inventoryCheckDetail.inventoryCheck.verifyStatus}">
-                                    </td>
-                                    <td class="productId" th:text="${inventoryCheckDetail.product.productId}"></td>
-                                    <td th:text="${inventoryCheckDetail.product.productName}"></td>
-                                    <td th:text="${inventoryCheckDetail.currentInventory}"></td>
-                                    <td class="actualInventory" th:text="${inventoryCheckDetail.actualInventory}"></td>
-                                    <td th:text="${inventoryCheckDetail.differentialInventory}"></td>
-                                    <td th:text="${inventoryCheckDetail.remark}"></td>
-
+                                    <th>明細編號</th>
+                                    <th>商品編號</th>
+                                    <th>商品名稱</th>
+                                    <th>當日庫存</th>
+                                    <th>盤點數量</th>
+                                    <th>差異數量</th>
+                                    <th>備註</th>
+                                    <!-- <th>操作</th> -->
                                 </tr>
-                            </th:block>
-                        </tbody>
-                    </table>
-                    <!-- 確認刪除 Modal -->
-                    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">再次確認是否刪除此筆資料</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                    <button type="button" class="btn btn-primary delete">確認刪除</button>
+                            </thead>
+                            <tbody id="tbody" class="my-auto ">
+
+                                <th:block th:each="inventoryCheckDetail : ${inventoryCheckDetails}">
+                                    <tr>
+                                        <td class="my-auto detailId" th:text="${inventoryCheckDetail.detailId}"
+                                            th:data-inventorycheckid="${inventoryCheckDetail.inventoryCheck.inventoryCheckId}"
+                                            th:data-verifystatus="${inventoryCheckDetail.inventoryCheck.verifyStatus}">
+                                        </td>
+                                        <td class="productId" th:text="${inventoryCheckDetail.product.productId}"></td>
+                                        <td th:text="${inventoryCheckDetail.product.productName}"></td>
+                                        <td th:text="${inventoryCheckDetail.currentInventory}"></td>
+                                        <td class="actualInventory" th:text="${inventoryCheckDetail.actualInventory}">
+                                        </td>
+                                        <td th:text="${inventoryCheckDetail.differentialInventory}"></td>
+                                        <td th:text="${inventoryCheckDetail.remark}"></td>
+                                        <!-- <td class="d-flex justify-content-evenly">
+                                            <button type="button" class="btn btn-secondary getUpdate"
+                                                data-bs-toggle="modal" data-bs-target="#updateModal">修改</button>
+                                            <button type="button" class="btn btn-danger getDelete"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal">刪除</button>
+
+
+                                        </td> -->
+                                    </tr>
+                                </th:block>
+                            </tbody>
+                        </table>
+                        <!-- 確認刪除 Modal -->
+                        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">再次確認是否刪除此筆資料</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">取消</button>
+                                        <button type="button" class="btn btn-primary delete">確認刪除</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 修改Modal -->
-                    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">修改盤點明細</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                        <!-- 修改Modal -->
+                        <div class="modal fade" id="updateModal" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-edit me-2 text-primary"></i>修改盤點明細
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table class="modal-table">
+                                            <!-- 使用原有的表單欄位結構 -->
+                                            <tr>
+                                                <td>盤點明細編號</td>
+                                                <td id="modal-detailId"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>當日庫存數量</td>
+                                                <td>
+                                                    <input id="modal-currentInventory" readonly type="number"
+                                                        class="form-control">
+                                                </td>
+                                            </tr>
+                                            <!-- 其他表單欄位 -->
+                                        </table>
+                                        <div class="warning-text" id="warning-text">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            請輸入變更原因
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">取消</button>
+                                        <button type="button" class="btn btn-primary" id="saveChangesBtn">確認修改</button>
+                                    </div>
                                 </div>
-                                <div class="modal-body">
-                                    <table>
-                                        <tr>
-                                            <td>盤點明細單編號</td>
-                                            <td id="modal-detailId"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>當日庫存數量</td>
-                                            <td><input id="modal-currentInventory" readonly type="number"
-                                                    class="form-control"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>上次盤點數量</td>
-                                            <td><input id="modal-actualInventory" readonly type="number"
-                                                    class="form-control"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>本次盤點修改數量</td>
-                                            <td><input id="modal-updatedInventory" min="0" type="number"
-                                                    class="form-control"></td>
-                                        </tr>
-                                        <tr id="modal-remark-tr" style="display: none;">
-                                            <td>原因</td>
-                                            <td><input id="modal-remark" min="0" placeholder="請輸入原因" type="text"
-                                                    class="form-control"></td>
-                                        </tr>
-                                    </table>
+                            </div>
+                        </div>
+                        <!-- 新增的審核確認 Modal -->
+                        <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="verifyModalLabel">確認審核</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        確定要審核此盤點單嗎？審核後將無法修改或刪除。
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">取消</button>
+                                        <button type="button" class="btn btn-primary" id="confirmVerify">確認審核</button>
+                                    </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">取消修改</button>
-                                    <button type="button" class="btn btn-primary" id="saveChangesBtn">修改完成</button>
-                                </div>
+
                             </div>
                         </div>
                     </div>
