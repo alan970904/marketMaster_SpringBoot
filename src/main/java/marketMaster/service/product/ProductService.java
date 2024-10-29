@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.DTO.product.ProductIdRestockNumDTO;
+import marketMaster.DTO.product.ProductSalesAndReturnDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
 import marketMaster.bean.product.ProductBean;
 
@@ -337,5 +338,11 @@ public class ProductService {
 		        product.setNumberOfSale(product.getNumberOfSale() - quantity);
 		        productRepo.save(product);
 		    }
-		}    
+		}
+		
+		// =============== 計算銷售率及退貨率用的 ===============
+		public List<ProductSalesAndReturnDTO> getProductSalesAndReturnStats() {
+		    return productRepo.findProductSalesAndReturnStats();
+		}
+		
 }
