@@ -24,22 +24,22 @@ public class LeaveRecordService {
 
 	public LeaveRecordBean checkLeaveRecord(String employeeId, Integer categoryId, LocalDateTime endtime) {
 
-		LocalDate localDate = endtime.toLocalDate();
-		LocalDate expirationDate = localDate.plusYears(1);
+		LocalDate DateEnd = endtime.toLocalDate();
+		LocalDate expirationDate = DateEnd.plusYears(1);
 
 		Optional<LeaveRecordBean> existingRecordOptional = leaveRecordRepo
 				.findByEmpBean_EmployeeIdAndLeaveCategory_CategoryIdAndExpirationDateBetween(employeeId, categoryId,
-						localDate, expirationDate);
+						DateEnd, expirationDate);
 		LocalDate selectDate = existingRecordOptional.get().getExpirationDate();
 		LocalDate plusYears = selectDate.plusYears(1);
 		if (existingRecordOptional.isPresent()) {
-			return existingRecordOptional.get();
+			 LeaveRecordBean existingRecord = existingRecordOptional.get();
+		        return existingRecord;
 		} else {
 			LeaveRecordBean newLeaveRecord = new LeaveRecordBean();
 			EmpBean emp = new EmpBean();
 			emp.setEmployeeId(employeeId);
 			newLeaveRecord.setEmpBean(emp);
-
 			LeaveCategoryBean category = leaveCategoryRepo.findById(categoryId)
 					.orElseThrow(() -> new RuntimeException("請假類別未找到"));
 			newLeaveRecord.setLeaveCategory(category);

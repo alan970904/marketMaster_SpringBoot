@@ -2,6 +2,7 @@ package marketMaster.service.askForLeave;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,35 +37,27 @@ public class AskForLeaveService {
 	public List<AskForLeaveBean> findAllAskForLeaves() {
 		return aslRepo.findAll();
 	}
-
+	
+	public List<AskForLeaveBean> findAslByEmpIdStatus(String employeeId) {
+		List<String> approvedStatuses = Arrays.asList("待審核", "已退簽");
+		List<AskForLeaveBean> leaves = aslRepo.findByEmpBeanEmployeeIdAndApprovedStatusIn(employeeId, approvedStatuses);
+		return leaves;
+	}
+	
 	public Page<AskForLeaveBean> findAslByEmpId(String employeeId, Integer pageNum) {
 		Pageable pgb = PageRequest.of(pageNum - 1, 10, Sort.Direction.DESC, "leaveId");
 		return aslRepo.findByEmpBeanEmployeeId(employeeId, pgb);
 	}
 
-//	public Page<AskForLeaveBean> findAslData(String employeeId, Integer pageNum, String searchTerm,
-//			LocalDateTime startTime, LocalDateTime endTime, String leaveCategory, String approvedStatus) {
-//		Pageable pageable = PageRequest.of(pageNum - 1, 10, Sort.Direction.DESC, "leaveId");
-//		
-//		Specification<AskForLeaveBean> spec = Specification.where(AskForLeaveSpecifications.filterByEmpId(employeeId))
-//				.and(AskForLeaveSpecifications.filterByStartTime(startTime))
-//				.and(AskForLeaveSpecifications.filterByEndTime(endTime))
-//				.and(AskForLeaveSpecifications.filterByLeaveCategory(leaveCategory))
-//				.and(AskForLeaveSpecifications.filterByApprovedStatus(approvedStatus));
-//		
-//		Page<AskForLeaveBean> result = aslRepo.findAll(spec, pageable);
-//	
-//
-//		return result;
-//	}
 
-	public Page<AskForLeaveBean> filterFindAsl(String employeeId, LocalDateTime startTime, LocalDateTime endTime,
+
+	public Page<AskForLeaveBean> filterFindAsl(String employeeId,String employeeName,  LocalDateTime startTime, LocalDateTime endTime,
 	        String leaveCategory, String approvedStatus, int pageNum) {
 
 	    Pageable pageable = PageRequest.of(pageNum - 1, 10, Sort.Direction.DESC, "leaveId");
-	    System.out.println("startTime="+startTime);
 	    
 	    Specification<AskForLeaveBean> spec = Specification.where(AskForLeaveSpecifications.filterByEmpId(employeeId))
+	    		.and(AskForLeaveSpecifications.filterByEmployeeName(employeeName))
 	            .and(AskForLeaveSpecifications.filterByStartTime(startTime))
 	            .and(AskForLeaveSpecifications.filterByEndTime(endTime))
 	            .and(AskForLeaveSpecifications.filterByLeaveCategory(leaveCategory))
@@ -133,10 +126,11 @@ public class AskForLeaveService {
 			LocalDateTime existingEndTime = leave.getEndTime();
 
 			if (newStartTime.isBefore(existingEndTime) && newEndTime.isAfter(existingStartTime)) {
+				System.out.println("true");
 				return true;
 			}
 		}
-
+		System.out.println("false");
 		return false;
 	}
 
