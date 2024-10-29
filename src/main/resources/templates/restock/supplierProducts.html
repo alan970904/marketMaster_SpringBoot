@@ -10,39 +10,39 @@
 </head>
 <body>
 <div th:replace="~{body/header :: header}">
-<div th:fragment="content">
-<div class="container mt-4">
-    <h2>供應商商品列表</h2>
-    <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-success btn-add">新增商品</button>
-    </div>
-    <div>
-        <table class="table table-bordered" id="productTable">
-            <thead class="table-success">
-            <tr>
-                <th>供應商商品編號</th>
-                <th>商品編號</th>
-                <th>商品名稱</th>
-                <th>商品價格</th>
-                <th>商品狀態</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- 這裡的內容將由 JavaScript 動態生成 -->
-            </tbody>
-        </table>
-        <!-- 分頁按鈕 -->
-        <div class="d-flex justify-content-center">
-            <nav aria-label="Page navigation">
-                <ul class="pagination" id="pagination">
-                    <!-- 分頁按鈕會動態生成 -->
-                </ul>
-            </nav>
+    <div th:fragment="content">
+        <div class="container mt-4">
+            <h2>供應商商品列表</h2>
+            <div class="d-flex justify-content-sm-start mb-3">
+                <button class="btn btn-success btn-add">新增商品</button>
+            </div>
+            <div>
+                <table class="table table-bordered" id="productTable">
+                    <thead class="table-success">
+                    <tr>
+                        <th>供應商商品編號</th>
+                        <th>商品編號</th>
+                        <th>商品名稱</th>
+                        <th>商品價格</th>
+                        <th>商品狀態</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- 這裡的內容將由 JavaScript 動態生成 -->
+                    </tbody>
+                </table>
+                <!-- 分頁按鈕 -->
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination" id="pagination">
+                            <!-- 分頁按鈕會動態生成 -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-</div>
 </div>
 <div th:replace="~{body/footer :: footer}"></div>
 
@@ -63,18 +63,24 @@
 <!-- 新增彈出視窗 -->
 <div id="addDialog" title="新增供應商商品" style="display: none;">
     <form id="addForm">
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label for="addProductId">商品編號：</label>
-            <input type="text" id="addProductId" class="form-control">
+            <div class="d-flex align-items-center">
+                <input type="text" id="addProductId" class="form-control me-2" style="width: 60%;" placeholder="請輸入商品編號">
+                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PDR001">PDR001</button>
+                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PMS001">PMS001</button>
+                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PRN001">PRN001</button>
+                <button type="button" class="btn btn-secondary btn-auto-fill" data-product-id="PSN001">PSN001</button>
+            </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label for="addProductPrice">商品價格：</label>
-            <input type="number" id="addProductPrice" class="form-control" step="1" min="0">
+            <input type="number" id="addProductPrice" class="form-control" step="1" min="0" placeholder="請輸入商品價格">
         </div>
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label for="addStatus">商品狀態：</label>
-            <input type="text" id="addStatus" class="form-control">
+            <input type="text" id="addStatus" class="form-control" value="1" readonly>
         </div>
     </form>
 </div>
@@ -253,18 +259,18 @@
             // 清空表單中的值
             $("#addProductId").val('');
             $("#addProductPrice").val('');
-            $("#addStatus").val('');
+            $("#addStatus").val('1'); // 設置默認狀態為 1
 
             // 顯示新增對話框
             $("#addDialog").dialog({
                 modal: true,
-                width: 400,
+                width: 600,
                 buttons: {
                     "保存": function () {
                         // 取得輸入的值
-                        const newProductId = $("#addProductId").val();
-                        const newProductPrice = $("#addProductPrice").val();
-                        const newStatus = $("#addStatus").val();
+                        const newProductId = $("#addProductId").val().trim();
+                        const newProductPrice = $("#addProductPrice").val().trim();
+                        const newStatus = $("#addStatus").val().trim();
 
                         // 檢查必填字段是否已填寫
                         if (!newProductId || !newProductPrice || !newStatus) {
@@ -296,6 +302,17 @@
                     }
                 }
             });
+        });
+
+        // 新增：一鍵輸入按鈕的事件處理
+        $(document).on('click', '.btn-auto-fill', function() {
+            const productId = $(this).data('product-id');
+            const productPrice = 1000; // 任意價格，可根據需要調整
+            const status = '1';
+
+            $('#addProductId').val(productId);
+            $('#addProductPrice').val(productPrice);
+            $('#addStatus').val(status);
         });
 
         // 初始化頁面，載入數據
