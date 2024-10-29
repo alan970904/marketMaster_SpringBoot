@@ -59,11 +59,13 @@ public class ScheduleService {
 
 		return groupedSchedules;
 	}
-	
-	public Map<Integer, Map<String, List<Map<String, Object>>>> getMiniSchedules(String employeeId, int year, int month) {
+
+	public Map<Integer, Map<String, List<Map<String, Object>>>> getMiniSchedules(String employeeId, int year,
+			int month) {
 		LocalDate startDate = LocalDate.of(year, month, 1);
 		LocalDate endDate = startDate.plusMonths(1).minusDays(1);
-		List<ScheduleBean> schedules = scheduleRepo.findByEmpBean_employeeIdAndScheduleDateBetween(employeeId,startDate, endDate);
+		List<ScheduleBean> schedules = scheduleRepo.findByEmpBean_employeeIdAndScheduleDateBetween(employeeId,
+				startDate, endDate);
 
 		Map<Integer, Map<String, List<Map<String, Object>>>> groupedSchedules = new HashMap<>();
 
@@ -200,15 +202,19 @@ public class ScheduleService {
 				hours = 0;
 			}
 
-			 totalHours.put(employeeName, totalHours.getOrDefault(employeeName, 0) + hours);
+			totalHours.put(employeeName, totalHours.getOrDefault(employeeName, 0) + hours);
 		}
 
 		return totalHours;
 	}
-	
-	 public List<ScheduleBean> findSchedulesByDateTimeRange(String employeeId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-	        List<ScheduleBean> schedule = scheduleRepo.findByEmployeeIdAndDateTimeRange(employeeId, startDateTime, endDateTime);
-	        return schedule;
-	    }
+
+	public List<ScheduleBean> findSchedulesByDateTimeRange(String employeeId, LocalDateTime startDateTime,
+			LocalDateTime endDateTime) {
+		LocalDate startDate = startDateTime.toLocalDate();
+		LocalDate endDate = endDateTime.toLocalDate();
+		List<ScheduleBean> schedule = scheduleRepo.findByEmployeeIdAndDateRange(employeeId, startDate,
+				endDate);
+		return schedule;
+	}
 
 }
