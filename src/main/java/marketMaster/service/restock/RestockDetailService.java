@@ -2,6 +2,7 @@ package marketMaster.service.restock;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import marketMaster.DTO.restock.restock.RestockDTO;
 import marketMaster.DTO.restock.restock.RestockDetailDTO;
 import marketMaster.bean.restock.RestockDetailsBean;
@@ -17,18 +18,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 @Service
+@RequiredArgsConstructor
 public class RestockDetailService {
 
-    @Autowired
-    private RestockDetailsRepository restockDetailsRepository;
-    @Autowired
-    private RestocksRepository restocksRepository;
-    @Autowired
-    private SupplierAccountsRepository accountsRepository;
-    @Autowired
-    private SupplierProductsRepository supplierProductRepository;
-    @Autowired
-    private SupplierAccountsRepository supplierAccountsRepository;
+
+    private final RestockDetailsRepository restockDetailsRepository;
+    private final RestocksRepository restocksRepository;
+    private final SupplierAccountsRepository accountsRepository;
+    private final SupplierProductsRepository supplierProductRepository;
+    private final SupplierAccountsRepository supplierAccountsRepository;
 
     //  拿到最新DetailId
     public String getLastedDetailId() {

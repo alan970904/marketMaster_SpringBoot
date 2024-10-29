@@ -58,8 +58,9 @@ public class LoginController {
     }
     
     @GetMapping("/homePage")
-    public String homePage() {
-        return "body/HomePage";
+    public String homePage(HttpSession session, Model model) {
+        model.addAttribute("employee", session.getAttribute("employee"));
+    	return "body/HomePage";
     }
 	
 }

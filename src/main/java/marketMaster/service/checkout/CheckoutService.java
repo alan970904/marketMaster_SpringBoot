@@ -3,12 +3,15 @@ package marketMaster.service.checkout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import marketMaster.DTO.checkout.CartDTO;
 import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.bean.employee.EmpBean;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.controller.checkout.CheckoutController;
 import marketMaster.service.checkout.CheckoutRepository;
+import marketMaster.service.product.ProductService;
 import marketMaster.service.checkout.CheckoutDetailsRepository;
 import marketMaster.exception.DataAccessException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,9 +22,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -37,6 +42,9 @@ public class CheckoutService {
     
     @Autowired
     private CheckoutDetailsService checkoutDetailsService;
+    
+    @Autowired
+    private ProductService productService;
     
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -306,6 +314,101 @@ public class CheckoutService {
     @Transactional
     public void updateTotalPriceAfterReturn(String checkoutId) throws DataAccessException {
         checkoutRepository.updateTotalPriceAfterReturn(checkoutId);
+    }
+    
+    /**
+     * 處理購物車結帳
+     */
+    @Transactional
+    public boolean processCartCheckout(CheckoutBean checkout, List<CheckoutDetailsBean> details) throws DataAccessException {
+        try {
+            // 檢查所有商品庫存
+            for (CheckoutDetailsBean detail : details) {
+                if (!productService.checkAndUpdateStock(detail.getProductId(), detail.getNumberOfCheckout())) {
+                    // 如果有任何商品庫存不足，回滾之前的庫存更新
+                    for (CheckoutDetailsBean rollbackDetail : details) {
+                        if (rollbackDetail == detail) break;
+                        productService.cancelStockUpdate(
+                            rollbackDetail.getProductId(), 
+                            rollbackDetail.getNumberOfCheckout()
+                        );
+                    }
+                    throw new DataAccessException("商品庫存不足");
+                }
+            }
+
+            // 進行結帳處理
+            return insertCheckoutWithDetails(checkout, details);
+        } catch (Exception e) {
+            // 發生異常時回滾所有庫存更新
+            for (CheckoutDetailsBean detail : details) {
+                productService.cancelStockUpdate(
+                    detail.getProductId(), 
+                    detail.getNumberOfCheckout()
+                );
+            }
+            throw new DataAccessException("結帳處理失敗: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 驗證購物車內容
+     * @return Map 包含驗證結果和錯誤信息
+     */
+    public Map<String, Object> validateCartItems(List<CheckoutDetailsBean> details) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, String> invalidItems = new HashMap<>();
+        boolean isValid = true;
+
+        for (CheckoutDetailsBean detail : details) {
+            ProductBean product = productService.getProduct(detail.getProductId());
+            if (product == null) {
+                isValid = false;
+                invalidItems.put(detail.getProductId(), "商品不存在");
+            } else if (product.getNumberOfInventory() < detail.getNumberOfCheckout()) {
+                isValid = false;
+                invalidItems.put(detail.getProductId(), 
+                    "庫存不足，目前剩餘: " + product.getNumberOfInventory());
+            }
+        }
+
+        result.put("isValid", isValid);
+        if (!isValid) {
+            result.put("invalidItems", invalidItems);
+        }
+        return result;
+    }
+    
+ // 在 CheckoutService.java 中新增以下方法
+    @Transactional
+    public boolean processCartCheckout(CartDTO cartDTO, String customerTel, String employeeId) throws DataAccessException {
+        try {
+            // 創建結帳記錄
+            CheckoutBean checkout = new CheckoutBean();
+            checkout.setCheckoutId(generateNextCheckoutId());
+            checkout.setCustomerTel(customerTel);
+            checkout.setEmployeeId(employeeId);
+            checkout.setCheckoutDate(new Date());
+            checkout.setInvoiceNumber(generateNextInvoiceNumber());
+            checkout.setCheckoutStatus("正常");
+
+            // 轉換購物車項目為結帳明細
+            List<CheckoutDetailsBean> details = cartDTO.getItems().stream()
+                .map(item -> {
+                    CheckoutDetailsBean detail = new CheckoutDetailsBean();
+                    detail.setCheckoutId(checkout.getCheckoutId());
+                    detail.setProductId(item.getProductId());
+                    detail.setNumberOfCheckout(item.getQuantity());
+                    detail.setProductPrice(item.getPrice());
+                    return detail;
+                })
+                .collect(Collectors.toList());
+
+            // 執行結帳處理
+            return insertCheckoutWithDetails(checkout, details);
+        } catch (Exception e) {
+            throw new DataAccessException("處理購物車結帳失敗: " + e.getMessage());
+        }
     }
     
 }

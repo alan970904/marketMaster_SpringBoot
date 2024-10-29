@@ -26,7 +26,7 @@
 }
 
 .nav-pills .nav-link {
-	padding: 10px 15px;
+	padding: 5px 5px;
 	font-size: 12px;
 	line-height: 1.4;
 }
@@ -35,21 +35,20 @@
 	margin: 0 ;
 }
 
-.container {
-	width: 750px;
+.containe {
+	width: 490px;
+	margin: 0 ;
 }
 </style>
 </head>
 
 <body>
-	<div class="container ">
+	<div class="containe ">
 		<div th:if="${leaves != null and not #lists.isEmpty(leaves)}">
 			<table class="table table-striped table-bordered">
 				<thead class="table-dark">
 					<tr>
-						<th class="text-center" style="vertical-align: middle;">請假編號</th>
-						<th class="text-center" style="vertical-align: middle;">員工編號</th>
-						<th class="text-center" style="vertical-align: middle;">員工姓名</th>
+						
 						<th class="text-center" style="vertical-align: middle;">開始時間</th>
 						<th class="text-center" style="vertical-align: middle;">結束時間</th>
 						<th class="text-center" style="vertical-align: middle;">請假類別</th>
@@ -59,12 +58,6 @@
 
 				<tbody>
 					<tr th:each="leave : ${leaves}" class="leave-row">
-						<td class="text-center" style="vertical-align: middle;"
-							th:text="${leave.leaveId}"></td>
-						<td class="text-center" style="vertical-align: middle;"
-							th:text="${leave.empBean.employeeId}"></td>
-						<td class="text-center" style="vertical-align: middle;"
-							th:text="${leave.empBean.employeeName}"></td>
 						<td class="text-center" style="vertical-align: middle;"
 							th:text="${#temporals.format(leave.starTime, 'yyyy-MM-dd HH:mm')}"></td>
 						<td class="text-center" style="vertical-align: middle;"

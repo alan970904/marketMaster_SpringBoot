@@ -79,12 +79,6 @@
               <li>
                 <a th:href="@{/schedules/useView}" class="sidebar-link"> 排班</a>
               </li>
-              <li>
-                <a th:href="@{/schedules/miniView(id=${session.employee?.employeeId})}" class="sidebar-link"> test排班</a>
-              </li>
-              <li>
-                <a th:href="@{/askForLeave/waitStatus(id=${session.employee?.employeeId})}" class="sidebar-link"> test請假</a>
-              </li>
             </ul>
           </li>
 
@@ -118,7 +112,7 @@
                class="sidebar-link dropdown-toggle"><i class="fa-solid fa-hand-holding-dollar"></i> 結帳管理</a>
             <ul class="collapse list-unstyled submenu" id="checkoutSubmenu">
               <li>
-                <a th:href="@{/checkout/checkoutMain}" class="sidebar-link"> 結帳列表</a>
+                <a th:href="@{/front/checkout/checkoutMain}" class="sidebar-link"> 結帳列表</a>
               </li>
             </ul>
           </li>
@@ -128,7 +122,7 @@
               <i class="fa-solid fa-face-tired"></i> 退貨管理</a>
             <ul class="collapse list-unstyled submenu" id="Submenu">
               <li>
-                <a th:href="@{/}" class="sidebar-link"> 退貨列表</a>
+                <a th:href="@{/front/returnProduct/returnMain}" class="sidebar-link"> 退貨列表</a>
               </li>
             </ul>
           </li>
