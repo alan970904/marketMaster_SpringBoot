@@ -98,6 +98,7 @@
   <!-- 模態框底部 -->
   <div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="autoFillSupplierBtn">一鍵輸入</button>
       <button type="button" class="btn btn-primary" id="saveNewSupplierBtn">保存</button>
       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
     </div>
@@ -406,6 +407,28 @@
               });
     });
 
+  });
+  // 新增：一鍵輸入按鈕的事件處理
+  document.getElementById('autoFillSupplierBtn').addEventListener('click', () => {
+    // 定義範例數據
+    const exampleData = {
+      supplierName: "範例供應商",
+      address: "台北市信義區松山路123號",
+      taxNumber: "12345678",
+      contactPerson: "張三",
+      phone: "02-1234-5678",
+      email: "example@supplier.com",
+      bankAccount: "123-4567890-12"
+    };
+
+    // 填充表單欄位
+    document.getElementById('addSupplierName').value = exampleData.supplierName;
+    document.getElementById('addAddress').value = exampleData.address;
+    document.getElementById('addTaxNumber').value = exampleData.taxNumber;
+    document.getElementById('addContactPerson').value = exampleData.contactPerson;
+    document.getElementById('addPhone').value = exampleData.phone;
+    document.getElementById('addEmail').value = exampleData.email;
+    document.getElementById('addBankAccount').value = exampleData.bankAccount;
   });
 
 </script>

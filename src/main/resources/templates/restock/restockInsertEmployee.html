@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
+    <title>進貨資料插入</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <!-- 引入 Handsontable 的 CSS 和 JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <!-- 引入 jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        .delete-btn {
+            cursor: pointer;
+            color: red;
+        }
+        .restock-table {
+            margin-bottom: 20px;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding-top: 80px;
+            /* Header height */
+            padding-left: 65px;
+            /* Shift left by another 50px from previous 130px */
+            background-color: #FFF3E0;
+            box-sizing: border-box;
+        }
+        button {
+            margin-right: 10px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{body/headerEmployee :: headerEmployee}">
+    <div th:fragment="content">
+        <main class="container">
+            <h1>進貨資料插入</h1>
+            <div>
+                <label for="employeeSelect" >選擇員工：</label>
+                <select id="employeeSelect" disabled>
+                    <option value="">請選擇員工</option>
+                </select>
+            </div>
+
+            <div id="tablesContainer">
+                <!-- 容器用于放置多個表格 -->
+            </div>
+
+            <button id="addRestockTable">新增進貨單號</button>
+            <button id="submitRestock">提交</button>
+        </main>
+    </div>
+</div>
+
+<!--在session抓到employeeID-->
+<script th:inline="javascript">
+    var sessionEmployeeId = /*[[${session.employee.employeeId}]]*/ '';
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+        let supplierList = []; // 用於存儲供應商列表
+        let productListMap = {}; // 用於存儲每個供應商的產品列表
+        let productPriceMap = {}; // 用於存儲產品的價格
+        let hotInstances = []; // 用於存儲每個表格的 Handsontable 實例
+
+        // 加载供應商數據
+        $.ajax({
+            url: '/marketMaster/restock/getSupplier',
+            method: 'GET',
+            success: (suppliers) => {
+                console.log('Suppliers List:', suppliers);
+                supplierList = suppliers;
+
+                // 初始化第一個表格
+                createRestockTable();
+            },
+            error: () => {
+                alert('載入供應商資料失敗');
+            }
+        });
+
+        // 加載員工數據
+        $.ajax({
+            url: '/marketMaster/restock/getEmployeeInfo',
+            method: 'GET',
+            success: (employees) => {
+                console.log('Employees List:', employees);
+                const employeeSelect = $('#employeeSelect');
+                employees.forEach(employee => {
+                    const option = new Option(employee.employeeName, employee.employeeId);
+                    if (employee.employeeId == sessionEmployeeId) {
+                        option.selected = true;
+                    }
+                    employeeSelect.append(option);
+                });
+            },
+            error: () => {
+                alert('載入員工資料失敗');
+            }
+        });
+
+        // 獲取最新的進貨單號
+        function getLatestRestockId(callback) {
+            $.ajax({
+                url: '/marketMaster/restock/getLatestRestockId',
+                method: 'GET',
+                success: (latestRestockId) => {
+                    callback(latestRestockId);
+                },
+                error: () => {
+                    alert('取得最新進貨單號失敗');
+                }
+            });
+        }
+
+        // 創建表格
+        function createRestockTable() {
+            // 獲取最新的進貨單號
+            getLatestRestockId((latestRestockId) => {
+                const container = document.createElement('div');
+                container.classList.add('restock-table');
+                document.getElementById('tablesContainer').appendChild(container);
+
+                const hot = new Handsontable(container, {
+                    data: [
+                        { restockId: latestRestockId }
+                    ],
+                    colHeaders: ['進貨單號', '供應商', '商品', '進貨數量', '進貨總價', '生產日期', '到期日期', '操作'],
+                    colWidths: [120, 250, 250, 100, 100, 120, 120, 80],
+                    columns: [
+                        {
+                            data: 'restockId',
+                        },
+                        {
+                            data: 'supplierId',
+                            type: 'dropdown',
+                            source: supplierList.map(supplier => `${supplier.supplierId} - ${supplier.supplierName}`),
+                            renderer: 'dropdown',
+                            validator: (value, callback) => {
+                                const supplier = supplierList.find(s => `${s.supplierId} - ${s.supplierName}` === value);
+                                callback(!!supplier);
+                            }
+                        },
+                        {
+                            data: 'productId',
+                            type: 'dropdown',
+                            source: function (query, process) {
+                                const selectedRow = this.instance.getSelectedLast();
+                                const rowIndex = selectedRow[0];
+                                const supplierValue = this.instance.getDataAtRowProp(rowIndex, 'supplierId');
+                                let supplierId = '';
+                                if (supplierValue) {
+                                    supplierId = supplierValue.split(' - ')[0];
+                                }
+                                let productsForSupplier = [];
+                                if (supplierId && productListMap[supplierId]) {
+                                    productsForSupplier = productListMap[supplierId];
+                                }
+                                const formattedProducts = productsForSupplier.map(product => `${product.productId} - ${product.productName}`);
+                                process(formattedProducts);
+                            },
+                            renderer: 'dropdown',
+                            validator: function (value, callback) {
+                                const isValid = !!value;
+                                callback(isValid);
+                            }
+                        },
+                        { data: 'numberOfRestock', type: 'numeric', numericFormat: { pattern: '0,0' } },
+                        {
+                            data: 'restockTotalPrice',
+                            type: 'numeric',
+                            readOnly: true,
+                            numericFormat: {
+                                pattern: '0,0'
+                            }
+                        },
+                        { data: 'productionDate', type: 'date', dateFormat: 'YYYY-MM-DD' },
+                        { data: 'dueDate', type: 'date', dateFormat: 'YYYY-MM-DD' },
+                        {
+                            data: '',
+                            renderer: (instance, td, row) => {
+                                td.innerHTML = `<span class="delete-btn">❌</span>`;
+                                td.classList.add('htCenter', 'htMiddle');
+                                td.querySelector('.delete-btn').onclick = function () {
+                                    hot.alter('remove_row', row);
+                                };
+                            },
+                            readOnly: true
+                        }
+                    ],
+                    minSpareRows: 1,
+                    rowHeaders: true,
+                    contextMenu: true,
+                    licenseKey: 'non-commercial-and-evaluation'
+                });
+
+                // 設置默認的進貨單號
+                hot.setDataAtRowProp(0, 'restockId', latestRestockId);
+
+                // 保存實例到數組
+                hotInstances.push(hot);
+
+                // 監聽供應商選擇變化事件
+                hot.addHook('afterChange', (changes, source) => {
+                    if (source === 'edit') {
+                        changes.forEach(([row, prop, oldValue, newValue]) => {
+                            if (prop === 'supplierId') {
+                                const supplierId = newValue ? newValue.split(' - ')[0] : '';
+
+                                if (supplierId) {
+                                    // 每次都重新加載產品列表
+                                    $.ajax({
+                                        url: '/marketMaster/restock/getProducts',
+                                        method: 'GET',
+                                        data: { supplierId },
+                                        success: (products) => {
+                                            productListMap[supplierId] = products;
+
+                                            // 更新當前行的產品下拉菜單
+                                            hot.getCellMeta(row, 2).source = products.map(product => `${product.productId} - ${product.productName}`);
+                                            hot.setDataAtRowProp(row, 'productId', ''); // 清空商品欄位
+                                            hot.setDataAtRowProp(row, 'restockTotalPrice', null); // 清空進貨總價
+
+                                            hot.render(); // 渲染更新表格
+                                        },
+                                        error: () => {
+                                            alert(`載入供應商 ${supplierId} 的商品失敗`);
+                                        }
+                                    });
+                                }
+                            }
+
+                            // 監聽 'productId' 列的變化，獲取 productPrice 並計算 restockTotalPrice
+                            if (prop === 'productId') {
+                                const supplierValue = hot.getDataAtRowProp(row, 'supplierId');
+                                const supplierId = supplierValue ? supplierValue.split(' - ')[0] : '';
+                                const productId = newValue ? newValue.split(' - ')[0] : '';
+
+                                if (supplierId && productId) {
+                                    // 調用後端獲取 productPrice
+                                    $.ajax({
+                                        url: '/marketMaster/restock/getProductPrice',
+                                        method: 'GET',
+                                        data: { supplierId, productId },
+                                        success: (productPrice) => {
+                                            productPriceMap[productId] = productPrice;
+
+                                            // 自動計算 restockTotalPrice 如果 numberOfRestock 已輸入
+                                            const numberOfRestock = hot.getDataAtRowProp(row, 'numberOfRestock') || 0;
+                                            const restockTotalPrice = numberOfRestock * productPrice;
+                                            hot.setDataAtRowProp(row, 'restockTotalPrice', restockTotalPrice, 'auto-calculate');
+                                        },
+                                        error: () => {
+                                            alert(`無法取得供應商 ${supplierId} 和商品 ${productId} 的單價`);
+                                        }
+                                    });
+                                }
+                            }
+
+                            // 監聽 'numberOfRestock' 列的變化，自動計算 'restockTotalPrice'
+                            if (prop === 'numberOfRestock') {
+                                const productValue = hot.getDataAtRowProp(row, 'productId');
+                                const productId = productValue ? productValue.split(' - ')[0] : null;
+                                const numberOfRestock = newValue || 0;
+                                const productPrice = productPriceMap[productId] || 0;
+                                const restockTotalPrice = numberOfRestock * productPrice;
+                                hot.setDataAtRowProp(row, 'restockTotalPrice', restockTotalPrice, 'auto-calculate');
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        // 新增進貨單號按鈕事件
+        $('#addRestockTable').click(() => {
+            createRestockTable();
+        });
+
+        // 提交按鈕事件
+        $('#submitRestock').click(() => {
+            const employeeId = $('#employeeSelect').val();
+            if (!employeeId) {
+                alert('請選擇員工');
+                return;
+            }
+
+            let allRestockInsertDTOs = [];
+
+            // 使用存儲的實例數組
+            hotInstances.forEach(hotInstance => {
+                const tableData = hotInstance.getData();
+                const restockId = tableData[0][0]; // 獲取進貨單號
+
+                let restockTotalPrice = 0; // 用於計算整個進貨單的總價格
+
+                const restockDetails = tableData.filter(row => row[1] !== null && row[1] !== '').map(row => {
+                    const supplierValue = row[1];
+                    const productValue = row[2];
+                    const supplierId = supplierValue ? supplierValue.split(' - ')[0] : null;
+                    const productId = productValue ? productValue.split(' - ')[0] : null;
+                    const numberOfRestock = row[3];
+                    const productionDate = row[5];
+                    const dueDate = row[6];
+
+                    // 獲取產品單價
+                    const productPrice = productPriceMap[productId] || 0;
+                    // 計算每個明細的總價
+                    const detailTotalPrice = numberOfRestock * productPrice;
+                    // 累加到進貨單的總價
+                    restockTotalPrice += detailTotalPrice;
+
+                    return {
+                        supplierId: supplierId,
+                        productId: productId,
+                        numberOfRestock: numberOfRestock,
+                        priceAtRestock: productPrice,
+                        restockTotalPrice: detailTotalPrice,
+                        productionDate: productionDate,
+                        dueDate: dueDate
+                    };
+                });
+
+                if (restockDetails.length > 0) {
+                    const restockInsertDTO = {
+                        restockId: restockId,
+                        restockTotalPrice: restockTotalPrice,
+                        restockDate: new Date().toISOString().split('T')[0], // 當前日期
+                        employeeId: employeeId,
+                        restockDetails: restockDetails
+                    };
+
+                    allRestockInsertDTOs.push(restockInsertDTO);
+                }
+            });
+
+            if (allRestockInsertDTOs.length === 0) {
+                alert('沒有進貨資料需要提交');
+                return;
+            }
+
+            console.log('進貨資料:', allRestockInsertDTOs);
+
+            // 發送數據到服務器
+            $.ajax({
+                url: '/marketMaster/restock/InsertRestock',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(allRestockInsertDTOs),
+                success: () => {
+                    alert('進貨資料插入成功');
+                    // 可選：刷新頁面或清空表格
+                    location.reload();
+                },
+                error: (xhr) => {
+                    alert('進貨資料插入失敗: ' + xhr.responseText);
+                    console.error('Error:', xhr);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
