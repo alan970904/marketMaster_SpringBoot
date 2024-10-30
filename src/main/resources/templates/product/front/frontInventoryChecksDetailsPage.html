@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org/">
 
 <head>
-    <meta charset="UTF-8" th:replace="~{body/head :: head}">
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
     <title>商品資料</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,7 +15,6 @@
     td {
         vertical-align: middle;
     }
-
     .content-container {
         background: white;
         border-radius: 15px;
@@ -203,17 +202,17 @@
 </style>
 
 <body>
-    <div th:replace="~{body/header :: header}">
+    <div th:replace="~{body/headerEmployee :: headerEmployee}">
         <div th:fragment="content">
             <main>
                 <div class="container mt-3">
                     <div class="content-container">
                         <!-- 審核按鈕 -->
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <button class="verify-btn" id="verify" data-bs-toggle="modal" data-bs-target="#verifyModal">
                                 <i class="fas fa-check-double"></i>審核盤點單
                             </button>
-                        </div>
+                        </div> -->
                         <table class="table table-striped">
                             <thead class="table-dark">
                                 <tr>
@@ -224,7 +223,7 @@
                                     <th>盤點數量</th>
                                     <th>差異數量</th>
                                     <th>備註</th>
-                                    <th>操作</th>
+                                    <!-- <th>操作</th> -->
                                 </tr>
                             </thead>
                             <tbody id="tbody" class="my-auto ">
@@ -242,14 +241,14 @@
                                         </td>
                                         <td th:text="${inventoryCheckDetail.differentialInventory}"></td>
                                         <td th:text="${inventoryCheckDetail.remark}"></td>
-                                        <td class="d-flex justify-content-evenly">
+                                        <!-- <td class="d-flex justify-content-evenly">
                                             <button type="button" class="btn btn-secondary getUpdate"
                                                 data-bs-toggle="modal" data-bs-target="#updateModal">修改</button>
                                             <button type="button" class="btn btn-danger getDelete"
                                                 data-bs-toggle="modal" data-bs-target="#deleteModal">刪除</button>
 
 
-                                        </td>
+                                        </td> -->
                                     </tr>
                                 </th:block>
                             </tbody>
@@ -434,6 +433,15 @@
         });
 
 
+        document.addEventListener('DOMContentLoaded', verifyListener)
+        function verifyListener() {
+            const verifyBtn = document.getElementById('verify')
+            verifyBtn.addEventListener('click', function () {
+                const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
+                console.log(checkId)
+
+            })
+        }
         document.addEventListener('DOMContentLoaded', verifyCheck)
         function verifyCheck() {
             const verifyStatus = document.getElementsByClassName('detailId')[0].dataset.verifystatus
@@ -444,69 +452,24 @@
             for (let i = 0; i < getUpdateBtn.length; i++) {
                 if (verifyStatus === 'true') {
                     getDeleteBtn[i].classList.remove('btn-danger')
-                    getDeleteBtn[i].classList.add('btn-danger', 'opacity-50')
-                    getDeleteBtn[i].removeAttribute('data-bs-toggle')
-                    new bootstrap.Tooltip(getDeleteBtn[i], {
-                        title: '此盤點單已核准，無法刪除'
-                    })
-                    getUpdateBtn[i].classList.remove('btn-secondary')
-                    getUpdateBtn[i].classList.add('btn-secondary', 'opacity-50')
-                    getUpdateBtn[i].removeAttribute('data-bs-toggle')
-                    new bootstrap.Tooltip(getUpdateBtn[i], {
-                        title: '此盤點單已核准，無法更改'
-                    })
+                            getDeleteBtn[i].classList.add('btn-danger', 'opacity-50')
+                            getDeleteBtn[i].removeAttribute('data-bs-toggle')
+                            new bootstrap.Tooltip(getDeleteBtn[i], {
+                                title: '此盤點單已核准，無法刪除'
+                            })
+                            getUpdateBtn[i].classList.remove('btn-secondary')
+                            getUpdateBtn[i].classList.add('btn-secondary', 'opacity-50')
+                            getUpdateBtn[i].removeAttribute('data-bs-toggle')
+                            new bootstrap.Tooltip(getUpdateBtn[i], {
+                                title: '此盤點單已核准，無法更改'
+                            })
                 }
-
-
-
+                    
+                
+                
             }
         }
 
-        // 新的審核確認邏輯
-        document.getElementById('confirmVerify').addEventListener('click', function () {
-            const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid;
-
-            axios.post('http://localhost:8080/marketMaster/inventoryCheck/update', {
-                inventoryCheckId: checkId
-            })
-                .then(res => {
-                    console.log(res);
-                    alert('核准成功');
-                    location.reload();
-                })
-                .catch(err => {
-                    console.error(err);
-                });
-
-            // 關閉 Modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('verifyModal'));
-            modal.hide();
-        });
-        document.addEventListener('DOMContentLoaded', function () {
-            // 處理差異數量的顯示效果
-            document.querySelectorAll('.differential').forEach(elem => {
-                const value = parseInt(elem.textContent);
-                if (value > 0) {
-                    elem.classList.add('positive');
-                    elem.innerHTML = `+${value}`;
-                } else if (value < 0) {
-                    elem.classList.add('negative');
-                }
-            });
-
-            // 更新警告文字的顯示邏輯
-            const updatedInventory = document.getElementById('modal-updatedInventory');
-            const warningText = document.getElementById('warning-text');
-
-            updatedInventory?.addEventListener('change', function () {
-                const currentInventory = document.getElementById('modal-currentInventory').value;
-                if (this.value !== currentInventory) {
-                    warningText.style.display = 'block';
-                } else {
-                    warningText.style.display = 'none';
-                }
-            });
-        });
     </script>
 
 </body>

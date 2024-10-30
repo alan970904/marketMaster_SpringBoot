@@ -1,11 +1,9 @@
-package marketMaster.controller.product;
+package marketMaster.controller.product.front;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,12 +17,12 @@ import marketMaster.bean.restock.SupplierProductsBean;
 import marketMaster.service.product.ProductService;
 
 @RestController
-public class ProductRestController {
+public class FProductRestController {
 
 	@Autowired
 	private ProductService productService;
 
-	@PostMapping("/product/findProductByLike/json")
+	@PostMapping("/product/front/findProductByLike/json")
 	public Page<ProductBean> getProductsByLike(@RequestBody ProductPageDTO productPageDTO){
 		String productName = productPageDTO.getProductName();
 		Integer pageNumber = productPageDTO.getPageNumber();
@@ -33,7 +31,7 @@ public class ProductRestController {
 		return products;
 	}
 	
-	@PostMapping("/product/findRestockDetails/json")
+	@PostMapping("/product/front/findRestockDetails/json")
 	public void getRestockDetails(@RequestParam String productId){
 		ProductBean aProduct = productService.findOneProduct(productId);
 		List<SupplierProductsBean> supplierProduct = aProduct.getSupplierProductBean();
@@ -47,7 +45,7 @@ public class ProductRestController {
 		}
 	}
 	
-	@PostMapping("/product/findProductInventoryNotEnough/json")
+	@PostMapping("/product/front/findProductInventoryNotEnough/json")
 	public Page<ProductBean>  getProductInventoryNotEnough(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
 		Page<ProductBean> products = productService.findProductNotEnough(pageNumber, pageSize);
@@ -55,18 +53,10 @@ public class ProductRestController {
 		return products;
 	}
 	
-	@PostMapping("/product/findProductCategory")
+	@PostMapping("/product/front/findProductCategory")
 	public List<ProductCategoryDTO> getProductCategory() {
 		List<ProductCategoryDTO> productCategory = productService.findProductCategory();
 		return productCategory;
-	}
-	
-	@PostMapping("/product/findOne/json")
-	public ProductBean getOneProduct(@RequestBody ProductBean productBean) {
-		String productId = productBean.getProductId();
-		ProductBean product = productService.findOneProduct(productId);
-
-		return product;
 	}
 
 
