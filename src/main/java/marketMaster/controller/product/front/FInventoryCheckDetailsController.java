@@ -1,4 +1,4 @@
-package marketMaster.controller.product;
+package marketMaster.controller.product.front;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Controller
-public class InventoryCheckDetailsController {
+public class FInventoryCheckDetailsController {
 	
 	@Autowired
 	private InventoryCheckDetailsService inventoryCheckDetailsService;
@@ -33,27 +33,27 @@ public class InventoryCheckDetailsController {
 	private ProductService productService;
 	
 	@ResponseBody
-	@GetMapping("/inventoryCheckDetails/findOne")
+	@GetMapping("/inventoryCheckDetails/front/findOne")
 	public InventoryCheckDetailsBean findOneInventoryCheckDetail(@RequestParam String detailId) {
 		InventoryCheckDetailsBean aInventoryCheckDetail = inventoryCheckDetailsService.findOneInventoryCheckDetailById(detailId);
 		return aInventoryCheckDetail;
 	}
 	
 	@ResponseBody
-	@GetMapping("/inventoryCheckDetails/findByCheck/Json")
+	@GetMapping("/inventoryCheckDetails/front/findByCheck/Json")
 	public List<InventoryCheckDetailsBean> findByInventoryCheckJson(@RequestParam String inventoryCheckId) {
 		List<InventoryCheckDetailsBean> detailList = inventoryCheckDetailsService.findByInventoryCheckDetailId(inventoryCheckId);
 		return detailList;
 	}
 	
-	@GetMapping("/inventoryCheckDetails/findByCheckId")
+	@GetMapping("/inventoryCheckDetails/front/findByCheckId")
 	public String findByInventoryCheck(@RequestParam String inventoryCheckId,Model m) {
 		List<InventoryCheckDetailsBean> inventoryCheckDetails = inventoryCheckDetailsService.findByInventoryCheckDetailId(inventoryCheckId);
 		m.addAttribute("inventoryCheckDetails", inventoryCheckDetails);
-		return "/product/inventoryChecksDetailsPage";
+		return "/product/front/frontInventoryChecksDetailsPage";
 	}
 	
-	@PostMapping("/inventoryCheckDetails/deleteByDetailId")
+	@PostMapping("/inventoryCheckDetails/front/deleteByDetailId")
 	@RequiresPermission(value = "deleteInventoryCheckDetail",resource = "employee")
 	public String deleteDetailById(@RequestBody InventoryCheckDetailDTO inventoryCheckDetailDTO) {
 		String detailId = inventoryCheckDetailDTO.getDetailId();
@@ -64,10 +64,10 @@ public class InventoryCheckDetailsController {
 		productService.updateProductByDeleteCheck(productId, currentInventory);
 		inventoryCheckDetailsService.deleteDetailById(detailId);
 		
-		return "redirect:/inventoryCheckDetails/findByCheckId";
+		return "redirect:/inventoryCheckDetails/front/findByCheckId";
 	}
 	
-	@PostMapping("/inventoryCheckDetails/updateByDetailId")
+	@PostMapping("/inventoryCheckDetails/front/updateByDetailId")
 	public ResponseEntity<Void> updateByDetailId(@RequestBody InventoryCheckDetailDTO inventoryCheckDetailDTO) {
 		Integer actualInventory = inventoryCheckDetailDTO.getActualInventory();
 		String detailId = inventoryCheckDetailDTO.getDetailId();
@@ -81,7 +81,7 @@ public class InventoryCheckDetailsController {
 	}
 	
 	@ResponseBody
-	@PostMapping("/inventoryCheckDetails/isNewestDetail")
+	@PostMapping("/inventoryCheckDetails/front/isNewestDetail")
 	public boolean isNewestDetail(@RequestBody InventoryCheckDetailDTO inventoryCheckDetailDTO,Model m) {
 		String productId = inventoryCheckDetailDTO.getProductId();
 		String detailId = inventoryCheckDetailDTO.getDetailId();

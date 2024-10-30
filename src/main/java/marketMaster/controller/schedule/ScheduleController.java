@@ -81,7 +81,7 @@ public class ScheduleController {
 		int month = now.getMonthValue();
 
 		Map<Integer, Map<String, List<Map<String, Object>>>> schedulesByDayAndTime = scheduleService
-				.getSchedulesByYearAndMonth(year, month);
+				.getEmpByYearAndMonth(year, month, employeeId);
 
 		LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
 		int firstDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() % 7;

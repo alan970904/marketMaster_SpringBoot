@@ -1,10 +1,7 @@
-package marketMaster.controller.product;
+package marketMaster.controller.product.front;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,38 +16,36 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
-import marketMaster.DTO.product.ProductSalesAndReturnDTO;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.ProductService;
 
 @Controller
-public class ProductController {
+public class FProductController {
 
 	@Autowired
 	private ProductService productService;
 
 	@Autowired
-	private ProductRestController productRestController;
+	private FProductRestController productRestController;
 	
-	@GetMapping("/product/test")
+	@GetMapping("/product/front/test")
 	public String testPage() {
-		return "/product/test";
+		return "/product/front/frontTest";
 	}
 	
-	@GetMapping("/product/addPage")
+	@GetMapping("/product/front/addPage")
 	public String addProductPage(Model m) {
 		List<ProductCategoryDTO> productCategory = productRestController.getProductCategory();
 
 		m.addAttribute("categorys", productCategory);
-		return "/product/insertProduct";
+		return "/product/front/frontInsertProduct";
 	}
 
 	@Transactional
-	@PostMapping("/product/add")
+	@PostMapping("/product/front/add")
 	public String addProduct(@ModelAttribute ProductBean product, @RequestParam MultipartFile photo, Model m)
 			throws IOException {
 
@@ -59,15 +54,15 @@ public class ProductController {
 		if (newProduct == null) {
 			m.addAttribute("errorMsg", "商品編號已存在");
 
-			return "/product/insertProduct";
+			return "/product/front/frontInsertProduct";
 		}
 		m.addAttribute("message", "新增商品資料成功");
 
 		m.addAttribute("product", newProduct);
-		return "/product/showChangePage";
+		return "/product/front/frontShowChangePage";
 	}
 
-	@GetMapping("/product/downloadProductPhoto")
+	@GetMapping("/product/front/downloadProductPhoto")
 	public ResponseEntity<?> getProductPhoto(@RequestParam String productId) {
 		ProductBean product = productService.findOneProduct(productId);
 
@@ -79,7 +74,7 @@ public class ProductController {
 		return new ResponseEntity<byte[]>(productPhotoByte, headers, HttpStatus.OK);
 	}
 
-	@GetMapping("/product/findOne")
+	@GetMapping("/product/front/findOne")
 	public String getOneProduct(@RequestParam String productId, Model m) {
 		ProductBean product = productService.findOneProduct(productId);
 
@@ -87,10 +82,10 @@ public class ProductController {
 
 		System.out.println(productPhotoByte);
 		m.addAttribute("product", product);
-		return "product/findOnePage";
+		return "/product/front/frontFindOnePage";
 	}
 
-	@GetMapping("/product/findProductAvailable") // 測試中 先預設false
+	@GetMapping("/product/front/findProductAvailable") // 測試中 先預設false
 	public String getProductAvailable(@RequestParam(defaultValue = "false") boolean available,
 			@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
@@ -100,20 +95,20 @@ public class ProductController {
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
 
-		return "product/findAllPage";
+		return "/product/front/frontFindAllPage";
 	}
 
-	@GetMapping("/product/findProductInventoryNotEnough")
+	@GetMapping("/product/front/findProductInventoryNotEnough")
 	public String getProductInventoryNotEnough(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
 		Page<ProductBean> products = productService.findProductNotEnough(pageNumber, pageSize);
 
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
-		return "product/findAllPage";
+		return "/product/front/frontFindAllPage";
 	}
 
-	@GetMapping("/product/findAll")
+	@GetMapping("/product/front/findAll")
 	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
 
@@ -122,34 +117,34 @@ public class ProductController {
 		m.addAttribute("products", products);
 		m.addAttribute("pages", products);
 
-		return "product/findAllPage";
+		return "/product/front/frontFindAllPage";
 	}
 
-	@GetMapping("/product/getUpdate")
+	@GetMapping("/product/front/getUpdate")
 	public String getUpdateProduct(@RequestParam String productId, Model m) {
 		ProductBean product = productService.findOneProduct(productId);
 
 		m.addAttribute("product", product);
-		return "product/getUpdatePage";
+		return "/product/front/frontGetUpdatePage";
 	}
 
 	@Transactional
-	@PostMapping("/product/update")
+	@PostMapping("/product/front/update")
 	public String updateProduct(@ModelAttribute ProductBean product, @RequestParam MultipartFile photo, Model m)
 			throws IOException {
 		ProductBean newProduct = productService.updateProduct(product,photo);
 		m.addAttribute("message", "成功更新商品資料");
 		m.addAttribute("product", newProduct);
-		return "/product/showChangePage";
+		return "/product/front/frontShowChangePage";
 	}
 
-	@GetMapping("/product/getphotopage")
+	@GetMapping("/product/front/getphotopage")
 	public String updatephotopage() {
-		return "/product/getupdatephoto";
+		return "/product/front/frontGetupdatephoto";
 	}
 
 	@Transactional
-	@PostMapping("/product/updatephoto")
+	@PostMapping("/product/front/updatephoto")
 	public void updateProductPhoto(@RequestParam String productId, @RequestParam MultipartFile photo, Model m) {
 		try {
 			productService.updateProductPhoto(productId, photo);
@@ -159,51 +154,30 @@ public class ProductController {
 
 	}
 
-	@GetMapping("/product/getShelve")
+	@GetMapping("/product/front/getShelve")
 	public String getShelve(@RequestParam String productId, Model m) {
 		ProductBean product = productService.findOneProduct(productId);
 
 		m.addAttribute("product", product);
-		return "product/getShelvePage";
+		return "/product/front/frontGetShelvePage";
 	}
 
 	@Transactional
-	@PostMapping("/product/shelve")
+	@PostMapping("/product/front/shelve")
 	public String shelveProduct(@RequestParam String productId, @RequestParam Integer numberOfShelve, Model m) {
 		ProductBean newProduct = productService.shelveProduct(productId, numberOfShelve);
 
 		m.addAttribute("message", "成功上架商品");
 		m.addAttribute("product", newProduct);
-		return "/product/showChangePage";
+		return "/product/front/frontShowChangePage";
 	}
 
 	@Transactional
-	@PostMapping("/product/remove")
+	@PostMapping("/product/front/remove")
 	public String postMethodName(@RequestParam String productId) {
 		productService.removeProduct(productId);
 
-		return "redirect:/product/findAll";
-	}
-	
-	//  ===============計算銷售率及退貨率用的=============
-	
-	@GetMapping("/product/statistics/sales-and-returns")
-	@ResponseBody
-	public ResponseEntity<Map<String, List<ProductSalesAndReturnDTO>>> getProductStatistics() {
-	    List<ProductSalesAndReturnDTO> allStats = productService.getProductSalesAndReturnStats();
-	    
-	    Map<String, List<ProductSalesAndReturnDTO>> result = new HashMap<>();
-	    result.put("topSales", allStats.stream()
-	        .sorted((a, b) -> Long.compare(b.getSalesQuantity(), a.getSalesQuantity()))
-	        .limit(3)
-	        .collect(Collectors.toList()));
-	    
-	    result.put("topReturns", allStats.stream()
-	        .sorted((a, b) -> Double.compare(b.getReturnRate(), a.getReturnRate()))
-	        .limit(3)
-	        .collect(Collectors.toList()));
-	        
-	    return ResponseEntity.ok(result);
+		return "redirect:/product/front/findAll";
 	}
 
 }

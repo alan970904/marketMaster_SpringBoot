@@ -37,5 +37,8 @@ public interface ScheduleRepository extends JpaRepository<ScheduleBean, Integer>
 		List<ScheduleBean> findByEmployeeIdAndDateRange(@Param("employeeId") String employeeId,
 		                                                @Param("startDate") LocalDate startDate,
 		                                                @Param("endDate") LocalDate endDate);
+	
+	List<ScheduleBean> findByScheduleDateBetweenAndEmpBean_EmployeeId(LocalDate startDate, LocalDate endDate, String employeeId);
+
 
 }
