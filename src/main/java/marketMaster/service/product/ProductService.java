@@ -140,9 +140,7 @@ public class ProductService {
 
 			product.setProductName(newProduct.getProductName());
 			product.setProductCategory(newProduct.getProductCategory());
-			product.setProductSafeInventory(newProduct.getProductSafeInventory());
-			product.setProductPrice(newProduct.getProductPrice());
-			if (photo != null) {
+			if (photo.getBytes().length > 0) {
 				product.setProductPhoto(photo.getBytes());
 			} else {
 				product.setProductPhoto(product.getProductPhoto());
