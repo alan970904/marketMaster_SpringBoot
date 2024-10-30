@@ -217,8 +217,8 @@
 
                 // 獲取結帳編號和發票號碼
                 const [checkoutIdRes, invoiceNumberRes] = await Promise.all([
-                    axios.get('/marketMaster/checkout/nextId'),
-                    axios.get('/marketMaster/checkout/nextInvoiceNumber')
+                    axios.get('/marketMaster/front/checkout/nextId'),
+                    axios.get('/marketMaster/front/checkout/nextInvoiceNumber')
                 ]);
 
                 // 設置基本資料
@@ -375,7 +375,7 @@
                 if (this.value.length === 6 && tel1Input.value.length === 4) {
                     const tel = tel1Input.value + tel2Input.value;
                     try {
-                        const response = await axios.get(`/marketMaster/customer/validate?tel=${tel}`);
+                        const response = await axios.get(`/marketMaster/customer/front/validate?tel=${tel}`);
 
                         if (!response.data.exists) {
                             const result = await Swal.fire({
@@ -388,7 +388,7 @@
                             });
 
                             if (result.isConfirmed) {
-                                window.location.href = `/marketMaster/customer/cusAddForm?phone=${tel}`;
+                                window.location.href = `/marketMaster/customer/front/cusAddForm?phone=${tel}`;
                             }
                         } else {
                             const memberResponse = await axios.get(`/marketMaster/customer/details/api?customerTel=${tel}`);
