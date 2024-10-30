@@ -235,7 +235,8 @@
                                     <i class="fas fa-box-open me-2 text-primary"></i>
                                     商品詳情
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-4" id="productContainer">
                                 <!-- 內容將由 JavaScript 動態填充 -->
@@ -262,28 +263,43 @@
             safeInventory();
             removeBtnDisabled();
             removeProductDoubleCheck();
+            setupModalHandlers();
+            setupOtherHandlers();
         }
 
         //  ====================  單個商品詳細資料 modal   =================       
         const findOneSrc = document.getElementsByClassName('findOneSrc')
 
-        function getProduct(productId) {
+        function setupModalHandlers() {
+            // 為所有商品名稱連結添加事件監聽器
+            document.querySelectorAll('.findOneSrc').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const productId = this.dataset.productid;
+                    const productContainer = document.getElementById('productContainer');
+                    productContainer.innerHTML = ''; // 清空容器
+                    getProduct(productId);
+                });
+            });
+        }
 
+        // getProduct 函數修改
+        function getProduct(productId) {
             axios.post("/marketMaster/product/findOne/json", {
                 productId: productId
             })
                 .then(res => {
-                    console.log(res)
-
-                    const card = createProductCard(res.data)
-                    const productContainer = document.getElementById('productContainer')
-                    productContainer.appendChild(card)
+                    const productContainer = document.getElementById('productContainer');
+                    productContainer.innerHTML = ''; // 再次確保容器是空的
+                    const card = createProductCard(res.data);
+                    productContainer.appendChild(card);
                 })
                 .catch(err => {
                     console.error(err);
-                })
+                    document.getElementById('productContainer').innerHTML =
+                        '<div class="alert alert-danger">加載商品資料失敗</div>';
+                });
         }
-
         for (let i = 0; i < findOneSrc.length; i++) {
             findOneSrc[i].addEventListener('click', function () {
                 document.getElementById('productContainer').innerHTML = ""
@@ -444,32 +460,40 @@
 
         //      模糊搜尋
         document.getElementById('inputName').addEventListener('change', function () {
-            const productName = document.getElementById('inputName').value
+            const productName = this.value;
             let jsObject = {
                 productName: productName,
                 pageNumber: 1
-            }
+            };
+
             axios.post(findByPageUrl, jsObject)
                 .then(res => {
                     htmlMaker(res.data);
-                    pageMaker(res.data)
-                    init();
-
+                    pageMaker(res.data);
                 })
                 .catch(err => {
                     console.error(err);
-                })
-
-        })
+                });
+        });
 
         function htmlMaker(data) {
-            const tbody = document.getElementById("tbody")
-            tbody.innerHTML = ""
+            const tbody = document.getElementById("tbody");
+            tbody.innerHTML = "";
+
             for (let i = 0; i < data.numberOfElements; i++) {
-                tbody.innerHTML += createProductRow(data.content[i])
+                tbody.innerHTML += createProductRow(data.content[i]);
             }
 
-            tbody.append();
+            // 重新綁定所有事件處理器
+            setupModalHandlers();
+            setupOtherHandlers();
+        }
+
+        // 其他事件處理器設置
+        function setupOtherHandlers() {
+            safeInventory();
+            removeBtnDisabled();
+            removeProductDoubleCheck();
         }
 
 
@@ -484,7 +508,7 @@
     <tr>
         <td>${product.productId}</td>
         <td>${product.productCategory}</td>
-        <td><a href="${baseUrl}/product/findOne?productId=${product.productId}">${product.productName}</a></td>
+        <td><a class="findOneSrc" href="#" data-bs-toggle="modal" data-bs-target="#findOneModal" data-productid="${product.productId}">${product.productName}</a></td>
         <td>${product.productPrice}</td>
         <td data-safeinventory="${product.productSafeInventory}">${product.productSafeInventory}</td>
         <td data-shelve="${product.numberOfShelve}">${product.numberOfShelve}</td>
@@ -514,28 +538,30 @@
         }
 
         function pageMaker(data) {
-            const ul = document.getElementById("pageUl")
-            ul.innerHTML = "";  // 清空之前的分頁按鈕
+            const ul = document.getElementById("pageUl");
+            ul.innerHTML = "";
 
-            for (let i = 1; i <= data.totalPages; i++) {  // 根據回傳的總頁數來生成按鈕
+            for (let i = 1; i <= data.totalPages; i++) {
                 const li = document.createElement("li");
+                li.className = "page-item";
                 const btn = document.createElement("button");
-                btn.className = "page-link"
+                btn.className = "page-link";
                 btn.textContent = i;
+
                 btn.addEventListener('click', function () {
-                    const productName = document.getElementById('inputName').value
+                    const productName = document.getElementById('inputName').value;
                     axios.post(findByPageUrl, {
                         productName: productName,
                         pageNumber: i
-                    })  // 傳遞 productName 和頁碼
+                    })
                         .then(res => {
-                            htmlMaker(res.data);  // 更新產品表格
-                            init();
+                            htmlMaker(res.data);
                         })
                         .catch(err => {
                             console.error(err);
                         });
                 });
+
                 li.appendChild(btn);
                 ul.appendChild(li);
             }

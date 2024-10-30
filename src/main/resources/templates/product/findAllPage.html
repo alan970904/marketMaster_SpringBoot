@@ -18,9 +18,9 @@
 
     .w100 {
         width: 100%;
-        
+
     }
-   
+
     .modal-content {
         border-radius: 0.5rem;
     }
@@ -52,7 +52,6 @@
         padding: 0.5rem 1rem;
         border-radius: 2rem;
     }
-
 </style>
 
 <body>
@@ -61,15 +60,15 @@
             <main>
                 <div class="container mt-3">
                     <div class="d-flex justify-content-between">
-                        <div  class="btn-group">
-                            <a class="btn btn-outline-secondary"
-                            th:href="@{/product/findAll}">查詢所有商品</a>
+                        <div class="btn-group">
+                            <a class="btn btn-outline-secondary" th:href="@{/product/findAll}">查詢所有商品</a>
 
                             <a class="btn btn-outline-secondary"
                                 th:href="@{/product/findProductAvailable(available=${true})}">查詢在銷售商品</a>
                             <a class="btn btn-outline-secondary"
                                 th:href="@{/product/findProductAvailable(available=${false})}">查詢已下架商品</a>
-                            <a class="btn btn-outline-secondary" th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
+                            <a class="btn btn-outline-secondary"
+                                th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
                         </div>
 
 
@@ -230,111 +229,47 @@
         //  ====================  單個商品詳細資料 modal   =================       
         const findOneSrc = document.getElementsByClassName('findOneSrc')
 
+        // Modal 相關函數
+        function setupModalHandlers() {
+            // 清除任何已存在的事件監聽器
+            const links = document.querySelectorAll('.findOneSrc');
+            links.forEach(link => {
+                // 移除舊的事件監聽器
+                link.replaceWith(link.cloneNode(true));
+            });
+
+            // 重新添加事件監聽器
+            document.querySelectorAll('.findOneSrc').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const productId = this.dataset.productid;
+                    getProduct(productId);
+                });
+            });
+        }
+
+        // 修改 getProduct 函數
         function getProduct(productId) {
+            const productContainer = document.getElementById('productContainer');
+            productContainer.innerHTML = ''; // 清空容器
 
             axios.post("/marketMaster/product/findOne/json", {
                 productId: productId
             })
                 .then(res => {
-                    console.log(res)
-
-                    const card = createProductCard(res.data)
-                    const productContainer =document.getElementById('productContainer')
-                    productContainer.appendChild(card)
+                    const card = createProductCard(res.data);
+                    productContainer.appendChild(card);
                 })
                 .catch(err => {
                     console.error(err);
-                })
+                    productContainer.innerHTML = '<div class="alert alert-danger">加載商品資料失敗</div>';
+                });
         }
 
-        for (let i = 0; i < findOneSrc.length; i++) {
-            findOneSrc[i].addEventListener('click', function () {
-                document.getElementById('productContainer').innerHTML = ""
-                const productId = findOneSrc[i].dataset.productid
-                console.log(productId)
-                getProduct(productId)
-            })
-        }
 
-        function createProductCard(product) {
-            const card = document.createElement('div');
-            card.classList.add('card', 'mb-3');
-            card.style.maxWidth = '800px';  // 調整寬度以適應更多內容
 
-            // 建立卡片的主要 row
-            const row = document.createElement('div');
-            row.classList.add('row', 'g-0');
 
-            // 圖片區塊
-            const imgCol = document.createElement('div');
-            imgCol.classList.add('col-md-4','d-flex', 'align-items-center');
 
-            if (product.productPhoto && product.productPhoto.length > 0) {
-                const img = document.createElement('img');
-                img.src = `/marketMaster/product/downloadProductPhoto?productId=${product.productId}`;
-                img.classList.add('img-fluid', 'rounded-start');
-                img.alt = product.productName;
-                imgCol.appendChild(img);
-            }
-
-            // 內容區塊
-            const contentCol = document.createElement('div');
-            contentCol.classList.add('col-md-8');
-
-            const cardBody = document.createElement('div');
-            cardBody.classList.add('card-body');
-
-            // 標題
-            const title = document.createElement('h5');
-            title.classList.add('card-title');
-            title.textContent = product.productName;
-
-            // 主要內容
-            const mainContent = document.createElement('div');
-            mainContent.classList.add('card-text');
-
-            // 將表格改為更簡潔的顯示方式
-            mainContent.innerHTML = `
-        <div class="row mb-2">
-            <div class="col-6">
-                <p><strong>商品編號:</strong> ${product.productId}</p>
-                <p><strong>商品類別:</strong> ${product.productCategory}</p>
-                <p><strong>商品售價:</strong> ${product.productPrice}</p>
-                <p><strong>安全庫存量:</strong> ${product.productSafeInventory}</p>
-            </div>
-            <div class="col-6">
-                <p><strong>庫存數量:</strong> ${product.numberOfInventory}</p>
-                <p><strong>上架數量:</strong> ${product.numberOfShelve}</p>
-                <p><strong>銷售數量:</strong> ${product.numberOfSale}</p>
-                <p><strong>兌換數量:</strong> ${product.numberOfExchange}</p>
-            </div>
-        </div>
-    `;
-
-            // 最後更新時間（選擇性添加）
-            const updateTime = document.createElement('p');
-            updateTime.classList.add('card-text');
-            updateTime.innerHTML = `
-        <small class="text-muted">
-            下架數量: ${product.numberOfRemove} | 
-            銷毀數量: ${product.numberOfDestruction}
-        </small>
-    `;
-
-            // 組裝卡片
-            cardBody.appendChild(title);
-            cardBody.appendChild(mainContent);
-            cardBody.appendChild(updateTime);
-            contentCol.appendChild(cardBody);
-
-            row.appendChild(imgCol);
-            row.appendChild(contentCol);
-            card.appendChild(row);
-
-            return card;
-        }
-
-        
         //  ====================  單個商品詳細資料 modal   ================= 
 
         function safeInventory() {
@@ -381,34 +316,84 @@
             })
         }
 
-        //      模糊搜尋
+        function setupOtherHandlers() {
+            // 下架按鈕
+            document.querySelectorAll('.removeBtn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const result = confirm("確認是否要下架商品");
+                    if (result) {
+                        this.closest("form").submit();
+                    }
+                });
+            });
+
+            // 執行其他初始化
+            safeInventory();
+            removeBtnDisabled();
+        }
+
+        // 模糊搜尋事件監聽器
         document.getElementById('inputName').addEventListener('change', function () {
-            const productName = document.getElementById('inputName').value
+            const productName = this.value;
             let jsObject = {
                 productName: productName,
                 pageNumber: 1
-            }
+            };
+
             axios.post(findByPageUrl, jsObject)
                 .then(res => {
                     htmlMaker(res.data);
-                    pageMaker(res.data)
-                    init();
-
+                    pageMaker(res.data);
                 })
                 .catch(err => {
                     console.error(err);
-                })
+                });
+        });
 
-        })
+        // 頁面載入時的初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            setupModalHandlers();
+            setupOtherHandlers();
+        });
+
+        function bindEventListeners() {
+            // 綁定商品詳情點擊事件
+            document.querySelectorAll('.findOneSrc').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const productId = this.dataset.productid;
+                    getProduct(productId);
+                });
+            });
+
+            // 綁定下架按鈕事件
+            const removeBtns = document.querySelectorAll('.removeBtn');
+            removeBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const result = confirm("確認是否要下架商品");
+                    if (result) {
+                        this.closest("form").submit();
+                    }
+                });
+            });
+
+            // 執行其他必要的初始化
+            safeInventory();
+            removeBtnDisabled();
+        }
 
         function htmlMaker(data) {
-            const tbody = document.getElementById("tbody")
-            tbody.innerHTML = ""
+            const tbody = document.getElementById("tbody");
+            tbody.innerHTML = ""; // 清空表格
+
             for (let i = 0; i < data.numberOfElements; i++) {
-                tbody.innerHTML += createProductRow(data.content[i])
+                tbody.innerHTML += createProductRow(data.content[i]);
             }
 
-            tbody.append();
+            // 重新綁定所有事件處理器
+            setupModalHandlers();
+            setupOtherHandlers();
         }
 
 
@@ -418,16 +403,16 @@
 
 
         function createProductCard(product) {
-    const card = document.createElement('div');
-    card.classList.add('container-fluid', 'p-0');
+            const card = document.createElement('div');
+            card.classList.add('container-fluid', 'p-0');
 
-    // 判斷庫存狀態
-    const isLowInventory = product.numberOfInventory < product.productSafeInventory;
-    const inventoryStatus = isLowInventory ? 
-        '<span class="badge bg-danger status-badge">庫存不足</span>' : 
-        '<span class="badge bg-success status-badge">庫存充足</span>';
+            // 判斷庫存狀態
+            const isLowInventory = product.numberOfInventory < product.productSafeInventory;
+            const inventoryStatus = isLowInventory ?
+                '<span class="badge bg-danger status-badge">庫存不足</span>' :
+                '<span class="badge bg-success status-badge">庫存充足</span>';
 
-    card.innerHTML = `
+            card.innerHTML = `
         <div class="row g-4">
             <!-- 左側區塊：基本資訊 -->
             <div class="col-md-6 border-end">
@@ -531,8 +516,49 @@
         </div>
     `;
 
-    return card;
-}
+            return card;
+        }
+
+        function createProductRow(product) {
+            return `
+        <tr>
+            <td>${product.productId}</td>
+            <td>${product.productCategory}</td>
+            <td>
+                <a href="#" 
+                   class="findOneSrc" 
+                   data-bs-toggle="modal" 
+                   data-bs-target="#findOneModal" 
+                   data-productid="${product.productId}">
+                    ${product.productName}
+                </a>
+            </td>
+            <td>${product.productPrice}</td>
+            <td data-safeinventory="${product.productSafeInventory}">${product.productSafeInventory}</td>
+            <td data-shelve="${product.numberOfShelve}">${product.numberOfShelve}</td>
+            <td data-inventory="${product.numberOfInventory}">${product.numberOfInventory}</td>
+            <td>${product.numberOfSale}</td>
+            <td>${product.numberOfExchange}</td>
+            <td>${product.numberOfDestruction}</td>
+            <td>${product.numberOfRemove}</td>
+            <td class="d-flex justify-content-evenly m-0">
+                <form method="get" action="${baseUrl}/product/getUpdate">
+                    <input type="hidden" value="${product.productId}" name="productId">
+                    <button type="submit" class="btn btn-secondary updateBtn">修改</button>
+                </form>
+                <form method="get" action="${baseUrl}/product/getShelve">
+                    <input type="hidden" value="${product.productId}" name="productId">
+                    <button type="submit" class="btn btn-warning shelveBtn">上架</button>
+                </form>
+                <form method="post" action="${baseUrl}/product/remove">
+                    <input type="hidden" value="${product.productId}" name="productId">
+                    <button type="button" class="btn btn-danger removeBtn">下架</button>
+                </form>
+                <input type="hidden" value="${product.productAvailable}" class="status">
+            </td>
+        </tr>
+    `;
+        }
 
     </script>
 
