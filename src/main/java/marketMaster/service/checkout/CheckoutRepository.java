@@ -66,6 +66,7 @@ public interface CheckoutRepository extends JpaRepository<CheckoutBean, String> 
     @Query("SELECT COALESCE(SUM(c.checkoutTotalPrice), 0) FROM CheckoutBean c WHERE c.checkoutDate = :date AND c.checkoutStatus = '正常'")
     Integer getDailySalesTotal(@Param("date") Date date);
 
+
     // 更新結帳狀態
     @Modifying
     @Query("UPDATE CheckoutBean c SET c.checkoutStatus = :status WHERE c.checkoutId = :checkoutId")

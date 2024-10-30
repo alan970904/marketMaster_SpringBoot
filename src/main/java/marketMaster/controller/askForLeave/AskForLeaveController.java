@@ -90,7 +90,6 @@ public class AskForLeaveController {
 
 	@GetMapping("/askForLeave/waitStatus")
 	public String waitStatus(@RequestParam("id") String employeeId, Model model) {
-	    System.out.println("employeeId=" + employeeId);
 	    List<AskForLeaveBean> aslBean = aslService.findAslByEmpIdStatus(employeeId);
 	    model.addAttribute("leaves", aslBean);
 
@@ -435,7 +434,8 @@ public class AskForLeaveController {
 			Integer leaveHours = aslById.getLeaveHours();
 			LocalDateTime endTime = aslById.getEndTime();
 			Integer categoryId = aslById.getLeaveCategory().getCategoryId();
-
+			
+			
 			leaveRecordService.checkLeaveRecord(employeeId, categoryId, endTime);
 			leaveRecordService.addLeaveHours(employeeId, categoryId, endTime, leaveHours);
 			aslService.approveLeave(leaveId);
@@ -454,6 +454,8 @@ public class AskForLeaveController {
 			Integer leaveHours = aslById.getLeaveHours();
 			LocalDateTime endTime = aslById.getEndTime();
 			Integer categoryId = aslById.getLeaveCategory().getCategoryId();
+			
+		
 
 			leaveRecordService.minusLeaveHours(employeeId, categoryId, endTime, leaveHours);
 

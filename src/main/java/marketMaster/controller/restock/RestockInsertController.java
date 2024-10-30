@@ -34,7 +34,10 @@ public class RestockInsertController {
     public String restockPage1(){
         return "restock/test";
     }
-
+    @GetMapping("/restockEmpInsert")
+    public String restockEmpPage(){
+        return "restock/restockInsertEmployee";
+    }
     @GetMapping("/getEmployeeInfo")
     @ResponseBody
     public List<EmployeeInfoDTO> getEmployeeInfo(){

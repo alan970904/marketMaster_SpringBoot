@@ -1,7 +1,10 @@
 package marketMaster.controller.product;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,9 +19,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
+import marketMaster.DTO.product.ProductSalesAndReturnDTO;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.ProductService;
 
@@ -178,6 +183,27 @@ public class ProductController {
 		productService.removeProduct(productId);
 
 		return "redirect:/product/findAll";
+	}
+	
+	//  ===============計算銷售率及退貨率用的=============
+	
+	@GetMapping("/product/statistics/sales-and-returns")
+	@ResponseBody
+	public ResponseEntity<Map<String, List<ProductSalesAndReturnDTO>>> getProductStatistics() {
+	    List<ProductSalesAndReturnDTO> allStats = productService.getProductSalesAndReturnStats();
+	    
+	    Map<String, List<ProductSalesAndReturnDTO>> result = new HashMap<>();
+	    result.put("topSales", allStats.stream()
+	        .sorted((a, b) -> Long.compare(b.getSalesQuantity(), a.getSalesQuantity()))
+	        .limit(3)
+	        .collect(Collectors.toList()));
+	    
+	    result.put("topReturns", allStats.stream()
+	        .sorted((a, b) -> Double.compare(b.getReturnRate(), a.getReturnRate()))
+	        .limit(3)
+	        .collect(Collectors.toList()));
+	        
+	    return ResponseEntity.ok(result);
 	}
 
 }

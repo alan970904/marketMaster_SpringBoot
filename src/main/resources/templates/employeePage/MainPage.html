@@ -186,22 +186,25 @@
 </head>
 
 <body>
-    <div th:replace="~{body/headerEmployee :: headerEmployee}">
-        <div th:fragment="content">
-            <div class="container">
-                <div class="left-column">
-                    <input type="hidden" id="employeeId" th:value="${session.employee.employeeId}" />
-                    <!-- 左上：排班月曆 -->
-                    <div class="calendar">
-                        <div id="miniViewContainer"></div>
-                    </div>
-                    <!-- 左下：請假單狀態與請假按鈕 -->
-                    <div class="leave-status">
-                        <div id="waitStatus" class="waitStatus ml-5"></div>
-                        <a th:href="@{/askForLeave/usefind(id=${session.employee?.employeeId})}"
-                            class="btn btn-warning btn-custom"><i class="fa-solid fa-champagne-glasses"></i> 請假</a>
-                    </div>
-                </div>
+	<div th:replace="~{body/headerEmployee :: headerEmployee}">
+		<div th:fragment="content">
+			<div class="container">
+				<div class="left-column">
+					<input type="hidden" id="employeeId"
+						th:value="${session.employee.employeeId}" />
+					<!-- 左上：排班月曆 -->
+					<div class="calendar">
+						<div id="miniViewContainer"></div>
+					</div>
+					<!-- 左下：請假單狀態與請假按鈕 -->
+					<div class="leave-status">
+						<div id="waitStatus" class="waitStatus ml-5"></div>
+						<a
+							th:href="@{/askForLeave/usefind(id=${session.employee?.employeeId})}"
+							class="btn btn-warning btn-custom mt-auto"><i
+							class="fa-solid fa-champagne-glasses"></i> 請假</a>
+					</div>
+				</div>
 
                 <!-- 中上：待進貨 -->
                 <div class="middle-column">
@@ -314,7 +317,7 @@
 
 
         document.getElementById('addRestock').addEventListener('click', function () {
-            window.location.href = "/marketMaster/restock/restockInsert"
+            window.location.href = "/marketMaster/restock/restockEmpInsert"
         });
 
         document.getElementById('addCart').addEventListener('click', function () {

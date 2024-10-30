@@ -56,8 +56,8 @@
               <td th:text="${payment.paidAmount}">Paid Amount</td>
               <td>
                 <button class="btn btn-primary add-payment-btn"
-                        th:data-detail-id="${payment.detailId}"
-                        th:data-supplier-id="${payment.supplierId}">
+                          th:data-detail-id="${payment.detailId}"
+                          th:data-supplier-id="${payment.supplierId}">
                   新增付款
                 </button>
               </td>
@@ -89,7 +89,7 @@
     var paymentInsertDTO = {
       accountId: null, // 後端設置
       paymentDate: null, // 後端設置
-      paymentMethod: null, // 將在後端處理
+      paymentMethod: null, // 後端處理
       totalAmount: 0,
       paymentStatus: "已支付",
       paymentRecords: []

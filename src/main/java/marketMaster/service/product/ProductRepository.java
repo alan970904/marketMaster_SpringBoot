@@ -5,6 +5,7 @@ import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.DTO.product.ProductIdDTO;
 import marketMaster.DTO.product.ProductIdRestockNumDTO;
 import marketMaster.DTO.product.ProductNameDTO;
+import marketMaster.DTO.product.ProductSalesAndReturnDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
 import marketMaster.bean.product.ProductBean;
 
@@ -73,6 +74,33 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     List<ProductIdRestockNumDTO> findRestockNumberByRestockId(@Param("restockId") String restockId);
     
     //  ===============更新進貨數量用的=============
+    
+    
+    
+    
+    //  ===============計算銷售率及退貨率用的=============
+    
+    @Query("""
+    	    SELECT NEW marketMaster.DTO.product.ProductSalesAndReturnDTO(
+    	        p.productId,
+    	        p.productName,
+    	        p.productCategory,
+    	        SUM(cd.numberOfCheckout),
+    	        SUM(cd.checkoutPrice),
+    	        COALESCE(
+    	            (SELECT COUNT(*) FROM ReturnDetailsBean rd 
+    	             WHERE rd.productId = p.productId) * 100.0 / 
+    	            COUNT(cd.checkoutId), 0
+    	        )
+    	    )
+    	    FROM ProductBean p
+    	    JOIN CheckoutDetailsBean cd ON p.productId = cd.productId
+    	    JOIN CheckoutBean c ON cd.checkoutId = c.checkoutId
+    	    GROUP BY p.productId, p.productName, p.productCategory
+    	""")
+    	List<ProductSalesAndReturnDTO> findProductSalesAndReturnStats();
+    
+    
 }
 
 
