@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org/">
 
 <head>
-    <meta charset="UTF-8" th:replace="~{body/head :: head}">
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
     <title>商品資料</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,15 +17,23 @@
             text-align: center
         }
 
+        .hidden {
+            display: none;
+        }
+
+        #inputCategory {
+            left: 100%;
+            width: 150px;
+        }
+
         .card {
             border: none;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
             border-radius: 15px;
             background: linear-gradient(to bottom, #ffffff, #f8f9fa);
-            /* 調整卡片寬度 */
-            max-width: 600px;
+            max-width: 550px;
             width: 100%;
-            margin: 0 auto;
+            margin: 1.5rem auto;
         }
 
         .card-header {
@@ -35,21 +43,28 @@
             padding: 1.2rem;
         }
 
+        .card-header .fs-4 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+        }
+
         .card-body {
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
-        .form-table {
+        .info-table {
             width: 100%;
+            margin: 0 auto;
         }
 
-        .form-table td {
-            padding: 12px 8px;
+        .info-table td {
+            padding: 10px 8px;
             vertical-align: middle;
         }
 
-        .form-table td:first-child {
-            width: 120px;
+        .info-table td:first-child {
+            width: 130px;
             color: #495057;
             font-weight: 500;
             text-align: right;
@@ -57,7 +72,23 @@
             white-space: nowrap;
         }
 
-        /* 修改商品類別選擇區域的樣式 */
+        /* 輸入框統一樣式 */
+        .form-control,
+        .form-select {
+            border: 1px solid #dee2e6;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.15);
+        }
+
+        /* 商品類別選擇區域 */
         .category-wrapper {
             position: relative;
             width: 100%;
@@ -68,24 +99,51 @@
             top: 0;
             left: 0;
             width: 100% !important;
-            z-index: 1;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 8px 12px;
+            background-color: white !important;
+            z-index: 2;
         }
 
         #select {
             width: 100%;
-            background-color: white;
+            background-color: white !important;
         }
 
-        /* 按鈕組樣式 */
+        /* 文件上傳樣式 */
+        .file-upload {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: #dee2e6;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 按鈕樣式 */
         .button-group {
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
         }
 
         .btn {
@@ -93,10 +151,11 @@
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.3s ease;
-            display: inline-flex;
+            min-width: 120px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 120px;
+            gap: 0.5rem;
         }
 
         .btn-primary {
@@ -109,169 +168,131 @@
             border: none;
         }
 
-        .btn i {
-            margin-right: 8px;
-        }
-
         .btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* 文件上傳按鈕樣式 */
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-
-        .file-input-wrapper input[type=file] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
-
-        .file-input-button {
-            background: #e9ecef;
-            border: 1px solid #dee2e6;
-            padding: 8px 16px;
+        /* 錯誤訊息樣式 */
+        .error-message {
+            color: #dc3545;
+            background-color: #dc354510;
+            padding: 0.75rem;
             border-radius: 8px;
-            color: #495057;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
         }
 
-        /* 表單控制項統一樣式 */
-        .form-control,
-        .form-select {
-            border: 1px solid #dee2e6;
-            padding: 8px 12px;
-            border-radius: 8px;
-            width: 100%;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-        }
-
-        .input-group-text {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px 0 0 8px;
-            padding: 8px 12px;
-        }
-
-        .input-group .form-control {
-            border-radius: 0 8px 8px 0;
-        }
-
-        /* 隱藏的輸入框樣式 */
-        .hidden {
-            display: none;
+        /* 文件名稱顯示 */
+        .file-name {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6c757d;
         }
     </style>
 </head>
 
 <body>
-    <div th:replace="~{body/header :: header}">
+    <div th:replace="~{body/headerEmployee :: headerEmployee}">
         <div th:fragment="content">
             <main>
                 <div class="container d-flex justify-content-center">
-                    <div class="card w-75 mt-4">
+                    <div class="card">
                         <div class="card-header text-center">
-                            <h4 class="mb-0">修改商品資料</h4>
+                            <h5 class="fs-4 mb-0">新增商品資料</h5>
                         </div>
                         <div class="card-body">
-                            <form th:action="@{/product/update}" method="post" enctype="multipart/form-data">
-                                <table class="form-table">
+                            <div th:if="${errorMsg}" class="error-message">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <span th:text="${errorMsg}"></span>
+                            </div>
+
+                            <form th:action="@{/product/front/add}" method="post" enctype="multipart/form-data">
+                                <table class="info-table">
                                     <tr>
-                                        <td>商品編號</td>
+                                        <td>商品編號：</td>
                                         <td>
-                                            <input type="text" class="form-control" readonly
-                                                th:value="${product.productId}" name="productId">
+                                            <input type="text" name="productId" class="form-control text-center"
+                                                placeholder="請輸入商品編號">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>商品類別</td>
+                                        <td>商品類別：</td>
                                         <td>
                                             <div class="category-wrapper">
-                                                <select name="productCategory" id="select" class="form-select"></select>
-                                                <input id="inputCategory" class="hidden form-control"
+                                                <select name="productCategory" id="select"
+                                                    class="form-select text-center"></select>
+                                                <input id="inputCategory" class="hidden form-control text-center"
                                                     placeholder="請輸入自訂類別名稱">
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>商品名稱</td>
+                                        <td>商品名稱：</td>
                                         <td>
-                                            <input type="text" class="form-control" th:value="${product.productName}"
-                                                name="productName">
+                                            <input type="text" name="productName" class="form-control text-center"
+                                                placeholder="請輸入商品名稱">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>商品售價</td>
+                                        <td>商品售價：</td>
                                         <td>
-                                            <div class="input-group">
-                                                <span class="input-group-text">NT$</span>
-                                                <input type="number" class="form-control"
-                                                    th:value="${product.productPrice}" name="productPrice">
-                                            </div>
+                                            <input type="number" name="productPrice" class="form-control text-center"
+                                                placeholder="請輸入商品售價" min="0">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>安全庫存量</td>
+                                        <td>安全庫存量：</td>
                                         <td>
-                                            <input type="number" class="form-control"
-                                                th:value="${product.productSafeInventory}" name="productSafeInventory">
+                                            <input type="number" name="productSafeInventory"
+                                                class="form-control text-center" placeholder="請輸入安全庫存量" min="0">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>商品圖片</td>
+                                        <td>商品圖片：</td>
                                         <td>
-                                            <div class="file-input-wrapper">
-                                                <button type="button" class="file-input-button">
+                                            <div class="file-upload">
+                                                <label class="file-upload-label">
                                                     <i class="fas fa-upload me-2"></i>選擇檔案
-                                                </button>
-                                                <input type="file" name="photo" id="photoInput">
+                                                    <input type="file" name="photo" id="photoInput">
+                                                </label>
+                                                <div class="file-name" id="fileName"></div>
                                             </div>
-                                            <small class="text-muted ms-2" id="fileName"></small>
                                         </td>
                                     </tr>
                                 </table>
 
                                 <div class="button-group">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i>儲存修改
+                                        <i class="fas fa-plus"></i>
+                                        新增商品
                                     </button>
-                                    <a class="btn btn-dark" th:href="@{/product/findAll}">
-                                        <i class="fas fa-arrow-left"></i>返回列表
+                                    <a class="btn btn-dark" th:href="@{/product/front/findAll}">
+                                        <i class="fas fa-arrow-left"></i>
+                                        返回列表
                                     </a>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-
             </main>
         </div>
     </div>
     <div th:replace="~{body/footer :: footer}"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', getProductCategory)
+
+        // 新增檔案上傳預覽
         document.getElementById('photoInput').addEventListener('change', function (e) {
             const fileName = e.target.files[0]?.name || '未選擇檔案';
             document.getElementById('fileName').textContent = fileName;
         });
-        document.addEventListener('DOMContentLoaded', getProductCategory)
         function getProductCategory() {
             axios.post('http://localhost:8080/marketMaster/product/findProductCategory')
                 .then(res => {
@@ -308,31 +329,37 @@
         }
 
 
-        const select = document.getElementById("select");
+        const select = document.getElementById("select")
         select.addEventListener("change", function () {
-            const input = document.getElementById("inputCategory");
+            const input = document.getElementById("inputCategory")
             if (select.value === "custom") {
                 input.classList.remove("hidden");
                 input.focus();
                 select.removeAttribute("name");
-                input.setAttribute("name", "productCategory");
+                input.setAttribute("name", "productCategory")
+
             } else {
                 input.classList.add("hidden");
+                select.setAttribute("name", "productCategory")
                 input.removeAttribute("name");
-                select.setAttribute("name", "productCategory");
             }
-        });
-
+        })
         document.querySelector('form').addEventListener('submit', function (event) {
             const select = document.getElementById("select");
             const input = document.getElementById("inputCategory");
+            const productId = document.querySelector('input[name="productId"]').value;
+            const productName = document.querySelector('input[name="productName"]').value;
+            const productPrice = document.querySelector('input[name="productPrice"]').value;
+            const safeInventory = document.querySelector('input[name="productSafeInventory"]').value;
 
-            if (select.value === "" || (select.value === "custom" && input.value.trim() === "") || select.value === "請選擇商品類別") {
-                event.preventDefault();  // Prevent form submission
-                alert("請選擇或輸入有效的商品類別");  // Alert the user
+            if (!productId || !productName || !productPrice || !safeInventory ||
+                select.value === "" ||
+                (select.value === "custom" && input.value.trim() === "") ||
+                select.value === "請選擇商品類別") {
+                event.preventDefault();
+                alert("請填寫所有必填欄位");
             }
         });
-
     </script>
 
 </body>

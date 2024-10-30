@@ -31,26 +31,47 @@ public class InventoryCheckBean {
 	@Column(name = "inventory_check_date")
 	private LocalDate inventoryCheckDate;
 
+	@Column(name = "verify_status")
+	private boolean verifyStatus;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "verify_employee_id")
+	private EmpBean verifyEmployee;
+
 	@OneToMany(mappedBy = "inventoryCheck", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JsonManagedReference
 	private List<InventoryCheckDetailsBean> details;
 
 	public InventoryCheckBean(String inventoryCheckId, EmpBean employee, LocalDate inventoryCheckDate,
-			List<InventoryCheckDetailsBean> details) {
+			boolean verifyStatus, EmpBean verifyEmployee, List<InventoryCheckDetailsBean> details) {
 		super();
 		this.inventoryCheckId = inventoryCheckId;
 		this.employee = employee;
 		this.inventoryCheckDate = inventoryCheckDate;
+		this.verifyStatus = verifyStatus;
+		this.verifyEmployee = verifyEmployee;
 		this.details = details;
 	}
 
-	
-	
 	public InventoryCheckBean() {
 		super();
 	}
 
+	public boolean isVerifyStatus() {
+		return verifyStatus;
+	}
 
+	public void setVerifyStatus(boolean verifyStatus) {
+		this.verifyStatus = verifyStatus;
+	}
+
+	public EmpBean getVerifyEmployee() {
+		return verifyEmployee;
+	}
+
+	public void setVerifyEmployee(EmpBean verifyEmployee) {
+		this.verifyEmployee = verifyEmployee;
+	}
 
 	public String getInventoryCheckId() {
 		return inventoryCheckId;
@@ -83,7 +104,5 @@ public class InventoryCheckBean {
 	public void setDetails(List<InventoryCheckDetailsBean> details) {
 		this.details = details;
 	}
-	
-	
 
 }
