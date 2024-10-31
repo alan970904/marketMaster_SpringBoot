@@ -30,11 +30,11 @@ public class LoginController {
             EmpBean employee = employeeService.login(employeeId, password);
             if (employee != null && employee.getResigndate() == null) {
                 EmployeeViewModel employeeViewModel = employeeService.getEmployeeViewModel(employeeId);
-                session.setAttribute("employee", employeeViewModel);
+                session.setAttribute("backendEmployee", employeeViewModel);
 
                 // 添加權限級別的訊息
                 int authority = employee.getAuthority();
-                session.setAttribute("userAuthority", authority);
+                session.setAttribute("backendAuthority", authority);
                 
                 if (employee.isFirstLogin()) {
                     return "redirect:/employee/changePasswordPage";
@@ -53,13 +53,15 @@ public class LoginController {
 
     @GetMapping("/employee/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
+        // 只清除後台相關的 session 屬性
+        session.removeAttribute("backendEmployee");
+        session.removeAttribute("backendAuthority");
         return "redirect:/employee/loginPage";
     }
     
     @GetMapping("/homePage")
     public String homePage(HttpSession session, Model model) {
-        model.addAttribute("employee", session.getAttribute("employee"));
+        model.addAttribute("employee", session.getAttribute("backendEmployee"));
     	return "body/HomePage";
     }
 	

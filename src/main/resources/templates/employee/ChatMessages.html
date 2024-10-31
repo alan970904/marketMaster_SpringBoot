@@ -322,7 +322,7 @@
     }
     
     function connectWebSocket() {
-        const wsUrl = `ws://${window.location.host}/marketMaster/front/chat?employeeId=${currentEmployeeId}`;
+        const wsUrl = `ws://${window.location.host}/marketMaster/chat?employeeId=${currentEmployeeId}`;
         ws = new WebSocket(wsUrl);
         
         ws.onopen = function() {
@@ -375,7 +375,7 @@
     
     async function loadChatHistory(userId) {
         try {
-            const response = await fetch(`/marketMaster/front/chat/history?otherUser=${userId}`);
+            const response = await fetch(`/marketMaster/chat/history?otherUser=${userId}`);
             if (response.ok) {
                 const messages = await response.json();
                 const messageContainer = document.getElementById('messageContainer');
