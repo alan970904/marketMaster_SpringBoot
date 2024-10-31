@@ -18,7 +18,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		HttpSession session = request.getSession();
 		
 		// 檢查 session 中是否存在 employee 屬性
-		if(session.getAttribute("employee") == null) {
+		if(session.getAttribute("backendEmployee") == null) {
 			// 獲取當前請求的 URL
 			String requestURI = request.getRequestURI();
 			
