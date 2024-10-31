@@ -37,8 +37,8 @@
                 
                 <div class="mb-3">
                     <label for="employeeId">員工編號:</label>
-                    <span th:text="${session.employee.employeeId + ' - ' + session.employee.employeeName}" class="form-control" readonly></span>
-					<input type="hidden" name="employeeId" th:value="${session.employee.employeeId}">
+                    <span th:text="${session.backendEmployee.employeeId + ' - ' + session.backendEmployee.employeeName}" class="form-control" readonly></span>
+					<input type="hidden" id="employeeId" name="employeeId" th:value="${session.backendEmployee.employeeId}">
                 </div>
                 
                 <div class="mb-3">
