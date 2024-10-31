@@ -199,7 +199,7 @@ body {
 			<div class="container">
 				<div class="left-column">
 					<input type="hidden" id="employeeId"
-						th:value="${session.employee.employeeId}" />
+						th:value="${session.frontendEmployee.employeeId}" />
 					<!-- 左上：排班月曆 -->
 					<div class="calendar">
 						<div id="miniViewContainer"></div>
@@ -209,8 +209,8 @@ body {
 						<h5>待處理請假單</h5>
 						<div id="waitStatus" class="waitStatus ml-5"></div>
 						<a
-							th:href="@{/askForLeave/usefind(id=${session.employee?.employeeId})}"
-							class="btn btn-warning btn-custom mt-auto"><i
+							th:href="@{/askForLeave/usefind(id=${session.frontendEmployee?.employeeId})}"
+							class="btn btn-warning btn-custom"><i
 							class="fa-solid fa-champagne-glasses"></i> 請假</a>
 					</div>
 				</div>

@@ -31,11 +31,23 @@ public class PermissionAspect {
 	public void checkPermission(RequiresPermission requiresPermission) {
 		// 獲取當前的 HTTP 請求
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-		// 從 session 中獲取員工信息
-		EmployeeViewModel employee = (EmployeeViewModel) request.getSession().getAttribute("employee");
-
-		if (employee == null) {
-			throw new SecurityException("未登錄用戶");
+		
+		// 獲取請求的URI路徑
+		String requestUri = request.getRequestURI();
+		
+		// 判斷是前台還是後台請求
+		EmployeeViewModel employee = null;
+		if (requestUri.startsWith("/front")) {
+			// 從 session 中獲取員工信息
+			employee = (EmployeeViewModel) request.getSession().getAttribute("frontendEmployee");
+			if (employee == null) {
+				throw new SecurityException("前台未登錄");
+			}
+		} else {
+			employee = (EmployeeViewModel) request.getSession().getAttribute("backendEmployee");
+			if (employee == null) {
+				throw new SecurityException("後台未登錄");
+			}
 		}
 
 		int userAuthority = employee.getAuthority();

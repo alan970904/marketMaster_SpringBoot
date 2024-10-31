@@ -221,13 +221,13 @@ CREATE TABLE ranklevel (
 
 -- 創建排班表
 CREATE TABLE schedule (
-                          schedule_id INT AUTO_INCREMENT PRIMARY KEY,        -- 排班ID
+                          schedule_id INT IDENTITY(1,1) PRIMARY KEY,        -- 排班ID
                           employee_id VARCHAR(30) NOT NULL,                  -- 員工編號
                           schedule_date DATE NOT NULL,                       -- 排班日期
                           start_time TIME NOT NULL,                          -- 班次開始時間
                           end_time TIME NOT NULL,                            -- 班次結束時間
                           schedule_hour INT,                                 -- 時數
-                          schedule_active TINYINT(1) NOT NULL DEFAULT 1      -- 排班意願（1 表示有效，0 表示無效）
+                          schedule_active BIT NOT NULL DEFAULT 1      -- 排班意願（1 表示有效，0 表示無效）
 );
 
 -- 創建請假表

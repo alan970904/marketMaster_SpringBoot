@@ -37,7 +37,7 @@ public class ChatController {
 	
 	@GetMapping("/messages")
 	public String showChatMessages(Model model, HttpSession session) {
-	    EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+	    EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 	    if (currentEmployee == null) {
 	        return "redirect:/employee/loginPage";
 	    }
@@ -57,7 +57,7 @@ public class ChatController {
 	
 	@PostMapping("/send")
 	public ResponseEntity<?> sendMessage(@RequestBody ChatMessage message, HttpSession session) {
-		EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		
 		if (employee == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -72,7 +72,7 @@ public class ChatController {
 	@ResponseBody
 	public ResponseEntity<List<ChatMessage>> getMessageHistory(@RequestParam String otherUser, HttpSession session) {
 	    try {
-	        EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
+	        EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 	        
 	        if (employee == null) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
