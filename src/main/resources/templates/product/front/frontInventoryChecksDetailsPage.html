@@ -15,6 +15,7 @@
     td {
         vertical-align: middle;
     }
+
     .content-container {
         background: white;
         border-radius: 15px;
@@ -207,12 +208,6 @@
             <main>
                 <div class="container mt-3">
                     <div class="content-container">
-                        <!-- 審核按鈕 -->
-                        <!-- <div class="mb-3">
-                            <button class="verify-btn" id="verify" data-bs-toggle="modal" data-bs-target="#verifyModal">
-                                <i class="fas fa-check-double"></i>審核盤點單
-                            </button>
-                        </div> -->
                         <table class="table table-striped">
                             <thead class="table-dark">
                                 <tr>
@@ -223,7 +218,7 @@
                                     <th>盤點數量</th>
                                     <th>差異數量</th>
                                     <th>備註</th>
-                                    <!-- <th>操作</th> -->
+                                    <th>操作</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody" class="my-auto ">
@@ -241,21 +236,20 @@
                                         </td>
                                         <td th:text="${inventoryCheckDetail.differentialInventory}"></td>
                                         <td th:text="${inventoryCheckDetail.remark}"></td>
-                                        <!-- <td class="d-flex justify-content-evenly">
+                                        <td class="d-flex justify-content-evenly">
                                             <button type="button" class="btn btn-secondary getUpdate"
                                                 data-bs-toggle="modal" data-bs-target="#updateModal">修改</button>
                                             <button type="button" class="btn btn-danger getDelete"
-                                                data-bs-toggle="modal" data-bs-target="#deleteModal">刪除</button>
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal" th:data-detailid="${inventoryCheckDetail.detailId}">刪除</button>
 
 
-                                        </td> -->
+                                        </td>
                                     </tr>
                                 </th:block>
                             </tbody>
                         </table>
                         <!-- 確認刪除 Modal -->
-                        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                            aria-hidden="true">
+                        <div class="modal fade" id="deleteModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -266,7 +260,7 @@
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">取消</button>
-                                        <button type="button" class="btn btn-primary delete">確認刪除</button>
+                                        <button type="button" class="btn btn-primary delete" id="delete">確認刪除</button>
                                     </div>
                                 </div>
                             </div>
@@ -284,7 +278,6 @@
                                     </div>
                                     <div class="modal-body">
                                         <table class="modal-table">
-                                            <!-- 使用原有的表單欄位結構 -->
                                             <tr>
                                                 <td>盤點明細編號</td>
                                                 <td id="modal-detailId"></td>
@@ -296,7 +289,19 @@
                                                         class="form-control">
                                                 </td>
                                             </tr>
-                                            <!-- 其他表單欄位 -->
+                                            <tr>
+                                                <td>實際盤點數量</td>
+                                                <td>
+                                                    <input id="modal-actualInventory" type="number" class="form-control"
+                                                        min="0">
+                                                </td>
+                                            </tr>
+                                            <tr id="modal-remark-tr">
+                                                <td>異動原因</td>
+                                                <td>
+                                                    <input id="modal-remark" type="text" class="form-control">
+                                                </td>
+                                            </tr>
                                         </table>
                                         <div class="warning-text" id="warning-text">
                                             <i class="fas fa-exclamation-circle me-1"></i>
@@ -311,28 +316,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- 新增的審核確認 Modal -->
-                        <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel"
-                            aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="verifyModalLabel">確認審核</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        確定要審核此盤點單嗎？審核後將無法修改或刪除。
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">取消</button>
-                                        <button type="button" class="btn btn-primary" id="confirmVerify">確認審核</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
                     </div>
                 </div>
             </main>
@@ -344,28 +327,32 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
     <script>
-        const deleteBtn = document.getElementsByClassName('delete')
+        const deleteBtn = document.getElementById('delete')
         const detailId = document.getElementsByClassName('detailId')
         const updateBtn = document.getElementsByClassName('update')
         const actualInventory = document.getElementsByClassName('actualInventory')
 
-        // const getUpdateBtn = document.getElementsByClassName('getUpdate')
-        // const getDeleteBtn = document.getElementsByClassName('getDelete')
+        const getUpdateBtn = document.getElementsByClassName('getUpdate')
+        const getDeleteBtn = document.getElementsByClassName('getDelete')
         // 刪除按鈕監聽
-        for (let i = 0; i < deleteBtn.length; i++) {
+        for (let i = 0; i < getUpdateBtn.length; i++) {
 
-            deleteBtn[i].addEventListener('click', function () {
+            getDeleteBtn[i].addEventListener('click', function () {
                 console.log(detailId[i].innerText)
-                axios.post('http://localhost:8080/marketMaster/inventoryCheckDetails/deleteByDetailId', {
-                    detailId: detailId[i].innerText
-                })
+                const deleteModalBtn = document.getElementById('delete')
+                deleteModalBtn.addEventListener('click', function () {
+                    const detailId = document.getElementsByClassName('detailId')[i].innerText
+                    axios.post('/marketMaster/inventoryCheckDetails/front/deleteByDetailId',{
+                        detailId: detailId
+                    })
                     .then(res => {
                         alert('刪除成功')
-                        location.reload();
+                        location.reload()
                     })
                     .catch(err => {
-                        console.error(err);
+                        console.error(err); 
                     })
+                })
             })
         }
 
@@ -380,51 +367,68 @@
                     const detailId = currentRow.querySelector('.detailId').innerText;
                     const currentInventory = currentRow.querySelector('td:nth-child(4)').innerText;
                     const actualInventory = currentRow.querySelector('.actualInventory').innerText;
-                    const tr = document.getElementById('modal-remark-tr');
-                    const updatedInventory = document.getElementById('modal-updatedInventory');
-
+                    const remarkTr = document.getElementById('modal-remark-tr');
+                    const modalActualInventory = document.getElementById('modal-actualInventory');
+                    const modalRemark = document.getElementById('modal-remark');
 
                     // 將數據填充到modal中
                     document.getElementById('modal-detailId').innerText = detailId;
                     document.getElementById('modal-currentInventory').value = currentInventory;
-                    document.getElementById('modal-actualInventory').value = actualInventory;
+                    modalActualInventory.value = actualInventory;
 
-                    updatedInventory.addEventListener('change', function () {
-                        const updatedInventoryValue = updatedInventory.value;
+                    // 監聽實際盤點數量的變化
+                    modalActualInventory.addEventListener('input', function () {
+                        const updatedInventoryValue = parseInt(this.value || 0);
+                        const currentInventoryValue = parseInt(currentInventory);
 
-                        if (updatedInventoryValue !== currentInventory) {
-                            tr.style.display = 'table-row';
+                        if (updatedInventoryValue !== currentInventoryValue) {
+                            remarkTr.style.display = 'table-row';
+                            modalRemark.value = ''; // 清空備註
+                            document.getElementById('warning-text').style.display = 'block';
                         } else {
-                            tr.style.display = 'none';
+                            remarkTr.style.display = 'table-row';
+                            modalRemark.value = '數量再次盤點無誤';
+                            document.getElementById('warning-text').style.display = 'none';
                         }
-
                     });
                 });
             });
 
+
             // 當點擊"修改完成"按鈕時
             document.getElementById('saveChangesBtn').addEventListener('click', function () {
-                const updatedInventory = document.getElementById('modal-updatedInventory').value;
-                const currentInventory = currentRow.querySelector('td:nth-child(4)').innerText;
-                const mark = document.getElementById('modal-remark').value;
-                if (updatedInventory != currentInventory && mark == '') {
-                    alert('請輸入數量變更的原因');
+                const modalActualInventory = document.getElementById('modal-actualInventory');
+                const updatedInventory = modalActualInventory.value;
+                const currentInventory = document.getElementById('modal-currentInventory').value;
+                const modalRemark = document.getElementById('modal-remark');
+                const mark = modalRemark.value;
+
+                // 驗證
+                if (!updatedInventory) {
+                    alert('請輸入盤點數量');
                     return;
-                } else if (updatedInventory == currentInventory && mark == '') {
-                    mark.innerText = '數量再次盤點無誤';
                 }
-                axios.post('http://localhost:8080/marketMaster/inventoryCheckDetails/updateByDetailId', {
+
+                if (parseInt(updatedInventory) !== parseInt(currentInventory) && !mark) {
+                    alert('請輸入數量變更的原因');
+                    document.getElementById('warning-text').style.display = 'block';
+                    return;
+                }
+
+                // 發送請求
+                axios.post('http://localhost:8080/marketMaster/inventoryCheckDetails/front/updateByDetailId', {
                     detailId: document.getElementById('modal-detailId').innerText,
                     actualInventory: updatedInventory,
-                    remark: mark
+                    remark: mark || '數量再次盤點無誤'
                 })
                     .then(() => {
-                        alert('修改成功')
+                        alert('修改成功');
                         location.reload();
                     })
                     .catch(err => {
                         console.error(err);
-                    })
+                        alert('修改失敗: ' + err.response?.data || '請稍後再試');
+                    });
 
                 // 關閉modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
@@ -433,15 +437,15 @@
         });
 
 
-        document.addEventListener('DOMContentLoaded', verifyListener)
-        function verifyListener() {
-            const verifyBtn = document.getElementById('verify')
-            verifyBtn.addEventListener('click', function () {
-                const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
-                console.log(checkId)
+        // document.addEventListener('DOMContentLoaded', verifyListener)
+        // function verifyListener() {
+        //     const verifyBtn = document.getElementById('verify')
+        //     verifyBtn.addEventListener('click', function () {
+        //         const checkId = document.getElementsByClassName('detailId')[0].dataset.inventorycheckid
+        //         console.log(checkId)
 
-            })
-        }
+        //     })
+        // }
         document.addEventListener('DOMContentLoaded', verifyCheck)
         function verifyCheck() {
             const verifyStatus = document.getElementsByClassName('detailId')[0].dataset.verifystatus
@@ -452,21 +456,21 @@
             for (let i = 0; i < getUpdateBtn.length; i++) {
                 if (verifyStatus === 'true') {
                     getDeleteBtn[i].classList.remove('btn-danger')
-                            getDeleteBtn[i].classList.add('btn-danger', 'opacity-50')
-                            getDeleteBtn[i].removeAttribute('data-bs-toggle')
-                            new bootstrap.Tooltip(getDeleteBtn[i], {
-                                title: '此盤點單已核准，無法刪除'
-                            })
-                            getUpdateBtn[i].classList.remove('btn-secondary')
-                            getUpdateBtn[i].classList.add('btn-secondary', 'opacity-50')
-                            getUpdateBtn[i].removeAttribute('data-bs-toggle')
-                            new bootstrap.Tooltip(getUpdateBtn[i], {
-                                title: '此盤點單已核准，無法更改'
-                            })
+                    getDeleteBtn[i].classList.add('btn-danger', 'opacity-50')
+                    getDeleteBtn[i].removeAttribute('data-bs-toggle')
+                    new bootstrap.Tooltip(getDeleteBtn[i], {
+                        title: '此盤點單已核准，無法刪除'
+                    })
+                    getUpdateBtn[i].classList.remove('btn-secondary')
+                    getUpdateBtn[i].classList.add('btn-secondary', 'opacity-50')
+                    getUpdateBtn[i].removeAttribute('data-bs-toggle')
+                    new bootstrap.Tooltip(getUpdateBtn[i], {
+                        title: '此盤點單已核准，無法更改'
+                    })
                 }
-                    
-                
-                
+
+
+
             }
         }
 

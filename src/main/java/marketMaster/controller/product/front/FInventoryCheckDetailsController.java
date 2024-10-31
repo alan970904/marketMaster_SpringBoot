@@ -54,14 +54,9 @@ public class FInventoryCheckDetailsController {
 	}
 	
 	@PostMapping("/inventoryCheckDetails/front/deleteByDetailId")
-	@RequiresPermission(value = "deleteInventoryCheckDetail",resource = "employee")
 	public String deleteDetailById(@RequestBody InventoryCheckDetailDTO inventoryCheckDetailDTO) {
 		String detailId = inventoryCheckDetailDTO.getDetailId();
-		InventoryCheckDetailsBean detail = inventoryCheckDetailsService.findOneInventoryCheckDetailById(detailId);
-		Integer currentInventory = detail.getCurrentInventory();
-		String productId = detail.getProduct().getProductId();
-		
-		productService.updateProductByDeleteCheck(productId, currentInventory);
+
 		inventoryCheckDetailsService.deleteDetailById(detailId);
 		
 		return "redirect:/inventoryCheckDetails/front/findByCheckId";
@@ -74,7 +69,6 @@ public class FInventoryCheckDetailsController {
 		String remark = inventoryCheckDetailDTO.getRemark();
 		InventoryCheckDetailsBean detail = inventoryCheckDetailsService.findOneInventoryCheckDetailById(detailId);
 		String productId = detail.getProduct().getProductId();
-		productService.updateProductByUpdateCheck(productId, actualInventory);
 		inventoryCheckDetailsService.updateDetailById(detailId, actualInventory,remark);
 		
 		return ResponseEntity.ok().build();
