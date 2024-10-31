@@ -265,9 +265,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="employeeId">員工編號:</label>
-                                        <select id="employeeId" name="employeeId" class="form-control" required>
-                                            <option value="">請選擇員工</option>
-                                        </select>
+                                        <span th:text="${session.employee.employeeId + ' - ' + session.employee.employeeName}" class="form-control" readonly></span>
+										<input type="hidden" name="employeeId" th:value="${session.employee.employeeId}">
                                     </div>
                                     <div class="form-group">
                                         <label for="productName">退貨商品名稱:</label>
@@ -348,21 +347,6 @@
                 .catch(function (error) {
                     console.error('獲取退貨編號失敗:', error);
                     showError('獲取退貨編號失敗，請稍後再試');
-                });
-
-            // 獲取所有在職員工
-            axios.get(/*[[@{/front/returnProduct/activeEmployees}]]*/)
-                .then(function (response) {
-                    var employeeSelect = $('#employeeId');
-                    response.data.forEach(function (emp) {
-                        employeeSelect.append($('<option>')
-                            .text(emp.employeeId + ' - ' + emp.employeeName)
-                            .attr('value', emp.employeeId));
-                    });
-                })
-                .catch(function (error) {
-                    console.error('獲取員工資料失敗:', error);
-                    showError('獲取員工資料失敗，請稍後再試');
                 });
 
             // 監聽發票號碼輸入

@@ -37,13 +37,8 @@
                 </div>
                 <div class="form-group">
     						<label for="employeeId">員工編號:</label>
-    						<select id="employeeId" name="employeeId" class="form-control" required>
-        						<option value="">請選擇員工</option>
-        						<option th:each="emp : ${employees}" 
-                						th:value="${emp.employeeId}" 
-                						th:text="${emp.employeeId + ' - ' + emp.employeeName}">
-        						</option>
-    						</select>
+    						<span th:text="${session.employee.employeeId + ' - ' + session.employee.employeeName}" class="form-control" readonly></span>
+							<input type="hidden" name="employeeId" th:value="${session.employee.employeeId}">
 				</div>
                 <div class="mb-3">
                     <label for="checkoutTotalPrice" class="form-label">總價:</label>
@@ -119,23 +114,6 @@
 	            $("#customerTel2").focus();
 	        }
 	    });
-	
-		// 如果沒有員工數據，則通過 Axios 獲取
-        if ($('#employeeId option').length <= 1) {
-    		axios.get(/*[[@{/checkout/employees}]]*/ '/checkout/employees')
-        		.then(function (response) {
-            		var employeeSelect = $('#employeeId');
-           		 	$.each(response.data, function(i, emp) {
-                		employeeSelect.append($('<option>')
-                    		.text(emp.employeeId + ' - ' + emp.employeeName)
-                    		.attr('value', emp.employeeId));
-            		});
-        		})
-        		.catch(function (error) {
-            		console.error('獲取員工資料失敗:', error);
-            		alert('獲取員工資料時出錯，請稍後再試');
-        		});
-		}
 	
 	    $("#updateForm").submit(function(e) {
 		    e.preventDefault();

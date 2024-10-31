@@ -124,12 +124,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="employeeId" class="form-label">員工編號</label>
-                                        <select class="form-select" id="employeeId" required>
-                                            <option value="">請選擇員工</option>
-                                            <option th:each="emp : ${employees}" th:value="${emp.employeeId}"
-                                                th:text="${emp.employeeName}">
-                                            </option>
-                                        </select>
+                                        <span th:text="${session.employee.employeeId + ' - ' + session.employee.employeeName}" class="form-control" readonly></span>
+										<input type="hidden" name="employeeId" th:value="${session.employee.employeeId}">
                                     </div>
                                 </div>
 
