@@ -21,32 +21,42 @@ public class LeaveRecordService {
 
 	@Autowired
 	private LeaveCategoryRepository leaveCategoryRepo;
+	
+	@Autowired
+	private EmployeeRepository empRepo;
 
 	public LeaveRecordBean checkLeaveRecord(String employeeId, Integer categoryId, LocalDateTime endtime) {
-
-		LocalDate localDate = endtime.toLocalDate();
-		LocalDate expirationDate = localDate.plusYears(1);
+		LocalDate DateEnd = endtime.toLocalDate();
+		LocalDate expirationDate = DateEnd.plusYears(1);
 
 		Optional<LeaveRecordBean> existingRecordOptional = leaveRecordRepo
 				.findByEmpBean_EmployeeIdAndLeaveCategory_CategoryIdAndExpirationDateBetween(employeeId, categoryId,
-						localDate, expirationDate);
-		LocalDate selectDate = existingRecordOptional.get().getExpirationDate();
-		LocalDate plusYears = selectDate.plusYears(1);
+						DateEnd, expirationDate);
+
 		if (existingRecordOptional.isPresent()) {
-			return existingRecordOptional.get();
+			LeaveRecordBean existingRecord = existingRecordOptional.get();
+			return existingRecord;
 		} else {
 			LeaveRecordBean newLeaveRecord = new LeaveRecordBean();
 			EmpBean emp = new EmpBean();
 			emp.setEmployeeId(employeeId);
 			newLeaveRecord.setEmpBean(emp);
-
 			LeaveCategoryBean category = leaveCategoryRepo.findById(categoryId)
 					.orElseThrow(() -> new RuntimeException("請假類別未找到"));
 			newLeaveRecord.setLeaveCategory(category);
-
-			newLeaveRecord.setExpirationDate(plusYears);
-			newLeaveRecord.setLimitHours(24); 
-
+			Optional<EmpBean> empBean = empRepo.findByEmployeeId(employeeId);
+			LocalDate selectDate = empBean.get().getHiredate();
+			LocalDate nowDate = LocalDate.now();
+			int date = nowDate.getYear() - selectDate.getYear();
+			LocalDate plusDate = selectDate.plusYears(date + 1);
+			newLeaveRecord.setExpirationDate(plusDate);
+			newLeaveRecord.setActualHours(0);
+			if (categoryId == 3) {
+				newLeaveRecord.setLimitHours(24);
+			}else {
+				newLeaveRecord.setLimitHours(category.getMaxHours());
+			}
+			
 			return leaveRecordRepo.save(newLeaveRecord);
 		}
 	}

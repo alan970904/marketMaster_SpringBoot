@@ -28,7 +28,8 @@ public class InventoryCheckRestController {
 	public Page<ProductBean> getAllProductJson(@RequestBody ProductPageDTO productPageDTO , Model m) {
 		Integer pageSize = productPageDTO.getPageSize();
 		Integer pageNumber = productPageDTO.getPageNumber();
-		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
+		boolean isAvailable = true;
+		Page<ProductBean> products = productService.findProductAvailable(isAvailable,pageNumber, pageSize);
 		m.addAttribute("products", products);
 		return products;
 	}
@@ -37,7 +38,20 @@ public class InventoryCheckRestController {
 		Integer pageSize = productPageDTO.getPageSize();
 		Integer pageNumber = productPageDTO.getPageNumber();
 		String productCategory = productPageDTO.getProductCategory();
-		Page<ProductBean> products = productService.findProductByCategory(productCategory,pageNumber, pageSize);
+		boolean isAvailable = true;
+
+		Page<ProductBean> products = productService.findProductByCategoryAndAvilable(productCategory,isAvailable,pageNumber, pageSize);
+		m.addAttribute("products", products);
+		return products;
+	}
+	
+	@PostMapping("/inventoryCheck/getProductByName/json")
+	public Page<ProductBean> getProductByNameJson(@RequestBody ProductPageDTO productPageDTO , Model m) {
+		Integer pageNumber = productPageDTO.getPageNumber();
+		String productName = productPageDTO.getProductName();
+		boolean isAvailable = true;
+		
+		Page<ProductBean> products = productService.findProductByLikeAndAvilable(productName,isAvailable,pageNumber);
 		m.addAttribute("products", products);
 		return products;
 	}

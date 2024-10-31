@@ -36,5 +36,20 @@ public class LeaveRecordController {
 	    
 	    return "askForLeave/leave";
 	}
+	
+	@GetMapping("/askForLeave/useFindLeaveByEmpId")
+	public String useLeaveRecordsByEmployeeId(
+	        @RequestParam String employeeId, Model model) {
+	    List<LeaveRecordBean> leaveRecords = leaveRecordService.findLeaveRecordsByEmployeeIdWithinDateRange(employeeId);
+	   
+	    
+	    EmpBean employee = employeeServiceImpl.getEmployee(employeeId);
+	    String employeeName = employee.getEmployeeName();
+	    model.addAttribute("employeeId", employeeId);
+	    model.addAttribute("employeeName", employeeName);
+	    model.addAttribute("leaveRecords", leaveRecords);
+	    
+	    return "askForLeave/front/useLeave";
+	}
 
 }

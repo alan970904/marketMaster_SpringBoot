@@ -230,19 +230,30 @@ public class CheckoutService {
         }
     }
 
-    private int calculateBonusPoints(int totalAmount) {
-        return totalAmount / 100;
+    public int calculateBonusPoints(int totalAmount) {
+    	return Math.max(0, totalAmount / 100); // 確保不會返回負數
     }
 
     // 新增的方法，用於更新結帳總價
     @Transactional
     public void updateTotalPrice(String checkoutId) throws DataAccessException {
-        int totalPrice = checkoutDetailsService.calculateCheckoutTotal(checkoutId);
-        CheckoutBean checkout = checkoutRepository.findById(checkoutId)
-            .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
-        checkout.setCheckoutTotalPrice(totalPrice);
-        checkout.setBonusPoints(calculateBonusPoints(totalPrice));
-        checkoutRepository.save(checkout);
+        try {
+            int totalPrice = checkoutDetailsService.calculateCheckoutTotal(checkoutId);
+            CheckoutBean checkout = checkoutRepository.findById(checkoutId)
+                .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
+                
+            checkout.setCheckoutTotalPrice(totalPrice);
+            // 更新紅利點數
+            if (totalPrice > 0) {
+                checkout.setBonusPoints(calculateBonusPoints(totalPrice));
+            } else {
+                checkout.setBonusPoints(0);
+            }
+            
+            checkoutRepository.save(checkout);
+        } catch (Exception e) {
+            throw new DataAccessException("更新總價失敗: " + e.getMessage());
+        }
     }
 
     // 新增的方法，用於處理退貨
@@ -408,6 +419,45 @@ public class CheckoutService {
             return insertCheckoutWithDetails(checkout, details);
         } catch (Exception e) {
             throw new DataAccessException("處理購物車結帳失敗: " + e.getMessage());
+        }
+    }
+    
+    @Transactional
+    public void updateTotalPriceAndBonusPoints(String checkoutId, int oldTotalPrice, String customerTel) throws DataAccessException {
+        try {
+            // 獲取新的總價
+            int newTotalPrice = checkoutDetailsService.calculateCheckoutTotal(checkoutId);
+            
+            // 更新結帳記錄
+            CheckoutBean checkout = checkoutRepository.findById(checkoutId)
+                .orElseThrow(() -> new DataAccessException("結帳記錄不存在"));
+            checkout.setCheckoutTotalPrice(newTotalPrice);
+            
+            // 如果是會員，處理紅利點數
+            if (customerTel != null && !customerTel.trim().isEmpty()) {
+                if (checkoutRepository.existsByCustomerTel(customerTel)) {
+                    // 計算紅利點數差異
+                    int oldBonusPoints = calculateBonusPoints(oldTotalPrice);
+                    int newBonusPoints = calculateBonusPoints(newTotalPrice);
+                    int bonusPointsDifference = newBonusPoints - oldBonusPoints;
+                    
+                    // 設置新的紅利點數
+                    checkout.setBonusPoints(newBonusPoints);
+                    
+                    // 更新會員紅利點數
+                    if (bonusPointsDifference > 0) {
+                        checkoutRepository.addBonusPointsToCustomer(customerTel, bonusPointsDifference);
+                    } else if (bonusPointsDifference < 0) {
+                        checkoutRepository.deductBonusPointsFromCustomer(customerTel, Math.abs(bonusPointsDifference));
+                    }
+                }
+            } else {
+                checkout.setBonusPoints(0);
+            }
+            
+            checkoutRepository.save(checkout);
+        } catch (Exception e) {
+            throw new DataAccessException("更新總價和紅利點數失敗: " + e.getMessage());
         }
     }
     

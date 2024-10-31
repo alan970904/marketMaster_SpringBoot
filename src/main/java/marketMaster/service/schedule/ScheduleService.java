@@ -59,6 +59,56 @@ public class ScheduleService {
 
 		return groupedSchedules;
 	}
+	
+	public Map<Integer, Map<String, List<Map<String, Object>>>> getEmpByYearAndMonth(int year, int month, String employeeId) {
+		LocalDate startDate = LocalDate.of(year, month, 1);
+		LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+		List<ScheduleBean> schedules = scheduleRepo.findByScheduleDateBetweenAndEmpBean_EmployeeId(startDate, endDate, employeeId);
+
+		Map<Integer, Map<String, List<Map<String, Object>>>> groupedSchedules = new HashMap<>();
+
+		for (ScheduleBean schedule : schedules) {
+			int dayOfMonth = schedule.getScheduleDate().getDayOfMonth();
+			String shiftTime = schedule.getStartTime() + " - " + schedule.getEndTime();
+
+			Map<String, Object> scheduleDetails = new HashMap<>();
+			scheduleDetails.put("scheduleId", schedule.getScheduleId());
+			scheduleDetails.put("employeeId", schedule.getEmpBean().getEmployeeId());
+			scheduleDetails.put("employeeName", schedule.getEmpBean().getEmployeeName());
+			scheduleDetails.put("startTime", schedule.getScheduleDate() + " " + schedule.getStartTime());
+			scheduleDetails.put("endTime", schedule.getScheduleDate() + " " + schedule.getEndTime());
+			scheduleDetails.put("scheduleHour", schedule.getScheduleHour());
+
+			groupedSchedules.putIfAbsent(dayOfMonth, new HashMap<>());
+			groupedSchedules.get(dayOfMonth).putIfAbsent(shiftTime, new ArrayList<>());
+			groupedSchedules.get(dayOfMonth).get(shiftTime).add(scheduleDetails);
+		}
+
+		return groupedSchedules;
+	}
+
+	public Map<Integer, Map<String, List<Map<String, Object>>>> getMiniSchedules(String employeeId, int year,
+			int month) {
+		LocalDate startDate = LocalDate.of(year, month, 1);
+		LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+		List<ScheduleBean> schedules = scheduleRepo.findByEmpBean_employeeIdAndScheduleDateBetween(employeeId,
+				startDate, endDate);
+
+		Map<Integer, Map<String, List<Map<String, Object>>>> groupedSchedules = new HashMap<>();
+
+		for (ScheduleBean schedule : schedules) {
+			int dayOfMonth = schedule.getScheduleDate().getDayOfMonth();
+
+			Map<String, Object> scheduleDetails = new HashMap<>();
+			scheduleDetails.put("scheduleId", schedule.getScheduleId());
+			scheduleDetails.put("employeeId", employeeId);
+			scheduleDetails.put("employeeName", schedule.getEmpBean().getEmployeeName());
+
+			groupedSchedules.putIfAbsent(dayOfMonth, new HashMap<>());
+		}
+
+		return groupedSchedules;
+	}
 
 	// 計算下一個月的年份和月份
 	public Map<String, Integer> getNextMonth(Integer year, Integer month) {
@@ -115,8 +165,7 @@ public class ScheduleService {
 			LocalTime start = LocalTime.parse(startTime);
 			LocalTime end = LocalTime.parse(endTime);
 
-			// 計算時間差
-			int hours = (int) Duration.between(start, end).toHours(); // 獲得整小時
+			int hours = (int) Duration.between(start, end).toHours(); // 獲得小時
 			int minutes = (int) Duration.between(start, end).toMinutes() % 60; // 獲得分鐘
 
 			if (minutes > 0) {
@@ -179,14 +228,19 @@ public class ScheduleService {
 				hours = 0;
 			}
 
-			 totalHours.put(employeeName, totalHours.getOrDefault(employeeName, 0) + hours);
+			totalHours.put(employeeName, totalHours.getOrDefault(employeeName, 0) + hours);
 		}
 
 		return totalHours;
 	}
-	
-	 public List<ScheduleBean> findSchedulesByDateTimeRange(String employeeId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-	        return scheduleRepo.findByEmployeeIdAndDateTimeRange(employeeId, startDateTime, endDateTime);
-	    }
+
+	public List<ScheduleBean> findSchedulesByDateTimeRange(String employeeId, LocalDateTime startDateTime,
+			LocalDateTime endDateTime) {
+		LocalDate startDate = startDateTime.toLocalDate();
+		LocalDate endDate = endDateTime.toLocalDate();
+		List<ScheduleBean> schedule = scheduleRepo.findByEmployeeIdAndDateRange(employeeId, startDate,
+				endDate);
+		return schedule;
+	}
 
 }

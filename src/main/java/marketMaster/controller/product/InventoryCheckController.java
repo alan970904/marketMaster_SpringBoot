@@ -1,6 +1,7 @@
 package marketMaster.controller.product;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,24 +33,22 @@ public class InventoryCheckController {
 
 	@GetMapping("/inventoryCheck/home")
 	public String homePage() {
-		return "/product/test";
+		return "/product/checkHomePage";
 	}
 
 	@GetMapping("/inventoryCheck/getAllProduct")
 	public String getAllProduct(@RequestParam(value = "page", defaultValue = "1") Integer pageNumber,
 			@RequestParam(value = "size", defaultValue = "10") Integer pageSize, Model m) {
 		Page<ProductBean> products = productService.findAllProduct(pageNumber, pageSize);
-		List<InventoryCheckBean> inventoryCheck = inventoryCheckService.findAllInventoryCheck();
 		m.addAttribute("products", products);
-		m.addAttribute("inventoryCheck", inventoryCheck);
-		return "/product/test";
+		return "/product/checkHomePage";
 	}
 
 	@PostMapping("/inventoryCheck/addCheck")
 	@ResponseBody
 	public ResponseEntity<?> addInventoryCheck(@RequestBody InventoryCheckInsertDTO inventoryCheckInsertDTO) {
-		inventoryCheckService.addInventoryCheck(inventoryCheckInsertDTO);
-		return ResponseEntity.ok().body("新增成功");
+		ResponseEntity<?> response = inventoryCheckService.addInventoryCheck(inventoryCheckInsertDTO);
+		return response;
 	}
 
 	@PostMapping("/inventoryCheck/delete")
@@ -67,5 +66,15 @@ public class InventoryCheckController {
 		m.addAttribute("inventoryChecks", inventoryChecks);
 		return "/product/inventoryChecksPage";
 	}
+	
+	@ResponseBody
+	@PostMapping("/inventoryCheck/update")
+	public ResponseEntity<?> updateCheck(@RequestBody InventoryCheckBean inventoryCheck) {
+		inventoryCheckService.updateInventoryCheck(inventoryCheck);
+		return ResponseEntity.ok().body(Map.of("message","審核成功"));
+	}
+	
+	
+	
 	
 }

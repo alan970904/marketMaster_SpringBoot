@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.DTO.product.ProductIdRestockNumDTO;
+import marketMaster.DTO.product.ProductSalesAndReturnDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
 import marketMaster.bean.product.ProductBean;
 
@@ -68,10 +69,21 @@ public class ProductService {
 
 		return products;
 	}
+	public Page<ProductBean> findProductByLikeAndAvilable(String productName,boolean isAvailable, Integer pageNumber) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
+		Page<ProductBean> products = productRepo.findByProductNameContainingAndProductAvailable(productName,isAvailable, pgb);
+		
+		return products;
+	}
 
 	public Page<ProductBean> findProductByCategory(String productCategory, Integer pageNumber, Integer pageSize) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
 		Page<ProductBean> products = productRepo.findByProductCategory(productCategory, pgb);
+		return products;
+	}
+	public Page<ProductBean> findProductByCategoryAndAvilable(String productCategory,boolean isAvailable, Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
+		Page<ProductBean> products = productRepo.findByProductAvailableAndProductCategory(isAvailable,productCategory, pgb);
 		return products;
 	}
 
@@ -337,5 +349,11 @@ public class ProductService {
 		        product.setNumberOfSale(product.getNumberOfSale() - quantity);
 		        productRepo.save(product);
 		    }
-		}    
+		}
+		
+		// =============== 計算銷售率及退貨率用的 ===============
+		public List<ProductSalesAndReturnDTO> getProductSalesAndReturnStats() {
+		    return productRepo.findProductSalesAndReturnStats();
+		}
+		
 }

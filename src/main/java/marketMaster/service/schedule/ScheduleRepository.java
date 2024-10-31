@@ -24,16 +24,21 @@ public interface ScheduleRepository extends JpaRepository<ScheduleBean, Integer>
 	void deleteByScheduleId(List<Integer> scheduleIds);
 
 	List<ScheduleBean> findByScheduleDateBetween(LocalDate startDate, LocalDate endDate);
+	
+	List<ScheduleBean> findByEmpBean_employeeIdAndScheduleDateBetween(String employeeId,LocalDate startDate, LocalDate endDate);
 
 	@Query(value = "SELECT * FROM schedule s WHERE s.schedule_date = :scheduleDate "
 			+ "AND s.start_time = :startTime AND s.end_time = :endTime", nativeQuery = true)
 	List<ScheduleBean> findByScheduleDateAndTimeNative(@Param("scheduleDate") String scheduleDate,
 			@Param("startTime") String startTime, @Param("endTime") String endTime);
 
-	 @Query("SELECT s FROM ScheduleBean s WHERE s.empBean.employeeId = :employeeId AND " +
-	           "CONCAT(s.scheduleDate, ' ', s.startTime) <= :endDateTime AND CONCAT(s.scheduleDate, ' ', s.endTime) >= :startDateTime")
-	    List<ScheduleBean> findByEmployeeIdAndDateTimeRange(@Param("employeeId") String employeeId,
-	                                                        @Param("startDateTime") LocalDateTime startDateTime,
-	                                                        @Param("endDateTime") LocalDateTime endDateTime);
+	@Query("SELECT s FROM ScheduleBean s WHERE s.empBean.employeeId = :employeeId " +
+		       "AND s.scheduleDate BETWEEN :startDate AND :endDate")
+		List<ScheduleBean> findByEmployeeIdAndDateRange(@Param("employeeId") String employeeId,
+		                                                @Param("startDate") LocalDate startDate,
+		                                                @Param("endDate") LocalDate endDate);
+	
+	List<ScheduleBean> findByScheduleDateBetweenAndEmpBean_EmployeeId(LocalDate startDate, LocalDate endDate, String employeeId);
+
 
 }

@@ -17,6 +17,7 @@ import marketMaster.bean.customer.CustomerBean;
 import marketMaster.service.authorization.AuthorizationService;
 import marketMaster.service.customer.CustomerRepository;
 import marketMaster.service.customer.CustomerServiceImpl;
+import marketMaster.viewModel.EmployeeViewModel;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/customer")
@@ -44,8 +47,13 @@ public class CustomerController {
 	public String getAllCustomer(@RequestParam(required = false) String searchTel,
 								@RequestParam(defaultValue = "0") int page,
 								@RequestParam(defaultValue = "10") int size,
-								Model model) {
+								Model model, HttpSession session) {
 		Page<CustomerBean> customerPage = customerService.searchCustomers(searchTel, PageRequest.of(page, size));
+		
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		int authority = currentEmployee.getAuthority();
+		
+		model.addAttribute("currentAuthority", authority);
 		
 		model.addAttribute("customers", customerPage.getContent());
 		model.addAttribute("currentPage", page);

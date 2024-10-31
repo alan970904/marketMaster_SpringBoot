@@ -5,6 +5,7 @@ import marketMaster.DTO.product.ProductCategoryDTO;
 import marketMaster.DTO.product.ProductIdDTO;
 import marketMaster.DTO.product.ProductIdRestockNumDTO;
 import marketMaster.DTO.product.ProductNameDTO;
+import marketMaster.DTO.product.ProductSalesAndReturnDTO;
 import marketMaster.DTO.product.ProductSupplierDTO;
 import marketMaster.bean.product.ProductBean;
 
@@ -31,16 +32,23 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     List<ProductIdDTO>findAllProductIdByProductName(@Param("productName")String productName);
 
     //JPA 自帶的模糊查詢
-    Page<ProductBean> findByProductNameContaining(@Param("productName")String productName ,Pageable pgb);
+    Page<ProductBean> findByProductNameContaining(@Param("productName")String productName,Pageable pgb);
+    Page<ProductBean> findByProductNameContainingAndProductAvailable(@Param("productName")String productName,@Param("productAvailable")boolean productAvailable ,Pageable pgb);
+    
+    Page<ProductBean> findByProductAvailableAndProductCategory(
+    	    boolean productAvailable, 
+    	    String productCategory, 
+    	    Pageable pageable
+    	);
+    
 
-    Page<ProductBean>  findByProductAvailable(boolean productAvailable ,Pageable pgb);
-
-
-    @Query(value = "select * from products where Number_of_inventory <  product_safeinventory",nativeQuery = true)
+    @Query("SELECT p FROM ProductBean p WHERE p.productAvailable = :productAvailable")
+    Page<ProductBean> findByProductAvailable(@Param("productAvailable") boolean productAvailable, Pageable pgb);
+    
+    @Query(value = "select * from products where Number_of_inventory <  product_safeinventory AND product_available = 1",nativeQuery = true)
     Page<ProductBean> findInventoryNotEnough(Pageable pgb);
 
     Page<ProductBean> findByProductCategory(String productCategory,Pageable pgb);
-    
     
     //   ===============更新進貨數量用的=============
     
@@ -66,6 +74,33 @@ public interface ProductRepository extends JpaRepository<ProductBean,String> {
     List<ProductIdRestockNumDTO> findRestockNumberByRestockId(@Param("restockId") String restockId);
     
     //  ===============更新進貨數量用的=============
+    
+    
+    
+    
+    //  ===============計算銷售率及退貨率用的=============
+    
+    @Query("""
+    	    SELECT NEW marketMaster.DTO.product.ProductSalesAndReturnDTO(
+    	        p.productId,
+    	        p.productName,
+    	        p.productCategory,
+    	        SUM(cd.numberOfCheckout),
+    	        SUM(cd.checkoutPrice),
+    	        COALESCE(
+    	            (SELECT COUNT(*) FROM ReturnDetailsBean rd 
+    	             WHERE rd.productId = p.productId) * 100.0 / 
+    	            COUNT(cd.checkoutId), 0
+    	        )
+    	    )
+    	    FROM ProductBean p
+    	    JOIN CheckoutDetailsBean cd ON p.productId = cd.productId
+    	    JOIN CheckoutBean c ON cd.checkoutId = c.checkoutId
+    	    GROUP BY p.productId, p.productName, p.productCategory
+    	""")
+    	List<ProductSalesAndReturnDTO> findProductSalesAndReturnStats();
+    
+    
 }
 
 
