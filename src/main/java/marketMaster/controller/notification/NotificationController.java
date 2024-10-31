@@ -24,7 +24,7 @@ public class NotificationController {
 
 	@GetMapping("/latest")
 	public ResponseEntity<?> getLatestNotifications(HttpSession session) {
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		
 		if (currentEmployee != null) {
 			// 從 session 中獲取當前用戶 ID
@@ -37,7 +37,7 @@ public class NotificationController {
 
 	@PostMapping("/markAsRead")
 	public ResponseEntity<?> markNotificationsAsRead(HttpSession session) {
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		
 		if (currentEmployee != null) {
 			notificationService.markAllAsRead(currentEmployee.getEmployeeId());
