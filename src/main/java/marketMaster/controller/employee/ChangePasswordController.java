@@ -25,7 +25,7 @@ public class ChangePasswordController {
     @GetMapping("/employee/changePasswordPage")
     @RequiresPermission(value = "changePassword", resource = "employee")
     public String showChangePasswordPage(HttpSession session, Model model) {
-        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
         int authority = currentEmployee.getAuthority();
         
         boolean isFirstLogin = employeeService.isFirstLogin(currentEmployee.getEmployeeId());
@@ -38,7 +38,7 @@ public class ChangePasswordController {
     @PostMapping("/employee/changePassword")
     @RequiresPermission(value = "changePassword", resource = "employee")
     public String changePassword(@RequestParam String newPassword, HttpSession session, Model model) {
-        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 
         if (currentEmployee == null) {
             return "redirect:/employee/loginPage";

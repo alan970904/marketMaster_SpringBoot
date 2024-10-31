@@ -17,11 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import marketMaster.annotation.RequiresPermission;
 import marketMaster.bean.customer.CustomerBean;
 import marketMaster.service.authorization.AuthorizationService;
 import marketMaster.service.customer.CustomerRepository;
 import marketMaster.service.customer.CustomerServiceImpl;
+import marketMaster.viewModel.EmployeeViewModel;
 
 @Controller
 @RequestMapping("/customer/front")
@@ -41,7 +43,11 @@ public class FCustomerController {
 	public String getAllCustomer(@RequestParam(required = false) String searchTel,
 								@RequestParam(defaultValue = "0") int page,
 								@RequestParam(defaultValue = "10") int size,
-								Model model) {
+								Model model, HttpSession session) {
+		// 獲取當前登入用戶
+	    EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
+	    int authority = currentEmployee.getAuthority();  // 獲取權限等級
+		
 		Page<CustomerBean> customerPage = customerService.searchCustomers(searchTel, PageRequest.of(page, size));
 		
 		model.addAttribute("customers", customerPage.getContent());
@@ -49,6 +55,7 @@ public class FCustomerController {
 		model.addAttribute("totalPages", customerPage.getTotalPages());
 		model.addAttribute("totalItems", customerPage.getTotalElements());
 		model.addAttribute("searchTel", searchTel);
+		model.addAttribute("currentAuthority", authority);  // 將權限等級傳遞給視圖
 		
 		return "customer/front/FrontCustomerList";
 	}

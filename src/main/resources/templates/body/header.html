@@ -39,7 +39,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link"
-                                th:href="@{/employee/details(employeeId=${session.employee.employeeId})}"><i
+                                th:href="@{/employee/details(employeeId=${session.backendEmployee.employeeId})}"><i
                                     class="fa-solid fa-user-tie"></i> </a>
                         </li>
                         <li class="nav-item">
@@ -68,7 +68,7 @@
                                     <a th:href="@{/employee/empList}" class="sidebar-link"> 員工列表</a>
                                 </li>
                                 <li>
-                                    <a th:href="@{/askForLeave/search(id=${session.employee.employeeId})}"
+                                    <a th:href="@{/askForLeave/search(id=${session.backendEmployee.employeeId})}"
                                         class="sidebar-link"> 請假</a>
                                 </li>
                                 <li>

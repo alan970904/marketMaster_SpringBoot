@@ -30,11 +30,11 @@ public class FLoginController {
             EmpBean employee = employeeService.login(employeeId, password);
             if (employee != null && employee.getResigndate() == null) {
                 EmployeeViewModel employeeViewModel = employeeService.getEmployeeViewModel(employeeId);
-                session.setAttribute("employee", employeeViewModel);
+                session.setAttribute("frontendEmployee", employeeViewModel);
 
                 // 添加權限級別的訊息
                 int authority = employee.getAuthority();
-                session.setAttribute("userAuthority", authority);
+                session.setAttribute("frontendAuthority", authority);
                 
                 if (employee.isFirstLogin()) {
                     return "redirect:/front/changePasswordPage";
@@ -59,9 +59,8 @@ public class FLoginController {
     
     @GetMapping("/mainPage")
     public String homePage(HttpSession session, Model model) {
-    	model.addAttribute("employee", session.getAttribute("employee"));
+    	model.addAttribute("employee", session.getAttribute("frontendEmployee"));
     	return "employeePage/MainPage";
     }
 
-	
 }
