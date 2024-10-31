@@ -307,7 +307,7 @@ CREATE TABLE points_history (
 
 
 --======================================================================
---新增資料
+--插入資料
 
 -- 插入商品資料
 INSERT INTO products ( product_id, product_category, product_name, product_price, product_safeinventory, Number_of_shelve, Number_of_inventory, Number_of_sale, Number_of_exchange, Number_of_destruction, Number_of_remove, product_available, is_perishable
@@ -496,7 +496,7 @@ INSERT INTO payment_records (record_id, payment_id, detail_id, payment_amount) V
                                                                                    ('REC011', 'PMT010', 'RD011', 2730),  -- S009: RD011
                                                                                    ('REC012', 'PMT011', 'RD012', 1500);  -- S010: RD012 部分支付; -- S005: RD006 部分支付
 
--- 新增職級和員工
+-- 插入職級和員工
 INSERT INTO ranklevel (position_id, position_name, limits_of_authority, salary_level)
 VALUES
 	('M01', '經理', 3, 'SSS'),
@@ -510,14 +510,18 @@ VALUES
 	('E003', '阿瑋', '0900789789', 'C123456789', 'aaa0003@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E004', '阿翔', '0900321321', 'D123456789', 'aaa0004@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E005', '阿翰', '0900654654', 'E123456789', 'aaa0005@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
-	('E006', '阿鼎', '0900987987', 'F123456789', 'ricekevin22@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL),
+	('E006', '阿鼎', '0900987987', 'F123456789', 'aac0005@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL),
 	('E007', '阿文', '0933654654', 'G123456789', 'aaa0006@gmail.com', '0000', 'M03', '2024-06-20', '2024-08-31',0, NULL),
 	('E008', '阿航', '0974147414', 'H123456789', 'aaa0007@gmail.com', '0000', 'M02', '2024-06-20', '2024-10-15',0, NULL),
 	('E009', '阿棟', '0955885885', 'J123456789', 'aaa0008@gmail.com', '0000', 'M03', '2024-06-21', '2024-10-20',0, NULL),
 	('E010', '阿璋', '0911236236', 'K123456789', 'aaa0009@gmail.com', '0000', 'M03', '2024-07-12', NULL,1, NULL),
-	('E011', '阿貓', '0914236556', 'L123456789', 'aaa0010@gmail.com', '0000', 'M03', '2024-09-18', NULL,1, NULL);
+	('E011', '阿貓', '0914236556', 'L123456789', 'aaa0010@gmail.com', '0000', 'M03', '2024-09-18', NULL,1, NULL),
+	('E012', '卅囉', '0914244556', 'M123456789', 'aaa0011@gmail.com', '0000', 'M03', '2024-09-23', NULL,1, NULL),
+	('E013', '尤離子', '0932246577', 'N123456789', 'aaa0012@gmail.com', '0000', 'M03', '2024-10-07', NULL,1, NULL),
+	('E014', '一沐日', '0936226577', 'O123456789', 'aaa0013@gmail.com', '0000', 'M02', '2024-10-07', NULL,1, NULL),
+	('E015', '柯珊芻', '0930611630', 'P123456789', 'aaa0014@gmail.com', '0000', 'M02', '2024-10-16', NULL,1, NULL);
 
--- 新增聊天
+-- 插入聊天
 INSERT INTO chat_messages (from_user, to_user, content, timestamp)
 VALUES 
 -- 阿綸(E001)發送給其他人的訊息
@@ -555,7 +559,7 @@ VALUES
 ('E010', 'E006', '謝謝關心，目前還可以應付，如果需要支援我再告訴你', '2024-10-01 14:35:00'),
 ('E010', 'E001', '主管，新人的學習計劃我已經打好草稿，等等傳給你參考', '2024-10-22 16:00:00');
 
--- 新增會員
+-- 插入會員
 INSERT INTO customer (customer_tel, customer_name, customer_email, date_of_registration, total_points)
 VALUES
 ('0912345678', '陳大文', 'dawen.chen@email.com', '2024-06-15', 8),
@@ -607,7 +611,8 @@ VALUES
 ('0978901238', '梁志明', 'zhiming.liang@email.com', '2024-10-22', 9),
 ('0989012349', '湯雅晴', 'yaqing.tang@email.com', '2024-10-23', 4),
 ('0990123450', '邱建安', 'jianan.qiu@email.com', '2024-10-24', 14),
-('0901234561', '溫淑儀', 'shuyi.wen@email.com', '2024-10-24', 8);
+('0901234561', '溫淑儀', 'shuyi.wen@email.com', '2024-10-24', 8),
+('0955234563', '李姍姍', 'delete.li@email.com', '2024-10-26', 10);
 
 -- 插入 ask_for_leave 請假表資料
 INSERT INTO ask_for_leave (leave_id, employee_id, start_time, end_time, reason_leave, proof_image, approved_status, category_id, leave_hours, rejection_reason)
@@ -642,7 +647,7 @@ VALUES
 ('L00028', 'E003', '2024-11-10 12:00', '2024-11-10 16:00', '因家庭需求請假', NULL, '已批准', 4, 4, NULL),
 ('L00029', 'E003', '2024-11-15 08:00', '2024-11-15 12:00', '因事務請假', NULL, '已批准', 2, 4, NULL);
 
--- 新增請假記錄
+-- 插入請假記錄
 INSERT INTO leave_record (employee_id, category_id, expiration_date, actual_hours, limit_hours)
 VALUES
 ('E001', 1, '2025-06-13', 4, 112),
@@ -662,7 +667,8 @@ VALUES
 ('E013', 1, '2025-06-13', 8, 112),
 ('E013', 2, '2025-06-13', 4, 240),
 ('E014', 3, '2025-06-13', 8, 24);
---- 插入 請假類別
+
+--- 插入請假類別
 INSERT INTO leave_category (leave_type, max_hours)
 VALUES
 ('事假', 112),
@@ -804,7 +810,7 @@ INSERT INTO schedule (employee_id, schedule_date, start_time, end_time, schedule
 ('E006', '2024-11-21', '12:00', '16:00', 4, 1),
 ('E004', '2024-11-21', '12:00', '16:00', 4, 1);
 
--- 新增結帳單
+-- 插入結帳單
 INSERT INTO checkout (checkout_id,invoice_number , customer_tel, employee_id, checkout_total_price,checkout_date,bonus_points,points_due_date, checkout_status, related_return_id)
 VALUES
 	('C00000001','IN00000001','0912345678', 'E001', 2060 , '2024-11-04',20, '2025-11-04','已退貨','T00000001'),
@@ -816,7 +822,7 @@ VALUES
 	('C00000007','IN00000007','', 'E005', 105 , '2024-11-06',0, '','正常',''),
 	('C00000008','IN00000008','0912345678', 'E006', 750 , '2024-11-07',7, '2025-11-07','正常','');
 	
--- 新增結帳明細        
+-- 插入結帳明細        
 INSERT INTO checkout_details(checkout_id,product_id,number_of_checkout,product_price,checkout_price)
 VALUES
 	('C00000001', 'PMS001', 10, 200, 2000),
@@ -835,21 +841,21 @@ VALUES
 	('C00000008', 'PRN001', 3, 150, 450),
 	('C00000008', 'PDR001', 10, 30, 300);
 
--- 新增退貨單
+-- 插入退貨單
 INSERT INTO return_products (return_id,original_checkout_id,original_invoice_number, employee_id , return_total_price , return_date)
 VALUES
 	('T00000001', 'C00000001', 'IN00000001', 'E001', 200 , '2024-11-05'),
 	('T00000002', 'C00000002', 'IN00000002', 'E002', 70,  '2024-11-06'),
 	('T00000003', 'C00000003', 'IN00000003', 'E003', 750 , '2024-11-07');
 
--- 新增退貨明細
+-- 插入退貨明細
 INSERT INTO return_details(return_id,original_checkout_id,product_id,reason_for_return,number_of_return,product_price,return_price,return_status,return_photo) 
 VALUES
 ('T00000001', 'C00000001', 'PMS001', '豬肉臭酸',1, 200, 200,'商品品質異常',NULL),
 ('T00000002', 'C00000002', 'PSN004' , '蘇打餅乾包裝完整但輕微壓扁',2, 35, 70,'商品外觀損傷',NULL),
 ('T00000003', 'C00000003','PRN001' , '米裡面有蟲',5, 150, 750,'商品品質異常',NULL);
 
--- 新增有會員點數做紅利兌換商品測試
+-- 插入有會員點數做紅利兌換商品測試
 INSERT INTO customer (customer_tel, customer_name, customer_email, date_of_registration, total_points)
 VALUES
     ('0938123456', '陳平偉', 'cus021@email.com', CAST('2024-07-01' AS DATE), 500),
@@ -861,7 +867,7 @@ VALUES
     ('0945784623', '李國強', 'ligq@email.com', CAST('2024-05-25' AS DATE), 600),
     ('0976789463', '趙子隆', 'zhaozl@email.com', CAST('2024-06-30' AS DATE), 700);
 
--- 新增紅利兌換商品表
+-- 插入紅利兌換商品表
 INSERT INTO bonus_exchange
     (exchange_id, item_id, customer_tel, use_points, number_of_exchange, exchange_date)
 VALUES
@@ -876,7 +882,7 @@ VALUES
     ('EX00000009', 'IM009', '0990123456', 30, 1, '2024-10-23'),  -- 兌換魚
     ('EX00000010', 'IM010', '0901234567', 110, 1, '2024-10-24'); -- 兌換高麗菜
 
--- 新增可兌換商品管理表
+-- 插入可兌換商品管理表
 -- 第一批活動商品(已結束) -- 6月到8月（已過期，因此狀態設為 0）
 INSERT INTO item_management
     (item_id, product_id, item_points, item_maximum, start_date, end_date, is_active)
@@ -898,7 +904,7 @@ VALUES
     ('IM013', 'PVF001', 20, 50, '2025-01-01', '2025-02-28', 0),
     ('IM014', 'PVF002', 80, 60, '2025-01-01', '2025-02-28', 0);
 
--- 新增紅利紀錄表
+-- 插入紅利紀錄表
 INSERT INTO points_history
     (customer_tel, checkout_id, exchange_id, points_change, transaction_date, transaction_type)
 VALUES
