@@ -58,4 +58,16 @@ public class CheckoutDTO {
         this.numberOfCheckout = numberOfCheckout;
         this.originalCheckoutId = checkoutId;  // 用於退貨時參考原始結帳ID
     }
+    
+    // 在 CheckoutDTO.java 中添加新的建構函數
+    public CheckoutDTO(String productId, String productName, int productPrice, 
+                      String productCategory, Date checkoutDate, 
+                      int numberOfCheckout, String checkoutId) {
+        this.productId = productId;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.checkoutDate = checkoutDate;
+        this.numberOfCheckout = numberOfCheckout;
+        this.originalCheckoutId = checkoutId;
+    }
 }

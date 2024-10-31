@@ -245,4 +245,50 @@ public class ReturnProductService {
         return validStatuses.contains(status);
     }
     
+    public boolean isProductFresh(String productId) throws DataAccessException {
+        try {
+            ProductBean product = returnProductRepository.findProductById(productId);
+            if (product == null) {
+                throw new DataAccessException("找不到商品資訊");
+            }
+            // 根據產品類別判斷是否為生鮮
+            String category = product.getProductCategory();
+            return "肉品海鮮".equals(category) || "蔬菜水果".equals(category);
+        } catch (Exception e) {
+            logger.severe("檢查商品是否為生鮮時發生錯誤: " + e.getMessage());
+            throw new DataAccessException("檢查商品是否為生鮮失敗", e);
+        }
+    }
+
+    // 新增檢查商品是否可退貨的方法
+    public Map<String, Object> checkProductReturnEligibility(String invoiceNumber, String productId) throws DataAccessException {
+        try {
+            CheckoutDTO checkoutInfo = returnProductRepository.getProductReturnEligibility(invoiceNumber, productId);
+            if (checkoutInfo == null) {
+                throw new DataAccessException("找不到商品購買記錄");
+            }
+
+            boolean isFresh = isProductFresh(productId);
+            Date checkoutDate = checkoutInfo.getCheckoutDate();
+            Date currentDate = new Date();
+            long diffInDays = (currentDate.getTime() - checkoutDate.getTime()) / (1000 * 60 * 60 * 24);
+
+            Map<String, Object> result = new HashMap<>();
+            boolean isExpired = (isFresh && diffInDays > 1) || (!isFresh && diffInDays > 7);
+            
+            result.put("eligible", !isExpired);
+            result.put("message", isExpired ? 
+                String.format("此商品已超過退貨期限（%s），無法退貨", isFresh ? "生鮮食品1天" : "非生鮮食品7天") : 
+                "商品可以退貨");
+            result.put("productInfo", checkoutInfo);
+            result.put("isPerishable", isFresh);
+            result.put("daysSincePurchase", diffInDays);
+
+            return result;
+        } catch (Exception e) {
+            logger.severe("檢查商品退貨資格時發生錯誤: " + e.getMessage());
+            throw new DataAccessException("檢查商品退貨資格失敗", e);
+        }
+    }
+    
 }
