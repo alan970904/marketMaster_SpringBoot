@@ -43,6 +43,23 @@
     .verify-btn i {
         margin-right: 0.5rem;
     }
+    .btn-success {
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        color: #fff;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-success i {
+        margin-right: 0.5rem;
+    }
 
     /* 表格樣式 */
     .table {
@@ -210,9 +227,19 @@
                     <div class="content-container">
                         <!-- 審核按鈕 -->
                         <div class="mb-3">
-                            <button class="verify-btn" id="verify" data-bs-toggle="modal" data-bs-target="#verifyModal">
-                                <i class="fas fa-check-double"></i>審核盤點單
-                            </button>
+
+                            <th:block th:switch="${inventoryCheck.verifyStatus}">
+
+                                <button th:case="${false}" class="verify-btn" id="verify" data-bs-toggle="modal"
+                                    data-bs-target="#verifyModal">
+                                    <i class="fas fa-check-double"></i>審核盤點單
+                                </button>
+
+                                <button  th:case="${true}" class="btn btn-success" type="button" disabled>
+                                    <i class="fas fa-check-double"></i>此盤點單已審核
+                                </button>
+                               
+                            </th:block>
                         </div>
                         <table class="table table-striped">
                             <thead class="table-dark">
@@ -224,7 +251,7 @@
                                     <th>盤點數量</th>
                                     <th>差異數量</th>
                                     <th>備註</th>
-                                    <th>操作</th>
+
                                 </tr>
                             </thead>
                             <tbody id="tbody" class="my-auto ">
@@ -242,14 +269,7 @@
                                         </td>
                                         <td th:text="${inventoryCheckDetail.differentialInventory}"></td>
                                         <td th:text="${inventoryCheckDetail.remark}"></td>
-                                        <td class="d-flex justify-content-evenly">
-                                            <button type="button" class="btn btn-secondary getUpdate"
-                                                data-bs-toggle="modal" data-bs-target="#updateModal">修改</button>
-                                            <button type="button" class="btn btn-danger getDelete"
-                                                data-bs-toggle="modal" data-bs-target="#deleteModal">刪除</button>
 
-
-                                        </td>
                                     </tr>
                                 </th:block>
                             </tbody>

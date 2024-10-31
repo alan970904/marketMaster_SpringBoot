@@ -213,7 +213,7 @@
                                     <tr>
                                         <td>商品編號：</td>
                                         <td>
-                                            <input type="text" name="productId" class="form-control text-center"
+                                            <input type="text" id="productId" name="productId" class="form-control text-center"
                                                 placeholder="請輸入商品編號">
                                         </td>
                                     </tr>
@@ -231,21 +231,21 @@
                                     <tr>
                                         <td>商品名稱：</td>
                                         <td>
-                                            <input type="text" name="productName" class="form-control text-center"
+                                            <input type="text" name="productName" id="productName" class="form-control text-center"
                                                 placeholder="請輸入商品名稱">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>商品售價：</td>
                                         <td>
-                                            <input type="number" name="productPrice" class="form-control text-center"
+                                            <input type="number" name="productPrice" id="productPrice" class="form-control text-center"
                                                 placeholder="請輸入商品售價" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>安全庫存量：</td>
                                         <td>
-                                            <input type="number" name="productSafeInventory"
+                                            <input type="number" id="productSafeInventory" name="productSafeInventory"
                                                 class="form-control text-center" placeholder="請輸入安全庫存量" min="0">
                                         </td>
                                     </tr>
@@ -264,6 +264,7 @@
                                 </table>
 
                                 <div class="button-group">
+                                    <button type="button" id="oneKey">一鍵輸入</button>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-plus"></i>
                                         新增商品
@@ -288,6 +289,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', getProductCategory)
 
+        //一鍵輸入
+        document.getElementById('oneKey').addEventListener('click',function(){
+            document.getElementById('productId').value = 'PDR006'
+            document.getElementById('productName').value = '氣泡水'
+            document.getElementById('select').value = '飲品'
+            document.getElementById('productPrice').value = '35'
+            document.getElementById('productSafeInventory').value = '70'
+        })
 
         // 新增檔案上傳預覽
         document.getElementById('photoInput').addEventListener('change', function (e) {
