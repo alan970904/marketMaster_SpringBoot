@@ -214,23 +214,34 @@
         .back-button:hover {
             background-color: #e0e0e0;
         }
+        
+        .user-item.resigned {
+		    background-color: #f0f0f0;
+		    opacity: 0.7;
+		}
 
-        /* 未讀消息提示 */
-        .unread-indicator {
-            background-color: #ff4081;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
+.search-box {
+    padding: 10px;
+    margin-bottom: 15px;
+}
 
-        /* 載入中動畫 */
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
+.user-search-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.user-search-input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 3px rgba(74, 144, 226, 0.3);
+}
+
+.user-item.hidden {
+    display: none;
+}
 
         /* 錯誤訊息樣式 */
         .error-message {
@@ -252,10 +263,12 @@
         <div class="user-list">
             <a th:href="@{/homePage}" class="back-button">返回首頁</a>
             <h2>在線用戶</h2>
-            <div th:each="user : ${onlineUsers}" 
-                 class="user-item"
+            <input type="text" id="userSearch" placeholder="搜尋用戶" class="user-search-input" />
+            <div class="user-item"
+                 th:each="user : ${onlineUsers}"
                  th:data-user-id="${user.employeeId}"
-                 th:data-user-name="${user.employeeName}">
+                 th:data-user-name="${user.employeeName}"
+                 th:class="${user.resigndate != null ? 'user-item resigned' : 'user-item'}">
                 <div class="user-avatar" th:text="${#strings.substring(user.employeeName,1,2)}">
                 </div>
                 <div class="user-name" th:text="${user.employeeName}"></div>
@@ -436,6 +449,25 @@
             });
         });
     });
+	document.addEventListener('DOMContentLoaded', function() {
+	    const searchInput = document.getElementById('userSearch');
+	    const userItems = document.querySelectorAll('.user-item');
+	
+	    searchInput.addEventListener('input', function(e) {
+	        const searchText = e.target.value.toLowerCase();
+	
+	        userItems.forEach(item => {
+	            const userName = item.querySelector('.user-name').textContent.toLowerCase();
+	            const userId = item.dataset.userId.toLowerCase();
+	
+	            if (userName.includes(searchText) || userId.includes(searchText)) {
+	                item.classList.remove('hidden');
+	            } else {
+	                item.classList.add('hidden');
+	            }
+	        });
+	    });
+	});
 </script>
 </body>
 </html>

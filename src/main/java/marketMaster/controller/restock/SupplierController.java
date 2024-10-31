@@ -47,7 +47,7 @@ public class SupplierController {
 
     @RequestMapping(value = "/supplier", method = {RequestMethod.GET, RequestMethod.POST})
     public String supplier(HttpSession session) {
-        if (session.getAttribute("employee") == null) {
+        if (session.getAttribute("backendEmployee") == null) {
             // 用戶未登入，重定向到登入頁面
             return "redirect:/employee/loginPage";
         }

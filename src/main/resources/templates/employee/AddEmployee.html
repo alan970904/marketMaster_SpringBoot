@@ -12,7 +12,7 @@
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
-            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+            <main class="container d-flex flex-column justify-content-center align-items-center">
                 <h1 class="mb-4">新增員工</h1>
                 <h2 class="mb-3">(員工編號 <span th:text="${newEmployeeId}"></span>)</h2>
                 <form id="addEmployeeForm" th:action="@{/employee/empAdd}" method="post" enctype="multipart/form-data"
