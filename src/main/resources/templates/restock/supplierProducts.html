@@ -194,6 +194,8 @@
                                 loadProducts(currentPage);
                             } else {
                                 console.log("刪除失敗");
+                                loadProducts(currentPage);
+
                             }
                         })
                         .catch(error => {
