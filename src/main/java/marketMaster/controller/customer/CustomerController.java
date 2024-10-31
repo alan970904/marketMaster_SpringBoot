@@ -54,12 +54,13 @@ public class CustomerController {
 		
 		Page<CustomerBean> customerPage = customerService.searchCustomers(searchTel, PageRequest.of(page, size));
 		
+		model.addAttribute("currentAuthority", authority);
+		
 		model.addAttribute("customers", customerPage.getContent());
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", customerPage.getTotalPages());
 		model.addAttribute("totalItems", customerPage.getTotalElements());
 		model.addAttribute("searchTel", searchTel);
-		model.addAttribute("currentAuthority", authority);  // 將權限等級傳遞給視圖
 		
 		return "customer/CustomerList";
 	}

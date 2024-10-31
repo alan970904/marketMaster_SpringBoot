@@ -1106,3 +1106,5 @@ DROP TABLE leave_category;
 DROP TABLE customer;
 DROP TABLE bonus_exchange;
 DROP TABLE points_history;
+DROP TABLE inventory_check;
+DROP TABLE inventory_check_details;

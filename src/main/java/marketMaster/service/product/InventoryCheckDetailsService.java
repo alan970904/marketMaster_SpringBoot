@@ -1,9 +1,11 @@
 package marketMaster.service.product;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +32,12 @@ public class InventoryCheckDetailsService {
 		return inventoryCheckDetailsRepo.findDetailByInventoryCheckId(inventoryCheckId);
 	}
 
-	public InventoryCheckDetailsBean addInventoryCheckDetail(InventoryCheckDetailsBean inventoryCheckDetailsBean) {
+	public void addInventoryCheckDetail(InventoryCheckDetailsBean inventoryCheckDetailsBean) {
 		String detailId = inventoryCheckDetailsBean.getDetailId();
 		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findById(detailId);
 		if (optional.isEmpty()) {
-			return inventoryCheckDetailsRepo.save(inventoryCheckDetailsBean);
+			inventoryCheckDetailsRepo.save(inventoryCheckDetailsBean);
 		}
-		return null;
 	}
 	
 	public boolean findCheckStatus(String inventoryCheckId) {
@@ -53,7 +54,7 @@ public class InventoryCheckDetailsService {
 		if (optional.isPresent()) {
 			InventoryCheckDetailsBean detail = optional.get();
 			detail.setActualInventory(actualInventory);
-			detail.setDifferentialInventory(detail.getCurrentInventory()-actualInventory);
+			detail.setDifferentialInventory(actualInventory-detail.getCurrentInventory());
 			detail.setRemark(remark);
 		}
 	}
@@ -63,12 +64,18 @@ public class InventoryCheckDetailsService {
 		inventoryCheckDetailsRepo.deleteById(detailId);
 	}
 	
-//	public boolean findNewestDetailId(String productId) {
-//		
-//		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findFirstByProduct_ProductIdOrderByDetailIdDesc(productId);
-//		
-//		return null;
-//	}
+	
+	public boolean isNewestDetailId(String productId,String OutSideDetailId) {
+		boolean isNewest =false;
+		Optional<InventoryCheckDetailsBean> optional = inventoryCheckDetailsRepo.findFirstByProduct_ProductIdOrderByDetailIdDesc(productId);
+		
+		InventoryCheckDetailsBean details = optional.orElse(null);
+		if (details.getDetailId().equals(OutSideDetailId) ) {
+			isNewest = true;
+		}
+		
+		return isNewest;
+	}
 	
 	//自動生成新的明細id
 	public String newDetailId() {

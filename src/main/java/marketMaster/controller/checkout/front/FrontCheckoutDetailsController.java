@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import marketMaster.bean.checkout.CheckoutBean;
 import marketMaster.bean.checkout.CheckoutDetailsBean;
 import marketMaster.service.checkout.CheckoutDetailsService;
 import marketMaster.service.checkout.CheckoutService;
@@ -76,9 +77,24 @@ public class FrontCheckoutDetailsController {
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateCheckoutDetails(@RequestBody CheckoutDetailsBean checkoutDetails) {
         try {
+            // 獲取原始結帳資料及明細
+            CheckoutBean checkout = checkoutService.getCheckout(checkoutDetails.getCheckoutId());
+            CheckoutDetailsBean originalDetail = checkoutDetailsService.getCheckoutDetails(
+                checkoutDetails.getCheckoutId(), 
+                checkoutDetails.getProductId()
+            );
+            int oldTotalPrice = checkout.getCheckoutTotalPrice();
+            
+            // 更新結帳明細
             checkoutDetailsService.updateCheckoutDetails(checkoutDetails);
-            // 更新總價
-            checkoutService.updateTotalPrice(checkoutDetails.getCheckoutId());
+            
+            // 更新總價及紅利點數
+            checkoutService.updateTotalPriceAndBonusPoints(
+                checkout.getCheckoutId(), 
+                oldTotalPrice,
+                checkout.getCustomerTel()
+            );
+            
             return ResponseEntity.ok(Map.of("status", "success", "message", "更新成功"));
         } catch (DataAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -92,15 +108,49 @@ public class FrontCheckoutDetailsController {
         try {
             String checkoutId = request.get("checkoutId");
             String productId = request.get("productId");
-            checkoutDetailsService.deleteCheckoutDetails(checkoutId, productId);
-            checkoutService.updateTotalPrice(checkoutId);
-            return ResponseEntity.ok(Map.of("status", "success", "message", "結帳明細已成功刪除"));
-        } catch (DataAccessException e) {
+            
+            // 參數驗證
+            if (checkoutId == null || checkoutId.trim().isEmpty() || 
+                productId == null || productId.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("status", "error", "message", "結帳編號和商品編號不能為空"));
+            }
+            
+            // 先檢查結帳記錄是否存在
+            CheckoutBean checkout = checkoutService.getCheckout(checkoutId);
+            if (checkout == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("status", "error", "message", "找不到對應的結帳記錄"));
+            }
+            
+            int oldTotalPrice = checkout.getCheckoutTotalPrice();
+            String customerTel = checkout.getCustomerTel();
+
+            try {
+                // 刪除結帳明細
+                checkoutDetailsService.deleteCheckoutDetails(checkoutId, productId);
+                
+                // 更新總價和紅利點數（使用新的方法）
+                checkoutService.updateTotalPriceAndBonusPoints(
+                    checkoutId, 
+                    oldTotalPrice,
+                    customerTel
+                );
+                
+                return ResponseEntity.ok()
+                        .body(Map.of("status", "success", "message", "結帳明細已成功刪除"));
+                        
+            } catch (DataAccessException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("status", "error", "message", "刪除結帳明細失敗: " + e.getMessage()));
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace(); // 記錄詳細錯誤
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "error", "message", "刪除結帳明細失敗: " + e.getMessage()));
+                    .body(Map.of("status", "error", "message", "系統錯誤: " + e.getMessage()));
         }
     }
-
     @GetMapping("/search")
     public String searchByProductId(@RequestParam String productId, Model model) {
         model.addAttribute("checkoutDetails", checkoutDetailsService.searchCheckoutDetailsByProductId(productId));
@@ -188,6 +238,24 @@ public class FrontCheckoutDetailsController {
             }
         } catch (DataAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
+    @PostMapping("/updateTotalAmount")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateTotalAmount(@RequestParam String checkoutId) {
+        try {
+            CheckoutBean checkout = checkoutService.getCheckout(checkoutId);
+            int totalAmount = checkoutDetailsService.calculateCheckoutTotal(checkoutId);
+            int bonusPoints = checkoutService.calculateBonusPoints(totalAmount);
+            
+            return ResponseEntity.ok(Map.of(
+                "totalAmount", totalAmount,
+                "bonusPoints", bonusPoints
+            ));
+        } catch (DataAccessException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", e.getMessage()));
         }
     }
     
