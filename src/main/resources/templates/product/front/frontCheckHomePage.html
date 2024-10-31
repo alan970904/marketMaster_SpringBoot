@@ -50,7 +50,7 @@
                         </div>
                     </div>
 
-                    <input type="hidden" th:value="${session.employee.employeeId}" id="employeeId">
+                    <input type="hidden" th:value="${session.frontendEmployee.employeeId}" id="employeeId">
                     <div class="row invectoryCheck-row">
 
                     </div>
@@ -241,37 +241,89 @@
         }
 
         function setupRemarkListeners() {
-            const actualInventoryInputs = document.querySelectorAll('.actualInventory');
-            actualInventoryInputs.forEach((input, index) => {
-                input.addEventListener('blur', function () {
-                    const card = this.closest('.card');
-                    const currentInventoryInput = card.querySelector('.list-group-item:first-child .form-control');
-                    const numberOfInventory = parseInt(currentInventoryInput.value);
-                    const actualInventoryValue = parseInt(this.value || 0);
-                    const stockStatusInput = card.querySelector('.stockStatus');
-                    const remarkInput = card.querySelector('.remark');
+    const actualInventoryInputs = document.querySelectorAll('.actualInventory');
+    actualInventoryInputs.forEach((input, index) => {
+        input.addEventListener('blur', function () {
+            const card = this.closest('.card');
+            const currentInventoryInput = card.querySelector('.list-group-item:first-child .form-control');
+            const numberOfInventory = parseInt(currentInventoryInput.value);
+            const actualInventoryValue = parseInt(this.value || 0);
+            const stockStatusInput = card.querySelector('.stockStatus');
+            const remarkInput = card.querySelector('.remark');
 
-                    if (!isNaN(actualInventoryValue) && actualInventoryValue === numberOfInventory) {
-                        stockStatusInput.value = '數量無誤';
-                        remarkInput.readOnly = true;
-                        remarkInput.value = '數量無誤';
-                        remarkInput.removeAttribute('required');
-                    } else if (!isNaN(actualInventoryValue)) {
-                        stockStatusInput.value = '數量有誤';
-                        remarkInput.readOnly = false;
-                        remarkInput.value = '';
-                        remarkInput.setAttribute('required', 'required');
-                        remarkInput.focus();
+            if (!isNaN(actualInventoryValue)) {
+                const difference = actualInventoryValue - numberOfInventory;
+                const percentDiff = Math.abs((difference / numberOfInventory) * 100);
+
+                // 重置所有樣式
+                stockStatusInput.style.backgroundColor = '';
+                stockStatusInput.style.transition = 'all 0.3s ease';
+
+                if (actualInventoryValue === numberOfInventory) {
+                    stockStatusInput.value = '✅ 完全符合';
+                    stockStatusInput.style.color = '#198754';  // 綠色
+                    stockStatusInput.style.backgroundColor = '#f8fff9';  // 淡綠色背景
+                    remarkInput.readOnly = true;
+                    remarkInput.value = '庫存數量正確';
+                    remarkInput.removeAttribute('required');
+                } else if (difference > 0) {
+                    if (percentDiff > 20) {
+                        stockStatusInput.value = `⚠️ 嚴重溢出 (+${difference})`;
+                        stockStatusInput.style.color = '#dc3545';  // 紅色
+                        stockStatusInput.style.backgroundColor = '#fff5f5';  // 淡紅色背景
                     } else {
-                        this.value = '';
-                        stockStatusInput.value = '';
-                        remarkInput.readOnly = true;
-                        remarkInput.value = '';
-                        remarkInput.removeAttribute('required');
+                        stockStatusInput.value = `⚠️ 輕微溢出 (+${difference})`;
+                        stockStatusInput.style.color = '#fd7e14';  // 橙色
+                        stockStatusInput.style.backgroundColor = '#fff9f5';  // 淡橙色背景
                     }
-                });
-            });
-        }
+                    remarkInput.readOnly = false;
+                    remarkInput.value = '';
+                    remarkInput.setAttribute('required', 'required');
+                    remarkInput.focus();
+                } else {
+                    if (percentDiff > 20) {
+                        stockStatusInput.value = `⚠️ 嚴重短缺 (${difference})`;
+                        stockStatusInput.style.color = '#dc3545';  // 紅色
+                        stockStatusInput.style.backgroundColor = '#fff5f5';  // 淡紅色背景
+                    } else {
+                        stockStatusInput.value = `⚠️ 輕微短缺 (${difference})`;
+                        stockStatusInput.style.color = '#fd7e14';  // 橙色
+                        stockStatusInput.style.backgroundColor = '#fff9f5';  // 淡橙色背景
+                    }
+                    remarkInput.readOnly = false;
+                    remarkInput.value = '';
+                    remarkInput.setAttribute('required', 'required');
+                    remarkInput.focus();
+                }
+
+                // 添加懸停效果的樣式
+                stockStatusInput.style.cursor = 'default';
+                stockStatusInput.style.fontWeight = '500';
+                
+            } else {
+                stockStatusInput.value = '';
+                stockStatusInput.style.color = '';
+                stockStatusInput.style.backgroundColor = '';
+                remarkInput.readOnly = true;
+                remarkInput.value = '';
+                remarkInput.removeAttribute('required');
+            }
+        });
+    });
+}
+
+// 添加全局樣式
+const style = document.createElement('style');
+style.textContent = `
+    .stockStatus {
+        transition: all 0.3s ease !important;
+    }
+    .stockStatus:focus {
+        background-color: inherit !important;
+        color: inherit !important;
+    }
+`;
+document.head.appendChild(style);
 
         function fetchProductsAndRender(pageNumber = 1) {
             axios.post('http://localhost:8080/marketMaster/inventoryCheck/getAllProduct/json', {
@@ -336,7 +388,7 @@
                 </li>
                 <li class="list-group-item hstack">
                     <div class="input-group">
-                    <span class="input-group-text">庫存狀況:</span>
+                    <span class="input-group-text">狀態:</span>
                     <input type="text" class="form-control stockStatus">
                     </div>
                 </li>
