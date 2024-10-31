@@ -53,7 +53,9 @@ public class LoginController {
 
     @GetMapping("/employee/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
+        // 只清除後台相關的 session 屬性
+        session.removeAttribute("backendEmployee");
+        session.removeAttribute("backendAuthority");
         return "redirect:/employee/loginPage";
     }
     

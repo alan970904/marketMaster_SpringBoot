@@ -53,7 +53,9 @@ public class FLoginController {
 
     @GetMapping("/front/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
+        // 只清除前台相關的 session 屬性
+        session.removeAttribute("frontendEmployee");
+        session.removeAttribute("frontendAuthority");
         return "redirect:/front/loginPage";
     }
     
