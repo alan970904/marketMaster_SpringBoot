@@ -99,7 +99,7 @@
 
                             <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-                            <form id="checkoutForm" class="needs-validation" novalidate>
+                            <form id="checkoutForm" class="needs-validation" novalidate method="post" th:action="@{/front/checkout/add}">
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="checkoutId" class="form-label">結帳編號</label>
@@ -124,12 +124,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="employeeId" class="form-label">員工編號</label>
-                                        <select class="form-select" id="employeeId" required>
-                                            <option value="">請選擇員工</option>
-                                            <option th:each="emp : ${employees}" th:value="${emp.employeeId}"
-                                                th:text="${emp.employeeName}">
-                                            </option>
-                                        </select>
+                                        <span th:text="${session.frontendEmployee.employeeId + ' - ' + session.frontendEmployee.employeeName}" class="form-control" readonly></span>
+										<input type="hidden" id="employeeId" name="employeeId" th:value="${session.frontendEmployee.employeeId}">
                                     </div>
                                 </div>
 
