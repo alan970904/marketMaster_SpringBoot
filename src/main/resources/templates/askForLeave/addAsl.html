@@ -61,11 +61,13 @@
 								th:text="${category.leaveType}"></option>
 						</select>
 					</div>
-					
+
 					<div class="mb-3">
 						<label for="reasonLeave" class="form-label">請假原因</label>
 						<textarea class="form-control" id="reasonLeave" name="reasonLeave"
 							rows="3" required></textarea>
+						<button type="button" class="btn btn-secondary w-30"
+							id="setLeaveReason">請假原因輸入</button>
 					</div>
 					<div class="mb-3">
 						<label for="proofImage" class="form-label">證明文件</label> <input
@@ -104,6 +106,9 @@
                 locale: "zh-tw"
             });
         });
+              document.getElementById('setLeaveReason').addEventListener('click', function() {
+        document.getElementById('reasonLeave').value = '有事無法上班';
+    });
     </script>
 </body>
 </html>

@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import marketMaster.bean.askForLeave.AskForLeaveBean;
 import marketMaster.bean.askForLeave.LeaveCategoryBean;
 import marketMaster.bean.askForLeave.LeaveRecordBean;
 import marketMaster.bean.employee.EmpBean;
@@ -21,18 +22,19 @@ public class LeaveRecordService {
 
 	@Autowired
 	private LeaveCategoryRepository leaveCategoryRepo;
-	
+
 	@Autowired
 	private EmployeeRepository empRepo;
 
-	public LeaveRecordBean checkLeaveRecord(String employeeId, Integer categoryId, LocalDateTime endtime) {
-		LocalDate DateEnd = endtime.toLocalDate();
-		LocalDate expirationDate = DateEnd.plusYears(1);
+	@Autowired
+	private AskForLeaveRepository askForLeaveRepo;
 
+	public LeaveRecordBean checkLeaveRecord(String employeeId, Integer categoryId, LocalDateTime endtime) {
+		LocalDate endDate = endtime.toLocalDate();
+		LocalDate expirationDate = endDate.plusYears(1);
 		Optional<LeaveRecordBean> existingRecordOptional = leaveRecordRepo
 				.findByEmpBean_EmployeeIdAndLeaveCategory_CategoryIdAndExpirationDateBetween(employeeId, categoryId,
-						DateEnd, expirationDate);
-
+						endDate, expirationDate);
 		if (existingRecordOptional.isPresent()) {
 			LeaveRecordBean existingRecord = existingRecordOptional.get();
 			return existingRecord;
@@ -53,10 +55,10 @@ public class LeaveRecordService {
 			newLeaveRecord.setActualHours(0);
 			if (categoryId == 3) {
 				newLeaveRecord.setLimitHours(24);
-			}else {
+			} else {
 				newLeaveRecord.setLimitHours(category.getMaxHours());
 			}
-			
+
 			return leaveRecordRepo.save(newLeaveRecord);
 		}
 	}
@@ -66,7 +68,6 @@ public class LeaveRecordService {
 
 		LocalDate localDate = endtime.toLocalDate();
 		LocalDate expirationDate = localDate.plusYears(1);
-
 		LeaveRecordBean existingRecord = leaveRecordRepo
 				.findByEmpBean_EmployeeIdAndLeaveCategory_CategoryIdAndExpirationDateBetween(employeeId, categoryId,
 						localDate, expirationDate)
@@ -77,7 +78,7 @@ public class LeaveRecordService {
 		return leaveRecordRepo.save(existingRecord);
 	}
 
-	public LeaveRecordBean minusLeaveHours(String employeeId, Integer categoryId, LocalDateTime endtime,
+	public LeaveRecordBean minusLeaveHours(String leaveId, String employeeId, Integer categoryId, LocalDateTime endtime,
 			int totalScheduleHours) {
 
 		LocalDate localDate = endtime.toLocalDate();
@@ -88,6 +89,11 @@ public class LeaveRecordService {
 						localDate, expirationDate)
 				.orElseThrow(() -> new RuntimeException("找不到現有的請假紀錄"));
 
+		Optional<AskForLeaveBean> asl = askForLeaveRepo.findById(leaveId);
+		String approvedStatus = asl.get().getApprovedStatus();
+		if ("待審核".equals(approvedStatus)) {
+			return leaveRecordRepo.save(existingRecord);
+		}
 		existingRecord.setActualHours(existingRecord.getActualHours() - totalScheduleHours);
 
 		return leaveRecordRepo.save(existingRecord);
