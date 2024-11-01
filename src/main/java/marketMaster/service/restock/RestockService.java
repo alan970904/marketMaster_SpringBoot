@@ -171,8 +171,8 @@ public class RestockService {
 
 
     //根據日期區間查詢
-    public Page<RestockDTO> getRestockDetailsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate,pageable);
+        public Page<RestockDTO> getRestockDetailsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+            return restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate,pageable);
     }
         //匯出excel
         public byte[]exportRestockDetailsToExcel(LocalDate startDate, LocalDate endDate) throws IOException {

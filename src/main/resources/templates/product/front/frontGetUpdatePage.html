@@ -187,7 +187,7 @@
                     <h4 class="mb-0">修改商品資料</h4>
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/product/update}" method="post" enctype="multipart/form-data">
+                    <form th:action="@{/product/front/update}" method="post" enctype="multipart/form-data">
                         <table class="form-table">
                             <tr>
                                 <td>商品編號</td>
@@ -213,23 +213,7 @@
                                         name="productName">
                                 </td>
                             </tr>
-                            <tr>
-                                <td>商品售價</td>
-                                <td>
-                                    <div class="input-group">
-                                        <span class="input-group-text">NT$</span>
-                                        <input type="number" class="form-control"
-                                            th:value="${product.productPrice}" name="productPrice">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>安全庫存量</td>
-                                <td>
-                                    <input type="number" class="form-control"
-                                        th:value="${product.productSafeInventory}" name="productSafeInventory">
-                                </td>
-                            </tr>
+                          
                             <tr>
                                 <td>商品圖片</td>
                                 <td>
@@ -248,7 +232,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i>儲存修改
                             </button>
-                            <a class="btn btn-dark" th:href="@{/product/front/findAll}">
+                            <a class="btn btn-dark" th:href="@{/product/front/findProductAvailable(available=${true})}">
                                 <i class="fas fa-arrow-left"></i>返回列表
                             </a>
                         </div>

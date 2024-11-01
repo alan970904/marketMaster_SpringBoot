@@ -270,29 +270,44 @@ CREATE TABLE customer (
     total_points INT  NOT NULL -- 累積紅利點數 --Create時先設定為0
 );
 
--- 創建紅利兌換商品表ㄆ
-CREATE TABLE bonus_exchange (
-    exchange_id VARCHAR(30) NOT NULL PRIMARY KEY, -- 兌換編號，編號開頭用H
-    product_id VARCHAR(30) NOT NULL, -- 商品編號REFERENCES products(product_id)
-	customer_tel VARCHAR(30) NOT NULL, -- 會員手機REFERENCES customer(customer_tel)
-    use_points INT NOT NULL, -- 使用紅利點數
-    number_of_exchange INT NOT NULL, -- 兌換數量
-    exchange_date DATE NOT NULL, -- 兌換日期
+-- 創建可兌換商品管理表
+CREATE TABLE item_management (
+    item_id VARCHAR(30) NOT NULL PRIMARY KEY,         -- 可兌換商品編號 開頭為IM
+    product_id VARCHAR(30) NOT NULL,                  -- 商品編號 FOREIGN KEY REFERENCES product(product_id),
+    item_points INT NOT NULL,                         -- 所需點數
+    item_maximum INT NOT NULL,                        -- 可兌換數量
+    start_date DATE NOT NULL,                         -- 開始日期
+    end_date DATE NOT NULL,                           -- 結束日期
+    is_active BIT NOT NULL DEFAULT 1                 -- 是否可用 1可兌換活動期間 0 非活動期間
 );
+
+-- 創建紅利兌換商品表
+CREATE TABLE bonus_exchange (
+    exchange_id VARCHAR(30) NOT NULL PRIMARY KEY,  -- 兌換編號 開頭為EX
+    customer_tel VARCHAR(30) NOT NULL,             -- 會員電話
+    item_id VARCHAR(30) NOT NULL,                  -- 可兌換商品編號 FOREIGN KEY REFERENCES item_management(item_id),
+    use_points INT NOT NULL,                       -- 使用紅利點數
+    number_of_exchange INT NOT NULL,               -- 兌換數量
+    exchange_date DATE NOT NULL                    -- 兌換日期
+);
+
 
 -- 創建紅利紀錄表
 CREATE TABLE points_history (
     points_history_id INT IDENTITY(1,1) PRIMARY KEY, -- 紅利編號
-    customer_tel VARCHAR(30) NOT NULL, -- 會員手機REFERENCES customer(customer_tel)
-    checkout_id VARCHAR(30), -- 結帳編號REFERENCES checkout(checkout_id)
-    exchange_id VARCHAR(30), -- 兌換編號REFERENCES bonus_exchange(exchange_id)
+    customer_tel VARCHAR(30) NOT NULL,-- 會員手機REFERENCES customer(customer_tel)
+    checkout_id VARCHAR(30),-- 結帳編號REFERENCES checkout(checkout_id)
+    exchange_id VARCHAR(30),-- 兌換編號REFERENCES bonus_exchange(exchange_id)
     points_change INT NOT NULL, -- 紅利點數變動量
-    transaction_date DATE NOT NULL, -- 紅利記錄日期
-    transaction_type VARCHAR(10) NOT NULL CHECK (transaction_type IN ('earn', 'use', 'expire')) -- 紅利狀態
+    transaction_date DATE NOT NULL,-- 紅利記錄日期
+    transaction_type VARCHAR(10) NOT NULL,-- 紅利狀態
+    CONSTRAINT points_history_chk_1 
+        CHECK (transaction_type IN ('earn', 'use', 'expire', 'refund'))
 );
 
+
 --======================================================================
---新增資料
+--插入資料
 
 -- 插入商品資料
 INSERT INTO products ( product_id, product_category, product_name, product_price, product_safeinventory, Number_of_shelve, Number_of_inventory, Number_of_sale, Number_of_exchange, Number_of_destruction, Number_of_remove, product_available, is_perishable
@@ -342,84 +357,146 @@ VALUES
 
 -- 插入供應商資料
 INSERT INTO suppliers (supplier_id, supplier_name, address, tax_number, contact_person, phone, email, bank_account) VALUES
-	('S001', '聯華', '812 高雄市小港區宮仁街14號', '07569627', '曹宗桂', '0912345678', 'tomlin@lianhwa.com.tw', '808-0939979294191'),
-	('S002', '泰山', '950 臺東縣臺東市漢中街11號', '10508879', '江為帆', '0915001903', 'fascinated@yahoo.com', '777-0939979294191'),
-	('S003', '光泉', '732 臺南市白河區五汴頭11號', '22346371', '詹長合', '0920049630', 'ourtordered@outlook.com', '555-0939979294191'),
-	('S004', '金車', '412 臺中市大里區甲堤三街35號', '90458083', '莊恆月', '0924410258', 'graying@gmail.com', '333-0939979294191'),
-	('S005', '南亞', '640 雲林縣斗六市棒球十八街13號', '70974461', '莊旭誠', '0938327361', 'softspoken@gmail.com', '111-0939979294191');
+('S001', '聯華', '812 高雄市小港區宮仁街14號', '07569627', '曹宗桂', '0912345678', 'tomlin@lianhwa.com.tw', '808-0939979294191'),
+('S002', '泰山', '950 臺東縣臺東市漢中街11號', '10508879', '江為帆', '0915001903', 'fascinated@yahoo.com', '777-0939979294191'),
+('S003', '光泉', '732 臺南市白河區五汴頭11號', '22346371', '詹長合', '0920049630', 'ourtordered@outlook.com', '555-0939979294191'),
+('S004', '金車', '412 臺中市大里區甲堤三街35號', '90458083', '莊恆月', '0924410258', 'graying@gmail.com', '333-0939979294191'),
+('S005', '南亞', '640 雲林縣斗六市棒球十八街13號', '70974461', '莊旭誠', '0938327361', 'softspoken@gmail.com', '111-0939979294191'),
+('S006', '統一', '100 臺北市中正區信義路二段1號', '12345678', '張三', '0911111111', 'zhangsan@uni.com.tw', '123-4567890123456'),
+('S007', '味全', '104 臺北市中山區南京東路二段2號', '87654321', '李四', '0922222222', 'lisi@wei.com.tw', '654-3210987654321'),
+('S008', '台糖', '106 臺北市大安區忠孝東路三段3號', '23456789', '王五', '0933333333', 'wangwu@ts.com.tw', '234-5678901234567'),
+('S009', '福壽', '110 臺北市信義區松仁路4號', '34567890', '趙六', '0944444444', 'zhaoliu@fs.com.tw', '345-6789012345678'),
+('S010', '三洋', '114 臺北市內湖區瑞光路5號', '45678901', '孫七', '0955555555', 'sunqi@sy.com.tw', '456-7890123456789');
 
 -- 插入供應商商品資料
 -- 假設已有 products 表和相關商品資料
 INSERT INTO supplier_products (supplier_product_id, supplier_id, product_id, product_price, status) VALUES
-	('SP001', 'S001', 'PDR001', 20, 1),
-	('SP002', 'S002', 'PDR002', 25, 1),
-	('SP003', 'S003', 'PDR003', 30, 1),
-	('SP004', 'S004', 'PDR004', 35, 1),
-	('SP005', 'S005', 'PDR005', 40, 1),
-	('SP006', 'S001', 'PMS001', 100, 1),
-	('SP007', 'S002', 'PMS002', 150, 1),
-	('SP008', 'S003', 'PMS003', 200, 1),
-	('SP009', 'S004', 'PMS004', 120, 1),
-	('SP010', 'S005', 'PMS005', 130, 1),
-	('SP011', 'S001', 'PRN001', 50, 1),
-	('SP012', 'S002', 'PRN002', 60, 1),
-	('SP013', 'S003', 'PRN003', 70, 1),
-	('SP014', 'S004', 'PRN004', 80, 1),
-	('SP015', 'S005', 'PRN005', 90, 1),
-	('SP016', 'S001', 'PSN001', 15, 1),
-	('SP017', 'S002', 'PSN002', 18, 1),
-	('SP018', 'S003', 'PSN003', 20, 1),
-	('SP019', 'S004', 'PSN004', 22, 1),
-	('SP020', 'S005', 'PSN005', 25, 1),
-	('SP021', 'S001', 'PVF001', 10, 1),
-	('SP022', 'S002', 'PVF002', 12, 1),
-	('SP023', 'S003', 'PVF003', 15, 1),
-	('SP024', 'S004', 'PVF004', 18, 1),
-	('SP025', 'S005', 'PVF005', 20, 1),
-	('SP026', 'S002', 'PDR001', 30, 1),
-	('SP027', 'S003', 'PDR001', 40, 0),
-	('SP028', 'S004', 'PDR001', 50, 0),
-	('SP029', 'S005', 'PDR001', 60, 1);
+                                                                                                        ('SP001', 'S001', 'PDR001', 20, 1),
+                                                                                                        ('SP002', 'S002', 'PDR002', 25, 1),
+                                                                                                        ('SP003', 'S003', 'PDR003', 30, 1),
+                                                                                                        ('SP004', 'S004', 'PDR004', 35, 1),
+                                                                                                        ('SP005', 'S005', 'PDR005', 40, 1),
+                                                                                                        ('SP006', 'S001', 'PMS001', 100, 1),
+                                                                                                        ('SP007', 'S002', 'PMS002', 150, 1),
+                                                                                                        ('SP008', 'S003', 'PMS003', 200, 1),
+                                                                                                        ('SP009', 'S004', 'PMS004', 120, 1),
+                                                                                                        ('SP010', 'S005', 'PMS005', 130, 1),
+                                                                                                        ('SP011', 'S001', 'PRN001', 50, 1),
+                                                                                                        ('SP012', 'S002', 'PRN002', 60, 1),
+                                                                                                        ('SP013', 'S003', 'PRN003', 70, 1),
+                                                                                                        ('SP014', 'S004', 'PRN004', 80, 1),
+                                                                                                        ('SP015', 'S005', 'PRN005', 90, 1),
+                                                                                                        ('SP016', 'S001', 'PSN001', 15, 1),
+                                                                                                        ('SP017', 'S002', 'PSN002', 18, 1),
+                                                                                                        ('SP018', 'S003', 'PSN003', 20, 1),
+                                                                                                        ('SP019', 'S004', 'PSN004', 22, 1),
+                                                                                                        ('SP020', 'S005', 'PSN005', 25, 1),
+                                                                                                        ('SP021', 'S001', 'PVF001', 10, 1),
+                                                                                                        ('SP022', 'S002', 'PVF002', 12, 1),
+                                                                                                        ('SP023', 'S003', 'PVF003', 15, 1),
+                                                                                                        ('SP024', 'S004', 'PVF004', 18, 1),
+                                                                                                        ('SP025', 'S005', 'PVF005', 20, 1),
+                                                                                                        ('SP026', 'S002', 'PDR001', 30, 1),
+                                                                                                        ('SP027', 'S003', 'PDR001', 40, 0),
+                                                                                                        ('SP028', 'S004', 'PDR001', 50, 0),
+                                                                                                        ('SP029', 'S005', 'PDR001', 60, 1),
+                                                                                                        ('SP030', 'S006', 'PDR001', 28, 1),
+                                                                                                        ('SP031', 'S006', 'PDR002', 32, 1),
+                                                                                                        ('SP032', 'S006', 'PDR003', 35, 1),
+                                                                                                        ('SP033', 'S007', 'PDR004', 38, 1),
+                                                                                                        ('SP034', 'S007', 'PDR005', 42, 1),
+                                                                                                        ('SP035', 'S008', 'PMS001', 105, 1),
+                                                                                                        ('SP036', 'S008', 'PMS002', 155, 1),
+                                                                                                        ('SP037', 'S009', 'PMS003', 205, 1),
+                                                                                                        ('SP038', 'S009', 'PMS004', 125, 1),
+                                                                                                        ('SP039', 'S010', 'PMS005', 135, 1),
+                                                                                                        ('SP040', 'S006', 'PRN001', 52, 1),
+                                                                                                        ('SP041', 'S006', 'PRN002', 62, 1),
+                                                                                                        ('SP042', 'S007', 'PRN003', 72, 1),
+                                                                                                        ('SP043', 'S007', 'PRN004', 82, 1),
+                                                                                                        ('SP044', 'S008', 'PRN005', 92, 1),
+                                                                                                        ('SP045', 'S008', 'PSN001', 16, 1),
+                                                                                                        ('SP046', 'S009', 'PSN002', 19, 1),
+                                                                                                        ('SP047', 'S009', 'PSN003', 21, 1),
+                                                                                                        ('SP048', 'S010', 'PSN004', 23, 1),
+                                                                                                        ('SP049', 'S010', 'PSN005', 26, 1),
+                                                                                                        ('SP050', 'S006', 'PVF001', 11, 1),
+                                                                                                        ('SP051', 'S006', 'PVF002', 13, 1),
+                                                                                                        ('SP052', 'S007', 'PVF003', 16, 1),
+                                                                                                        ('SP053', 'S007', 'PVF004', 19, 1),
+                                                                                                        ('SP054', 'S008', 'PVF005', 21, 1),
+                                                                                                        ('SP055', 'S009', 'PDR001', 30, 1),
+                                                                                                        ('SP056', 'S010', 'PDR001', 35, 1),
+                                                                                                        ('SP057', 'S006', 'PDR001', 27, 1),
+                                                                                                        ('SP058', 'S007', 'PDR002', 33, 1);
+
 
 -- 插入供應商帳戶資料
 INSERT INTO supplier_accounts (account_id, supplier_id, total_amount, paid_amount, unpaid_amount) VALUES
-	('ACC001', 'S001', 2000, 2000, 0),
-	('ACC002', 'S002', 3000, 2000, 1000),
-	('ACC003', 'S003', 2400, 2400, 0),
-	('ACC004', 'S004', 2450, 2450, 0),
-	('ACC005', 'S005', 3600, 3600, 0);
+                                                                                                      ('ACC001', 'S001', 2000, 2000, 0),
+                                                                                                      ('ACC002', 'S002', 4250, 3250, 1000),
+                                                                                                      ('ACC003', 'S003', 2400, 2400, 0),
+                                                                                                      ('ACC004', 'S004', 2450, 2450, 0),
+                                                                                                      ('ACC005', 'S005', 3600, 1200, 2400),
+                                                                                                      ('ACC006', 'S006', 2800, 2800, 0),
+                                                                                                      ('ACC007', 'S007', 3200, 2000, 1200),
+                                                                                                      ('ACC008', 'S008', 2560, 2560, 0),
+                                                                                                      ('ACC009', 'S009', 2730, 2730, 0),
+                                                                                                      ('ACC010', 'S010', 3780, 1500, 2280);
 
 -- 插入進貨資料
 INSERT INTO restocks (restock_id, restock_total_price, restock_date, employee_id) VALUES
-	('20241002001', 5000, '2024-10-02', 'E001'),
-	('20241002002', 1250, '2024-10-02', 'E001'),
-	('20241002003', 2400, '2024-10-02', 'E001'),
-	('20241002004', 2450, '2024-10-02', 'E001'),
-	('20241002005', 3600, '2024-10-02', 'E001');
+                                                                                      ('20241002001', 5000, '2024-10-02', 'E001'),
+                                                                                      ('20241002002', 1250, '2024-10-02', 'E001'),
+                                                                                      ('20241002003', 2400, '2024-10-02', 'E001'),
+                                                                                      ('20241002004', 2450, '2024-10-02', 'E001'),
+                                                                                      ('20241002005', 3600, '2024-10-02', 'E001'),
+                                                                                      ('20241002006', 4700, '2024-10-02', 'E001'),
+                                                                                      ('20241002007', 1300, '2024-10-02', 'E001'),
+                                                                                      ('20241002008', 2560, '2024-10-02', 'E001'),
+                                                                                      ('20241002009', 2730, '2024-10-02', 'E001'),
+                                                                                      ('20241002010', 3780, '2024-10-02', 'E001');
 
 -- 插入進貨明細資料，直接包含 supplier_id
-INSERT INTO restock_details (detail_id, restock_id, supplier_id, supplier_product_id, number_of_restock, price_at_restock, restock_total_price, production_date, due_date, restock_date) VALUES
-	('RD001', '20241002001', 'S001', 'SP001', 100,20, 2000, '2024-09-01', '2025-09-01', '2024-10-02'),
-	('RD002', '20241002001', 'S002', 'SP012', 50,60, 3000, '2024-09-01', '2025-09-01', '2024-10-02'),
-	('RD003', '20241002002', 'S002', 'SP012', 50,25, 1250, '2024-09-01', '2025-09-01', '2024-10-02'),
-	('RD004', '20241002003', 'S003', 'SP003', 80, 30,2400, '2024-07-20', '2025-07-20', '2024-10-02'),
-	('RD005', '20241002004', 'S004', 'SP004', 70,35, 2450, '2024-06-10', '2025-06-10', '2024-10-02'),
-	('RD006', '20241002005', 'S005', 'SP005', 90,40, 3600, '2024-05-25', '2025-05-25', '2024-10-02');
+INSERT INTO restock_details (detail_id, restock_id, supplier_id, supplier_product_id, number_of_restock,price_at_restock,restock_total_price, production_date, due_date, restock_date) VALUES
+                                                                                                                                                                                           ('RD001', '20241002001', 'S001', 'SP001', 100,20, 2000, '2024-09-01', '2025-09-01', '2024-10-02'),
+                                                                                                                                                                                           ('RD002', '20241002001', 'S002', 'SP012', 50,60, 3000, '2024-09-01', '2025-09-01', '2024-10-02'),
+                                                                                                                                                                                           ('RD003', '20241002002', 'S002', 'SP012', 50,25, 1250, '2024-09-01', '2025-09-01', '2024-10-02'),
+                                                                                                                                                                                           ('RD004', '20241002003', 'S003', 'SP003', 80, 30,2400, '2024-07-20', '2025-07-20', '2024-10-02'),
+                                                                                                                                                                                           ('RD005', '20241002004', 'S004', 'SP004', 70,35, 2450, '2024-06-10', '2025-06-10', '2024-10-02'),
+                                                                                                                                                                                           ('RD006', '20241002005', 'S005', 'SP005', 90,40, 3600, '2024-05-25', '2025-05-25', '2024-10-02'),
+                                                                                                                                                                                           ('RD007', '20241002006', 'S006', 'SP030', 100, 28, 2800, '2024-09-01', '2025-09-01', '2024-10-02'),
+                                                                                                                                                                                           ('RD008', '20241002006', 'S007', 'SP033', 50, 38, 1900, '2024-09-01', '2025-09-01', '2024-10-02'),
+                                                                                                                                                                                           ('RD009', '20241002007', 'S007', 'SP033', 50, 26, 1300, '2024-09-01', '2025-09-01', '2024-10-02'),
+                                                                                                                                                                                           ('RD010', '20241002008', 'S008', 'SP035', 80, 32, 2560, '2024-07-20', '2025-07-20', '2024-10-02'),
+                                                                                                                                                                                           ('RD011', '20241002009', 'S009', 'SP038', 70, 39, 2730, '2024-06-10', '2025-06-10', '2024-10-02'),
+                                                                                                                                                                                           ('RD012', '20241002010', 'S010', 'SP039', 90, 42, 3780, '2024-05-25', '2025-05-25', '2024-10-02');
 
 -- 插入付款資料
 INSERT INTO payments (payment_id, account_id, payment_date, payment_method, total_amount, payment_status) VALUES
-    ('PMT006', 'ACC001', '2024-10-10', '銀行轉帳', 12250, '已支付');
+                                                                                                              ('PMT006', 'ACC001', '2024-10-10', '銀行轉帳', 11300, '已支付'),
+                                                                                                              ('PMT007', 'ACC006', '2024-10-11', '銀行轉帳', 2800, '已支付'),
+                                                                                                              ('PMT008', 'ACC007', '2024-10-11', '銀行轉帳', 2000, '部分支付'),
+                                                                                                              ('PMT009', 'ACC008', '2024-10-11', '銀行轉帳', 2560, '已支付'),
+                                                                                                              ('PMT010', 'ACC009', '2024-10-11', '銀行轉帳', 2730, '已支付'),
+                                                                                                              ('PMT011', 'ACC010', '2024-10-11', '銀行轉帳', 1500, '部分支付');
 
 -- 插入付款記錄資料，對應 detail_id
 INSERT INTO payment_records (record_id, payment_id, detail_id, payment_amount) VALUES
-	('REC001', 'PMT006', 'RD001', 2000), -- S001: RD001
-	('REC002', 'PMT006', 'RD002', 2000), -- S002: RD002 部分支付
-	('REC003', 'PMT006', 'RD003', 1250), -- S002: RD003
-	('REC004', 'PMT006', 'RD004', 2400), -- S003: RD004
-	('REC005', 'PMT006', 'RD005', 2450), -- S004: RD005
-	('REC006', 'PMT006', 'RD006', 1200); -- S005: RD006 部分支付
+                                                                                   ('REC001', 'PMT006', 'RD001', 2000), -- S001: RD001
+                                                                                   ('REC002', 'PMT006', 'RD002', 2000), -- S002: RD002 部分支付
+                                                                                   ('REC003', 'PMT006', 'RD003', 1250), -- S002: RD003
+                                                                                   ('REC004', 'PMT006', 'RD004', 2400), -- S003: RD004
+                                                                                   ('REC005', 'PMT006', 'RD005', 2450), -- S004: RD005
+                                                                                   ('REC006', 'PMT006', 'RD006', 1200),
+                                                                                   ('REC007', 'PMT007', 'RD007', 2800),  -- S006: RD007
+                                                                                   ('REC008', 'PMT008', 'RD008', 1900),  -- S007: RD008 部分支付
+                                                                                   ('REC009', 'PMT008', 'RD009', 100),   -- S007: RD009 部分支付
+                                                                                   ('REC010', 'PMT009', 'RD010', 2560),  -- S008: RD010
+                                                                                   ('REC011', 'PMT010', 'RD011', 2730),  -- S009: RD011
+                                                                                   ('REC012', 'PMT011', 'RD012', 1500);  -- S010: RD012 部分支付; -- S005: RD006 部分支付
 
--- 新增職級和員工
+-- 插入職級和員工
 INSERT INTO ranklevel (position_id, position_name, limits_of_authority, salary_level)
 VALUES
 	('M01', '經理', 3, 'SSS'),
@@ -433,14 +510,18 @@ VALUES
 	('E003', '阿瑋', '0900789789', 'C123456789', 'aaa0003@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E004', '阿翔', '0900321321', 'D123456789', 'aaa0004@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
 	('E005', '阿翰', '0900654654', 'E123456789', 'aaa0005@gmail.com', '0000', 'M03', '2024-06-13', NULL,1, NULL),
-	('E006', '阿鼎', '0900987987', 'F123456789', 'ricekevin22@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL),
+	('E006', '阿鼎', '0900987987', 'F123456789', 'aac0005@gmail.com', '0000', 'M02', '2024-06-13', NULL,1, NULL),
 	('E007', '阿文', '0933654654', 'G123456789', 'aaa0006@gmail.com', '0000', 'M03', '2024-06-20', '2024-08-31',0, NULL),
 	('E008', '阿航', '0974147414', 'H123456789', 'aaa0007@gmail.com', '0000', 'M02', '2024-06-20', '2024-10-15',0, NULL),
 	('E009', '阿棟', '0955885885', 'J123456789', 'aaa0008@gmail.com', '0000', 'M03', '2024-06-21', '2024-10-20',0, NULL),
 	('E010', '阿璋', '0911236236', 'K123456789', 'aaa0009@gmail.com', '0000', 'M03', '2024-07-12', NULL,1, NULL),
-	('E011', '阿貓', '0914236556', 'L123456789', 'aaa0010@gmail.com', '0000', 'M03', '2024-09-18', NULL,1, NULL);
+	('E011', '阿貓', '0914236556', 'L123456789', 'aaa0010@gmail.com', '0000', 'M03', '2024-09-18', NULL,1, NULL),
+	('E012', '卅囉', '0914244556', 'M123456789', 'aaa0011@gmail.com', '0000', 'M03', '2024-09-23', NULL,1, NULL),
+	('E013', '尤離子', '0932246577', 'N123456789', 'aaa0012@gmail.com', '0000', 'M03', '2024-10-07', NULL,1, NULL),
+	('E014', '一沐日', '0936226577', 'O123456789', 'aaa0013@gmail.com', '0000', 'M02', '2024-10-07', NULL,1, NULL),
+	('E015', '柯珊芻', '0930611630', 'P123456789', 'aaa0014@gmail.com', '0000', 'M02', '2024-10-16', NULL,1, NULL);
 
--- 新增聊天
+-- 插入聊天
 INSERT INTO chat_messages (from_user, to_user, content, timestamp)
 VALUES 
 -- 阿綸(E001)發送給其他人的訊息
@@ -478,7 +559,7 @@ VALUES
 ('E010', 'E006', '謝謝關心，目前還可以應付，如果需要支援我再告訴你', '2024-10-01 14:35:00'),
 ('E010', 'E001', '主管，新人的學習計劃我已經打好草稿，等等傳給你參考', '2024-10-22 16:00:00');
 
--- 新增會員
+-- 插入會員
 INSERT INTO customer (customer_tel, customer_name, customer_email, date_of_registration, total_points)
 VALUES
 ('0912345678', '陳大文', 'dawen.chen@email.com', '2024-06-15', 8),
@@ -530,7 +611,8 @@ VALUES
 ('0978901238', '梁志明', 'zhiming.liang@email.com', '2024-10-22', 9),
 ('0989012349', '湯雅晴', 'yaqing.tang@email.com', '2024-10-23', 4),
 ('0990123450', '邱建安', 'jianan.qiu@email.com', '2024-10-24', 14),
-('0901234561', '溫淑儀', 'shuyi.wen@email.com', '2024-10-24', 8);
+('0901234561', '溫淑儀', 'shuyi.wen@email.com', '2024-10-24', 8),
+('0955234563', '李姍姍', 'delete.li@email.com', '2024-10-26', 10);
 
 -- 插入 ask_for_leave 請假表資料
 INSERT INTO ask_for_leave (leave_id, employee_id, start_time, end_time, reason_leave, proof_image, approved_status, category_id, leave_hours, rejection_reason)
@@ -565,7 +647,7 @@ VALUES
 ('L00028', 'E003', '2024-11-10 12:00', '2024-11-10 16:00', '因家庭需求請假', NULL, '已批准', 4, 4, NULL),
 ('L00029', 'E003', '2024-11-15 08:00', '2024-11-15 12:00', '因事務請假', NULL, '已批准', 2, 4, NULL);
 
--- 新增請假記錄
+-- 插入請假記錄
 INSERT INTO leave_record (employee_id, category_id, expiration_date, actual_hours, limit_hours)
 VALUES
 ('E001', 1, '2025-06-13', 4, 112),
@@ -585,7 +667,8 @@ VALUES
 ('E013', 1, '2025-06-13', 8, 112),
 ('E013', 2, '2025-06-13', 4, 240),
 ('E014', 3, '2025-06-13', 8, 24);
---- 插入 請假類別
+
+--- 插入請假類別
 INSERT INTO leave_category (leave_type, max_hours)
 VALUES
 ('事假', 112),
@@ -727,7 +810,7 @@ INSERT INTO schedule (employee_id, schedule_date, start_time, end_time, schedule
 ('E006', '2024-11-21', '12:00', '16:00', 4, 1),
 ('E004', '2024-11-21', '12:00', '16:00', 4, 1);
 
--- 新增結帳單
+-- 插入結帳單
 INSERT INTO checkout (checkout_id,invoice_number , customer_tel, employee_id, checkout_total_price,checkout_date,bonus_points,points_due_date, checkout_status, related_return_id)
 VALUES
 	('C00000001','IN00000001','0912345678', 'E001', 2060 , '2024-11-04',20, '2025-11-04','已退貨','T00000001'),
@@ -739,7 +822,7 @@ VALUES
 	('C00000007','IN00000007','', 'E005', 105 , '2024-11-06',0, '','正常',''),
 	('C00000008','IN00000008','0912345678', 'E006', 750 , '2024-11-07',7, '2025-11-07','正常','');
 	
--- 新增結帳明細        
+-- 插入結帳明細        
 INSERT INTO checkout_details(checkout_id,product_id,number_of_checkout,product_price,checkout_price)
 VALUES
 	('C00000001', 'PMS001', 10, 200, 2000),
@@ -758,47 +841,86 @@ VALUES
 	('C00000008', 'PRN001', 3, 150, 450),
 	('C00000008', 'PDR001', 10, 30, 300);
 
--- 新增退貨單
+-- 插入退貨單
 INSERT INTO return_products (return_id,original_checkout_id,original_invoice_number, employee_id , return_total_price , return_date)
 VALUES
 	('T00000001', 'C00000001', 'IN00000001', 'E001', 200 , '2024-11-05'),
 	('T00000002', 'C00000002', 'IN00000002', 'E002', 70,  '2024-11-06'),
 	('T00000003', 'C00000003', 'IN00000003', 'E003', 750 , '2024-11-07');
 
--- 新增退貨明細
+-- 插入退貨明細
 INSERT INTO return_details(return_id,original_checkout_id,product_id,reason_for_return,number_of_return,product_price,return_price,return_status,return_photo) 
 VALUES
 ('T00000001', 'C00000001', 'PMS001', '豬肉臭酸',1, 200, 200,'商品品質異常',NULL),
 ('T00000002', 'C00000002', 'PSN004' , '蘇打餅乾包裝完整但輕微壓扁',2, 35, 70,'商品外觀損傷',NULL),
 ('T00000003', 'C00000003','PRN001' , '米裡面有蟲',5, 150, 750,'商品品質異常',NULL);
 
--- 新增紅利兌換商品表
-INSERT INTO bonus_exchange (exchange_id,product_id ,customer_tel ,use_points ,number_of_exchange,exchange_date )
-VALUES
-	('H00000001', 'PSN003', '0912345678', 15,1,'2024-11-08'),
-	('H00000002', 'PVF001', '0923456789', 20,1,'2024-11-08');
-
--- 新增有會員點數做紅利兌換商品測試
+-- 插入有會員點數做紅利兌換商品測試
 INSERT INTO customer (customer_tel, customer_name, customer_email, date_of_registration, total_points)
 VALUES
-	('0955993322', '阿偉', 'cus021@email.com', '2024-07-01', 500),
-	('0933333333', '偉哥', 'cus022@email.com', '2024-07-01', 200),
-	('0911111111', '陳小明', 'chenxm@email.com', '2024-01-05', 350),
-	('0922222222', '林美玲', 'linml@email.com', '2024-02-10', 400),
-	('0977777777', '王大衛', 'wangdw@email.com', '2024-03-15', 450),
-	('0944444444', '張惠美', 'zhanghm@email.com', '2024-04-20', 500),
-	('0955555555', '李國強', 'ligq@email.com', '2024-05-25', 600),
-	('0966666666', '趙子龍', 'zhaozl@email.com', '2024-06-30', 700);     
+    ('0938123456', '陳平偉', 'cus021@email.com', CAST('2024-07-01' AS DATE), 500),
+    ('0927456123', '林竣煒', 'cus022@email.com', CAST('2024-07-01' AS DATE), 200),
+    ('0956234587', '陳曉明', 'chenxm@email.com', CAST('2024-01-05' AS DATE), 350),
+    ('0935162783', '林美玲', 'linml@email.com', CAST('2024-02-10' AS DATE), 400),
+    ('0968456237', '王大衛', 'wangdw@email.com', CAST('2024-03-15' AS DATE), 450),
+    ('0912387564', '張惠美', 'zhanghm@email.com', CAST('2024-04-20' AS DATE), 500),
+    ('0945784623', '李國強', 'ligq@email.com', CAST('2024-05-25' AS DATE), 600),
+    ('0976789463', '趙子隆', 'zhaozl@email.com', CAST('2024-06-30' AS DATE), 700);
 
--- 新增紅利紀錄表
-INSERT INTO points_history (customer_tel ,checkout_id ,exchange_id ,points_change,transaction_date, transaction_type)
+-- 插入紅利兌換商品表
+INSERT INTO bonus_exchange
+    (exchange_id, item_id, customer_tel, use_points, number_of_exchange, exchange_date)
 VALUES
-	('0912345678', 'C00000001','', 20, '2024-11-04','earn'),
-	('0912345678', 'C00000003','', 15, '2024-11-05','earn'),
-	('0923456789', 'C00000004','', 40, '2024-11-06','earn'),
-	('0912345678', 'C00000005','', 5, '2024-11-07','earn'),
-	('0912345678','' ,'H00000001', 15, '2024-11-08','use'),
-	('0923456789', '','H00000002', 20, '2024-11-08','use');
+    ('EX00000001', 'IM005', '0912345678', 60, 1, '2024-10-15'),  -- 兌換雞肉
+    ('EX00000002', 'IM006', '0923456789', 25, 2, '2024-10-16'),  -- 兌換小黃瓜
+    ('EX00000003', 'IM007', '0934567890', 70, 1, '2024-10-17'),  -- 兌換蛤蠣
+    ('EX00000004', 'IM008', '0945678901', 90, 1, '2024-10-18'),  -- 兌換空心菜
+    ('EX00000005', 'IM009', '0956789012', 30, 2, '2024-10-19'),  -- 兌換魚
+    ('EX00000006', 'IM005', '0967890123', 60, 1, '2024-10-20'),  -- 兌換雞肉
+    ('EX00000007', 'IM007', '0978901234', 70, 1, '2024-10-21'),  -- 兌換蛤蠣
+    ('EX00000008', 'IM008', '0989012345', 90, 1, '2024-10-22'),  -- 兌換空心菜
+    ('EX00000009', 'IM009', '0990123456', 30, 1, '2024-10-23'),  -- 兌換魚
+    ('EX00000010', 'IM010', '0901234567', 110, 1, '2024-10-24'); -- 兌換高麗菜
+
+-- 插入可兌換商品管理表
+-- 第一批活動商品(已結束) -- 6月到8月（已過期，因此狀態設為 0）
+INSERT INTO item_management
+    (item_id, product_id, item_points, item_maximum, start_date, end_date, is_active)
+VALUES
+    ('IM001', 'PMS001', 50, 100, '2024-06-01', '2024-08-31', 0),
+    ('IM002', 'PVF001', 20, 50, '2024-06-01', '2024-08-31', 0),
+    ('IM003', 'PMS002', 80, 30, '2024-06-01', '2024-08-31', 0),
+    ('IM004', 'PVF002', 100, 60, '2024-06-01', '2024-08-31', 0),
+    -- 第二批活動商品(進行中)  -- 10月到12月（目前為活動期間，狀態設為 1）
+    ('IM005', 'PMS003', 60, 120, '2024-10-01', '2024-12-31', 1),
+    ('IM006', 'PVF003', 25, 80, '2024-10-01', '2024-12-31', 1),
+    ('IM007', 'PMS004', 70, 40, '2024-10-01', '2024-12-31', 1),
+    ('IM008', 'PVF004', 90, 70, '2024-10-01', '2024-12-31', 1),
+    ('IM009', 'PMS005', 30, 150, '2024-10-01', '2024-12-31', 1),
+    ('IM010', 'PVF005', 110, 45, '2024-10-01', '2024-12-31', 1),
+    -- 第三批活動商品(尚未開始)  -- 1月到2月（活動未開始，狀態設為 0）
+    ('IM011', 'PMS001', 50, 100, '2025-01-01', '2025-02-28', 0),
+    ('IM012', 'PMS002', 60, 90, '2025-01-01', '2025-02-28', 0),
+    ('IM013', 'PVF001', 20, 50, '2025-01-01', '2025-02-28', 0),
+    ('IM014', 'PVF002', 80, 60, '2025-01-01', '2025-02-28', 0);
+
+-- 插入紅利紀錄表
+INSERT INTO points_history
+    (customer_tel, checkout_id, exchange_id, points_change, transaction_date, transaction_type)
+VALUES
+    -- 消費累積點數記錄
+    ('0912345678', 'C00000001', NULL, 20, '2024-11-04', 'earn'),
+    ('0912345678', 'C00000003', NULL, 15, '2024-11-04', 'earn'),
+    ('0912345678', 'C00000006', NULL, 18, '2024-11-05', 'earn'),
+    ('0912345678', 'C00000008', NULL, 7, '2024-11-07', 'earn'),
+    ('0923456789', 'C00000004', NULL, 40, '2024-11-04', 'earn'),
+    ('0934567890', 'C00000005', NULL, 5, '2024-11-04', 'earn'),
+    -- 兌換使用點數記錄
+    ('0912345678', NULL, 'EX00000001', -60, '2024-11-08', 'use'),
+    ('0923456789', NULL, 'EX00000002', -25, '2024-11-08', 'use'),
+    ('0934567890', NULL, 'EX00000003', -70, '2024-11-08', 'use'),
+    ('0945678901', NULL, 'EX00000004', -90, '2024-11-09', 'use'),
+    ('0956789012', NULL, 'EX00000005', -30, '2024-11-09', 'use');
     
                
 
@@ -1094,6 +1216,7 @@ SELECT * FROM ask_for_leave;
 SELECT * FROM leave_record;
 SELECT * FROM leave_category;
 SELECT * FROM customer;
+SELECT * FROM item_management ;
 SELECT * FROM bonus_exchange;
 SELECT * FROM points_history;
 
@@ -1120,6 +1243,7 @@ SELECT * FROM points_history;
 --TRUNCATE TABLE leave_record;
 --TRUNCATE TABLE leave_category;
 --TRUNCATE TABLE customer;
+--TRUNCATE TABLE item_management;
 --TRUNCATE TABLE bonus_exchange;
 --TRUNCATE TABLE points_history;
 
@@ -1146,5 +1270,6 @@ DROP TABLE ask_for_leave;
 DROP TABLE leave_record;
 DROP TABLE leave_category;
 DROP TABLE customer;
+DROP TABLE item_management;
 DROP TABLE bonus_exchange;
 DROP TABLE points_history;

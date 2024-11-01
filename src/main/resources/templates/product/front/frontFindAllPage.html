@@ -107,9 +107,14 @@
                 <div class="container mt-3">
                     <div class="d-flex justify-content-between">
                         <div>
+                            <a class="btn btn-dark" th:href="@{/product/front/findProductAvailable(available=${true})}">
+                                <i class="fas fa-arrow-left"></i>
+                                返回列表
+                            </a>
                             <a class="btn btn-outline-secondary"
                                 th:href="@{/product/front/findProductInventoryNotEnough}">查詢庫存不足商品</a>
-                            <a class="btn btn-outline-secondary" th:href="@{/product/findAll}">查詢所有商品</a>
+                                <a class="btn btn-outline-secondary"
+                                th:href="@{/product/front/findProductAvailable(available=${false})}">查詢已下架商品</a>
                         </div>
 
                         <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋商品名稱">
@@ -172,10 +177,7 @@
                             </th:block>
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-between">
-
-
-                        <a class="btn btn-primary" th:href="@{/product/front/addPage}">新增商品資訊</a>
+                    <div class="d-flex justify-content-end">
                         <th:block th:if="${pages.totalPages > 0}">
                             <div id="page">
                                 <ul class="pagination m-0" id="pageUl">
@@ -385,25 +387,7 @@
         </div>
     `;
 
-            // 銷售信息組
-            html += `
-        <div class="info-group">
-            <div class="info-title">
-                <i class="fas fa-chart-line"></i>
-                銷售統計
-            </div>
-            <div class="info-content">
-                <div class="info-item">
-                    <div class="info-label">銷售數量</div>
-                    <div class="info-value">${product.numberOfSale}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">兌換數量</div>
-                    <div class="info-value">${product.numberOfExchange}</div>
-                </div>
-            </div>
-        </div>
-    `;
+
 
             card.innerHTML = html;
             return card;

@@ -41,13 +41,32 @@ public class CheckoutDetailsService {
     }
 
     // 更新結帳明細
+    @Transactional
     public void updateCheckoutDetails(CheckoutDetailsBean checkoutDetails) throws DataAccessException {
-        checkoutDetailsRepository.save(checkoutDetails);
+        try {
+            // 計算結帳小計
+            checkoutDetails.setCheckoutPrice(
+                checkoutDetails.getProductPrice() * checkoutDetails.getNumberOfCheckout()
+            );
+            checkoutDetailsRepository.save(checkoutDetails);
+        } catch (Exception e) {
+            throw new DataAccessException("更新結帳明細失敗: " + e.getMessage());
+        }
     }
 
     // 刪除結帳明細
+    @Transactional
     public void deleteCheckoutDetails(String checkoutId, String productId) throws DataAccessException {
-        checkoutDetailsRepository.deleteById(new CheckoutDetailsId(checkoutId, productId));
+        try {
+            CheckoutDetailsBean detail = checkoutDetailsRepository.findByCheckoutIdAndProductId(checkoutId, productId);
+            if (detail == null) {
+                throw new DataAccessException("找不到對應的結帳明細");
+            }
+            
+            checkoutDetailsRepository.deleteById(new CheckoutDetailsId(checkoutId, productId));
+        } catch (Exception e) {
+            throw new DataAccessException("刪除結帳明細失敗: " + e.getMessage());
+        }
     }
 
     // 根據產品ID搜索結帳明細

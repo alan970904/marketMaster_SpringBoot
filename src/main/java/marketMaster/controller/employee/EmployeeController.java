@@ -47,7 +47,7 @@ public class EmployeeController {
 	public String getAllEmployee(@RequestParam(defaultValue = "false") boolean showAll,
 								 @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model,
 								 HttpSession session) {
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		int authority = currentEmployee.getAuthority();
 
 		Page<EmpBean> employeePage = employeeService.getAllEmployees(showAll, PageRequest.of(page, size));
@@ -106,7 +106,7 @@ public class EmployeeController {
 								  @RequestParam(defaultValue = "false") boolean showAll, @RequestParam(defaultValue = "0") int page,
 								  @RequestParam(defaultValue = "10") int size, Model model, HttpSession session) {
 
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		int authority = currentEmployee.getAuthority();
 
 		Page<EmpBean> employeePage = employeeService.searchEmployees(searchName, showAll, PageRequest.of(page, size));
@@ -136,7 +136,7 @@ public class EmployeeController {
 	@GetMapping("/details")
 	@RequiresPermission(value = "view", resource = "employee")
 	public String showEmployeeDetails(@RequestParam String employeeId, Model model, HttpSession session) {
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		int authority = currentEmployee.getAuthority();
 
 		if (authority == 1 && !currentEmployee.getEmployeeId().equals(employeeId)) {
@@ -152,7 +152,7 @@ public class EmployeeController {
 	@GetMapping("/getUpdate")
 	@RequiresPermission(value = "update", resource = "employee")
 	public String getEmployeeForUpdate(@RequestParam String employeeId, Model model, HttpSession session) {
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		int authority = currentEmployee.getAuthority();
 
 		if (authority == 1 && !currentEmployee.getEmployeeId().equals(employeeId)) {
@@ -176,7 +176,7 @@ public class EmployeeController {
 	public String updateEmployee(@ModelAttribute("emp") EmpBean emp,
 								 @RequestParam(value = "file", required = false) MultipartFile file, RedirectAttributes redirectAttributes,
 								 HttpSession session) {
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		int authority = currentEmployee.getAuthority();
 
 		if (authority == 1 && !currentEmployee.getEmployeeId().equals(emp.getEmployeeId())) {
@@ -211,7 +211,7 @@ public class EmployeeController {
 	@RequiresPermission(value = "delete", resource = "employee")
 	public String deleteEmployee(@RequestParam String employeeId, RedirectAttributes redirectAttributes,
 								 HttpSession session) {
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 		int authority = currentEmployee.getAuthority();
 
 		// 添加額外檢查，確保權限2不能刪除權限3的用戶
@@ -251,7 +251,7 @@ public class EmployeeController {
 	@RequiresPermission(value = "viewChart", resource = "employee")
 	public ResponseEntity<List<MonthlyStatisticsDTO>> getEmployeeStatistics(HttpSession session) {
 	    try {
-	        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+	        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
 	        if (currentEmployee == null) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	        }

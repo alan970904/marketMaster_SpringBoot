@@ -30,7 +30,7 @@
                             <tr>
                                 <th>退貨編號</th>
                                 <th>結帳編號</th>
-                                <th>產品編號</th>
+                                <th>產品名稱</th>
                                 <th>退貨數量</th>
                                 <th>退貨金額</th>
                                 <th>退貨狀態</th>
@@ -41,7 +41,7 @@
                             <tr th:each="detail : ${returnDetails}">
                                 <td th:text="${detail.returnId}"></td>
                                 <td th:text="${detail.originalCheckoutId}"></td>
-                                <td th:text="${detail.productId}"></td>
+                                <td th:text="${detail.checkoutDetail.product.productName}"></td>
                                 <td th:text="${detail.numberOfReturn}"></td>
                                 <td th:text="${detail.returnPrice}"></td>
                                 <td th:text="${detail.returnStatus}"></td>

@@ -45,7 +45,7 @@
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link" th:href="@{/employee/front/details(employeeId=${session.employee?.employeeId})}">
+            <a class="nav-link" th:href="@{/employee/front/details(employeeId=${session.frontendEmployee?.employeeId})}">
               <i class="fa-solid fa-user-tie"></i>
             </a>
           </li>
@@ -74,7 +74,7 @@
             </a>
             <ul class="collapse list-unstyled submenu" id="memberSubmenu">
               <li>
-                <a th:href="@{/askForLeave/usefind(id=${session.employee?.employeeId})}" class="sidebar-link"> 請假</a>
+                <a th:href="@{/askForLeave/usefind(id=${session.frontendEmployee?.employeeId})}" class="sidebar-link"> 請假</a>
               </li>
               <li>
                 <a th:href="@{/schedules/useView}" class="sidebar-link"> 排班</a>
@@ -141,7 +141,7 @@
                 <a th:href="@{/customer/front/cusList}" class="sidebar-link"> 會員列表</a>
               </li>
               <li>
-                <a th:href="@{/bonusExchange}" class="sidebar-link"> 紅利兌換列表</a>
+                <a th:href="@{/bonusExchange}" class="sidebar-link"> 紅利兌換查詢</a>
               </li>
             </ul>
           </li>

@@ -130,6 +130,7 @@ public class ProductService {
 		return null;
 	}
 
+	@Transactional
 	public ProductBean updateProduct(ProductBean newProduct, MultipartFile photo) throws IOException {
 
 		String productId = newProduct.getProductId();
@@ -140,9 +141,9 @@ public class ProductService {
 
 			product.setProductName(newProduct.getProductName());
 			product.setProductCategory(newProduct.getProductCategory());
-			product.setProductSafeInventory(newProduct.getProductSafeInventory());
 			product.setProductPrice(newProduct.getProductPrice());
-			if (photo != null) {
+			product.setProductSafeInventory(newProduct.getProductSafeInventory());
+			if (photo.getBytes().length > 0) {
 				product.setProductPhoto(photo.getBytes());
 			} else {
 				product.setProductPhoto(product.getProductPhoto());

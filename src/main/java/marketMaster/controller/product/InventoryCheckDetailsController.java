@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import jakarta.servlet.http.HttpSession;
 import marketMaster.DTO.product.InventoryCheckDetailDTO;
 import marketMaster.annotation.RequiresPermission;
+import marketMaster.bean.product.InventoryCheckBean;
 import marketMaster.bean.product.InventoryCheckDetailsBean;
 import marketMaster.bean.product.ProductBean;
 import marketMaster.service.product.InventoryCheckDetailsService;
+import marketMaster.service.product.InventoryCheckService;
 import marketMaster.service.product.ProductService;
 import marketMaster.viewModel.EmployeeViewModel;
 
@@ -28,6 +30,9 @@ public class InventoryCheckDetailsController {
 	
 	@Autowired
 	private InventoryCheckDetailsService inventoryCheckDetailsService;
+	
+	@Autowired
+	private InventoryCheckService inventoryCheckService;
 	
 	@Autowired
 	private ProductService productService;
@@ -49,7 +54,9 @@ public class InventoryCheckDetailsController {
 	@GetMapping("/inventoryCheckDetails/findByCheckId")
 	public String findByInventoryCheck(@RequestParam String inventoryCheckId,Model m) {
 		List<InventoryCheckDetailsBean> inventoryCheckDetails = inventoryCheckDetailsService.findByInventoryCheckDetailId(inventoryCheckId);
+		InventoryCheckBean inventoryCheck = inventoryCheckService.findDetailsBycheckId(inventoryCheckId);
 		m.addAttribute("inventoryCheckDetails", inventoryCheckDetails);
+		m.addAttribute("inventoryCheck", inventoryCheck);
 		return "/product/inventoryChecksDetailsPage";
 	}
 	
@@ -58,10 +65,7 @@ public class InventoryCheckDetailsController {
 	public String deleteDetailById(@RequestBody InventoryCheckDetailDTO inventoryCheckDetailDTO) {
 		String detailId = inventoryCheckDetailDTO.getDetailId();
 		InventoryCheckDetailsBean detail = inventoryCheckDetailsService.findOneInventoryCheckDetailById(detailId);
-		Integer currentInventory = detail.getCurrentInventory();
-		String productId = detail.getProduct().getProductId();
 		
-		productService.updateProductByDeleteCheck(productId, currentInventory);
 		inventoryCheckDetailsService.deleteDetailById(detailId);
 		
 		return "redirect:/inventoryCheckDetails/findByCheckId";
@@ -74,7 +78,6 @@ public class InventoryCheckDetailsController {
 		String remark = inventoryCheckDetailDTO.getRemark();
 		InventoryCheckDetailsBean detail = inventoryCheckDetailsService.findOneInventoryCheckDetailById(detailId);
 		String productId = detail.getProduct().getProductId();
-		productService.updateProductByUpdateCheck(productId, actualInventory);
 		inventoryCheckDetailsService.updateDetailById(detailId, actualInventory,remark);
 		
 		return ResponseEntity.ok().build();
