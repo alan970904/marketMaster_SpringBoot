@@ -1,6 +1,7 @@
 package marketMaster.controller.askForLeave;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -189,7 +191,9 @@ public class AskForLeaveController {
 
 		List<ScheduleBean> schedulesByDateTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
 				startTime, endTime);
+		
 		int totalScheduleHours = schedulesByDateTimeRange.stream().mapToInt(ScheduleBean::getScheduleHour).sum();
+	 
 		if (schedulesByDateTimeRange.isEmpty()) {
 			redirectAtb.addFlashAttribute("scheduleError", "沒有找到排班，請檢查時間範圍");
 			return "redirect:/askForLeave/search?id=" + employeeId;
@@ -239,6 +243,8 @@ public class AskForLeaveController {
 
 		List<ScheduleBean> schedulesByDateTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
 				startTime, endTime);
+		
+		
 		int totalScheduleHours = schedulesByDateTimeRange.stream().mapToInt(ScheduleBean::getScheduleHour).sum();
 		if (schedulesByDateTimeRange.isEmpty()) {
 			redirectAtb.addFlashAttribute("scheduleError", "沒有找到排班，請檢查時間範圍");
@@ -432,11 +438,8 @@ public class AskForLeaveController {
 			LocalDateTime endTime = aslById.getEndTime();
 			Integer categoryId = aslById.getLeaveCategory().getCategoryId();
 
-			System.out.println("controller  checkLeaveRecord");
 			leaveRecordService.checkLeaveRecord(employeeId, categoryId, endTime);
-			System.out.println("controller addLeaveHours");
 			leaveRecordService.addLeaveHours(employeeId, categoryId, endTime, leaveHours);
-			System.out.println("end");
 			aslService.approveLeave(leaveId);
 			return ResponseEntity.ok("請假申請已核准");
 		} catch (Exception e) {

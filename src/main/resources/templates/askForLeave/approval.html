@@ -261,6 +261,8 @@
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary"
+								id="inputReasonBtn">一鍵輸入</button>
+							<button type="button" class="btn btn-secondary"
 								data-bs-dismiss="modal">取消</button>
 							<button type="button" class="btn btn-primary"
 								id="submitRejection">提交拒絕</button>
@@ -360,6 +362,9 @@
     
 
 });
+ document.getElementById('inputReasonBtn').addEventListener('click', function() {
+        document.getElementById('rejectionReason').value = '內容不完整，請重新修改'; // 將文本填入 textarea
+    });
 </script>
 </body>
 </html>
