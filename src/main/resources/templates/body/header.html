@@ -2,124 +2,144 @@
 <html lang="zh-Hant-TW" xmlns:th="http://www.thymeleaf.org/">
 
 <body>
-	<div th:fragment="header">
-    <!-- 固定在頂部的導航欄 -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container-fluid">
-            <!-- 側邊欄收起按鈕 -->
-            <button type="button" id="sidebarCollapse" class="btn">
-                <i class="fa-solid fa-bars" style="color: #ffffff;"></i>
-            </button>
-            <a class="navbar-brand ms-3" href="#">
-                <!-- 替換 logo 的位置 -->
-                <img th:src="@{/img/leaf-solid.svg}" alt="logo" width=34px class="me-2">
-                MarketMaster後台管理
-            </a>
-            <!-- 登出按鈕，始終顯示在右側 -->
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/employee/changePasswordPage}"><i class="fa-regular fa-circle-question"></i> </a>
-                </li>
-            	<li class="nav-item">
-                    <a class="nav-link" th:href="@{/chat/messages}"><i class="fa-regular fa-comments"></i> </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/notifications}"><i class="fa-solid fa-bell"></i> </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/employee/details(employeeId=${session.employee.employeeId})}"><i class="fa-solid fa-user-tie"></i> </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/employee/logout}"><i class="fas fa-sign-out-alt"></i> </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <div>
-        <!-- 側邊欄 -->
-        <nav id="sidebar" class="active">
-            <ul class="list-unstyled">
-                <li>
-                    <a th:href="@{/homePage}" class="sidebar-link"><i class="fa-solid fa-shop"></i> 後台管理首頁</a>
-                </li>
-                <li>
-                    <a href="#memberSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
-                        <i class="fa-solid fa-users-gear"></i> 員工管理
-                    </a>
-                    <ul class="collapse list-unstyled submenu" id="memberSubmenu">
-                        <li>
-                            <a th:href="@{/employee/empList}" class="sidebar-link"> 員工列表</a>
+    <div th:fragment="header">
+        <!-- 固定在頂部的導航欄 -->
+        <nav class="navbar navbar-expand-lg fixed-top">
+            <div class="container-fluid">
+                <!-- 側邊欄收起按鈕 -->
+                <button type="button" id="sidebarCollapse" class="btn">
+                    <i class="fa-solid fa-bars" style="color: #ffffff;"></i>
+                </button>
+                <a class="navbar-brand ms-3" href="#">
+                    <!-- 替換 logo 的位置 -->
+                    <img th:src="@{/img/leaf-solid.svg}" alt="logo" width=34px class="me-2">
+                    MarketMaster後台管理
+                </a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- 登出按鈕，始終顯示在右側 -->
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/employee/changePasswordPage}"><i
+                                    class="fa-regular fa-circle-question"></i> </a>
                         </li>
-                        <li>
-                            <a th:href="@{/askForLeave/search(id=${session.employee.employeeId})}" class="sidebar-link"> 請假</a>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/chat/messages}"><i class="fa-regular fa-comments"></i> </a>
                         </li>
-                        <li>
-                            <a th:href="@{/schedules/viewSchedules}" class="sidebar-link"> 排班</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge bg-danger" id="notificationCount"></span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="notificationDropdown" id="notificationList">
+                                <li><a class="dropdown-item text-center" id="loadingNotifications">加載中...</a></li>
+        						<li><a class="dropdown-item text-center d-none" id="noNotifications">沒有新通知</a></li>
+                                <!-- 通知將在這裡動態添加 -->
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                th:href="@{/employee/details(employeeId=${session.employee.employeeId})}"><i
+                                    class="fa-solid fa-user-tie"></i> </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/employee/logout}"><i class="fas fa-sign-out-alt"></i> </a>
                         </li>
                     </ul>
-                </li>
-                <li>
-                    <a href="#restockSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
-                        <i class="fa-solid fa-truck"></i> 進貨管理
-                    </a>
-                    <ul class="collapse list-unstyled submenu" id="#restockSubmenu">
-                        <li>
-                            <a th:href="@{/restockDetail/restockDetail}" class="sidebar-link"> 進貨明細列表</a>
-                        </li>
-                        <li>
-                            <a th:href="@{/supplier/supplier}" class="sidebar-link"> 供應商列表</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#productSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
-                        <i class="fas fa-shopping-bag"></i> 商品管理</a>
-                    <ul class="collapse list-unstyled submenu" id="produuctSubmenu">
-                        <li>
-                            <a th:href="@{/product/findAll}" class="sidebar-link"> 商品列表</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#checkoutSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle"><i class="fa-solid fa-hand-holding-dollar"></i> 結帳管理</a>
-                    <ul class="collapse list-unstyled submenu" id="checkoutSubmenu">
-                        <li>
-                            <a th:href="@{/checkout/checkoutMain}" class="sidebar-link"> 結帳列表</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#Submenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle">
-                        <i class="fa-solid fa-face-tired"></i> 退貨管理</a>
-                    <ul class="collapse list-unstyled submenu" id="Submenu">
-                        <li>
-                            <a th:href="@{/}" class="sidebar-link"> 退貨列表</a>
-                        </li>
-                    </ul>
-                </li>
-				<li>
-                    <a href="#customersSubmenu" data-bs-toggle="collapse" aria-expanded="false"
-                        class="sidebar-link dropdown-toggle"><i class="fa-solid fa-address-book"></i> 會員管理</a>
-                    <ul class="collapse list-unstyled submenu" id="customersSubmenu">
-                        <li>
-                            <a th:href="@{/customer/cusList}" class="sidebar-link"> 會員列表</a>
-                        </li>
-                        <li>
-                            <a th:href="@{/bonusExchange}" class="sidebar-link"> 紅利兌換列表</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                </div>
+            </div>
         </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <!-- 側邊欄 -->
+                <nav id="sidebar" class="active">
+                    <ul class="list-unstyled">
+                        <li>
+                            <a th:href="@{/homePage}" class="sidebar-link"><i class="fa-solid fa-shop"></i> 後台管理首頁</a>
+                        </li>
+                        <li>
+                            <a href="#memberSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                                class="sidebar-link dropdown-toggle">
+                                <i class="fa-solid fa-users-gear"></i> 員工管理
+                            </a>
+                            <ul class="collapse list-unstyled submenu" id="memberSubmenu">
+                                <li>
+                                    <a th:href="@{/employee/empList}" class="sidebar-link"> 員工列表</a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/askForLeave/search(id=${session.employee.employeeId})}"
+                                        class="sidebar-link"> 請假</a>
+                                </li>
+                                <li>
+                                     <a th:href="@{/schedules/viewSchedules}" class="sidebar-link"> 排班</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#restockSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                                class="sidebar-link dropdown-toggle">
+                                <i class="fa-solid fa-truck"></i> 進貨管理
+                            </a>
+                            <ul class="collapse list-unstyled submenu" id="#restockSubmenu">
+                                <li>
+                                    <a th:href="@{/restockDetail/restockDetail}" class="sidebar-link"> 進貨明細列表</a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/supplier/supplier}" class="sidebar-link"> 供應商列表</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#productSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                                class="sidebar-link dropdown-toggle">
+                                <i class="fas fa-shopping-bag"></i> 商品管理</a>
+                            <ul class="collapse list-unstyled submenu" id="produuctSubmenu">
+                                <li>
+                                    <a th:href="@{/product/findAll}" class="sidebar-link"> 商品列表</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#checkoutSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                                class="sidebar-link dropdown-toggle"><i class="fa-solid fa-hand-holding-dollar"></i>
+                                結帳管理</a>
+                            <ul class="collapse list-unstyled submenu" id="checkoutSubmenu">
+                                <li>
+                                    <a th:href="@{/checkout/checkoutMain}" class="sidebar-link"> 結帳列表</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#Submenu" data-bs-toggle="collapse" aria-expanded="false"
+                                class="sidebar-link dropdown-toggle">
+                                <i class="fa-solid fa-face-tired"></i> 退貨管理</a>
+                            <ul class="collapse list-unstyled submenu" id="Submenu">
+                                <li>
+                                    <a th:href="@{/returnProduct/returnMain}" class="sidebar-link"> 退貨列表</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#customersSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                                class="sidebar-link dropdown-toggle"><i class="fa-solid fa-address-book"></i> 會員管理</a>
+                            <ul class="collapse list-unstyled submenu" id="customersSubmenu">
+                                <li>
+                                    <a th:href="@{/customer/cusList}" class="sidebar-link"> 會員列表</a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/bonusExchange}" class="sidebar-link"> 紅利兌換列表</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="main-content" th:replace="~{::content}"></div>
+        </div>
     </div>
-    	<div class="main-content" th:replace="~{::content}"></div>
-    </div>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

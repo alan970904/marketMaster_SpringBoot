@@ -34,26 +34,31 @@
 </head>
 <body>
 <div th:replace="~{body/header :: header}">
-<div th:fragment="content">
-<main class="container">
-    <h1>進貨資料插入</h1>
-    <div>
-        <label for="employeeSelect">選擇員工：</label>
-        <select id="employeeSelect">
-            <option value="">請選擇員工</option>
-        </select>
-    </div>
+    <div th:fragment="content">
+        <main class="container">
+            <h1>進貨資料插入</h1>
+            <div>
+                <label for="employeeSelect" >選擇員工：</label>
+                <select id="employeeSelect" disabled>
+                    <option value="">請選擇員工</option>
+                </select>
+            </div>
 
-    <div id="tablesContainer">
-        <!-- 容器用于放置多個表格 -->
-    </div>
+            <div id="tablesContainer">
+                <!-- 容器用于放置多個表格 -->
+            </div>
 
-    <button id="addRestockTable">新增進貨單號</button>
-    <button id="submitRestock">提交</button>
-</main>
+            <button id="addRestockTable">新增進貨單號</button>
+            <button id="submitRestock">提交</button>
+        </main>
+    </div>
 </div>
-</div>
-<div th:replace="~{body/footer :: footer}"></div>
+
+<!--在session抓到employeeID-->
+<script th:inline="javascript">
+    var sessionEmployeeId = /*[[${session.employee.employeeId}]]*/ '';
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
@@ -62,7 +67,8 @@
         let productListMap = {}; // 用於存儲每個供應商的產品列表
         let productPriceMap = {}; // 用於存儲產品的價格
         let hotInstances = []; // 用於存儲每個表格的 Handsontable 實例
-        // 加載供應商數據
+
+        // 加载供應商數據
         $.ajax({
             url: '/marketMaster/restock/getSupplier',
             method: 'GET',
@@ -86,7 +92,11 @@
                 console.log('Employees List:', employees);
                 const employeeSelect = $('#employeeSelect');
                 employees.forEach(employee => {
-                    employeeSelect.append(new Option(employee.employeeName, employee.employeeId));
+                    const option = new Option(employee.employeeName, employee.employeeId);
+                    if (employee.employeeId == sessionEmployeeId) {
+                        option.selected = true;
+                    }
+                    employeeSelect.append(option);
                 });
             },
             error: () => {
@@ -121,13 +131,10 @@
                         { restockId: latestRestockId }
                     ],
                     colHeaders: ['進貨單號', '供應商', '商品', '進貨數量', '進貨總價', '生產日期', '到期日期', '操作'],
+                    colWidths: [120, 250, 250, 100, 100, 120, 120, 80],
                     columns: [
                         {
                             data: 'restockId',
-                            // renderer: (instance, td) => {
-                            //     td.innerHTML = latestRestockId;
-                            // }
-
                         },
                         {
                             data: 'supplierId',
@@ -140,55 +147,29 @@
                             }
                         },
                         {
-                            // 表格中的商品 ID 欄位
                             data: 'productId',
-
-                            // 使用下拉選單作為輸入類型
                             type: 'dropdown',
-
-                            // 下拉選單的資料來源
                             source: function (query, process) {
-                                // 取得當前選中的行
                                 const selectedRow = this.instance.getSelectedLast();
                                 const rowIndex = selectedRow[0];
-
-                                // 取得該行的供應商 ID
                                 const supplierValue = this.instance.getDataAtRowProp(rowIndex, 'supplierId');
-
-                                // 根據供應商值來提取供應商 ID，並處理沒有供應商選擇的情況
                                 let supplierId = '';
                                 if (supplierValue) {
-                                    supplierId = supplierValue.split(' - ')[0];  // 提取供應商 ID
+                                    supplierId = supplierValue.split(' - ')[0];
                                 }
-
-                                // 查找該供應商的商品列表，如果不存在則返回空陣列
                                 let productsForSupplier = [];
                                 if (supplierId && productListMap[supplierId]) {
                                     productsForSupplier = productListMap[supplierId];
                                 }
-
-                                // 格式化商品列表為 "商品ID - 商品名稱" 形式
-                                const formattedProducts = [];
-                                for (let i = 0; i < productsForSupplier.length; i++) {
-                                    const product = productsForSupplier[i];
-                                    formattedProducts.push(product.productId + ' - ' + product.productName);
-                                }
-
-                                // 將商品選項列表提供給 Handsontable 顯示
+                                const formattedProducts = productsForSupplier.map(product => `${product.productId} - ${product.productName}`);
                                 process(formattedProducts);
                             },
-
-                            // 使用下拉選單來渲染這一列
                             renderer: 'dropdown',
-
-                            // 驗證用戶選擇的值是否合法
                             validator: function (value, callback) {
-                                // 確認用戶有選擇值
                                 const isValid = !!value;
-                                callback(isValid);  // 回傳驗證結果
+                                callback(isValid);
                             }
-                        }
-                        ,
+                        },
                         { data: 'numberOfRestock', type: 'numeric', numericFormat: { pattern: '0,0' } },
                         {
                             data: 'restockTotalPrice',
