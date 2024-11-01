@@ -90,10 +90,10 @@ public class AskForLeaveController {
 
 	@GetMapping("/askForLeave/waitStatus")
 	public String waitStatus(@RequestParam("id") String employeeId, Model model) {
-	    List<AskForLeaveBean> aslBean = aslService.findAslByEmpIdStatus(employeeId);
-	    model.addAttribute("leaves", aslBean);
+		List<AskForLeaveBean> aslBean = aslService.findAslByEmpIdStatus(employeeId);
+		model.addAttribute("leaves", aslBean);
 
-	    return "askForLeave/front/waitStatus";
+		return "askForLeave/front/waitStatus";
 	}
 
 	@GetMapping("/askForLeave/filter")
@@ -361,8 +361,7 @@ public class AskForLeaveController {
 			@RequestParam Integer categoryId, @RequestParam String reasonLeave,
 			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startTime,
 			@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endTime,
-			@RequestParam String approvedStatus, @RequestParam(required = false) MultipartFile proofImage,
-			RedirectAttributes redirectAtb) {
+			@RequestParam String approvedStatus, @RequestParam(required = false) MultipartFile proofImage) {
 
 		AskForLeaveBean existAsl = aslService.findAslById(id);
 
@@ -371,11 +370,9 @@ public class AskForLeaveController {
 			List<ScheduleBean> addschedulesTimeRange = scheduleService.findSchedulesByDateTimeRange(employeeId,
 					startTime, endTime);
 			if (addschedulesTimeRange.isEmpty()) {
-				redirectAtb.addFlashAttribute("scheduleError", "沒有找到排班，請檢查時間範圍");
 				return "redirect:/askForLeave/usefind?id=" + employeeId;
 			}
 			int addScheduleHours = addschedulesTimeRange.stream().mapToInt(ScheduleBean::getScheduleHour).sum();
-
 			LeaveCategoryBean leaveCategory = leaveCategoryService.getLeaveCategoryById(categoryId);
 			existAsl.setLeaveCategory(leaveCategory);
 			existAsl.setReasonLeave(reasonLeave);
@@ -434,10 +431,12 @@ public class AskForLeaveController {
 			Integer leaveHours = aslById.getLeaveHours();
 			LocalDateTime endTime = aslById.getEndTime();
 			Integer categoryId = aslById.getLeaveCategory().getCategoryId();
-			
-			
+
+			System.out.println("controller  checkLeaveRecord");
 			leaveRecordService.checkLeaveRecord(employeeId, categoryId, endTime);
+			System.out.println("controller addLeaveHours");
 			leaveRecordService.addLeaveHours(employeeId, categoryId, endTime, leaveHours);
+			System.out.println("end");
 			aslService.approveLeave(leaveId);
 			return ResponseEntity.ok("請假申請已核准");
 		} catch (Exception e) {
@@ -454,10 +453,8 @@ public class AskForLeaveController {
 			Integer leaveHours = aslById.getLeaveHours();
 			LocalDateTime endTime = aslById.getEndTime();
 			Integer categoryId = aslById.getLeaveCategory().getCategoryId();
-			
-		
 
-			leaveRecordService.minusLeaveHours(employeeId, categoryId, endTime, leaveHours);
+			leaveRecordService.minusLeaveHours(leaveId, employeeId, categoryId, endTime, leaveHours);
 
 			aslService.rejectLeave(leaveId, rejectionReason);
 			return ResponseEntity.ok("請假申請已拒絕");

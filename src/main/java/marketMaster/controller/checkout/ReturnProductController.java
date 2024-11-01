@@ -430,5 +430,31 @@ public class ReturnProductController {
         }
     }
     
+    @GetMapping("/checkReturnEligibility")
+    @ResponseBody
+    public ResponseEntity<?> checkReturnEligibility(@RequestParam String invoiceNumber, @RequestParam String productId) {
+        try {
+            Map<String, Object> result = returnProductService.checkProductReturnEligibility(invoiceNumber, productId);
+            
+            if (!(Boolean)result.get("eligible")) {
+                return ResponseEntity.ok(Map.of(
+                    "status", "error",
+                    "message", result.get("message"),
+                    "eligible", false
+                ));
+            }
+            
+            return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "eligible", true,
+                "productInfo", result.get("productInfo")
+            ));
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("status", "error", "message", e.getMessage()));
+        }
+    }
+    
     
 }

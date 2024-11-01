@@ -96,11 +96,30 @@ public interface ReturnProductRepository extends JpaRepository<ReturnProductBean
 //    	    "WHERE c.invoice_number = :invoiceNumber")
 //    	List<Map<String, Object>> getInvoiceProducts(@Param("invoiceNumber") String invoiceNumber);
     
-    @Query("SELECT new marketMaster.DTO.checkout.CheckoutDTO(c.product.productId, c.product.productName, c.product.productPrice, c.product.isPerishable, c.checkout.checkoutDate, c.numberOfCheckout, c.checkout.checkoutId) FROM CheckoutDetailsBean c WHERE c.checkout.invoiceNumber = :invoiceNumber")
+    @Query("SELECT new marketMaster.DTO.checkout.CheckoutDTO(c.product.productId, c.product.productName, c.productPrice, c.product.isPerishable, c.checkout.checkoutDate, c.numberOfCheckout, c.checkout.checkoutId) FROM CheckoutDetailsBean c WHERE c.checkout.invoiceNumber = :invoiceNumber")
     List<CheckoutDTO> getInvoiceProducts(@Param("invoiceNumber") String invoiceNumber);
     
     // 獲取在職員工（根據resigndate是否為null來判斷）
     @Query("SELECT e FROM EmpBean e WHERE e.resigndate IS NULL")
     List<EmpBean> getActiveEmployees();
+    
+    // 根據產品ID獲取產品資訊
+    @Query("SELECT p FROM ProductBean p WHERE p.productId = :productId")
+    ProductBean findProductById(@Param("productId") String productId);
+
+ // 檢查某筆結帳的商品是否可以退貨
+    @Query("SELECT new marketMaster.DTO.checkout.CheckoutDTO(" +
+           "c.product.productId, " +
+           "c.product.productName, " + 
+           "c.productPrice, " +       // 注意這裡使用 CheckoutDetailsBean 的 productPrice
+           "c.product.productCategory, " +
+           "c.checkout.checkoutDate, " +
+           "c.numberOfCheckout, " +
+           "c.checkout.checkoutId) " +
+           "FROM CheckoutDetailsBean c " +
+           "WHERE c.checkout.invoiceNumber = :invoiceNumber " +
+           "AND c.product.productId = :productId")
+    CheckoutDTO getProductReturnEligibility(@Param("invoiceNumber") String invoiceNumber, 
+                                          @Param("productId") String productId);
     
 }

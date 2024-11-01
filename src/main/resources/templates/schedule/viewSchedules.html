@@ -161,6 +161,8 @@
 			</div>
 			<button type="button" class="btn btn-primary w-30 text-center"
 				id="searchSchedule">搜尋</button>
+			<button type="button" class="btn btn-secondary w-30"
+				id="setDefaultTime">時間輸入</button>
 			<span class="text-muted mt-2"
 				style="display: block; font-size: 0.9em;">修改/刪除前請先搜尋日期,時間</span>
 			<div class="mb-3 mt-3">
@@ -660,7 +662,11 @@
         });
       }
     });
-    
+     document.getElementById('setDefaultTime').addEventListener('click', function() {
+        // 設置開始時間和結束時間
+        document.getElementById('startTimePicker').value = '08:00';
+        document.getElementById('endTimePicker').value = '12:00';
+    });
   
   </script>
 </body>

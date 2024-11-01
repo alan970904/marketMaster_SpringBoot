@@ -247,7 +247,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h2 class="card-title">新增退貨紀錄</h2>
-                            <form id="returnProductForm" enctype="multipart/form-data">
+                            <form id="returnProductForm" enctype="multipart/form-data" method="post" th:action="@{/front/returnProduct/add}">
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label for="returnId">退貨編號:</label>
@@ -265,9 +265,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="employeeId">員工編號:</label>
-                                        <select id="employeeId" name="employeeId" class="form-control" required>
-                                            <option value="">請選擇員工</option>
-                                        </select>
+                                        <span th:text="${session.frontendEmployee.employeeId + ' - ' + session.frontendEmployee.employeeName}" class="form-control" readonly></span>
+										<input type="hidden" id="employeeId" name="employeeId" th:value="${session.frontendEmployee.employeeId}">
                                     </div>
                                     <div class="form-group">
                                         <label for="productName">退貨商品名稱:</label>
@@ -348,21 +347,6 @@
                 .catch(function (error) {
                     console.error('獲取退貨編號失敗:', error);
                     showError('獲取退貨編號失敗，請稍後再試');
-                });
-
-            // 獲取所有在職員工
-            axios.get(/*[[@{/front/returnProduct/activeEmployees}]]*/)
-                .then(function (response) {
-                    var employeeSelect = $('#employeeId');
-                    response.data.forEach(function (emp) {
-                        employeeSelect.append($('<option>')
-                            .text(emp.employeeId + ' - ' + emp.employeeName)
-                            .attr('value', emp.employeeId));
-                    });
-                })
-                .catch(function (error) {
-                    console.error('獲取員工資料失敗:', error);
-                    showError('獲取員工資料失敗，請稍後再試');
                 });
 
             // 監聽發票號碼輸入
