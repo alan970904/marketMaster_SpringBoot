@@ -1,18 +1,15 @@
 package marketMaster.controller.bonus;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import marketMaster.DTO.bonus.ItemMgnDTO;
 import marketMaster.bean.bonus.ItemManagementBean;
+import marketMaster.bean.product.ProductBean;
 import marketMaster.service.bonus.ItemManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
-//import java.util.Date;
-//import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -24,22 +21,54 @@ import java.util.logging.Logger;
 public class ItemManagementController {
     private static final Logger logger = Logger.getLogger(ItemManagementController.class.getName());
     private final ItemManagementService itemManagementService;
-//    private final ObjectMapper objectMapper;
 
     @Autowired
-    public ItemManagementController(ItemManagementService itemManagementService, ObjectMapper objectMapper) {
+    public ItemManagementController(ItemManagementService itemManagementService) {
         this.itemManagementService = itemManagementService;
-//        this.objectMapper = objectMapper;
     }
 
-    // 新增僅返回視圖的方法
+    // 返回視圖
     @GetMapping
     public String showItemManagementPage() {
         logger.info("訪問商品管理頁面");
         return "bonus/ItemManagement";
     }
 
-    // 修改 API 端點以支持 DataTable
+    // 商品查詢相關 API - 整合後的端點
+    @GetMapping("/api/products")
+    @ResponseBody
+    public ResponseEntity<List<ProductBean>> getAvailableProducts(
+            @RequestParam(required = false) String category) {
+        logger.info("開始獲取可用商品列表" + (category != null ? "，類別: " + category : ""));
+        try {
+            List<ProductBean> products;
+            if (category != null && !category.isEmpty()) {
+                products = itemManagementService.getAvailableProductsByCategory(category);
+            } else {
+                products = itemManagementService.getAvailableProducts();
+            }
+            logger.info("成功獲取 " + products.size() + " 個可用商品");
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            logger.severe("獲取可用商品列表失敗: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // 新增獲取商品類別的端點
+    @GetMapping("/api/categories")
+    @ResponseBody
+    public ResponseEntity<List<String>> getCategories() {
+        try {
+            List<String> categories = itemManagementService.getAllAvailableCategories();
+            return ResponseEntity.ok(categories);
+        } catch (Exception e) {
+            logger.severe("獲取商品類別失敗: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // DataTable 資料查詢
     @GetMapping("/api/list")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAllItems() {
@@ -48,7 +77,6 @@ public class ItemManagementController {
             List<ItemMgnDTO> items = itemManagementService.findAllItemsWithPhotos();
             Map<String, Object> response = new HashMap<>();
             response.put("data", items); // DataTables 需要的格式
-            //  logger.info("成功獲取 " + items.size() + " 條商品記錄");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.severe("獲取商品數據失敗: " + e.getMessage());
@@ -56,7 +84,8 @@ public class ItemManagementController {
                     .body(Map.of("error", "獲取商品列表失敗：" + e.getMessage()));
         }
     }
-    // 新增切換狀態的端點
+
+    // 切換商品狀態
     @PostMapping("/api/toggleStatus/{itemId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleItemStatus(@PathVariable String itemId) {
@@ -80,7 +109,7 @@ public class ItemManagementController {
         }
     }
 
-    // 新增獲取單個商品的方法
+    // 獲取單個商品
     @GetMapping("/api/item/{itemId}")
     @ResponseBody
     public ResponseEntity<?> getItem(@PathVariable String itemId) {
@@ -98,8 +127,9 @@ public class ItemManagementController {
         }
     }
 
-    //新增可兌換商品
+    // 新增可兌換商品
     @PostMapping("/api/add")
+    @ResponseBody
     public ResponseEntity<?> addItem(@RequestBody ItemManagementBean item) {
         try {
             ItemMgnDTO savedItem = itemManagementService.addItem(item);
@@ -116,8 +146,9 @@ public class ItemManagementController {
         }
     }
 
-    //更新可兌換商品
+    // 更新可兌換商品
     @PutMapping("/api/update/{itemId}")
+    @ResponseBody
     public ResponseEntity<?> updateItem(@PathVariable String itemId,
                                         @RequestBody ItemManagementBean item) {
         try {
@@ -138,8 +169,9 @@ public class ItemManagementController {
         }
     }
 
-    //刪除可兌換商品
+    // 刪除可兌換商品
     @DeleteMapping("/api/delete/{itemId}")
+    @ResponseBody
     public ResponseEntity<?> deleteItem(@PathVariable String itemId) {
         try {
             itemManagementService.deleteItem(itemId);
