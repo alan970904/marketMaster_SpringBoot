@@ -2,8 +2,7 @@ package marketMaster.service.bonus;
 
 import marketMaster.bean.bonus.ItemManagementBean;
 import marketMaster.DTO.bonus.ItemMgnDTO;
-//import marketMaster.service.checkout.CheckoutService;
-import marketMaster.service.product.ProductRepository;
+import marketMaster.bean.product.ProductBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,20 +17,17 @@ import java.util.logging.Logger;
 public class ItemManagementService {
     private static final Logger logger = Logger.getLogger(ItemManagementService.class.getName());
 
-    // 修正: 改用建構子注入
     private final ItemManagementRepository itemMgnRepo;
-    @SuppressWarnings("unused")
     private final BonusExchangeRepository bonusExchangeRepo;
-    @SuppressWarnings("unused")
-    private final ProductRepository productRepo;
+    private final ProductExchangeManagementRepository productExMgnRepo;
 
     @Autowired
     public ItemManagementService(ItemManagementRepository itemMgnRepo,
                                  BonusExchangeRepository bonusExchangeRepo,
-                                 ProductRepository productRepo) {
+                                 ProductExchangeManagementRepository productExMgnRepo) {
         this.itemMgnRepo = itemMgnRepo;
         this.bonusExchangeRepo = bonusExchangeRepo;
-        this.productRepo = productRepo;
+        this.productExMgnRepo = productExMgnRepo;
     }
     // 轉換方法 - Stream改用傳統for循環和集合方式
     private ItemMgnDTO convertToDTO(ItemManagementBean item) {
@@ -179,6 +175,40 @@ public class ItemManagementService {
         if (item.getStartDate() != null && item.getEndDate() != null &&
                 item.getStartDate().isAfter(item.getEndDate())) {
             throw new IllegalArgumentException("開始日期不能晚於結束日期");
+        }
+    }
+
+    // 商品查詢相關方法
+    public List<ProductBean> getAvailableProducts() {
+        try {
+            List<ProductBean> products = productExMgnRepo.findAllAvailableProducts();
+            logger.info("成功獲取 " + products.size() + " 個可用商品");
+            return products;
+        } catch (Exception e) {
+            logger.severe("獲取可用商品失敗: " + e.getMessage());
+            throw new RuntimeException("獲取可用商品失敗", e);
+        }
+    }
+
+    public List<ProductBean> getAvailableProductsByCategory(String category) {
+        try {
+            List<ProductBean> products = productExMgnRepo.findAvailableByCategory(category);
+            logger.info("成功獲取類別 " + category + " 的 " + products.size() + " 個可用商品");
+            return products;
+        } catch (Exception e) {
+            logger.severe("獲取類別商品失敗: " + e.getMessage());
+            throw new RuntimeException("獲取類別商品失敗", e);
+        }
+    }
+
+    public List<String> getAllAvailableCategories() {
+        try {
+            List<String> categories = productExMgnRepo.findAllAvailableCategories();
+            logger.info("成功獲取 " + categories.size() + " 個商品類別");
+            return categories;
+        } catch (Exception e) {
+            logger.severe("獲取商品類別失敗: " + e.getMessage());
+            throw new RuntimeException("獲取商品類別失敗", e);
         }
     }
 }
