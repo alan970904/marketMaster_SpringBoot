@@ -247,6 +247,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h2 class="card-title">新增退貨紀錄</h2>
+                            <div class="d-flex align-items-center mb-3">
+                                <button type="button" class="btn btn-info me-2" id="autoFill1">一鍵輸入1</button>
+                                <button type="button" class="btn btn-warning me-2" id="autoFill2">一鍵輸入2</button>
+                            </div>
                             <form id="returnProductForm" enctype="multipart/form-data">
                                 <div class="form-grid">
                                     <div class="form-group">
@@ -576,6 +580,20 @@
             var today = new Date().toISOString().split('T')[0];
             $('#returnDate').val(today);
 
+        });
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            // 一鍵輸入1按鈕
+            document.getElementById('autoFill1').addEventListener('click', function () {
+                document.getElementById('invoiceNumber').value = 'IN00000026';
+                document.getElementById('returnReason').value = '米裡面有蟲';
+            });
+
+            // 一鍵輸入2按鈕
+            document.getElementById('autoFill2').addEventListener('click', function () {
+                document.getElementById('invoiceNumber').value = 'IN00000026';
+                document.getElementById('returnReason').value = '高麗菜外觀損傷';
+            });
         });
         /*]]>*/
     </script>
