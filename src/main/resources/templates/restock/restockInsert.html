@@ -38,7 +38,7 @@
         <main class="container">
             <h1>進貨資料插入</h1>
             <div>
-                <label for="employeeSelect" >選擇員工：</label>
+                <label for="employeeSelect">選擇員工：</label>
                 <select id="employeeSelect" disabled>
                     <option value="">請選擇員工</option>
                 </select>
@@ -49,6 +49,7 @@
             </div>
 
             <button id="addRestockTable">新增進貨單號</button>
+            <button id="autoFillDates">自動填入日期</button>
             <button id="submitRestock">提交</button>
         </main>
     </div>
@@ -280,6 +281,33 @@
         // 新增進貨單號按鈕事件
         $('#addRestockTable').click(() => {
             createRestockTable();
+        });
+
+        // 自動填入日期按鈕事件
+        $('#autoFillDates').click(() => {
+            const today = new Date();
+            const productionDate = today.toISOString().split('T')[0]; // 格式: YYYY-MM-DD
+
+            // 計算到期日期（例如生產日期後180天）
+            const dueDateObj = new Date(today);
+            dueDateObj.setDate(dueDateObj.getDate() + 180);
+            const dueDate = dueDateObj.toISOString().split('T')[0];
+
+            // 遍歷所有 Handsontable 實例並填入日期
+            hotInstances.forEach(hotInstance => {
+                const totalRows = hotInstance.countRows();
+                for (let row = 0; row < totalRows; row++) {
+                    const supplierId = hotInstance.getDataAtRowProp(row, 'supplierId');
+                    const productId = hotInstance.getDataAtRowProp(row, 'productId');
+
+                    // 只填入有供應商和商品的行
+                    if (supplierId && productId) {
+                        hotInstance.setDataAtRowProp(row, 'productionDate', productionDate);
+                        hotInstance.setDataAtRowProp(row, 'dueDate', dueDate);
+                    }
+                }
+            });
+
         });
 
         // 提交按鈕事件
