@@ -49,7 +49,7 @@
                         </tr>
                         <tr>
                             <th>入職日期:</th>
-                            <td><input type="date" name="hiredate" required></td>
+                            <td><input type="date" name="hiredate" id="hiredate" required></td>
                         </tr>
                         <tr>
                             <th>上傳圖片:</th>
@@ -57,6 +57,8 @@
                         </tr>
                     </table>
                     <button type="submit" class="btn btn-primary">新增員工</button>
+                    <button type="button" class="btn btn-info" onclick="autoFill()">一鍵輸入</button>
+                    
 	                <div class="d-flex justify-content-start">
 					    <a th:href="@{/employee/empList}" class="btn btn-secondary mt-2">返回員工列表</a>
 					</div>
@@ -135,6 +137,19 @@
                 }
             });
         });
+        
+        // 一鍵輸入資料
+        function autoFill() {
+		    // 設定表單欄位的值
+		    document.getElementById('employeeName').value = '測試王';
+		    document.getElementById('employeeTel').value = '0922864864';
+		    document.getElementById('employeeIdcard').value = 'K125556789';
+		    document.getElementById('employeeEmail').value = 'alanmarketmaster@gmail.com';
+		    
+		    // 設定今天日期為入職日期
+		    const today = new Date().toISOString().split('T')[0];
+		    document.getElementById('hiredate').value = today;
+		}
     </script>
 </body>
 
