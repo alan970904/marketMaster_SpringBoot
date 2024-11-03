@@ -309,6 +309,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
+                                        <button id="oneKey" type="button">一鍵輸入</button>
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">取消</button>
                                         <button type="button" class="btn btn-primary" id="saveChangesBtn">確認修改</button>
@@ -356,6 +357,10 @@
             })
         }
 
+        document.getElementById('oneKey').addEventListener('click', function () {
+            document.getElementById('modal-actualInventory').value = document.getElementById('modal-currentInventory').value
+            document.getElementById('modal-remark').value = '庫存數量正確'
+        })
         document.addEventListener('DOMContentLoaded', function () {
             const updateBtns = document.querySelectorAll('.getUpdate');
             let currentRow = null;
