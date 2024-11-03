@@ -50,13 +50,13 @@
                    <!--       <td th:text="${checkout.bonusPoints}"></td>
                         <td th:text="${checkout.pointsDueDate}"></td>-->
                         <td th:text="${checkout.checkoutStatus}"></td>
-      <td th:text="${checkout.checkoutStatus == '已退貨' ? checkout.relatedReturnId : '-'}"></td>
+      					<td th:text="${checkout.checkoutStatus == '已退貨' ? checkout.relatedReturnId : '-'}"></td>
                         <td>
                             <a th:href="@{/front/checkout/checkoutDetails/listByCheckoutId(checkoutId=${checkout.checkoutId})}" class="btn btn-info btn-sm">查看明細</a>
                             <a th:href="@{/front/checkout/update(checkoutId=${checkout.checkoutId})}" class="btn btn-warning btn-sm">修改</a>
                             <button class="btn btn-danger btn-sm delete-btn" th:data-checkout-id="${checkout.checkoutId}">刪除</button>
                             <a class="btn btn-primary btn-sm" th:href="@{/front/returnProduct/add(invoiceNumber=${checkout.invoiceNumber})}" 
-                           th:if="${checkout.checkoutStatus == '正常'}">退貨</a>
+                           th:if="${checkout.checkoutStatus == '正常' && checkout.checkoutDate.after(T(java.sql.Date).valueOf(T(java.time.LocalDate).now().minusDays(7)))}">退貨</a>
                         </td>
                     </tr>
                 </tbody>

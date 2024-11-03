@@ -19,6 +19,10 @@ public interface SupplierProductsRepository extends JpaRepository<SupplierProduc
             "WHERE s.supplier.supplierId = :supplierId")
     List<SupplierProductDTO> findProductsBySupplierId(@Param("supplierId") String supplierId);
 
+    //找到所有商品id跟商品名稱
+    @Query("SELECT new marketMaster.DTO.restock.SupplierDTO.SupplierProductDTO(s.productId,s.productName)FROM ProductBean s")
+    List<SupplierProductDTO> findAllProducts();
+
     //    頁碼透過供應商id找尋該id所有的商品
     @Query("SELECT new marketMaster.DTO.restock.SupplierDTO.SupplierProductDetailDTO(s.supplierProductId,s.product.productId,s.product.productName,s.productPrice,s.status)FROM SupplierProductsBean s WHERE s.supplier.supplierId = :supplierId")
     Page<SupplierProductDetailDTO> findProductsBySupplierIdPage(@Param("supplierId") String supplierId, Pageable pageable);
@@ -35,11 +39,11 @@ public interface SupplierProductsRepository extends JpaRepository<SupplierProduc
 
     //查詢最新的supplier_product_id
     //mysql
-//    @Query(value = "SELECT supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC LIMIT 1", nativeQuery = true)
-//    String findLatestSupplierProductId();
-    //sqlserver
-    @Query(value = "SELECT TOP 1 supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC", nativeQuery = true)
+    @Query(value = "SELECT supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC LIMIT 1", nativeQuery = true)
     String findLatestSupplierProductId();
+    //sqlserver
+//    @Query(value = "SELECT TOP 1 supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC", nativeQuery = true)
+//    String findLatestSupplierProductId();
     //透過productＩd查詢商品價格
     @Query("SELECT s.productPrice FROM SupplierProductsBean s WHERE s.product.productId = :productId")
     Integer findProductPriceByProductId(@Param("productId") String productId);

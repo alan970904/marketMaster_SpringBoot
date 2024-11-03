@@ -94,6 +94,10 @@ public class SupplierProductsService {
         return supplierProductsRepository.findProductPriceBySupplierIdAndProductId(supplierId, productId);
     }
 
+    public List<SupplierProductDTO> findAllProductIdAndProductName() {
+      return   supplierProductsRepository.findAllProducts();
+    }
+
 
 
 
