@@ -40,6 +40,7 @@
                 <div class="container">
                     <div class="d-flex my-3 d-flex d-flex justify-content-between">
                         <button type="button" class="btn btn-primary mx-3" id="submit">完成盤點</button>
+                        
                         <div class="hstack mx-6">
 
                             <select class="form-select w-auto mx-3" name="" id="productCategory">
@@ -61,8 +62,11 @@
                     </div>
 
 
+                    <div>
+                        <button type="button" id="oneKey" >一鍵輸入1</button>
+                        <button type="button" id="oneKey2" >一鍵輸入2</button>
+                    </div>
                 </div>
-
             </main>
         </div>
     </div>
@@ -77,6 +81,42 @@
             fetchProductsAndRender();
             getProductCategory();
         }
+
+        document.getElementById('oneKey').addEventListener('click', function () {
+            const numberOfInventory = document.getElementsByClassName('numberOfInventory')
+            const actualInventory = document.getElementsByClassName('actualInventory')
+            const remark = document.getElementsByClassName('remark')
+
+            actualInventory[0].value = numberOfInventory[0].value
+            actualInventory[1].value = numberOfInventory[1].value-2
+            actualInventory[2].value = numberOfInventory[2].value-3
+            remark[1].value = '包裝損毀'
+            remark[2].value = '過期'
+            actualInventory[0].dispatchEvent(new Event('blur'))
+            actualInventory[1].dispatchEvent(new Event('blur'))
+            actualInventory[2].dispatchEvent(new Event('blur'))
+
+        })
+        document.getElementById('oneKey2').addEventListener('click', function () {
+            const numberOfInventory = document.getElementsByClassName('numberOfInventory')
+            const actualInventory = document.getElementsByClassName('actualInventory')
+            const remark = document.getElementsByClassName('remark')
+
+            actualInventory[0].value = numberOfInventory[0].value
+            actualInventory[1].value = numberOfInventory[1].value-2
+            actualInventory[2].value = numberOfInventory[2].value-3
+            actualInventory[3].value = numberOfInventory[3].value
+            actualInventory[4].value = numberOfInventory[4].value
+            remark[1].value = '包裝損毀'
+            remark[2].value = '過期'
+
+            actualInventory[0].dispatchEvent(new Event('blur'))
+            actualInventory[1].dispatchEvent(new Event('blur'))
+            actualInventory[2].dispatchEvent(new Event('blur'))
+            actualInventory[3].dispatchEvent(new Event('blur'))
+            actualInventory[4].dispatchEvent(new Event('blur'))
+
+        })
 
         function getProductCategory() {
             axios.post('http://localhost:8080/marketMaster/product/findProductCategory')
@@ -291,7 +331,7 @@
                         stockStatusInput.style.backgroundColor = '#fff9f5';  // 淡橙色背景
                     }
                     remarkInput.readOnly = false;
-                    remarkInput.value = '';
+                    // remarkInput.value = '';
                     remarkInput.setAttribute('required', 'required');
                     remarkInput.focus();
                 }
@@ -377,7 +417,7 @@ document.head.appendChild(style);
                 <li class="list-group-item hstack">
                     <div class="input-group">
                     <span class="input-group-text">當前庫存量:</span>
-                        <input type="number" class="form-control" readonly value="${product.numberOfInventory}">
+                        <input type="number" class="form-control numberOfInventory" readonly value="${product.numberOfInventory}">
                     </div>
                 </li>
                 <li class="list-group-item">
