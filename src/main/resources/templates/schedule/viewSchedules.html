@@ -345,6 +345,7 @@
               response.firstDayOfWeek,
               response.daysInMonth
             );
+            getEmployeeHours(currentYear,currentMonth);
           },
           error: function (xhr, status, error) {
             console.error("無法獲取指定年月的排班數據:", error);
@@ -476,6 +477,7 @@
               response.firstDayOfWeek,
               response.daysInMonth
             );
+            getEmployeeHours(currentYear,currentMonth);
           },
           error: function (xhr, status, error) {
             console.error("新增排班失敗:", error);
@@ -568,6 +570,7 @@
               response.firstDayOfWeek,
               response.daysInMonth
             );
+            getEmployeeHours(currentYear,currentMonth);
           },
           error: function (xhr, status, error) {
             console.error("刪除失敗: ", error);
@@ -628,6 +631,7 @@
               response.firstDayOfWeek,
               response.daysInMonth
             );
+            getEmployeeHours(currentYear,currentMonth);
           },
           error: function (xhr, status, error) {
             console.error("修改排班失敗:", error);
@@ -667,8 +671,6 @@
         document.getElementById('startTimePicker').value = '08:00';
         document.getElementById('endTimePicker').value = '12:00';
     });
-  
   </script>
 </body>
-
 </html>
