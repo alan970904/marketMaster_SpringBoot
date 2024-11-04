@@ -87,8 +87,6 @@ public class RestockDetailController {
     @GetMapping("/getRestockDetailsByDateRange")
     @ResponseBody
     public Page<RestockDTO> getRestockDetailsByDateRange(@RequestParam String startDate, @RequestParam String endDate,@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        System.out.println(startDate);
-        System.out.println(endDate);
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         Pageable pageable = PageRequest.of(page, size);
@@ -99,7 +97,6 @@ public class RestockDetailController {
     @GetMapping("/getExcelByDateRange")
     @ResponseBody
     public ResponseEntity<ByteArrayResource> getExcelByDateRange(@RequestParam String startDate, @RequestParam String endDate) throws IOException {
-        System.out.println("有進來會出");
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         byte[] excelBytes = restockService.exportRestockDetailsToExcel(start, end);

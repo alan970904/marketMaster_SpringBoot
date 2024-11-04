@@ -1,6 +1,9 @@
 package marketMaster.service.restock;
 
 import ecpay.payment.integration.ecpayOperator.EcpayFunction;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.websocket.Session;
 import lombok.val;
 import marketMaster.DTO.restock.PaymentDTO.PaymentInsertDTO;
 import marketMaster.DTO.restock.PaymentDTO.PaymentRecordInsertDTO;
@@ -10,6 +13,7 @@ import marketMaster.bean.restock.PaymentsBean;
 import marketMaster.bean.restock.RestockDetailsBean;
 import marketMaster.bean.restock.SupplierAccountsBean;
 import marketMaster.config.ECPayConfig;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -165,17 +169,13 @@ public class PaymentService {
 
     public String generateCheckMacValue(Map<String, String> params) {
         Hashtable<String, String> hashtable = new Hashtable<>(params);
-        System.out.println("Generating CheckMacValue with params: " + hashtable);
         String checkMacValue = EcpayFunction.genCheckMacValue(ecPayConfig.getHashKey(), ecPayConfig.getHashIv(), hashtable);
-        System.out.println("Generated CheckMacValue: " + checkMacValue);
         return checkMacValue;
     }
 
     public boolean verifyECPayReturn(Map<String, String> params) {
         String returnedCheckMacValue = params.get("CheckMacValue");
-        System.out.println("Returned CheckMacValue: " + returnedCheckMacValue);
         if (returnedCheckMacValue == null) {
-            System.out.println("CheckMacValue is null.");
             return false;
         }
 
@@ -187,11 +187,9 @@ public class PaymentService {
 
         // 重新生成 CheckMacValue
         String generatedCheckMacValue = EcpayFunction.genCheckMacValue(ecPayConfig.getHashKey(), ecPayConfig.getHashIv(), hashtableParams);
-        System.out.println("Generated CheckMacValue for verification: " + generatedCheckMacValue);
 
         // 比较返回的 CheckMacValue 与生成的是否一致
         boolean isValid = returnedCheckMacValue.equalsIgnoreCase(generatedCheckMacValue);
-        System.out.println("Is CheckMacValue valid? " + isValid);
         return isValid;
     }
 
@@ -204,7 +202,6 @@ public class PaymentService {
         paymentInsertDTO.setAccountId(latestPayment.getSupplierAccounts().getAccountId());
         paymentInsertDTO.setPaymentDate(latestPayment.getPaymentDate());
         paymentInsertDTO.setPaymentMethod(latestPayment.getPaymentMethod());
-        System.out.println("PaymentInsertDTO: " + latestPayment.getTotalAmount());
         paymentInsertDTO.setTotalAmount(latestPayment.getTotalAmount());
         paymentInsertDTO.setPaymentStatus(latestPayment.getPaymentStatus());
 

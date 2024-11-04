@@ -24,14 +24,12 @@ public class SupplierProductsController {
     @DeleteMapping("/deleteProduct")
     @ResponseBody
     public void deleteSupplierProduct(@RequestParam String supplierProductId) {
-        System.out.println("supplierProductId: " + supplierProductId);
         supplierProductsService.deleteSupplierProduct(supplierProductId);
     }
 
     @PutMapping("updateProduct")
     @ResponseBody
     public void updateSupplierProduct(@RequestBody SupplierProductsBean supplierProductsBean) {
-        System.out.println(supplierProductsBean);
         supplierProductsService.updateSupplierProduct(supplierProductsBean);
     }
 

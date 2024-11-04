@@ -100,12 +100,10 @@
                         axios.delete(`/marketMaster/restockDetail/deleteByRestockDetailId?detailId=${detailId}`)
                             .then(res => {
                                 if (res.status === 200) {
-                                    console.log("刪除成功", res);
                                     // 刪除成功後，從 DOM 中移除該行
                                     const row = button.closest('tr');
                                     row.remove();
                                 } else {
-                                    console.log("刪除失敗");
                                 }
                             })
                             .catch(error => {
@@ -151,7 +149,6 @@
                                     priceAtRestock: updatedProductPrice, // 更改：更新商品價格
                                     restockTotalPrice: updatedTotalPrice,
                                 }).then(res => {
-                                    console.log("更新成功", res);
                                     $(this).dialog("close");
                                     window.location.reload();
 

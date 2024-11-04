@@ -126,13 +126,11 @@ public class RestockDetailService {
 
      //根據 供應商id將進貨明細中的restockTotalPrice 加入供應商供應商的totalAmount
     private void updateSupplierTotalAmount(String supplierId){
-        System.out.println(supplierId);
         List<RestockDetailsBean> details = restockDetailsRepository.findByRestock_SupplierId(supplierId);
         int newTotalAmount = 0;
         for(RestockDetailsBean list :details){
             newTotalAmount += list.getRestockTotalPrice();
         }
-        System.out.println("newTotalAmount = " + newTotalAmount);
         accountsRepository.updateSupplierTotalAmount(supplierId,newTotalAmount);
 
     }
@@ -141,7 +139,6 @@ public class RestockDetailService {
         int totalAmount=  supplierAccountsRepository.getTotalAmountBySupplierId(supplierId);
         int paidAmount =  supplierAccountsRepository.getPaidAmountBySupplierId(supplierId);
         int newUnpaidAmount = totalAmount - paidAmount;
-        System.out.println( "newUnpaidAmount"+newUnpaidAmount);
         supplierAccountsRepository.updateSupplierUnpaidAmount(supplierId,newUnpaidAmount);
     }
 
