@@ -34,7 +34,7 @@ public class BonusExchangeController {
         this.bonusExchangeService = bonusExchangeService;
     }
 
-    // 基本頁面導向
+    // 基本頁面導向:紅利兌換輸入頁面
     @GetMapping
     public String showBonusExchangeInput(HttpSession session) {
         logger.info("進入紅利兌換輸入頁面");

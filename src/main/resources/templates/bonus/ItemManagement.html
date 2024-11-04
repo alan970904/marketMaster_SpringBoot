@@ -78,8 +78,9 @@
 </head>
 
 <body>
-<div th:replace="~{body/header :: header}">
-    <div th:fragment="content">
+<div th:replace="~{body/header :: header}"></div>
+<div th:fragment="content">
+    <div>
         <div class="container-fluid">
             <h1 class="h3 mb-2 text-gray-800">兌換商品管理列表</h1>
             <div class="card shadow mb-4">
@@ -102,7 +103,6 @@
                         <table id="itemTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
                             <thead>
                             <tr>
-                                <!--                <th>商品圖片</th>-->
                                 <th>商品編號</th>
                                 <th>商品名稱</th>
                                 <th>商品類別</th>
@@ -115,7 +115,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <!-- 空的tbody，由 DataTable 填充 -->
+                            <!-- DataTable 會自動填充數據 -->
                             </tbody>
                         </table>
                     </div>
@@ -125,139 +125,132 @@
 
         <!-- 新增商品模態框 -->
         <div class="modal fade" id="addModal" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">新增兌換商品</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <form id="addItemForm">
-                  <div class="mb-3">
-                    <label class="form-label">商品ID</label>
-                    <input type="text" class="form-control" name="itemId" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">商品類別</label>
-                    <select class="form-select" name="productCategory" required>
-                      <option value="">請選擇類別</option>
-                      <option value="肉品海鮮">肉品海鮮</option>
-                      <option value="蔬菜水果">蔬菜水果</option>
-                      <option value="零食點心">零食點心</option>
-                      <option value="米飯麵條">米飯麵條</option>
-                      <option value="飲品">飲品</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">商品名稱</label>
-                    <select class="form-select" name="productId" required disabled>
-                      <option value="">請先選擇商品類別</option>
-                    </select>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">參考售價</label>
-                      <input type="text" class="form-control" name="productPrice" readonly disabled>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">新增兌換商品</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">建議兌換點數</label>
-                      <input type="text" class="form-control" name="suggestedPoints" readonly disabled>
+                    <div class="modal-body">
+                        <form id="addItemForm">
+                            <!-- 移除手動輸入ID，改為自動生成 -->
+                            <input type="hidden" name="itemId">
+
+                            <div class="mb-3">
+                                <label class="form-label">商品類別</label>
+                                <select class="form-select" name="productCategory" required>
+                                    <option value="">請選擇類別</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">商品名稱</label>
+                                <select class="form-select" name="productId" required disabled>
+                                    <option value="">請先選擇商品類別</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">商品價格</label>
+                                    <input type="text" class="form-control" name="productPrice" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">建議兌換點數</label>
+                                    <input type="text" class="form-control" name="itemPoints" readonly>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">可兌換數量</label>
+                                <input type="number" class="form-control" name="itemMaximum" required min="1">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">開始日期</label>
+                                <input type="date" class="form-control" name="startDate" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">結束日期（自動設為開始日期+2個月）</label>
+                                <input type="date" class="form-control" name="endDate" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="active" checked>
+                                    <label class="form-check-label">啟用狀態</label>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">兌換點數</label>
-                    <input type="number" class="form-control" name="itemPoints" required min="1">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">可兌換數量</label>
-                    <input type="number" class="form-control" name="itemMaximum" required min="1">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">開始日期</label>
-                    <input type="date" class="form-control" name="startDate" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">結束日期</label>
-                    <input type="date" class="form-control" name="endDate" required>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="addItem()">確定新增</button>
-              </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="addItem()">確定新增</button>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
         <!-- 編輯商品模態框 -->
         <div class="modal fade" id="editModal" tabindex="-1">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">編輯兌換商品</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <form id="editItemForm">
-                  <input type="hidden" name="itemId">
-                  <div class="mb-3">
-                    <label class="form-label">商品類別</label>
-                    <select class="form-select" name="productCategory" required>
-                      <option value="">請選擇類別</option>
-                      <option value="肉品海鮮">肉品海鮮</option>
-                      <option value="蔬菜水果">蔬菜水果</option>
-                      <option value="零食點心">零食點心</option>
-                      <option value="米飯麵條">米飯麵條</option>
-                      <option value="飲品">飲品</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">商品名稱</label>
-                    <select class="form-select" name="productId" required disabled>
-                      <option value="">請先選擇商品類別</option>
-                    </select>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">參考售價</label>
-                      <input type="text" class="form-control" name="productPrice" readonly disabled>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">編輯兌換商品</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">建議兌換點數</label>
-                      <input type="text" class="form-control" name="suggestedPoints" readonly disabled>
+                    <div class="modal-body">
+                        <form id="editItemForm">
+                            <input type="hidden" name="itemId">
+
+                            <div class="mb-3">
+                                <label class="form-label">商品類別</label>
+                                <select class="form-select" name="productCategory" required>
+                                    <option value="">請選擇類別</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">商品名稱</label>
+                                <select class="form-select" name="productId" required disabled>
+                                    <option value="">請先選擇商品類別</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">商品價格</label>
+                                    <input type="text" class="form-control" name="productPrice" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">兌換點數</label>
+                                    <input type="text" class="form-control" name="itemPoints" readonly>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">可兌換數量</label>
+                                <input type="number" class="form-control" name="itemMaximum" required min="1">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">開始日期</label>
+                                <input type="date" class="form-control" name="startDate" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">結束日期</label>
+                                <input type="date" class="form-control" name="endDate" readonly>
+                            </div>
+                        </form>
                     </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">兌換點數</label>
-                    <input type="number" class="form-control" name="itemPoints" required min="1">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">可兌換數量</label>
-                    <input type="number" class="form-control" name="itemMaximum" required min="1">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">開始日期</label>
-                    <input type="date" class="form-control" name="startDate" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">結束日期</label>
-                    <input type="date" class="form-control" name="endDate" required>
-                  </div>
-                  <div class="mb-3">
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" name="active">
-                      <label class="form-check-label">啟用狀態</label>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="updateItem()">確定修改</button>
                     </div>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="updateItem()">確定修改</button>
-              </div>
+                </div>
             </div>
-          </div>
         </div>
     </div>
 </div>
@@ -268,20 +261,171 @@
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- 分離 Thymeleaf 變量初始化和主要 JavaScript 代碼 -->
 <script th:inline="javascript">
-    let dataTable;
+    /*<![CDATA[*/
+    const contextPath = /*[[@{/}]]*/ '';
+    /*]]>*/
+</script>
+<script>
+    // 基本JavaScript檢查
+    console.log('基本 JavaScript 正常運作');
 
+    window.onerror = function (msg, url, line) {
+        console.error('JavaScript 錯誤:', msg, '於', url, '第', line, '行');
+    };
+
+    // 全局變數
+    let dataTable;
     // API 路徑統一管理
     const API = {
-        LIST: '/marketMaster/itemManagement/api/list',
-        ADD: '/marketMaster/itemManagement/api/add',
-        UPDATE: itemId => `/marketMaster/itemManagement/api/update/${itemId}`,
-        DELETE: itemId => `/marketMaster/itemManagement/api/delete/${itemId}`,
-        TOGGLE: itemId => `/marketMaster/itemManagement/api/toggleStatus/${itemId}`,
-        GET_ITEM: itemId => `/marketMaster/itemManagement/api/item/${itemId}`,
-        PRODUCTS: '/marketMaster/itemManagement/api/products',
-        CATEGORIES: '/marketMaster/itemManagement/api/categories'
+        LIST: contextPath + 'itemManagement/api/list',
+        ADD: contextPath + 'itemManagement/api/add',
+        UPDATE: itemId => `${contextPath}itemManagement/api/update/${itemId}`,
+        DELETE: itemId => `${contextPath}itemManagement/api/delete/${itemId}`,
+        TOGGLE: itemId => `${contextPath}itemManagement/api/toggleStatus/${itemId}`,
+        GET_ITEM: itemId => `${contextPath}itemManagement/api/item/${itemId}`,
+        PRODUCTS: contextPath + 'itemManagement/api/products',
+        CATEGORIES: contextPath + 'itemManagement/api/categories'
     };
+
+    // 頁面初始化
+    $(document).ready(function () {
+        // 檢查必要組件是否載入
+        if (typeof $ === 'undefined') {
+            console.error('jQuery未載入');
+            return;
+        }
+        if (!$.fn.DataTable) {
+            console.error('DataTable插件未載入');
+            return;
+        }
+        // 初始化 DataTable
+        initializeDataTable();
+        // 初始化其他功能
+        initProductSelection();
+        bindModalEvents();
+    });
+
+    // DataTable 初始化函數
+    function initializeDataTable() {
+        try {
+            dataTable = $('#itemTable').DataTable({
+                ajax: {
+                    url: API.LIST,
+                    dataSrc: 'data',
+                    error: function (xhr, error, thrown) {
+                        console.error('DataTable 加載失敗:', error);
+                        showError('資料載入失敗');
+                    }
+                },
+                processing: true,
+                responsive: true,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese-traditional.json"
+                },
+                columns: [
+                    {data: 'itemId', className: 'align-middle'},
+                    {data: 'productName', className: 'align-middle'},
+                    {data: 'productCategory', className: 'align-middle'},
+                    {
+                        data: 'itemPoints',
+                        render: function (data) {
+                            return `<span class="badge bg-info">${data.toLocaleString()} 點</span>`;
+                        },
+                        className: 'align-middle'
+                    },
+                    {
+                        data: 'itemMaximum',
+                        render: function (data) {
+                            return `<span class="fw-bold">${data.toLocaleString()}</span> 個`;
+                        },
+                        className: 'align-middle'
+                    },
+                    {
+                        data: 'startDate',
+                        render: function (data) {
+                            return new Date(data).toLocaleDateString('zh-TW');
+                        },
+                        className: 'align-middle'
+                    },
+                    {
+                        data: 'endDate',
+                        render: function (data) {
+                            return new Date(data).toLocaleDateString('zh-TW');
+                        },
+                        className: 'align-middle'
+                    },
+                    {
+                        data: 'active',
+                        render: function (data, type, row) {
+                            const today = new Date();
+                            const startDate = new Date(row.startDate);
+                            const endDate = new Date(row.endDate);
+
+                            if (today < startDate) {
+                                return '<span class="badge bg-warning">兌換未開始</span>';
+                            } else if (today > endDate) {
+                                return '<span class="badge bg-secondary">兌換過期</span>';
+                            } else if (data) {
+                                return '<span class="badge bg-success">可兌換</span>';
+                            }
+                            return '<span class="badge bg-danger">兌換停用</span>';
+                        },
+                        className: 'align-middle'
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data) {
+                            const today = new Date();
+                            const startDate = new Date(data.startDate);
+                            const endDate = new Date(data.endDate);
+
+                            let buttons = `<div class="btn-group">
+                        <button class="btn btn-primary btn-sm"
+                                onclick="showEditModal('${data.itemId}')"
+                                title="編輯商品">
+                            <i class="fas fa-edit"></i>
+                        </button>`;
+
+                            if (today >= startDate && today <= endDate) {
+                                buttons += `
+                        <button class="btn btn-${data.active ? 'danger' : 'success'} btn-sm"
+                                onclick="toggleStatus('${data.itemId}', ${data.active})"
+                                title="${data.active ? '停用' : '啟用'}商品">
+                            <i class="fas fa-${data.active ? 'ban' : 'check'}"></i>
+                        </button>`;
+                            }
+
+                            buttons += `
+                        <button class="btn btn-danger btn-sm"
+                                onclick="deleteItem('${data.itemId}')"
+                                title="刪除商品">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>`;
+                            return buttons;
+                        },
+                        className: 'align-middle text-center'
+                    }
+                ]
+            });
+
+            // 在表格初始化完成後設定預設排序
+            dataTable.order([5, 'asc']).draw();
+
+            // 設置 Bootstrap 樣式
+            $('.dataTables_wrapper .dataTables_filter input').addClass('form-control form-control-sm');
+            $('.dataTables_wrapper .dataTables_length select').addClass('form-select form-select-sm');
+
+        } catch (error) {
+            console.error('DataTable 初始化錯誤:', error);
+            showError('表格初始化失敗：' + error.message);
+        }
+    }
+
+    //Part2——商品載入和表單處理功能
 
     // 載入商品選單
     async function loadProducts(category = '') {
@@ -300,7 +444,9 @@
             let options = '<option value="">請選擇商品</option>';
             products.forEach(product => {
                 options += `<option value="${product.productId}"
-                              data-price="${product.productPrice}">${product.productName}</option>`;
+                                  data-price="${product.productPrice}">
+                          ${product.productName}
+                          </option>`;
             });
 
             productSelect.html(options).prop('disabled', false);
@@ -311,16 +457,16 @@
     }
 
     // 根據類別載入商品
-    async function loadProductsByCategory(category) {
-        const productSelect = $('select[name="productId"]');  // 移到 try 外面
+    async function loadProductsByCategory(category, form) {
+        const productSelect = form.find('select[name="productId"]');
         try {
             if (!category) {
                 productSelect.html('<option value="">請先選擇商品類別</option>').prop('disabled', true);
+                resetProductFields(form);
                 return;
             }
 
-            const url = `${API.PRODUCTS}?category=${encodeURIComponent(category)}`;
-            const response = await fetch(url);
+            const response = await fetch(`${API.PRODUCTS}?category=${encodeURIComponent(category)}`);
             if (!response.ok) {
                 throw new Error('商品資料載入失敗');
             }
@@ -329,20 +475,24 @@
             let options = '<option value="">請選擇商品</option>';
             products.forEach(product => {
                 options += `<option value="${product.productId}"
-                        data-price="${product.productPrice}">${product.productName}</option>`;
+                                  data-price="${product.productPrice}">
+                          ${product.productName}
+                          </option>`;
             });
 
             productSelect.html(options).prop('disabled', false);
+            resetProductFields(form);
+
         } catch (error) {
             console.error('載入商品列表失敗：', error);
             showError('載入商品列表失敗：' + error.message);
-            // 現在可以直接使用 productSelect
             productSelect.html('<option value="">載入失敗</option>').prop('disabled', true);
+            resetProductFields(form);
         }
     }
 
     // 載入商品類別
-    async function loadCategories() {
+    async function loadCategories(form) {
         try {
             const response = await fetch(API.CATEGORIES);
             if (!response.ok) {
@@ -350,139 +500,389 @@
             }
             const categories = await response.json();
 
-            const categorySelect = $('select[name="productCategory"]');
+            const select = form.find('select[name="productCategory"]');
             let options = '<option value="">請選擇類別</option>';
             categories.forEach(category => {
                 options += `<option value="${category}">${category}</option>`;
             });
 
-            categorySelect.html(options);
+            select.html(options);
         } catch (error) {
             console.error('載入商品類別失敗：', error);
             showError('載入商品類別失敗：' + error.message);
         }
     }
 
-    // 綁定商品類別選擇事件
+    // 初始化商品選擇功能
     function initProductSelection() {
-        // 載入類別數據
-        loadCategories();
+        // 新增和編輯表單都綁定事件
+        ['#addItemForm', '#editItemForm'].forEach(formId => {
+            const form = $(formId);
 
-        // 商品類別選擇事件
-        $('select[name="productCategory"]').on('change', function() {
-            const category = $(this).val();
-            const productSelect = $('select[name="productId"]');
+            // 類別選擇事件
+            form.find('select[name="productCategory"]').on('change', function () {
+                const category = $(this).val();
+                loadProductsByCategory(category, form);
+            });
 
-            if (category) {
-                loadProductsByCategory(category);
-            } else {
-                productSelect.html('<option value="">請先選擇商品類別</option>').prop('disabled', true);
-            }
+            // 商品選擇事件
+            form.find('select[name="productId"]').on('change', function () {
+                const selectedOption = $(this).find('option:selected');
+                if (selectedOption.val()) {
+                    const price = parseInt(selectedOption.data('price')) || 0;
+                    form.find('input[name="productPrice"]').val(price);
+                    form.find('input[name="itemPoints"]').val(price);
+                    form.find('input[name="suggestedPoints"]').val(price);
+                } else {
+                    resetProductFields(form);
+                }
+            });
 
-            // 重置商品相關欄位
-            resetProductFields();
-        });
-
-        // 商品選擇事件
-        $('select[name="productId"]').on('change', function() {
-            const selectedOption = $(this).find('option:selected');
-
-            if (selectedOption.val()) {
-                const price = parseInt(selectedOption.data('price')) || 0;
-                // 顯示參考售價
-                $('input[name="productPrice"]').val(price);
-                // 設置預設兌換點數（商品價格 * 1.5）
-                const suggestedPoints = Math.ceil(price * 1.5);
-                $('input[name="suggestedPoints"]').val(suggestedPoints);
-                $('input[name="itemPoints"]').val(suggestedPoints);
-            } else {
-                resetProductFields();
-            }
+            // 開始日期變更事件
+            form.find('input[name="startDate"]').on('change', function () {
+                updateEndDate(form);
+            });
         });
     }
 
     // 重置商品相關欄位
-    function resetProductFields() {
-        $('input[name="productPrice"]').val('');
-        $('input[name="suggestedPoints"]').val('');
-        $('input[name="itemPoints"]').val('');
-        $('input[name="itemMaximum"]').val('');
+    function resetProductFields(form) {
+        form.find('input[name="productPrice"]').val('');
+        form.find('input[name="suggestedPoints"]').val('');
+        form.find('input[name="itemPoints"]').val('');
+        form.find('input[name="itemMaximum"]').val('');
+        form.find('input[name="startDate"]').val('');
+        form.find('input[name="endDate"]').val('');
     }
 
-    // 表單處理函數
-    function getFormData(formSelector) {
-        const form = $(formSelector);
-        const data = {};
-        form.serializeArray().forEach(item => {
-            data[item.name] = item.value;
-        });
-        form.find('input[type="checkbox"]').each(function() {
-            data[this.name] = this.checked;
-        });
-        return data;
+    // 更新結束日期（開始日期+2個月）
+    function updateEndDate(form) {
+        const startDateInput = form.find('input[name="startDate"]');
+        const endDateInput = form.find('input[name="endDate"]');
+
+        if (startDateInput.val()) {
+            const startDate = new Date(startDateInput.val());
+            // const endDate = new Date(startDate);
+            // endDate.setMonth(endDate.getMonth() + 2);
+            // endDateInput.val(formatDateForInput(endDate));
+            // 使用更安全的日期計算方法
+            const year = startDate.getFullYear();
+            const month = startDate.getMonth() + 2;  // 加2個月
+            const day = startDate.getDate();
+            // 處理月份溢出
+            const endDate = new Date(year + Math.floor(month / 12), month % 12, day);
+            // 處理月底問題
+            const lastDayOfMonth = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate();
+            if (day > lastDayOfMonth) {
+                endDate.setDate(lastDayOfMonth);
+            }
+            endDateInput.val(formatDateForInput(endDate));
+        }
     }
 
-    function fillForm(formSelector, data) {
-        const form = $(formSelector);
-        Object.keys(data).forEach(key => {
+    //Part3——模態框處理和 CRUD 操作
+
+    // 模態框相關函數
+    function showAddModal() {
+        const form = $('#addItemForm');
+        form[0].reset();
+        form.find('input[name="itemId"]').val(''); // 清空ID，由後端生成
+        loadCategories(form);
+        setMinDates(form);
+        resetProductFields(form);
+
+        // 設置今天日期為預設開始日期
+        const today = new Date().toISOString().split('T')[0];
+        form.find('input[name="startDate"]').val(today);
+        updateEndDate(form);
+
+        // 預設啟用狀態
+        form.find('input[name="active"]').prop('checked', true);
+
+        $('#addModal').modal('show');
+    }
+
+    async function showEditModal(itemId) {
+        try {
+            console.log('開始載入商品資料:', itemId);
+            const response = await fetch(API.GET_ITEM(itemId));
+            // if (!response.ok) throw new Error('獲取商品資料失敗');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // const result = await response.json();
+            // if (!result.success) throw new Error(result.message);
+            let responseText = await response.text();
+            console.log('收到的原始回應:', responseText);
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (e) {
+                console.error('JSON解析錯誤:', e);
+                throw new Error('回應資料格式錯誤');
+            }
+            if (!result.success) {
+                throw new Error(result.message || '操作失敗');
+            }
+            const form = $('#editItemForm');
+            const data = result.data;
+            // 清空表單
+            form[0].reset();
+            await loadCategories(form);
+            // // 設置類別並觸發載入商品列表
+            // form.find('select[name="productCategory"]')
+            //     .val(data.productCategory)
+            //     .trigger('change');
+            // // 等待商品列表載入完成後設置值
+            // setTimeout(() => {
+            //     form.find('select[name="productId"]').val(data.productId);
+            //     fillForm('#editItemForm', data);
+            //     setMinDates(form);
+            // }, 500);
+            // 設置商品ID
+            form.find('input[name="itemId"]').val(data.itemId);
+            // 載入類別
+            await loadCategories(form);
+            // 設置類別值
+            const categorySelect = form.find('select[name="productCategory"]');
+            categorySelect.val(data.productCategory);
+            // 載入該類別的商品
+            await loadProductsByCategory(data.productCategory, form);
+            // 設置商品值
+            form.find('select[name="productId"]').val(data.productId);
+            // 設置其他欄位值
+            form.find('input[name="productPrice"]').val(data.productPrice);
+            form.find('input[name="itemPoints"]').val(data.itemPoints);
+            form.find('input[name="itemMaximum"]').val(data.itemMaximum);
+            form.find('input[name="startDate"]').val(formatDateForInput(data.startDate));
+            form.find('input[name="endDate"]').val(formatDateForInput(data.endDate));
+            $('#editModal').modal('show');
+        } catch (error) {
+            showError('載入商品資料失敗：' + error.message);
+        }
+    }
+
+
+    // CRUD 操作函數
+    async function addItem() {
+        try {
+            const form = $('#addItemForm');
+            const formData = getFormData(form);
+
+            validateFormData(formData);
+
+            const response = await fetch(API.ADD, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            $('#addModal').modal('hide');
+            showSuccess('商品新增成功');
+            dataTable.ajax.reload();
+
+        } catch (error) {
+            showError('新增失敗：' + error.message);
+        }
+    }
+
+    async function updateItem() {
+        try {
+            const form = $('#editItemForm');
+            const formData = getFormData(form);
+
+            validateFormData(formData);
+
+            const response = await fetch(API.UPDATE(formData.itemId), {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            $('#editModal').modal('hide');
+            showSuccess('商品更新成功');
+            dataTable.ajax.reload();
+
+        } catch (error) {
+            showError('更新失敗：' + error.message);
+        }
+    }
+
+    async function deleteItem(itemId) {
+        if (!confirm('確定要刪除此商品？')) return;
+
+        try {
+            const response = await fetch(API.DELETE(itemId), {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            showSuccess('商品刪除成功');
+            dataTable.ajax.reload();
+
+        } catch (error) {
+            showError('刪除失敗：' + error.message);
+        }
+    }
+
+    async function toggleStatus(itemId, currentStatus) {
+        const action = currentStatus ? '停用' : '啟用';
+        if (!confirm(`確定要${action}此商品嗎？`)) return;
+
+        try {
+            const response = await fetch(API.TOGGLE(itemId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '操作失敗');
+            }
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            showSuccess(`商品已${action}`);
+            dataTable.ajax.reload();
+
+        } catch (error) {
+            showError(`${action}失敗：` + error.message);
+        }
+    }
+
+    //Part4——輔助函數和初始化程式碼
+    // 表單資料處理相關函數
+    function getFormData(form) {
+        const formData = {};
+        const formArray = form.serializeArray();
+        for (let i = 0; i < formArray.length; i++) {
+            const item = formArray[i];
+            formData[item.name] = item.value;
+        }
+        // form.serializeArray().forEach(item => {
+        //     formData[item.name] = item.value;
+        // });
+        // 特別處理 checkbox
+        const checkboxes = form.find('input[type="checkbox"]');
+        for (let i = 0; i < checkboxes.length; i++) {
+            const checkbox = checkboxes[i];
+            formData[checkbox.name] = checkbox.checked;
+        }
+        // form.find('input[type="checkbox"]').each(function () {
+        //     formData[this.name] = this.checked;
+        // });
+        return formData;
+    }
+
+    // 初始化表單時自動設置今天日期
+    function initializeForm(form) {
+        const today = new Date();
+        const todayStr = formatDateForInput(today);
+        form.find('input[name="startDate"]').val(todayStr);
+        updateEndDate(form);
+    }
+
+    // 綁定模態框事件
+    function bindModalEvents() {
+        $('#addModal').on('show.bs.modal', function () {
+            const form = $('#addItemForm');
+            form[0].reset();
+            initializeForm(form);
+            form.find('input[name="active"]').prop('checked', true);
+            loadCategories(form);
+        });
+
+        $('#editModal').on('show.bs.modal', function () {
+            const form = $('#editItemForm');
+            form[0].reset();
+        });
+
+        $('.modal').on('hidden.bs.modal', function () {
+            $(this).find('form')[0].reset();
+            $('#errorMessage').hide();
+        });
+    }
+
+    function fillForm(formId, data) {
+        const form = $(formId);
+        Object.entries(data).forEach(([key, value]) => {
             const input = form.find(`[name="${key}"]`);
+            if (!input.length) return;
+
             if (input.attr('type') === 'checkbox') {
-                input.prop('checked', data[key]);
+                input.prop('checked', value);
             } else if (input.is('select')) {
-                input.val(data[key]).trigger('change');
+                input.val(value).trigger('change');
             } else if (input.attr('type') === 'date') {
-                input.val(formatDateForInput(data[key]));
+                input.val(formatDateForInput(value));
             } else {
-                input.val(data[key]);
+                input.val(value);
             }
         });
     }
 
-    function resetForm(formSelector) {
-        $(formSelector)[0].reset();
-    }
-
-    // 日期處理函數
-    function setMinDates() {
-        const today = new Date().toISOString().split('T')[0];
-        $('input[type="date"]').attr('min', today);
-    }
-
+    // 日期處理相關函數
     function formatDateForInput(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
         return date.toISOString().split('T')[0];
     }
 
-    // 表單驗證
-    function validateForm(formData) {
-        if (!formData.productId) {
+    function setMinDates(form) {
+        const today = new Date().toISOString().split('T')[0];
+        form.find('input[type="date"]').attr('min', today);
+    }
+
+    // 驗證相關函數
+    function validateFormData(data) {
+        if (!data.productId) {
             throw new Error('請選擇商品');
         }
-        if (formData.itemPoints <= 0) {
-            throw new Error('兌換點數必須大於0');
+
+        const price = parseInt($(`select[name="productId"] option[value="${data.productId}"]`).data('price')) || 0;
+        const points = parseInt(data.itemPoints) || 0;
+
+        if (points !== price) {
+            throw new Error('兌換點數必須與商品價格相同');
         }
-        if (formData.itemMaximum <= 0) {
+
+        if (!data.itemMaximum || data.itemMaximum <= 0) {
             throw new Error('可兌換數量必須大於0');
         }
-        if (!formData.startDate || !formData.endDate) {
-            throw new Error('請設置活動日期');
+
+        if (!data.startDate || !data.endDate) {
+            throw new Error('請設定活動日期');
         }
-        if (new Date(formData.startDate) > new Date(formData.endDate)) {
+
+        const startDate = new Date(data.startDate);
+        const endDate = new Date(data.endDate);
+        if (startDate > endDate) {
             throw new Error('開始日期不能晚於結束日期');
         }
     }
 
-    // 顯示訊息函數
+    // 訊息顯示函數
     function showError(message) {
         const errorDiv = $('#errorMessage');
         errorDiv.removeClass('alert-success')
             .addClass('alert-danger')
             .html(`<i class="fas fa-exclamation-circle me-2"></i>${message}`)
             .show();
-        setTimeout(() => {
-            errorDiv.hide();
-        }, 3000);
+
+        setTimeout(() => errorDiv.fadeOut(), 3000);
     }
 
     function showSuccess(message) {
@@ -491,332 +891,89 @@
             .addClass('alert-success')
             .html(`<i class="fas fa-check-circle me-2"></i>${message}`)
             .show();
-        setTimeout(() => {
-            errorDiv.hide();
-        }, 3000);
+
+        setTimeout(() => errorDiv.fadeOut(), 3000);
     }
 
-    // 模態框相關函數
-    function showAddModal() {
-        resetForm('#addItemForm');
-        loadCategories(); // 載入最新的類別數據
-        $('select[name="productId"]').prop('disabled', true);
-        setMinDates();
-        resetProductFields();
-        $('#addModal').modal('show');
-    }
+    // 檢查商品是否已存在於列表
+    async function checkProductExists(productId, currentItemId = null) {
+        const currentData = dataTable.data().toArray();
+        const exists = currentData.some(item =>
+            item.productId === productId && item.itemId !== currentItemId
+        );
 
-    async function showEditModal(itemId) {
-        try {
-            const response = await fetch(API.GET_ITEM(itemId));
-            const result = await response.json();
-
-            if (result.success) {
-                const data = result.data;
-
-                // 確保類別數據已載入
-                await loadCategories();
-
-                // 先設置商品類別
-                const categorySelect = $('#editItemForm select[name="productCategory"]');
-                categorySelect.val(data.productCategory);
-
-                // 載入該類別的商品
-                await loadProductsByCategory(data.productCategory);
-
-                // 填充表單數據
-                fillForm('#editItemForm', data);
-                setMinDates();
-                $('#editModal').modal('show');
-
-                // 觸發商品選擇事件以更新價格和建議點數
-                $('#editItemForm select[name="productId"]').trigger('change');
-            } else {
-                throw new Error(result.message || '載入商品數據失敗');
-            }
-        } catch (error) {
-            showError('載入商品資料失敗：' + error.message);
+        if (exists) {
+            throw new Error('此商品已在兌換列表中');
         }
     }
 
-    // CRUD 操作函數
-    async function addItem() {
-        try {
-            const formData = getFormData('#addItemForm');
-            validateForm(formData);
-
-            const response = await fetch(API.ADD, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                $('#addModal').modal('hide');
-                dataTable.ajax.reload();
-                showSuccess('商品新增成功');
-            } else {
-                throw new Error(result.message || '新增失敗');
-            }
-        } catch (error) {
-            showError('新增失敗：' + error.message);
-        }
-    }
-
-    async function updateItem() {
-        try {
-            const formData = getFormData('#editItemForm');
-            const itemId = formData.itemId;
-            validateForm(formData);
-
-            const response = await fetch(API.UPDATE(itemId), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                $('#editModal').modal('hide');
-                dataTable.ajax.reload();
-                showSuccess('商品更新成功');
-            } else {
-                throw new Error(result.message || '更新失敗');
-            }
-        } catch (error) {
-            showError('更新失敗：' + error.message);
-        }
-    }
-
-    async function deleteItem(itemId) {
-        if (!confirm('確定要刪除此商品？')) {
-            return;
-        }
-        try {
-            const response = await fetch(API.DELETE(itemId), {
-                method: 'DELETE'
-            });
-            const result = await response.json();
-            if (result.success) {
-                dataTable.ajax.reload();
-                showSuccess('商品刪除成功');
-            } else {
-                throw new Error(result.message || '刪除失敗');
-            }
-        } catch (error) {
-            showError('刪除失敗：' + error.message);
-        }
-    }
-
-    async function toggleStatus(itemId, currentStatus) {
-        const action = currentStatus ? '停用' : '啟用';
-        if (!confirm(`確定要${action}此商品嗎？`)) {
-            return;
-        }
-
-        try {
-            const response = await fetch(API.TOGGLE(itemId), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'  // 添加 AJAX 標識
-                },
-                // 添加 CSRF token
-                credentials: 'same-origin'  // 確保發送 cookies
-            });
-
-            // 檢查響應狀態
-            if (!response.ok) {
-                // 嘗試讀取錯誤信息
-                let errorMessage;
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.message || '操作失敗';
-                } catch (e) {
-                    // 如果無法解析JSON，使用狀態文本
-                    errorMessage = `操作失敗 (${response.status}: ${response.statusText})`;
-                }
-                throw new Error(errorMessage);
-            }
-
-            // 確保響應是JSON格式
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('伺服器回應格式錯誤');
-            }
-
-            const result = await response.json();
-            if (result.success) {
-                dataTable.ajax.reload();
-                showSuccess(`商品已成功${action}`);
-            } else {
-                throw new Error(result.message || '操作失敗');
-            }
-        } catch (error) {
-            console.error('切換狀態時發生錯誤:', error);
-            showError('切換狀態失敗：' + error.message);
-        }
-    }
-
-    // DataTable 初始化
-    function initializeDataTable() {
-        try {
-            dataTable = $('#itemTable').DataTable({
-                ajax: {
-                    url: API.LIST,
-                    dataSrc: 'data',
-                    error: function(xhr, error) {
-                        console.error('AJAX 錯誤:', error);
-                        $('#errorMessage').text('數據載入失敗：' + error).show();
-                    }
-                },
-                processing: true,
-                responsive: true,
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese-traditional.json"
-                },
-                columns: [
-                    {data: 'itemId', className: 'align-middle'},
-                    {data: 'productName', className: 'align-middle'},
-                    {data: 'productCategory', className: 'align-middle'},
-                    {
-                        data: 'itemPoints',
-                        render: function(data) {
-                            return `<span class="badge bg-info">${data.toLocaleString()} 點</span>`;
-                        },
-                        className: 'align-middle'
-                    },
-                    {
-                        data: 'itemMaximum',
-                        render: function(data) {
-                            return `<span class="fw-bold">${data.toLocaleString()}</span> 個`;
-                        },
-                        className: 'align-middle'
-                    },
-                    {
-                        data: 'startDate',
-                        render: function(data) {
-                            return new Date(data).toLocaleDateString('zh-TW');
-                        },
-                        className: 'align-middle'
-                    },
-                    {
-                        data: 'endDate',
-                        render: function(data) {
-                            return new Date(data).toLocaleDateString('zh-TW');
-                        },
-                        className: 'align-middle'
-                    },
-                    {
-                        data: 'active',
-                        render: function(data, type, row) {
-                            const today = new Date();
-                            const startDate = new Date(row.startDate);
-                            const endDate = new Date(row.endDate);
-                            let status;
-                            if (today < startDate) {
-                                status = '<span class="badge bg-warning">兌換未開始</span>';
-                            } else if (today > endDate) {
-                                status = '<span class="badge bg-secondary">兌換過期</span>';
-                            } else if (data) {
-                                status = '<span class="badge bg-success">可兌換</span>';
-                            } else {
-                                status = '<span class="badge bg-danger">兌換商品停用</span>';
-                            }
-                            return status;
-                        },
-                        className: 'align-middle'
-                    },
-                    {
-                        data: null,
-                        render: function(data) {
-                            const today = new Date();
-                            const startDate = new Date(data.startDate);
-                            const endDate = new Date(data.endDate);
-
-                            let buttons = `
-                       <div class="btn-group" role="group">
-                           <button class="btn btn-primary btn-action"
-                                   onclick="showEditModal('${data.itemId}')"
-                                   title="編輯商品">
-                               <i class="fas fa-edit"></i>
-                           </button>`;
-
-                            if (today >= startDate && today <= endDate) {
-                                buttons += `
-                           <button class="btn btn-${data.active ? 'danger' : 'success'} btn-action"
-                                   onclick="toggleStatus('${data.itemId}', ${data.active})"
-                                   title="${data.active ? '停用' : '啟用'}商品">
-                               <i class="fas fa-${data.active ? 'ban' : 'check'}"></i>
-                           </button>`;
-                            }
-
-                            buttons += `
-                           <button class="btn btn-danger btn-action"
-                                   onclick="deleteItem('${data.itemId}')"
-                                   title="刪除商品">
-                               <i class="fas fa-trash"></i>
-                           </button>
-                       </div>`;
-
-                            return buttons;
-                        },
-                        orderable: false,
-                        className: 'align-middle text-center'
-                    }
-                ]
-            });
-
-            // 添加 Bootstrap 類別到 DataTables 元素
-            $('.dataTables_wrapper .dataTables_filter input').addClass('form-control form-control-sm');
-            $('.dataTables_wrapper .dataTables_length select').addClass('form-select form-select-sm');
-        } catch (error) {
-            console.error('DataTable 初始化錯誤:', error);
-            $('#errorMessage')
-                .text('表格初始化失敗：' + error.message)
-                .show();
-        }
-    }
+    // // 綁定模態框事件
+    // function bindModalEvents() {
+    //     // 新增模態框開啟時
+    //     $('#addModal').on('show.bs.modal', function () {
+    //         const form = $('#addItemForm');
+    //         form[0].reset();
+    //         resetProductFields(form);
+    //
+    //         // 自動帶入今天日期
+    //         const today = new Date().toISOString().split('T')[0];
+    //         form.find('input[name="startDate"]').val(today);
+    //         updateEndDate(form);
+    //
+    //         // 預設啟用狀態
+    //         form.find('input[name="active"]').prop('checked', true);
+    //     });
+    //
+    //     // 編輯模態框開啟時
+    //     $('#editModal').on('show.bs.modal', function () {
+    //         const form = $('#editItemForm');
+    //         resetProductFields(form);
+    //     });
+    //
+    //     // 模態框關閉時清除驗證訊息
+    //     $('.modal').on('hidden.bs.modal', function () {
+    //         $(this).find('form')[0].reset();
+    //         $('#errorMessage').hide();
+    //     });
+    // }
 
     // 頁面初始化
-    $(document).ready(function() {
-        // 初始化 DataTable
+    $(document).ready(function () {
+        // 檢查必要的組件是否載入
+        if (typeof $ === 'undefined') {
+            console.error('jQuery未載入');
+            return;
+        }
+        if (!$.fn.DataTable) {
+            console.error('DataTable插件未載入');
+            return;
+        }
+        // 初始化 DataTable (如果尚未初始化)
         if (!$.fn.DataTable.isDataTable('#itemTable')) {
             initializeDataTable();
         }
-
         // 初始化商品選擇功能
         initProductSelection();
-
         // 綁定模態框事件
-        $('#addModal, #editModal').on('show.bs.modal', function() {
-            const form = $(this).find('form');
-            form.find('select[name="productCategory"]').val('');
-            form.find('select[name="productId"]').prop('disabled', true)
-                .html('<option value="">請先選擇商品類別</option>');
-            resetProductFields();
-        });
-
+        bindModalEvents();
         // 綁定表單提交事件
-        $('#addItemForm').on('submit', function(e) {
+        $('#addItemForm').on('submit', e => {
             e.preventDefault();
             addItem();
         });
-
-        $('#editItemForm').on('submit', function(e) {
+        $('#editItemForm').on('submit', e => {
             e.preventDefault();
             updateItem();
         });
+        // 自動移除錯誤提示
+        $('#errorMessage').on('click', function () {
+            $(this).fadeOut();
+        });
     });
+
 </script>
 </body>
 </html>
-
 <!--//加在  <script th:inline="javascript"> let dataTable; 下方-->
 <!--這段要套進來。中文化-->
 <!--$(document).ready(function() {-->

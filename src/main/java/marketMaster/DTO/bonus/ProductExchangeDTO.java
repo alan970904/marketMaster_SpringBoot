@@ -1,7 +1,8 @@
 package marketMaster.DTO.bonus;
 
 import java.util.Objects;
-
+//從商品表取得可兌換商品DTO
+//此份應該已改名為ItemMgnDTO
 public class ProductExchangeDTO {
     private String productId;
     private String productName;

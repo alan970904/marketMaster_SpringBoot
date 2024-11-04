@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+//import java.util.stream.Collectors;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/pointsHistory")
@@ -27,24 +28,55 @@ public class PointsHistoryController {
 
 
 	@GetMapping("/members")
+//    public String listMembersWithPointsHistory(Model model) {
+//        try {
+//            List<PointsHistoryDTO> allHistories = pointsHistoryService.getAllPointsHistories();
+//            Map<String, Map<String, Object>> memberTotalPoints = allHistories.stream()
+//                .collect(Collectors.groupingBy(PointsHistoryDTO::getCustomerTel,
+//                    Collectors.collectingAndThen(
+//                        Collectors.toList(),
+//                        list -> {
+//                            int totalPoints = list.stream().mapToInt(PointsHistoryDTO::getPointsChange).sum();
+//                            PointsHistoryDTO first = list.get(0);
+//                            return Map.of(
+//                                "totalPoints", totalPoints,
+//                                "encryptedCustomerId", encryptionService.encrypt(first.getCustomerTel()),
+//                                "customerName", first.getCustomerName()
+//                            );
+//                        }
+//                    )
+//                ));
+//            model.addAttribute("memberTotalPoints", memberTotalPoints);
+//            return "bonus/PointsHistoryList";
+//        } catch (DataAccessException e) {
+//            model.addAttribute("error", "獲取會員點數記錄失敗: " + e.getMessage());
+//            return "error";
+//        }
+//    }
     public String listMembersWithPointsHistory(Model model) {
         try {
             List<PointsHistoryDTO> allHistories = pointsHistoryService.getAllPointsHistories();
-            Map<String, Map<String, Object>> memberTotalPoints = allHistories.stream()
-                .collect(Collectors.groupingBy(PointsHistoryDTO::getCustomerTel,
-                    Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        list -> {
-                            int totalPoints = list.stream().mapToInt(PointsHistoryDTO::getPointsChange).sum();
-                            PointsHistoryDTO first = list.get(0);
-                            return Map.of(
-                                "totalPoints", totalPoints,
-                                "encryptedCustomerId", encryptionService.encrypt(first.getCustomerTel()),
-                                "customerName", first.getCustomerName()
-                            );
-                        }
-                    )
-                ));
+            Map<String, Map<String, Object>> memberTotalPoints = new HashMap<>();
+
+            // 遍歷所有歷史紀錄進行分組
+            for (PointsHistoryDTO history : allHistories) {
+                String customerTel = history.getCustomerTel();
+
+                // 如果尚未有此客戶的資料,創建新的記錄
+                if (!memberTotalPoints.containsKey(customerTel)) {
+                    Map<String, Object> memberInfo = new HashMap<>();
+                    memberInfo.put("totalPoints", 0);
+                    memberInfo.put("encryptedCustomerId", encryptionService.encrypt(customerTel));
+                    memberInfo.put("customerName", history.getCustomerName());
+                    memberTotalPoints.put(customerTel, memberInfo);
+                }
+
+                // 累加點數
+                Map<String, Object> memberInfo = memberTotalPoints.get(customerTel);
+                int currentPoints = (Integer) memberInfo.get("totalPoints");
+                memberInfo.put("totalPoints", currentPoints + history.getPointsChange());
+            }
+
             model.addAttribute("memberTotalPoints", memberTotalPoints);
             return "bonus/PointsHistoryList";
         } catch (DataAccessException e) {
@@ -52,7 +84,7 @@ public class PointsHistoryController {
             return "error";
         }
     }
-    
+
     @GetMapping("/detail")
     public String getMemberPointsHistory(@RequestParam("id") String encryptedId, Model model) {
         String decryptedId = encryptionService.decrypt(encryptedId);
@@ -64,20 +96,38 @@ public class PointsHistoryController {
         return "redirect:/pointsHistory/detail?id=" + customerTel;
     }
     
-    private String showMemberPointsHistory(String customerTel, Model model) {
-        try {
-            List<PointsHistoryDTO> histories = pointsHistoryService.getPointsHistoriesByCustomerTel(customerTel);
-            int totalPoints = histories.stream().mapToInt(PointsHistoryDTO::getPointsChange).sum();
-            model.addAttribute("histories", histories);
-            model.addAttribute("customerTel", customerTel);
-            model.addAttribute("totalPoints", totalPoints);
-            return "bonus/PointsHistoryDetail";
-        } catch (DataAccessException e) {
-            model.addAttribute("error", "獲取會員點數紀錄失敗: " + e.getMessage());
-            return "error";
+//    private String showMemberPointsHistory(String customerTel, Model model) {
+//        try {
+//            List<PointsHistoryDTO> histories = pointsHistoryService.getPointsHistoriesByCustomerTel(customerTel);
+//            int totalPoints = histories.stream().mapToInt(PointsHistoryDTO::getPointsChange).sum();
+//            model.addAttribute("histories", histories);
+//            model.addAttribute("customerTel", customerTel);
+//            model.addAttribute("totalPoints", totalPoints);
+//            return "bonus/PointsHistoryDetail";
+//        } catch (DataAccessException e) {
+//            model.addAttribute("error", "獲取會員點數紀錄失敗: " + e.getMessage());
+//            return "error";
+//        }
+//    }
+private String showMemberPointsHistory(String customerTel, Model model) {
+    try {
+        List<PointsHistoryDTO> histories = pointsHistoryService.getPointsHistoriesByCustomerTel(customerTel);
+
+        // 計算總點數
+        int totalPoints = 0;
+        for (PointsHistoryDTO history : histories) {
+            totalPoints += history.getPointsChange();
         }
+
+        model.addAttribute("histories", histories);
+        model.addAttribute("customerTel", customerTel);
+        model.addAttribute("totalPoints", totalPoints);
+        return "bonus/PointsHistoryDetail";
+    } catch (DataAccessException e) {
+        model.addAttribute("error", "獲取會員點數紀錄失敗: " + e.getMessage());
+        return "error";
     }
-    
+}
 
     @GetMapping("/api")
     @ResponseBody

@@ -13,8 +13,10 @@ import java.time.LocalDate;
 @Builder
 public class ItemMgnDTO {
 	private String itemId;
+	private String productId; // 新增
 	private String productName;
 	private String productCategory;
+	private int productPrice;       // 新增
 	private int itemPoints;
 	private int itemMaximum;
 	private LocalDate startDate;

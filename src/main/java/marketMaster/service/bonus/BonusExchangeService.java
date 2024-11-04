@@ -57,7 +57,6 @@ public class BonusExchangeService {
                     dtoList.add(dto);
                 }
             }
-
             return dtoList;
         } catch (Exception e) {
             logger.severe("獲取可兌換商品失敗: " + e.getMessage());

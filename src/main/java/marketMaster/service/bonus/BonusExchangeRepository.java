@@ -21,4 +21,11 @@ public interface BonusExchangeRepository extends JpaRepository<BonusExchangeBean
 
     @Query("SELECT b.exchangeId FROM BonusExchangeBean b ORDER BY b.exchangeId DESC")
     List<String> findLastExchangeId();
+
+    // 檢查是否存在兌換紀錄
+    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM BonusExchangeBean b WHERE b.exchangeItem.itemId = :itemId")
+    boolean existsByExchangeItemId(@Param("itemId") String itemId);
+
+    // 根據商品ID查詢兌換紀錄 - 如果未使用可以移除此方法
+    List<BonusExchangeBean> findByExchangeItem_ItemId(String itemId);
 }
