@@ -87,14 +87,14 @@
             const actualInventory = document.getElementsByClassName('actualInventory')
             const remark = document.getElementsByClassName('remark')
 
-            actualInventory[0].value = numberOfInventory[0].value
-            actualInventory[1].value = numberOfInventory[1].value-2
-            actualInventory[2].value = numberOfInventory[2].value-3
-            remark[1].value = '包裝損毀'
-            remark[2].value = '過期'
+
+            actualInventory[0].value = numberOfInventory[0].value-2
+            actualInventory[1].value = numberOfInventory[1].value-3
+            remark[0].value = '包裝損毀'
+            remark[1].value = '過期'
             actualInventory[0].dispatchEvent(new Event('blur'))
             actualInventory[1].dispatchEvent(new Event('blur'))
-            actualInventory[2].dispatchEvent(new Event('blur'))
+
 
         })
         document.getElementById('oneKey2').addEventListener('click', function () {
@@ -102,19 +102,18 @@
             const actualInventory = document.getElementsByClassName('actualInventory')
             const remark = document.getElementsByClassName('remark')
 
-            actualInventory[0].value = numberOfInventory[0].value
-            actualInventory[1].value = numberOfInventory[1].value-2
-            actualInventory[2].value = numberOfInventory[2].value-3
+
+            actualInventory[0].value = numberOfInventory[0].value-2
+            actualInventory[1].value = numberOfInventory[1].value-3
+            actualInventory[2].value = numberOfInventory[2].value
             actualInventory[3].value = numberOfInventory[3].value
-            actualInventory[4].value = numberOfInventory[4].value
-            remark[1].value = '包裝損毀'
-            remark[2].value = '過期'
+            remark[0].value = '包裝損毀'
+            remark[1].value = '過期'
 
             actualInventory[0].dispatchEvent(new Event('blur'))
             actualInventory[1].dispatchEvent(new Event('blur'))
             actualInventory[2].dispatchEvent(new Event('blur'))
             actualInventory[3].dispatchEvent(new Event('blur'))
-            actualInventory[4].dispatchEvent(new Event('blur'))
 
         })
 
