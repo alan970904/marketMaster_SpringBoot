@@ -57,9 +57,9 @@
                     <td class="centered" th:text="${#temporals.format(employee.hiredate, 'yyyy-MM-dd')}"></td>
                     <td class="centered" th:if="${currentAuthority >= 2}" th:text="${employee.resigndate != null ? #temporals.format(employee.resigndate, 'yyyy-MM-dd') : '-'}"></td>
                     <td class="centered">
-                        <a th:if="${currentAuthority >= 2 or employee.employeeId == session.employee.employeeId}"
+                        <a th:if="${currentAuthority >= 2 or employee.employeeId == session.backendEmployee.employeeId}"
                         	th:href="@{/employee/details(employeeId=${employee.employeeId})}" class="btn btn-sm btn-info">詳情</a>
-                        <a th:if="${((currentAuthority >= 2 and (currentAuthority > employee.authority or currentAuthority == 3)) or employee.employeeId == session.employee.employeeId) and employee.resigndate == null}"
+                        <a th:if="${((currentAuthority >= 2 and (currentAuthority > employee.authority or currentAuthority == 3)) or employee.employeeId == session.backendEmployee.employeeId) and employee.resigndate == null}"
                         	th:href="@{/employee/getUpdate(employeeId=${employee.employeeId})}" class="btn btn-sm btn-warning">修改</a>
                         <a th:if="${currentAuthority >= 2 and currentAuthority > employee.authority and employee.resigndate == null}"
                         	th:href="@{/employee/delete(employeeId=${employee.employeeId})}" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除此員工嗎？')">刪除</a>
