@@ -149,7 +149,7 @@ public class ItemManagementController {
                             "message", e.getMessage()
                     ));
         } catch (Exception e) {
-            logger.severe("新增商品失败: " + e.getMessage());
+             logger.severe("新增商品失败: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
                             "success", false,

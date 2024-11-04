@@ -113,11 +113,11 @@ public class ItemManagementService {
                     .orElse(null);
 
             if (lastItem == null) {
-                return "EX00001";
+                return "IM001";
             }
 
             String lastId = lastItem.getItemId();
-            Pattern pattern = Pattern.compile("EX(\\d{5})");
+            Pattern pattern = Pattern.compile("IM(\\d{3})");
             Matcher matcher = pattern.matcher(lastId);
 
             if (!matcher.find()) {
@@ -127,7 +127,7 @@ public class ItemManagementService {
             int currentNumber = Integer.parseInt(matcher.group(1));
             int nextNumber = currentNumber + 1;
 
-            if (nextNumber > 99999) {
+            if (nextNumber > 999) {
                 throw new BonusException.IdGenerationException("ID序列已達到最大值");
             }
 
