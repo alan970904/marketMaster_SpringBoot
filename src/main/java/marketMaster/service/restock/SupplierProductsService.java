@@ -50,7 +50,6 @@ public class SupplierProductsService {
       Optional<SupplierProductsBean> productsBean= supplierProductsRepository.findById(supplierProductId);
       if (productsBean.isPresent()) {
           supplierProductsRepository.save(supplierProductsBean);
-          System.out.println("更新成功");
       }
 
     }
