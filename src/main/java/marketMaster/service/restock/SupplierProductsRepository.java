@@ -39,11 +39,11 @@ public interface SupplierProductsRepository extends JpaRepository<SupplierProduc
 
     //查詢最新的supplier_product_id
     //mysql
-    @Query(value = "SELECT supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC LIMIT 1", nativeQuery = true)
-    String findLatestSupplierProductId();
-    //sqlserver
-//    @Query(value = "SELECT TOP 1 supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC", nativeQuery = true)
+//    @Query(value = "SELECT supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC LIMIT 1", nativeQuery = true)
 //    String findLatestSupplierProductId();
+    //sqlserver
+    @Query(value = "SELECT TOP 1 supplier_product_id FROM supplier_products ORDER BY supplier_product_id DESC", nativeQuery = true)
+    String findLatestSupplierProductId();
     //透過productＩd查詢商品價格
     @Query("SELECT s.productPrice FROM SupplierProductsBean s WHERE s.product.productId = :productId")
     Integer findProductPriceByProductId(@Param("productId") String productId);
