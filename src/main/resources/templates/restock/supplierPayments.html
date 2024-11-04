@@ -209,7 +209,6 @@
         alert('請先新增付款記錄');
         return;
       }
-      console.log(paymentInsertDTO)
       // 透過AJAX將數據傳送到後端
       $.ajax({
         url: '/marketMaster/supplier/insertPayment?supplierId=' + encodeURIComponent(supplierId),

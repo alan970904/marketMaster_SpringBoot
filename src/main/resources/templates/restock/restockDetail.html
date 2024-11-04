@@ -66,7 +66,8 @@
 					<input type="text" id="endDate" class="form-control" placeholder="結束日期">
 				</div>
 				<button id="searchButton" class="btn btn-primary"><i class="fas fa-search"></i> 查詢</button>
-				<button id="resetButton" class="btn btn-secondary"><i class="fas fa-undo"></i> 重置搜尋</button> <!-- 新增重置按鈕 -->
+				<button id="autoFillDateButton" class="btn btn-success">自動填入日期</button>
+				<!-- 新增重置按鈕 -->
 			</div>
 
 			<!-- 過濾狀態顯示 -->
@@ -160,7 +161,6 @@
 					size: pageSize
 				}
 			}).then(res => {
-				console.log(res.data);
 				renderTable(res.data.content); // 分頁數據在 content 中
 				setupPagination(res.data.totalPages);
 				updateFilterStatus(); // 更新過濾狀態
@@ -178,7 +178,6 @@
 					size: pageSize
 				}
 			}).then(res => {
-				console.log(res.data);
 				renderTable(res.data.content); // 分頁數據在 content 中
 				setupPagination(res.data.totalPages); // 設置分頁
 				updateFilterStatus(); // 更新過濾狀態
@@ -235,7 +234,6 @@
 						axios.delete(`/marketMaster/restockDetail/deleteByRestockId?restockId=${restockId}`)
 								.then(res => {
 									if (res.status === 200) {
-										console.log("刪除成功", res);
 										// 刪除成功後，重新載入當前頁面的數據
 										if (isFiltered) {
 											loadByDateRange(currentStartDate, currentEndDate, currentPage);
@@ -281,6 +279,18 @@
 				pagination.appendChild(li);
 			}
 		}
+		$(document).ready(function () {
+			// 你的其他代碼...
+
+			// 新增自動填入日期的按鈕點擊事件
+			$("#autoFillDateButton").on('click', function () {
+				$("#startDate").val("2024-10-10"); // 自動填入開始日期
+				$("#endDate").val("2024-11-08");   // 自動填入結束日期
+			});
+
+			// 你的其他代碼...
+		});
+
 
 		// 更新過濾狀態顯示
 		function updateFilterStatus() {

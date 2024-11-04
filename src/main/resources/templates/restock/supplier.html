@@ -213,7 +213,6 @@
         renderTable(res.data.content); // res.data.content 包含當前頁的數據
         setupPagination(res.data.totalPages); // 設置分頁
       }).catch(err => {
-        console.log('加載供應商資料失敗', err);
       });
     }
 
@@ -304,6 +303,7 @@
       updateBtns.forEach(button => {
         button.addEventListener('click', () => {
           // 獲取供應商資訊
+
           const supplierId = button.getAttribute('data-supplier-id');
           const supplierName = button.getAttribute('data-supplier-name');
           const address = button.getAttribute('data-address');

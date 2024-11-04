@@ -116,7 +116,6 @@
                     size: pageSize
                 }
             }).then(res => {
-                console.log(res.data.content)
                 renderTable(res.data.content); // res.data.content 包含當前頁的數據
                 setupPagination(res.data.totalPages); // 設置分頁
             }).catch(error => {
@@ -192,17 +191,14 @@
                     axios.delete(`/marketMaster/supplierProducts/deleteProduct?supplierProductId=${encodeURIComponent(supplierProductId)}`)
                         .then(res => {
                             if (res.data === "刪除成功！") {
-                                console.log("刪除成功", res);
                                 // 重新加載當前頁面數據
                                 loadProducts(currentPage);
                             } else {
-                                console.log("刪除失敗");
                                 loadProducts(currentPage);
 
                             }
                         })
                         .catch(error => {
-                            console.error('刪除失敗', error);
                             alert('刪除失敗: ' + (error.response ? error.response.data : '未知錯誤'));
                         });
                 }
@@ -239,7 +235,6 @@
                                 status: updatedStatus
                             })
                                 .then(res => {
-                                    console.log(res.data);
                                     // 關閉彈出視窗
                                     $("#updateDialog").dialog("close");
                                     // 重新加載當前頁面數據
@@ -259,7 +254,6 @@
         }
         axios.get('/marketMaster/supplierProducts/findAllProduct')
             .then(res=>{
-                console.log('獲取的產品資料:', res.data); // 打印 res.data 以檢查數據
             const selectElement =document.getElementById('addProductId')
                 selectElement.innerHTML = '<option value="">請選擇商品</option>';
             res.data.forEach(product=>{
@@ -307,7 +301,6 @@
                             status: newStatus
                         })
                             .then(res => {
-                                console.log(res.data);
                                 // 關閉彈出視窗
                                 $("#addDialog").dialog("close");
                                 // 重新加載當前頁面數據
