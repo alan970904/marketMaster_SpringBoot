@@ -30,6 +30,30 @@
             max-width: 1200px;
             margin: auto;
         }
+        /* 使用更具體的 Handsontable 選擇器設置字體大小 */
+        /* 調整整個表格的字體大小 */
+        .handsontable table {
+            font-size: 18px; /* 將其他單元格設置為 18px */
+        }
+        .handsontable .handsontableInput,
+        .handsontable td {
+            font-size: 18px;
+        }
+
+        /* 將進貨單號列的字體大小設置為小一號 */
+        .handsontable .ht_master .htCore tbody tr td:nth-child(1) {
+            font-size: 16px; /* 將進貨單號列設置為 16px */
+        }
+
+        .handsontable .ht_master .htCore tbody tr {
+            height: 40px; /* 調整行高，確保所有文本都能顯示 */
+        }
+        .handsontable .ht_master .htCore th,
+        .handsontable .ht_master .htCore td {
+            padding: 2px 5px; /* 減小內部填充空間 */
+            vertical-align: middle; /* 確保內容垂直居中 */
+        }
+
     </style>
 </head>
 <body>
@@ -130,7 +154,7 @@
                         { restockId: latestRestockId }
                     ],
                     colHeaders: ['進貨單號', '供應商', '商品', '進貨數量', '進貨總價', '生產日期', '到期日期', '操作'],
-                    colWidths: [120, 250, 250, 100, 100, 120, 120, 80],
+                    colWidths: [200 , 250, 250, 100, 100, 120, 120, 80], // 將進貨單號列的寬度設置為150
                     columns: [
                         {
                             data: 'restockId',
