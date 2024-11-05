@@ -35,7 +35,12 @@ public class ProductController {
 
 	@Autowired
 	private ProductRestController productRestController;
-
+	
+	@GetMapping("/product/test")
+	public String testPage() {
+		return "/product/test";
+	}
+	
 	@GetMapping("/product/addPage")
 	public String addProductPage(Model m) {
 		List<ProductCategoryDTO> productCategory = productRestController.getProductCategory();

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+
+<head>
+    <meta charset="UTF-8" th:replace="~{body/headEmployee :: head}">
+    <title>商品資料</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../static/CSS/style.css">
+    <style>
+        option {
+            text-align: center
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #inputCategory {
+            left: 100%;
+            width: 150px;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+            border-radius: 15px;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            max-width: 550px;
+            width: 100%;
+            margin: 1.5rem auto;
+        }
+
+        .card-header {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.2rem;
+        }
+
+        .card-header .fs-4 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .info-table {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .info-table td {
+            padding: 10px 8px;
+            vertical-align: middle;
+        }
+
+        .info-table td:first-child {
+            width: 130px;
+            color: #495057;
+            font-weight: 500;
+            text-align: right;
+            padding-right: 15px;
+            white-space: nowrap;
+        }
+
+        /* 輸入框統一樣式 */
+        .form-control,
+        .form-select {
+            border: 1px solid #dee2e6;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.15);
+        }
+
+        /* 商品類別選擇區域 */
+        .category-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        #inputCategory {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            background-color: white !important;
+            z-index: 2;
+        }
+
+        #select {
+            width: 100%;
+            background-color: white !important;
+        }
+
+        /* 文件上傳樣式 */
+        .file-upload {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: #dee2e6;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 按鈕樣式 */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4dabf7, #3c8ce7);
+            border: none;
+        }
+
+        .btn-dark {
+            background: linear-gradient(45deg, #495057, #343a40);
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 錯誤訊息樣式 */
+        .error-message {
+            color: #dc3545;
+            background-color: #dc354510;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* 文件名稱顯示 */
+        .file-name {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{body/headerEmployee :: headerEmployee}">
+        <div th:fragment="content">
+            <main>
+                <div class="container d-flex justify-content-center">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h5 class="fs-4 mb-0">新增商品資料</h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${errorMsg}" class="error-message">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <span th:text="${errorMsg}"></span>
+                            </div>
+
+                            <form th:action="@{/product/front/add}" method="post" enctype="multipart/form-data">
+                                <table class="info-table">
+                                    <tr>
+                                        <td>商品編號：</td>
+                                        <td>
+                                            <input type="text" name="productId" class="form-control text-center"
+                                                placeholder="請輸入商品編號">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>商品類別：</td>
+                                        <td>
+                                            <div class="category-wrapper">
+                                                <select name="productCategory" id="select"
+                                                    class="form-select text-center"></select>
+                                                <input id="inputCategory" class="hidden form-control text-center"
+                                                    placeholder="請輸入自訂類別名稱">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>商品名稱：</td>
+                                        <td>
+                                            <input type="text" name="productName" class="form-control text-center"
+                                                placeholder="請輸入商品名稱">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>商品售價：</td>
+                                        <td>
+                                            <input type="number" name="productPrice" class="form-control text-center"
+                                                placeholder="請輸入商品售價" min="0">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>安全庫存量：</td>
+                                        <td>
+                                            <input type="number" name="productSafeInventory"
+                                                class="form-control text-center" placeholder="請輸入安全庫存量" min="0">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>商品圖片：</td>
+                                        <td>
+                                            <div class="file-upload">
+                                                <label class="file-upload-label">
+                                                    <i class="fas fa-upload me-2"></i>選擇檔案
+                                                    <input type="file" name="photo" id="photoInput">
+                                                </label>
+                                                <div class="file-name" id="fileName"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <div class="button-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i>
+                                        新增商品
+                                    </button>
+                                    <a class="btn btn-dark" th:href="@{/product/front/findProductAvailable(available=${true})}">
+                                        <i class="fas fa-arrow-left"></i>
+                                        返回列表
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <div th:replace="~{body/footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', getProductCategory)
+
+        // 新增檔案上傳預覽
+        document.getElementById('photoInput').addEventListener('change', function (e) {
+            const fileName = e.target.files[0]?.name || '未選擇檔案';
+            document.getElementById('fileName').textContent = fileName;
+        });
+        function getProductCategory() {
+            axios.post('http://localhost:8080/marketMaster/product/findProductCategory')
+                .then(res => {
+                    console.log(res)
+                    console.log(res.data)
+                    console.log(res.data[0].productCategory)
+                    htmlMaker(res.data)
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+        }
+
+        function htmlMaker(data) {
+            const tdCategory = document.getElementById("productCategory")
+            const select = document.getElementById("select")
+
+            const optionInfo = document.createElement("option")
+            optionInfo.textContent = "請選擇商品類別"
+            select.appendChild(optionInfo);
+            for (let i = 0; i < data.length; i++) {
+                const option = document.createElement("option")
+                option.value = `${data[i].productCategory}`
+                option.textContent = `${data[i].productCategory}`
+
+                select.appendChild(option)
+            }
+            const optionCustom = document.createElement("option")
+            optionCustom.setAttribute("id", "optionCustom")
+            optionCustom.value = "custom"
+            optionCustom.textContent = "自訂商品名稱"
+            select.appendChild(optionCustom);
+            tdCategory.appendChild(select)
+        }
+
+
+        const select = document.getElementById("select")
+        select.addEventListener("change", function () {
+            const input = document.getElementById("inputCategory")
+            if (select.value === "custom") {
+                input.classList.remove("hidden");
+                input.focus();
+                select.removeAttribute("name");
+                input.setAttribute("name", "productCategory")
+
+            } else {
+                input.classList.add("hidden");
+                select.setAttribute("name", "productCategory")
+                input.removeAttribute("name");
+            }
+        })
+        document.querySelector('form').addEventListener('submit', function (event) {
+            const select = document.getElementById("select");
+            const input = document.getElementById("inputCategory");
+            const productId = document.querySelector('input[name="productId"]').value;
+            const productName = document.querySelector('input[name="productName"]').value;
+            const productPrice = document.querySelector('input[name="productPrice"]').value;
+            const safeInventory = document.querySelector('input[name="productSafeInventory"]').value;
+
+            if (!productId || !productName || !productPrice || !safeInventory ||
+                select.value === "" ||
+                (select.value === "custom" && input.value.trim() === "") ||
+                select.value === "請選擇商品類別") {
+                event.preventDefault();
+                alert("請填寫所有必填欄位");
+            }
+        });
+    </script>
+
+</body>
+
+</html>

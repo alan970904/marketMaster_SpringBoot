@@ -53,15 +53,15 @@
 	width: 300px !important;
 }
 
- .nav-pills .nav-link {
-    padding: 10px 15px;
-    font-size: 16px;
-    line-height: 1.4;
-  }
-  
-  .nav-pills .nav-item {
-    margin: 0 10px;
-  }
+.nav-pills .nav-link {
+	padding: 10px 15px;
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+.nav-pills .nav-item {
+	margin: 0 10px;
+}
 </style>
 </head>
 
@@ -82,7 +82,7 @@
 							<i class="fas fa-file-medical"></i> 建立請假單
 					</a></li>
 					<li class="nav-item"><a class="nav-link btn-lightblue"
-						th:href="@{/askForLeave/approval(id=${empBean.employeeId}, p=1)}"
+						th:href="@{/askForLeave/approval(id=${empBean.employeeId})}"
 						aria-current="page"> <i class="fa-solid fa-user-pen"></i> 請假簽核
 					</a></li>
 

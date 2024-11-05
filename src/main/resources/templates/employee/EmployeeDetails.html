@@ -12,7 +12,7 @@
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
-            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+            <main class="container d-flex flex-column justify-content-center align-items-center">
 
                 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
                 <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>

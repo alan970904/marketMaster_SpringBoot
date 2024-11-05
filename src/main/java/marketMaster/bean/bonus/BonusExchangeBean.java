@@ -1,8 +1,6 @@
 package marketMaster.bean.bonus;
-import java.time.LocalDate;
 
-import marketMaster.bean.customer.CustomerBean;
-import marketMaster.bean.product.ProductBean;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,75 +8,57 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.*;
+import marketMaster.bean.customer.CustomerBean;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "bonus_exchange")
-public class BonusExchangeBean implements java.io.Serializable {
-	private static final long serialVersionUID = 1L;
+public class BonusExchangeBean {
     @Id
-    @Column(name="exchange_id")
+    @Column(name = "exchange_id")
     private String exchangeId;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_tel", insertable = false, updatable = false)
-    private CustomerBean customer;
 
     @Column(name = "customer_tel")
     private String customerTel;
 
-    @ManyToOne
-    @JoinColumn(name="product_id", insertable = false, updatable = false)
-    private ProductBean product;
+    @Column(name = "item_id")
+    private String itemId;
 
-    @Column(name = "product_id")
-    private String productId;
-
-    @Column(name="use_points")
+    @Column(name = "use_points")
     private int usePoints;
 
-    @Column(name="number_of_exchange")
+    @Column(name = "number_of_exchange")
     private int numberOfExchange;
 
-    @Column(name="exchange_date")
-    private LocalDate exchangeDate;  
-    
-    
- // Constructors, Getters, and Setters
-    public BonusExchangeBean() {}
+    @Column(name = "exchange_date")
+    private LocalDate exchangeDate;
 
-    public BonusExchangeBean(String exchangeId, String customerTel, String productId,
-                         int usePoints, int numberOfExchange, LocalDate  exchangeDate) {
-        this.exchangeId = exchangeId;
-        this.customerTel = customerTel;
-        this.productId = productId;
-        this.usePoints = usePoints;
-        this.numberOfExchange = numberOfExchange;
-        this.exchangeDate = exchangeDate;
-    }
+    // 多對一關聯 - 對應可兌換商品表
+    @ManyToOne
+    @JoinColumn(name = "item_id", referencedColumnName = "item_id", insertable = false, updatable = false)
+    private ItemManagementBean exchangeItem; // 對應的可兌換商品對象
 
-    // Getters and Setters for each field
-    public String getExchangeId() { return exchangeId; }
-    public void setExchangeId(String exchangeId) { this.exchangeId = exchangeId; }
-    public String getCustomerTel() { return customerTel; }
-    public void setCustomerTel(String customerTel) { this.customerTel = customerTel; }
-    public String getProductId() { return productId; }
-    public void setProductId(String productId) { this.productId = productId; }
-    public int getUsePoints() { return usePoints; }
-    public void setUsePoints(int usePoints) { this.usePoints = usePoints; }
-    public int getNumberOfExchange() { return numberOfExchange; }
-    public void setNumberOfExchange(int numberOfExchange) { this.numberOfExchange = numberOfExchange; }
-    public LocalDate  getExchangeDate() { return exchangeDate; }
-    public void setExchangeDate(LocalDate  exchangeDate) { this.exchangeDate = exchangeDate; }
-    // 添加 customer 和 product 的 getter 和 setter
-    public CustomerBean getCustomer() { return customer; }
-    public void setCustomer(CustomerBean customer) { this.customer = customer; }
-    public ProductBean getProduct() { return product; }
-    public void setProduct(ProductBean product) { this.product = product; }
+    // 多對一關聯 - 對應會員表（假設表格中有此欄位）
+    @ManyToOne
+    @JoinColumn(name = "customer_tel", referencedColumnName = "customer_tel", insertable = false, updatable = false)
+    private CustomerBean customer; // 對應的會員對象
+
     @Override
     public String toString() {
-        return "BonusExchangeBean [exchangeId=" + exchangeId + ", customerTel=" + customerTel + ", productId="
-                + productId + ", usePoints=" + usePoints + ", numberOfExchange=" + numberOfExchange + ", exchangeDate="
-                + exchangeDate + ", customer=" + customer + ", product=" + product + "]";
+        return "BonusExchangeBean{" +
+                "exchangeId='" + exchangeId + '\'' +
+                ", customerTel='" + customerTel + '\'' +
+                ", itemId='" + itemId + '\'' +
+                ", usePoints=" + usePoints +
+                ", numberOfExchange=" + numberOfExchange +
+                ", exchangeDate=" + exchangeDate +
+                ", exchangeItem=" + exchangeItem +
+                ", customer=" + customer +
+                '}';
     }
-    
 }

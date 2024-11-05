@@ -35,7 +35,7 @@ public class FChatController {
 	
 	@GetMapping("/messages")
 	public String showChatMessages(Model model, HttpSession session) {
-	    EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+	    EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("frontendEmployee");
 	    if (currentEmployee == null) {
 	        return "redirect:/front/loginPage";
 	    }
@@ -55,7 +55,7 @@ public class FChatController {
 	
 	@PostMapping("/send")
 	public ResponseEntity<?> sendMessage(@RequestBody ChatMessage message, HttpSession session) {
-		EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
+		EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("frontendEmployee");
 		
 		if (employee == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -70,7 +70,7 @@ public class FChatController {
 	@ResponseBody
 	public ResponseEntity<List<ChatMessage>> getMessageHistory(@RequestParam String otherUser, HttpSession session) {
 	    try {
-	        EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("employee");
+	        EmployeeViewModel employee = (EmployeeViewModel) session.getAttribute("frontendEmployee");
 	        
 	        if (employee == null) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

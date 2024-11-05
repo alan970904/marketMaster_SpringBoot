@@ -12,7 +12,7 @@
 <body>
     <div th:replace="~{body/header :: header}">
         <div th:fragment="content">
-            <main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+            <main class="container d-flex flex-column justify-content-center align-items-center">
                 <h1 class="mb-4">更新員工資訊</h1>
                 <form th:action="@{/employee/empUpdate}" method="post" onsubmit="return validateForm()"
                     enctype="multipart/form-data">

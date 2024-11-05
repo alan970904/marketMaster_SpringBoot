@@ -247,6 +247,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h2 class="card-title">新增退貨紀錄</h2>
+                            <div class="d-flex align-items-center mb-3">
+                                <button type="button" class="btn btn-info me-2" id="autoFill1">池上米退貨</button>
+                                <button type="button" class="btn btn-warning me-2" id="autoFill2">高麗菜退貨</button>
+                            </div>
                             <form id="returnProductForm" enctype="multipart/form-data">
                                 <div class="form-grid">
                                     <div class="form-group">
@@ -265,9 +269,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="employeeId">員工編號:</label>
-                                        <select id="employeeId" name="employeeId" class="form-control" required>
-                                            <option value="">請選擇員工</option>
-                                        </select>
+                                        <span th:text="${session.backendEmployee.employeeId + ' - ' + session.backendEmployee.employeeName}" class="form-control" readonly></span>
+										<input type="hidden" id="employeeId" name="employeeId" th:value="${session.backendEmployee.employeeId}">
                                     </div>
                                     <div class="form-group">
                                         <label for="productName">退貨商品名稱:</label>
@@ -348,21 +351,6 @@
                 .catch(function (error) {
                     console.error('獲取退貨編號失敗:', error);
                     showError('獲取退貨編號失敗，請稍後再試');
-                });
-
-            // 獲取所有在職員工
-            axios.get(/*[[@{/returnProduct/activeEmployees}]]*/)
-                .then(function (response) {
-                    var employeeSelect = $('#employeeId');
-                    response.data.forEach(function (emp) {
-                        employeeSelect.append($('<option>')
-                            .text(emp.employeeId + ' - ' + emp.employeeName)
-                            .attr('value', emp.employeeId));
-                    });
-                })
-                .catch(function (error) {
-                    console.error('獲取員工資料失敗:', error);
-                    showError('獲取員工資料失敗，請稍後再試');
                 });
 
             // 監聽發票號碼輸入
@@ -592,6 +580,20 @@
             var today = new Date().toISOString().split('T')[0];
             $('#returnDate').val(today);
 
+        });
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            // 一鍵輸入1按鈕
+            document.getElementById('autoFill1').addEventListener('click', function () {
+                document.getElementById('invoiceNumber').value = 'IN00000026';
+                document.getElementById('returnReason').value = '米裡面有蟲';
+            });
+
+            // 一鍵輸入2按鈕
+            document.getElementById('autoFill2').addEventListener('click', function () {
+                document.getElementById('invoiceNumber').value = 'IN00000026';
+                document.getElementById('returnReason').value = '高麗菜外觀損傷';
+            });
         });
         /*]]>*/
     </script>

@@ -69,10 +69,21 @@ public class ProductService {
 
 		return products;
 	}
+	public Page<ProductBean> findProductByLikeAndAvilable(String productName,boolean isAvailable, Integer pageNumber) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, 10);
+		Page<ProductBean> products = productRepo.findByProductNameContainingAndProductAvailable(productName,isAvailable, pgb);
+		
+		return products;
+	}
 
 	public Page<ProductBean> findProductByCategory(String productCategory, Integer pageNumber, Integer pageSize) {
 		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
 		Page<ProductBean> products = productRepo.findByProductCategory(productCategory, pgb);
+		return products;
+	}
+	public Page<ProductBean> findProductByCategoryAndAvilable(String productCategory,boolean isAvailable, Integer pageNumber, Integer pageSize) {
+		Pageable pgb = PageRequest.of(pageNumber - 1, pageSize);
+		Page<ProductBean> products = productRepo.findByProductAvailableAndProductCategory(isAvailable,productCategory, pgb);
 		return products;
 	}
 
@@ -119,6 +130,7 @@ public class ProductService {
 		return null;
 	}
 
+	@Transactional
 	public ProductBean updateProduct(ProductBean newProduct, MultipartFile photo) throws IOException {
 
 		String productId = newProduct.getProductId();
@@ -129,9 +141,9 @@ public class ProductService {
 
 			product.setProductName(newProduct.getProductName());
 			product.setProductCategory(newProduct.getProductCategory());
-			product.setProductSafeInventory(newProduct.getProductSafeInventory());
 			product.setProductPrice(newProduct.getProductPrice());
-			if (photo != null) {
+			product.setProductSafeInventory(newProduct.getProductSafeInventory());
+			if (photo.getBytes().length > 0) {
 				product.setProductPhoto(photo.getBytes());
 			} else {
 				product.setProductPhoto(product.getProductPhoto());

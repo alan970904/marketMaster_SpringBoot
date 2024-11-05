@@ -17,176 +17,176 @@
 
 
 <div th:replace="~{body/header :: header}">
-<div th:fragment="content">
-<div class="row w-100">
-  <div class="col-lg-10 col-md-12 mx-auto">
-    <table id="supplierProductTable" class="table table-bordered table-striped">
-      <thead>
-      <button id="addSupplier" class="btn btn-success">新增供應商</button>
-      <tr>
-        <th><input type="checkbox" id="selectAll"></th>
-        <th>供應商ID</th>
-        <th>供應商名稱</th>
-        <th>供應商地址</th>
-        <th>聯絡人</th>
-        <th>聯絡電話</th>
-        <th>聯絡電子郵件</th>
-        <th>總應付金額</th>
-        <th>已付款金額</th>
-        <th>未付款金額</th>
-        <th>訂單付款細節</th>
-        <th>更新</th>
-      </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <!-- 分頁按鈕 -->
-    <div class="d-flex justify-content-center">
-      <nav aria-label="Page navigation">
-        <ul class="pagination" id="pagination">
-          <!-- 分頁按鈕會動態生成 -->
-        </ul>
-      </nav>
-    </div>
-
-  </div>
-</div>
-
-<!-- 新增供應商的模態框 -->
-<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
-<div class="modal-dialog">
-<div class="modal-content">
-  <!-- 模態框頭部 -->
-  <div class="modal-header">
-  <h5 class="modal-title" id="addSupplierModalLabel">新增供應商</h5>
-  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-</div>
-  <!-- 模態框內容 -->
-  <div class="modal-body">
-    <form id="addSupplierForm">
-      <!-- 供應商ID將自動生成，故不需要用戶輸入 -->
-      <div class="mb-3">
-        <label for="addSupplierName" class="form-label">供應商名稱</label>
-        <input type="text" class="form-control" id="addSupplierName" required>
-      </div>
-      <div class="mb-3">
-        <label for="addAddress" class="form-label">供應商地址</label>
-        <input type="text" class="form-control" id="addAddress" required>
-      </div>
-      <div class="mb-3">
-        <label for="addTaxNumber" class="form-label">統一編號</label>
-        <input type="text" class="form-control" id="addTaxNumber" required>
-      </div>
-      <div class="mb-3">
-        <label for="addContactPerson" class="form-label">聯絡人</label>
-        <input type="text" class="form-control" id="addContactPerson" required>
-      </div>
-      <div class="mb-3">
-        <label for="addPhone" class="form-label">聯絡電話</label>
-        <input type="text" class="form-control" id="addPhone" required>
-      </div>
-      <div class="mb-3">
-        <label for="addEmail" class="form-label">聯絡電子郵件</label>
-        <input type="text" class="form-control" id="addEmail" required>
-      </div>
-      <div class="mb-3">
-        <label for="addBankAccount" class="form-label">銀行帳號</label>
-        <input type="text" class="form-control" id="addBankAccount" required>
-      </div>
-    </form>
-  </div>
-  <!-- 模態框底部 -->
-  <div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" id="autoFillSupplierBtn">一鍵輸入</button>
-      <button type="button" class="btn btn-primary" id="saveNewSupplierBtn">保存</button>
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-    </div>
-  </div>
-</div>
-</div>
-</div>
-
-<!-- 編輯供應商資訊的模態框 -->
-<div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="editSupplierModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <!-- 模態框頭部 -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="editSupplierModalLabel">編輯供應商資訊</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <!-- 模態框內容 -->
-      <div class="modal-body">
-        <form id="editSupplierForm">
-          <input type="hidden" id="editSupplierId">
-          <div class="mb-3">
-            <label for="editSupplierName" class="form-label">供應商名稱</label>
-            <input type="text" class="form-control" id="editSupplierName">
-          </div>
-          <div class="mb-3">
-            <label for="editAddress" class="form-label">供應商地址</label>
-            <input type="text" class="form-control" id="editAddress">
-          </div>
-          <div class="mb-3">
-            <label for="editContactPerson" class="form-label">聯絡人</label>
-            <input type="text" class="form-control" id="editContactPerson">
-          </div>
-          <div class="mb-3">
-            <label for="editPhone" class="form-label">聯絡電話</label>
-            <input type="text" class="form-control" id="editPhone">
-          </div>
-          <div class="mb-3">
-            <label for="editEmail" class="form-label">聯絡電子郵件</label>
-            <input type="email" class="form-control" id="editEmail">
-          </div>
-        </form>
-      </div>
-      <!-- 模態框底部 -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="saveSupplierBtn">保存</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 訂單付款細節的模態框 -->
-<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <!-- 模態框頭部 -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="orderDetailsModalLabel">訂單付款細節</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <!-- 模態框內容 -->
-      <div class="modal-body">
-        <table id="orderDetailsTable" class="table table-bordered">
+  <div th:fragment="content">
+    <div class="row w-100">
+      <div class="col-lg-10 col-md-12 mx-auto">
+        <table id="supplierProductTable" class="table table-bordered table-striped">
           <thead>
+          <button id="addSupplier" class="btn btn-success">新增供應商</button>
           <tr>
-            <th><input type="checkbox" id="selectAllOrders"></th>
-            <th>明細ID</th>
-            <th>進貨ID</th>
-            <th>供應商商品ID</th>
-            <th>進貨數量</th>
-            <th>進貨總價格</th>
-            <th>付款狀態</th>
+            <th><input type="checkbox" id="selectAll"></th>
+            <th>供應商ID</th>
+            <th>供應商名稱</th>
+            <th>供應商地址</th>
+            <th>聯絡人</th>
+            <th>聯絡電話</th>
+            <th>聯絡電子郵件</th>
+            <th>總應付金額</th>
+            <th>已付款金額</th>
+            <th>未付款金額</th>
+            <th>訂單付款細節</th>
+            <th>更新</th>
           </tr>
           </thead>
           <tbody></tbody>
         </table>
-      </div>
-      <!-- 模態框底部 -->
-      <div class="modal-footer">
-        <button id="paySelected" class="btn btn-success">一次結清所選訂單</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+        <!-- 分頁按鈕 -->
+        <div class="d-flex justify-content-center">
+          <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination">
+              <!-- 分頁按鈕會動態生成 -->
+            </ul>
+          </nav>
+        </div>
+
       </div>
     </div>
-  </div>
-</div>
 
-</div>
+    <!-- 新增供應商的模態框 -->
+    <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <!-- 模態框頭部 -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="addSupplierModalLabel">新增供應商</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <!-- 模態框內容 -->
+          <div class="modal-body">
+            <form id="addSupplierForm">
+              <!-- 供應商ID將自動生成，故不需要用戶輸入 -->
+              <div class="mb-3">
+                <label for="addSupplierName" class="form-label">供應商名稱</label>
+                <input type="text" class="form-control" id="addSupplierName" required>
+              </div>
+              <div class="mb-3">
+                <label for="addAddress" class="form-label">供應商地址</label>
+                <input type="text" class="form-control" id="addAddress" required>
+              </div>
+              <div class="mb-3">
+                <label for="addTaxNumber" class="form-label">統一編號</label>
+                <input type="text" class="form-control" id="addTaxNumber" required>
+              </div>
+              <div class="mb-3">
+                <label for="addContactPerson" class="form-label">聯絡人</label>
+                <input type="text" class="form-control" id="addContactPerson" required>
+              </div>
+              <div class="mb-3">
+                <label for="addPhone" class="form-label">聯絡電話</label>
+                <input type="text" class="form-control" id="addPhone" required>
+              </div>
+              <div class="mb-3">
+                <label for="addEmail" class="form-label">聯絡電子郵件</label>
+                <input type="text" class="form-control" id="addEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="addBankAccount" class="form-label">銀行帳號</label>
+                <input type="text" class="form-control" id="addBankAccount" required>
+              </div>
+            </form>
+          </div>
+          <!-- 模態框底部 -->
+          <div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" id="autoFillSupplierBtn">一鍵輸入</button>
+              <button type="button" class="btn btn-primary" id="saveNewSupplierBtn">保存</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 編輯供應商資訊的模態框 -->
+    <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="editSupplierModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <!-- 模態框頭部 -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="editSupplierModalLabel">編輯供應商資訊</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <!-- 模態框內容 -->
+          <div class="modal-body">
+            <form id="editSupplierForm">
+              <input type="hidden" id="editSupplierId">
+              <div class="mb-3">
+                <label for="editSupplierName" class="form-label">供應商名稱</label>
+                <input type="text" class="form-control" id="editSupplierName">
+              </div>
+              <div class="mb-3">
+                <label for="editAddress" class="form-label">供應商地址</label>
+                <input type="text" class="form-control" id="editAddress">
+              </div>
+              <div class="mb-3">
+                <label for="editContactPerson" class="form-label">聯絡人</label>
+                <input type="text" class="form-control" id="editContactPerson">
+              </div>
+              <div class="mb-3">
+                <label for="editPhone" class="form-label">聯絡電話</label>
+                <input type="text" class="form-control" id="editPhone">
+              </div>
+              <div class="mb-3">
+                <label for="editEmail" class="form-label">聯絡電子郵件</label>
+                <input type="email" class="form-control" id="editEmail">
+              </div>
+            </form>
+          </div>
+          <!-- 模態框底部 -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="saveSupplierBtn">保存</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 訂單付款細節的模態框 -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <!-- 模態框頭部 -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="orderDetailsModalLabel">訂單付款細節</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <!-- 模態框內容 -->
+          <div class="modal-body">
+            <table id="orderDetailsTable" class="table table-bordered">
+              <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAllOrders"></th>
+                <th>明細ID</th>
+                <th>進貨ID</th>
+                <th>供應商商品ID</th>
+                <th>進貨數量</th>
+                <th>進貨總價格</th>
+                <th>付款狀態</th>
+              </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <!-- 模態框底部 -->
+          <div class="modal-footer">
+            <button id="paySelected" class="btn btn-success">一次結清所選訂單</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 <div th:replace="~{body/footer :: footer}"></div>
 
@@ -213,7 +213,6 @@
         renderTable(res.data.content); // res.data.content 包含當前頁的數據
         setupPagination(res.data.totalPages); // 設置分頁
       }).catch(err => {
-        console.log('加載供應商資料失敗', err);
       });
     }
 
@@ -304,6 +303,7 @@
       updateBtns.forEach(button => {
         button.addEventListener('click', () => {
           // 獲取供應商資訊
+
           const supplierId = button.getAttribute('data-supplier-id');
           const supplierName = button.getAttribute('data-supplier-name');
           const address = button.getAttribute('data-address');

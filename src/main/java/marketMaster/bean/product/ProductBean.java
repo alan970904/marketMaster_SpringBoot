@@ -61,7 +61,7 @@ public class ProductBean implements Serializable {
 	@OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
 	@JsonIgnore
 	private List<SupplierProductsBean>  supplierProductBean;
-	
+
 	public ProductBean() {
 		super();
 	}
@@ -198,8 +198,8 @@ public class ProductBean implements Serializable {
 	public void setProductPhoto(byte[] productPhoto) {
 		this.productPhoto = productPhoto;
 	}
-	
-	
+
+
 
 	public List<SupplierProductsBean> getSupplierProductBean() {
 		return supplierProductBean;

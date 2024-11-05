@@ -159,7 +159,6 @@ public class RestockService {
             for (RestockDetailsBean detail : details) {
                 newTotalAmount += detail.getRestockTotalPrice();
             }
-            System.out.println("Supplier ID: " + supplierId + " New Total Amount: " + newTotalAmount);
             accountsRepository.updateSupplierTotalAmount(supplierId, newTotalAmount);
         }
         // 更新未付款金額
@@ -171,8 +170,8 @@ public class RestockService {
 
 
     //根據日期區間查詢
-    public Page<RestockDTO> getRestockDetailsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate,pageable);
+        public Page<RestockDTO> getRestockDetailsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+            return restocksRepository.findRestockDetailByRestockDateBetween(startDate, endDate,pageable);
     }
         //匯出excel
         public byte[]exportRestockDetailsToExcel(LocalDate startDate, LocalDate endDate) throws IOException {
@@ -206,7 +205,6 @@ public class RestockService {
         int totalAmount=  accountRepository.getTotalAmountBySupplierId(supplierId);
         int paidAmount =  accountRepository.getPaidAmountBySupplierId(supplierId);
         int newUnpaidAmount = totalAmount - paidAmount;
-        System.out.println( "newUnpaidAmount"+newUnpaidAmount);
         accountRepository.updateSupplierUnpaidAmount(supplierId,newUnpaidAmount);
     }
 

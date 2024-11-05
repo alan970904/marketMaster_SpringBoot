@@ -48,10 +48,11 @@ public class CustomerController {
 								@RequestParam(defaultValue = "0") int page,
 								@RequestParam(defaultValue = "10") int size,
 								Model model, HttpSession session) {
-		Page<CustomerBean> customerPage = customerService.searchCustomers(searchTel, PageRequest.of(page, size));
+		// 獲取當前登入用戶
+	    EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("backendEmployee");
+	    int authority = currentEmployee.getAuthority();  // 獲取權限等級
 		
-		EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
-		int authority = currentEmployee.getAuthority();
+		Page<CustomerBean> customerPage = customerService.searchCustomers(searchTel, PageRequest.of(page, size));
 		
 		model.addAttribute("currentAuthority", authority);
 		

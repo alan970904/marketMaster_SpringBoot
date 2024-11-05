@@ -59,7 +59,6 @@
             url: '/restock/getSupplier',
             method: 'GET',
             success: (suppliers) => {
-                console.log('Suppliers List:', suppliers);
                 supplierList = suppliers;
 
                 // 初始化第一個表格
@@ -75,7 +74,6 @@
             url: '/restock/getEmployeeInfo',
             method: 'GET',
             success: (employees) => {
-                console.log('Employees List:', employees);
                 const employeeSelect = $('#employeeSelect');
                 employees.forEach(employee => {
                     employeeSelect.append(new Option(employee.employeeName, employee.employeeId));
@@ -313,7 +311,6 @@
                 return;
             }
 
-            console.log('進貨資料:', allRestockInsertDTOs);
 
             // 發送數據到服務器
             $.ajax({

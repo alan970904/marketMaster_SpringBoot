@@ -47,7 +47,7 @@ public class SupplierController {
 
     @RequestMapping(value = "/supplier", method = {RequestMethod.GET, RequestMethod.POST})
     public String supplier(HttpSession session) {
-        if (session.getAttribute("employee") == null) {
+        if (session.getAttribute("backendEmployee") == null) {
             // 用戶未登入，重定向到登入頁面
             return "redirect:/employee/loginPage";
         }
@@ -131,8 +131,7 @@ public class SupplierController {
     @PostMapping("/insertPayment")
     @ResponseBody
     public void insertRestockData(@RequestBody List<PaymentInsertDTO> PaymentInsertDTOList, @RequestParam("supplierId") String supplierId) {
-        System.out.println("有進來");
-        System.out.println(supplierId);
+
         for (PaymentInsertDTO dto : PaymentInsertDTOList) {
             paymentService.insertPayment(dto, supplierId);
         }
@@ -152,7 +151,6 @@ public class SupplierController {
     public String prepareECPayPayment(@RequestParam("supplierId") String supplierId, Model model) {
         // 獲取最新的支付記錄
         PaymentInsertDTO paymentInsertDTO = paymentService.getLatestPaymentInsertDTO(supplierId);
-        System.out.println("DTO 裡面的 total"+paymentInsertDTO.getTotalAmount());
         int totalAmount = paymentInsertDTO.getTotalAmount();
         String merchantTradeNo = paymentInsertDTO.getMerchantTradeNo(); // 這裡是 payment_id
 
@@ -187,10 +185,8 @@ public class SupplierController {
     @PostMapping("/ecpayReturn")
     @ResponseBody
     public String handleECPayReturn(@RequestParam Map<String, String> params) {
-        System.out.println("有執行回傳");
         boolean isValid = paymentService.verifyECPayReturn(params);
-        System.out.println(params);
-        System.out.println("1234");
+
         if (isValid) {
             String merchantTradeNo = params.get("MerchantTradeNo"); // payment_id
             String paymentStatus = params.get("RtnCode");

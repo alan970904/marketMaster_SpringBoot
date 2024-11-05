@@ -5,7 +5,7 @@
     <meta charset="UTF-8" th:replace="~{body/head :: head}">
     <title>商品資料</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -15,126 +15,203 @@
     td {
         vertical-align: middle;
     }
+
+    .w100 {
+        width: 100%;
+
+    }
+
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+
+    .info-card {
+        transition: transform 0.2s;
+        border: none;
+        height: 100%;
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .product-icon {
+        font-size: 2rem;
+        color: #0d6efd;
+    }
+
+    .inventory-warning {
+        color: #dc3545;
+        font-weight: 500;
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+    }
 </style>
+
 <body>
     <div th:replace="~{body/header :: header}">
-    <div th:fragment="content">
-	<main>
-    <div class="container mt-3">
-        <div class="d-flex justify-content-between">
-            <div>
+        <div th:fragment="content">
+            <main>
+                <div class="container mt-3">
+                    <div class="d-flex justify-content-between">
+                        <div class="btn-group">
+                            <a class="btn btn-outline-secondary" th:href="@{/product/findAll}">查詢所有商品</a>
 
-                <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
-                <a class="btn btn-primary" th:href="@{/product/findProductAvailable(available=${true})}">查詢在銷售商品</a>
-                <a class="btn btn-primary" th:href="@{/product/findProductAvailable(available=${false})}">查詢已下架商品</a>
-                <a class="btn btn-primary" th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
-            </div>
+                            <a class="btn btn-outline-secondary"
+                                th:href="@{/product/findProductAvailable(available=${true})}">查詢在銷售商品</a>
+                            <a class="btn btn-outline-secondary"
+                                th:href="@{/product/findProductAvailable(available=${false})}">查詢已下架商品</a>
+                            <a class="btn btn-outline-secondary"
+                                th:href="@{/product/findProductInventoryNotEnough}">查詢庫存不足商品</a>
+                        </div>
 
-            
-            <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋商品名稱">
-            
-            
+
+                        <input type="text" id="inputName" class="form-control w-25" placeholder="搜尋商品名稱">
+
+
+                    </div>
+
+                    <table class="table table-striped text-center mt-2">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>商品編號</th>
+                                <th>商品類別名稱</th>
+                                <th>商品名稱</th>
+                                <th>商品售價</th>
+                                <th>安全庫存量</th>
+                                <th>上架數量</th>
+                                <th>庫存數量</th>
+                                <th>銷售數量</th>
+                                <th>兌換數量</th>
+                                <th>銷毀數量</th>
+                                <th>下架數量</th>
+                                <th>操作</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="tbody" class="my-auto ">
+                            <th:block th:each="product:${products.content}">
+
+                                <tr>
+                                    <td class="my-auto" th:text="${product.productId}"></td>
+                                    <td th:text="${product.productCategory}"></td>
+                                    <td><a class="findOneSrc" href="#" th:text="${product.productName}"
+                                            data-bs-toggle="modal" data-bs-target="#findOneModal"
+                                            th:data-productid="${product.productId}"></a>
+                                    </td>
+                                    <td th:text="${product.productPrice}"></td>
+                                    <td th:text="${product.productSafeInventory}"
+                                        th:data-safeinventory="${product.productSafeInventory}"></td>
+                                    <td th:text="${product.numberOfShelve}" th:data-shelve="${product.numberOfShelve}">
+                                    </td>
+                                    <td th:text="${product.numberOfInventory}"
+                                        th:data-inventory="${product.numberOfInventory}">
+                                    </td>
+                                    <td th:text="${product.numberOfSale}"></td>
+                                    <td th:text="${product.numberOfExchange}"></td>
+                                    <td th:text="${product.numberOfDestruction}"></td>
+                                    <td th:text="${product.numberOfRemove}"></td>
+                                    <td class="d-flex justify-content-evenly">
+                                        <form method="get" th:action="@{/product/getUpdate}">
+                                            <input type="hidden" th:value="${product.productId}" name="productId">
+                                            <button type="submit" class="btn btn-secondary updateBtn">修改</button>
+                                        </form>
+
+                                        <form method="get" th:action="@{/product/getShelve}">
+                                            <input type="hidden" th:value="${product.productId}" name="productId">
+                                            <button type="submit" class="btn btn-warning shelveBtn">上架</button>
+                                        </form>
+
+                                        <form method="post" th:action="@{/product/remove}">
+                                            <input type="hidden" th:value="${product.productId}" name="productId">
+                                            <button type="button" class="btn btn-danger removeBtn">下架</button>
+                                        </form>
+                                        <input type="hidden" th:value="${product.productAvailable}" class="status" />
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-between">
+
+
+                        <a class="btn btn-primary" th:href="@{/product/addPage}">新增商品資訊</a>
+                        <th:block th:if="${pages.totalPages > 0}">
+                            <div id="page">
+                                <ul class="pagination m-0" id="pageUl">
+                                    <th:block th:switch="${pages.number + 1 == 1}">
+
+                                        <li th:case="${true}" class="page-item disabled">
+                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}'
+                                                th:text="上一頁"></a>
+                                        </li>
+                                        <li th:case="${false}" class="page-item">
+                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}'
+                                                th:text="上一頁"></a>
+                                        </li>
+                                    </th:block>
+
+                                    <th:block th:each="aNumber : ${#numbers.sequence(1,pages.totalPages)}">
+                                        <th:block th:switch="${pages.number + 1 == aNumber}">
+                                            <li th:case="${true}" class="page-item disabled">
+                                                <a class="page-link"
+                                                    th:href='@{/product/findAll(page=${aNumber})}'><span
+                                                        th:text="${aNumber}"></span></a>
+                                            </li>
+                                            <li th:case="${false}" class="page-item"><a class="page-link"
+                                                    th:href='@{/product/findAll(page=${aNumber})}'><span
+                                                        th:text="${aNumber}"></span></a>
+                                            </li>
+
+                                        </th:block>
+                                    </th:block>
+                                    <th:block th:switch="${pages.number + 1 == pages.totalPages}">
+
+                                        <li th:case="${true}" class="page-item disabled">
+                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}'
+                                                th:text="下一頁"></a>
+                                        </li>
+                                        <li th:case="${false}" class="page-item">
+                                            <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}'
+                                                th:text="下一頁"></a>
+                                        </li>
+                                    </th:block>
+                                </ul>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal" tabindex="-1" id="findOneModal">
+                    <div class=" modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">商品詳情</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="productContainer">
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-
-        <table class="table table-striped text-center mt-2">
-            <thead class="table-dark">
-                <tr>
-                    <th>商品編號</th>
-                    <th>商品類別名稱</th>
-                    <th>商品名稱</th>
-                    <th>商品售價</th>
-                    <th>安全庫存量</th>
-                    <th>上架數量</th>
-                    <th>庫存數量</th>
-                    <th>銷售數量</th>
-                    <th>兌換數量</th>
-                    <th>銷毀數量</th>
-                    <th>下架數量</th>
-                    <th>操作</th>
-                  
-                </tr>
-            </thead>
-            <tbody id="tbody" class="my-auto ">
-                <th:block th:each="product:${products.content}">
-
-                    <tr>
-                        <td class="my-auto" th:text="${product.productId}"></td>
-                        <td th:text="${product.productCategory}"></td>
-                        <td><a class="page-link" th:text="${product.productName}"
-                                th:href="@{/product/findOne(productId=${product.productId})}"></a>
-                        </td>
-                        <td th:text="${product.productPrice}"></td>
-                        <td th:text="${product.productSafeInventory}"
-                            th:data-safeinventory="${product.productSafeInventory}"></td>
-                        <td th:text="${product.numberOfShelve}" th:data-shelve="${product.numberOfShelve}"></td>
-                        <td th:text="${product.numberOfInventory}" th:data-inventory="${product.numberOfInventory}">
-                        </td>
-                        <td th:text="${product.numberOfSale}"></td>
-                        <td th:text="${product.numberOfExchange}"></td>
-                        <td th:text="${product.numberOfDestruction}"></td>
-                        <td th:text="${product.numberOfRemove}"></td>
-                        <td class="d-flex justify-content-evenly">
-                            <form method="get" th:action="@{/product/getUpdate}">
-                                <input type="hidden" th:value="${product.productId}" name="productId">
-                                <button type="submit" class="btn btn-secondary">修改</button>
-                            </form>
-                        
-                            <form method="get" th:action="@{/product/getShelve}">
-                                <input type="hidden" th:value="${product.productId}" name="productId">
-                                <button type="submit" class="btn btn-warning">上架</button>
-                            </form>
-                        
-                            <form method="post" th:action="@{/product/remove}">
-                                <input type="hidden" th:value="${product.productId}" name="productId">
-                                <button type="button" class="btn btn-danger removeBtn">下架</button>
-                            </form>
-                        </td>
-                    </tr>
-                </th:block>
-            </tbody>
-        </table>
-        <div id="page">
-            <ul class="pagination" id="pageUl">
-                <th:block th:switch="${pages.number + 1 == 1}">
-
-                    <li th:case="${true}" class="page-item disabled">
-                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}' th:text="上一頁"></a>
-                    </li>
-                    <li th:case="${false}" class="page-item">
-                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number})}' th:text="上一頁"></a>
-                    </li>
-                </th:block>
-
-                <th:block th:each="aNumber : ${#numbers.sequence(1,pages.totalPages)}">
-                    <th:block th:switch="${pages.number + 1 == aNumber}">
-                        <li th:case="${true}" class="page-item disabled">
-                            <a class="page-link" th:href='@{/product/findAll(page=${aNumber})}'><span
-                                    th:text="${aNumber}"></span></a>
-                        </li>
-                        <li th:case="${false}" class="page-item"><a class="page-link"
-                                th:href='@{/product/findAll(page=${aNumber})}'><span th:text="${aNumber}"></span></a>
-                        </li>
-
-                    </th:block>
-                </th:block>
-                <th:block th:switch="${pages.number + 1 == pages.totalPages}">
-
-                    <li th:case="${true}" class="page-item disabled">
-                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}' th:text="下一頁"></a>
-                    </li>
-                    <li th:case="${false}" class="page-item">
-                        <a class="page-link" th:href='@{/product/findAll(page=${pages.number+2})}' th:text="下一頁"></a>
-                    </li>
-                </th:block>
-            </ul>
-        </div>
-	</div>
-    </main>
-    </div>
     </div>
     <div th:replace="~{body/footer :: footer}"></div>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script>
         const findByPageUrl = 'http://localhost:8080/marketMaster/product/findProductByLike/json'
@@ -144,8 +221,55 @@
         function init() {
             safeInventory();
             removeBtnDisabled();
-            removeProductDoubleCheck();
         }
+
+
+
+        //  ====================  單個商品詳細資料 modal   =================       
+        const findOneSrc = document.getElementsByClassName('findOneSrc')
+
+        // Modal 相關函數
+        function setupModalHandlers() {
+            // 清除任何已存在的事件監聽器
+            const links = document.querySelectorAll('.findOneSrc');
+            links.forEach(link => {
+                // 移除舊的事件監聽器
+                link.replaceWith(link.cloneNode(true));
+            });
+
+            // 重新添加事件監聽器
+            document.querySelectorAll('.findOneSrc').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const productId = this.dataset.productid;
+                    getProduct(productId);
+                });
+            });
+        }
+
+        // 修改 getProduct 函數
+        function getProduct(productId) {
+            const productContainer = document.getElementById('productContainer');
+            productContainer.innerHTML = ''; // 清空容器
+
+            axios.post("/marketMaster/product/findOne/json", {
+                productId: productId
+            })
+                .then(res => {
+                    const card = createProductCard(res.data);
+                    productContainer.appendChild(card);
+                })
+                .catch(err => {
+                    console.error(err);
+                    productContainer.innerHTML = '<div class="alert alert-danger">加載商品資料失敗</div>';
+                });
+        }
+
+
+
+
+
+        //  ====================  單個商品詳細資料 modal   ================= 
 
         function safeInventory() {
             const rows = document.querySelectorAll('#tbody tr')
@@ -162,18 +286,19 @@
         }
 
         function removeBtnDisabled() {
-            const rows = document.querySelectorAll('#tbody tr')
+            const status = document.getElementsByClassName("status")
+            const removeButtons = document.getElementsByClassName("removeBtn");
+            const updateButtons = document.getElementsByClassName("updateBtn");
+            const shelveButtons = document.getElementsByClassName("shelveBtn");
 
-            rows.forEach((row) => {
-                const shelve = parseInt(row.querySelector('td[data-shelve]').getAttribute('data-shelve'))
-                const inventory = parseInt(row.querySelector('td[data-inventory]').getAttribute('data-inventory'))
-                const removeBtn = row.querySelector('.removeBtn')
-
-                if (shelve === 0 && inventory === 0) {
-                    removeBtn.disabled = true;
-
+            for (let i = 0; i < status.length; i++) {
+                if (status[i].value === "false") {
+                    removeButtons[i].disabled = true;
+                    updateButtons[i].disabled = true;
+                    shelveButtons[i].disabled = true;
                 }
-            })
+
+            }
         }
         //      下架商品確認 
         function removeProductDoubleCheck() {
@@ -190,34 +315,84 @@
             })
         }
 
-        //      模糊搜尋
+        function setupOtherHandlers() {
+            // 下架按鈕
+            document.querySelectorAll('.removeBtn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const result = confirm("確認是否要下架商品");
+                    if (result) {
+                        this.closest("form").submit();
+                    }
+                });
+            });
+
+            // 執行其他初始化
+            safeInventory();
+            removeBtnDisabled();
+        }
+
+        // 模糊搜尋事件監聽器
         document.getElementById('inputName').addEventListener('change', function () {
-            const productName = document.getElementById('inputName').value
+            const productName = this.value;
             let jsObject = {
                 productName: productName,
                 pageNumber: 1
-            }
+            };
+
             axios.post(findByPageUrl, jsObject)
                 .then(res => {
                     htmlMaker(res.data);
-                    pageMaker(res.data)
-                    init();
-
+                    pageMaker(res.data);
                 })
                 .catch(err => {
                     console.error(err);
-                })
+                });
+        });
 
-        })
+        // 頁面載入時的初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            setupModalHandlers();
+            setupOtherHandlers();
+        });
+
+        function bindEventListeners() {
+            // 綁定商品詳情點擊事件
+            document.querySelectorAll('.findOneSrc').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const productId = this.dataset.productid;
+                    getProduct(productId);
+                });
+            });
+
+            // 綁定下架按鈕事件
+            const removeBtns = document.querySelectorAll('.removeBtn');
+            removeBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const result = confirm("確認是否要下架商品");
+                    if (result) {
+                        this.closest("form").submit();
+                    }
+                });
+            });
+
+            // 執行其他必要的初始化
+            safeInventory();
+            removeBtnDisabled();
+        }
 
         function htmlMaker(data) {
-            const tbody = document.getElementById("tbody")
-            tbody.innerHTML = ""
+            const tbody = document.getElementById("tbody");
+            tbody.innerHTML = ""; // 清空表格
+
             for (let i = 0; i < data.numberOfElements; i++) {
-                tbody.innerHTML += createProductRow(data.content[i])
+                tbody.innerHTML += createProductRow(data.content[i]);
             }
 
-            tbody.append();
+            // 重新綁定所有事件處理器
+            setupModalHandlers();
+            setupOtherHandlers();
         }
 
 
@@ -226,69 +401,162 @@
         const baseUrl = /*[[@{/}]]*/ '/marketMaster';
 
 
-        function createProductRow(product) {
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.classList.add('container-fluid', 'p-0');
 
-            return `
-    <tr>
-        <td>${product.productId}</td>
-        <td>${product.productCategory}</td>
-        <td><a class="page-link" href="${baseUrl}/product/findOne?productId=${product.productId}">${product.productName}</a></td>
-        <td>${product.productPrice}</td>
-        <td data-safeinventory="${product.productSafeInventory}">${product.productSafeInventory}</td>
-        <td data-shelve="${product.numberOfShelve}">${product.numberOfShelve}</td>
-        <td data-inventory="${product.numberOfInventory}">${product.numberOfInventory}</td>
-        <td>${product.numberOfSale}</td>
-        <td>${product.numberOfExchange}</td>
-        <td>${product.numberOfDestruction}</td>
-        <td>${product.numberOfRemove}</td>
-        <td>
-            <form method="get" action="${baseUrl}/product/getUpdate">
-                <input type="hidden" value="${product.productId}" name="productId">
-                <button type="submit" class="btn btn-secondary">修改</button>
-            </form>
-        </td>
-        <td>
-            <form method="get" action="${baseUrl}/product/getShelve">
-                <input type="hidden" value="${product.productId}" name="productId">
-                <button type="submit" class="btn btn-warning">上架</button>
-            </form>
-        </td>
-        <td>
-            <form method="post" action="${baseUrl}/product/remove">
-                <input type="hidden" value="${product.productId}" name="productId">
-                <button type="button" class="btn btn-danger removeBtn">下架</button>
-            </form>
-        </td>
-    </tr> `;
+            // 判斷庫存狀態
+            const isLowInventory = product.numberOfInventory < product.productSafeInventory;
+            const inventoryStatus = isLowInventory ?
+                '<span class="badge bg-danger status-badge">庫存不足</span>' :
+                '<span class="badge bg-success status-badge">庫存充足</span>';
 
+            card.innerHTML = `
+        <div class="row g-4">
+            <!-- 左側區塊：基本資訊 -->
+            <div class="col-md-6 border-end">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-light p-3 rounded-circle me-3">
+                        <i class="fas fa-box product-icon"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">${product.productName}</h4>
+                        <p class="text-muted mb-0">商品編號：${product.productId}</p>
+                    </div>
+                </div>
+
+                <!-- 基本信息卡片 -->
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card bg-light info-card">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">商品類別</h6>
+                                <p class="card-text h5">${product.productCategory}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light info-card">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">商品售價</h6>
+                                <p class="card-text h5">NT$ ${product.productPrice}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品圖片 -->
+                ${product.productPhoto && product.productPhoto.length > 0 ? `
+                    <div class="mt-4">
+                        <img src="/marketMaster/product/downloadProductPhoto?productId=${product.productId}" 
+                             class="img-fluid rounded" 
+                             alt="${product.productName}">
+                    </div>
+                ` : ''}
+            </div>
+
+            <!-- 右側區塊：庫存資訊 -->
+            <div class="col-md-6">
+                <div class="position-relative">
+                    <h5 class="border-bottom pb-2 mb-3">庫存資訊</h5>
+                    ${inventoryStatus}
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card info-card ${isLowInventory ? 'bg-danger' : 'bg-success'} bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">庫存數量</h6>
+                                <p class="card-text h5 ${isLowInventory ? 'text-danger' : ''}">${product.numberOfInventory}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card info-card bg-warning bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">安全庫存量</h6>
+                                <p class="card-text h5">${product.productSafeInventory}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card info-card bg-info bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">上架數量</h6>
+                                <p class="card-text h5">${product.numberOfShelve}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card info-card bg-primary bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">銷售數量</h6>
+                                <p class="card-text h5">${product.numberOfSale}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他數量資訊 -->
+                <div class="mt-4 bg-light p-3 rounded">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">兌換數量</span>
+                        <span>${product.numberOfExchange}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">銷毀數量</span>
+                        <span>${product.numberOfDestruction}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">下架數量</span>
+                        <span>${product.numberOfRemove}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+            return card;
         }
 
-        function pageMaker(data) {
-            const ul = document.getElementById("pageUl")
-            ul.innerHTML = "";  // 清空之前的分頁按鈕
-
-            for (let i = 1; i <= data.totalPages; i++) {  // 根據回傳的總頁數來生成按鈕
-                const li = document.createElement("li");
-                const btn = document.createElement("button");
-                btn.className = "page-link"
-                btn.textContent = i;
-                btn.addEventListener('click', function () {
-                    const productName = document.getElementById('inputName').value
-                    axios.post(findByPageUrl, {
-                        productName: productName,
-                        pageNumber: i
-                    })  // 傳遞 productName 和頁碼
-                        .then(res => {
-                            htmlMaker(res.data);  // 更新產品表格
-                            init();
-                        })
-                        .catch(err => {
-                            console.error(err);
-                        });
-                });
-                li.appendChild(btn);
-                ul.appendChild(li);
-            }
+        function createProductRow(product) {
+            return `
+        <tr>
+            <td>${product.productId}</td>
+            <td>${product.productCategory}</td>
+            <td>
+                <a href="#" 
+                   class="findOneSrc" 
+                   data-bs-toggle="modal" 
+                   data-bs-target="#findOneModal" 
+                   data-productid="${product.productId}">
+                    ${product.productName}
+                </a>
+            </td>
+            <td>${product.productPrice}</td>
+            <td data-safeinventory="${product.productSafeInventory}">${product.productSafeInventory}</td>
+            <td data-shelve="${product.numberOfShelve}">${product.numberOfShelve}</td>
+            <td data-inventory="${product.numberOfInventory}">${product.numberOfInventory}</td>
+            <td>${product.numberOfSale}</td>
+            <td>${product.numberOfExchange}</td>
+            <td>${product.numberOfDestruction}</td>
+            <td>${product.numberOfRemove}</td>
+            <td class="d-flex justify-content-evenly m-0">
+                <form method="get" action="${baseUrl}/product/getUpdate">
+                    <input type="hidden" value="${product.productId}" name="productId">
+                    <button type="submit" class="btn btn-secondary updateBtn">修改</button>
+                </form>
+                <form method="get" action="${baseUrl}/product/getShelve">
+                    <input type="hidden" value="${product.productId}" name="productId">
+                    <button type="submit" class="btn btn-warning shelveBtn">上架</button>
+                </form>
+                <form method="post" action="${baseUrl}/product/remove">
+                    <input type="hidden" value="${product.productId}" name="productId">
+                    <button type="button" class="btn btn-danger removeBtn">下架</button>
+                </form>
+                <input type="hidden" value="${product.productAvailable}" class="status">
+            </td>
+        </tr>
+    `;
         }
 
     </script>

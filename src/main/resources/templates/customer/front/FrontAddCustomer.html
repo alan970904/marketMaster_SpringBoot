@@ -36,6 +36,8 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">新增會員</button>
+                    <button type="button" class="btn btn-info" onclick="autoFill()">一鍵輸入</button>
+                    
                     <div class="d-flex justify-content-start">
 					    <a class="btn btn-secondary mt-3" th:href="@{/customer/front/cusList}">返回會員列表</a>
 					</div>
@@ -101,6 +103,14 @@
                 form.classList.add('was-validated');
             }, false);
         })();
+        
+        // 一鍵輸入資料
+        function autoFill() {
+		    // 設定表單欄位的值
+		    document.getElementById('customerTel').value = '0901111111';
+		    document.getElementById('customerName').value = '測試會員';
+		    document.getElementById('customerEmail').value = 'test1106@gmail.com';
+		}
     </script>
 </body>
 

@@ -25,7 +25,7 @@ public class FChangePasswordController {
     @GetMapping("/front/changePasswordPage")
     @RequiresPermission(value = "changePassword", resource = "employee")
     public String showChangePasswordPage(HttpSession session, Model model) {
-        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("frontendEmployee");
         int authority = currentEmployee.getAuthority();
         
         boolean isFirstLogin = employeeService.isFirstLogin(currentEmployee.getEmployeeId());
@@ -38,7 +38,7 @@ public class FChangePasswordController {
     @PostMapping("/front/changePassword")
     @RequiresPermission(value = "changePassword", resource = "employee")
     public String changePassword(@RequestParam String newPassword, HttpSession session, Model model) {
-        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("employee");
+        EmployeeViewModel currentEmployee = (EmployeeViewModel) session.getAttribute("frontendEmployee");
 
         if (currentEmployee == null) {
             return "redirect:/front/loginPage";
@@ -48,7 +48,7 @@ public class FChangePasswordController {
             boolean success = employeeService.updatePassword(currentEmployee.getEmployeeId(), newPassword);
             if (success) {
                 EmployeeViewModel updatedEmployee = employeeService.getEmployeeViewModel(currentEmployee.getEmployeeId());
-                session.setAttribute("employee", updatedEmployee);
+                session.setAttribute("frontendEmployee", updatedEmployee);
                 return "redirect:/front/loginPage";
             } else {
                 model.addAttribute("errorMessage", "修改密碼失敗");

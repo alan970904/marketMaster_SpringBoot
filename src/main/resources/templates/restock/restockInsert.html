@@ -30,6 +30,30 @@
             max-width: 1200px;
             margin: auto;
         }
+        /* 使用更具體的 Handsontable 選擇器設置字體大小 */
+        /* 調整整個表格的字體大小 */
+        .handsontable table {
+            font-size: 18px; /* 將其他單元格設置為 18px */
+        }
+        .handsontable .handsontableInput,
+        .handsontable td {
+            font-size: 18px;
+        }
+
+        /* 將進貨單號列的字體大小設置為小一號 */
+        .handsontable .ht_master .htCore tbody tr td:nth-child(1) {
+            font-size: 16px; /* 將進貨單號列設置為 16px */
+        }
+
+        .handsontable .ht_master .htCore tbody tr {
+            height: 40px; /* 調整行高，確保所有文本都能顯示 */
+        }
+        .handsontable .ht_master .htCore th,
+        .handsontable .ht_master .htCore td {
+            padding: 2px 5px; /* 減小內部填充空間 */
+            vertical-align: middle; /* 確保內容垂直居中 */
+        }
+
     </style>
 </head>
 <body>
@@ -38,7 +62,7 @@
         <main class="container">
             <h1>進貨資料插入</h1>
             <div>
-                <label for="employeeSelect" >選擇員工：</label>
+                <label for="employeeSelect">選擇員工：</label>
                 <select id="employeeSelect" disabled>
                     <option value="">請選擇員工</option>
                 </select>
@@ -49,6 +73,7 @@
             </div>
 
             <button id="addRestockTable">新增進貨單號</button>
+            <button id="autoFillDates">自動填入日期</button>
             <button id="submitRestock">提交</button>
         </main>
     </div>
@@ -56,7 +81,7 @@
 
 <!--在session抓到employeeID-->
 <script th:inline="javascript">
-    var sessionEmployeeId = /*[[${session.employee.employeeId}]]*/ '';
+    var sessionEmployeeId = /*[[${session.backendEmployee != null ? session.backendEmployee.employeeId : ''}]]*/ '';
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -73,7 +98,6 @@
             url: '/marketMaster/restock/getSupplier',
             method: 'GET',
             success: (suppliers) => {
-                console.log('Suppliers List:', suppliers);
                 supplierList = suppliers;
 
                 // 初始化第一個表格
@@ -89,7 +113,6 @@
             url: '/marketMaster/restock/getEmployeeInfo',
             method: 'GET',
             success: (employees) => {
-                console.log('Employees List:', employees);
                 const employeeSelect = $('#employeeSelect');
                 employees.forEach(employee => {
                     const option = new Option(employee.employeeName, employee.employeeId);
@@ -131,7 +154,7 @@
                         { restockId: latestRestockId }
                     ],
                     colHeaders: ['進貨單號', '供應商', '商品', '進貨數量', '進貨總價', '生產日期', '到期日期', '操作'],
-                    colWidths: [120, 250, 250, 100, 100, 120, 120, 80],
+                    colWidths: [200 , 250, 250, 100, 100, 120, 120, 80], // 將進貨單號列的寬度設置為150
                     columns: [
                         {
                             data: 'restockId',
@@ -282,6 +305,33 @@
             createRestockTable();
         });
 
+        // 自動填入日期按鈕事件
+        $('#autoFillDates').click(() => {
+            const today = new Date();
+            const productionDate = today.toISOString().split('T')[0]; // 格式: YYYY-MM-DD
+
+            // 計算到期日期（例如生產日期後180天）
+            const dueDateObj = new Date(today);
+            dueDateObj.setDate(dueDateObj.getDate() + 180);
+            const dueDate = dueDateObj.toISOString().split('T')[0];
+
+            // 遍歷所有 Handsontable 實例並填入日期
+            hotInstances.forEach(hotInstance => {
+                const totalRows = hotInstance.countRows();
+                for (let row = 0; row < totalRows; row++) {
+                    const supplierId = hotInstance.getDataAtRowProp(row, 'supplierId');
+                    const productId = hotInstance.getDataAtRowProp(row, 'productId');
+
+                    // 只填入有供應商和商品的行
+                    if (supplierId && productId) {
+                        hotInstance.setDataAtRowProp(row, 'productionDate', productionDate);
+                        hotInstance.setDataAtRowProp(row, 'dueDate', dueDate);
+                    }
+                }
+            });
+
+        });
+
         // 提交按鈕事件
         $('#submitRestock').click(() => {
             const employeeId = $('#employeeSelect').val();
@@ -344,7 +394,6 @@
                 return;
             }
 
-            console.log('進貨資料:', allRestockInsertDTOs);
 
             // 發送數據到服務器
             $.ajax({

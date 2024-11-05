@@ -64,13 +64,15 @@
 <div id="addDialog" title="新增供應商商品" style="display: none;">
     <form id="addForm">
         <div class="form-group mb-3">
-            <label for="addProductId">商品編號：</label>
+            <label for="addProductId">商品名稱：</label>
             <div class="d-flex align-items-center">
-                <input type="text" id="addProductId" class="form-control me-2" style="width: 60%;" placeholder="請輸入商品編號">
-                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PDR001">PDR001</button>
-                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PMS001">PMS001</button>
-                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PRN001">PRN001</button>
-                <button type="button" class="btn btn-secondary btn-auto-fill" data-product-id="PSN001">PSN001</button>
+                <select name="allProduct" id="addProductId">
+                    <option value="">請選擇商品</option>
+                </select>
+                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PDR001">可樂</button>
+                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PMS001">豬肉</button>
+                <button type="button" class="btn btn-secondary btn-auto-fill me-1" data-product-id="PRN001">池上米</button>
+                <button type="button" class="btn btn-secondary btn-auto-fill" data-product-id="PSN001">乖乖</button>
             </div>
         </div>
 
@@ -93,6 +95,7 @@
 
 <script>
     $(document).ready(function () {
+
         // 取得 URL 中的查詢參數
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -113,7 +116,6 @@
                     size: pageSize
                 }
             }).then(res => {
-                console.log(res.data.content)
                 renderTable(res.data.content); // res.data.content 包含當前頁的數據
                 setupPagination(res.data.totalPages); // 設置分頁
             }).catch(error => {
@@ -189,15 +191,14 @@
                     axios.delete(`/marketMaster/supplierProducts/deleteProduct?supplierProductId=${encodeURIComponent(supplierProductId)}`)
                         .then(res => {
                             if (res.data === "刪除成功！") {
-                                console.log("刪除成功", res);
                                 // 重新加載當前頁面數據
                                 loadProducts(currentPage);
                             } else {
-                                console.log("刪除失敗");
+                                loadProducts(currentPage);
+
                             }
                         })
                         .catch(error => {
-                            console.error('刪除失敗', error);
                             alert('刪除失敗: ' + (error.response ? error.response.data : '未知錯誤'));
                         });
                 }
@@ -234,7 +235,6 @@
                                 status: updatedStatus
                             })
                                 .then(res => {
-                                    console.log(res.data);
                                     // 關閉彈出視窗
                                     $("#updateDialog").dialog("close");
                                     // 重新加載當前頁面數據
@@ -252,6 +252,21 @@
                 });
             });
         }
+        axios.get('/marketMaster/supplierProducts/findAllProduct')
+            .then(res=>{
+            const selectElement =document.getElementById('addProductId')
+                selectElement.innerHTML = '<option value="">請選擇商品</option>';
+            res.data.forEach(product=>{
+                const option=document.createElement('option');
+                option.value=product.productId;
+                option.textContent=product.productName;
+                selectElement.appendChild(option);
+            })
+        }).catch(error => {
+            console.error('獲取產品資料失敗:', error);
+            alert('無法獲取產品資料，請稍後再試。');
+        });
+
 
         // 新增功能
         const addBtn = document.querySelector('.btn-add');
@@ -286,7 +301,6 @@
                             status: newStatus
                         })
                             .then(res => {
-                                console.log(res.data);
                                 // 關閉彈出視窗
                                 $("#addDialog").dialog("close");
                                 // 重新加載當前頁面數據
@@ -305,16 +319,17 @@
         });
 
         // 新增：一鍵輸入按鈕的事件處理
-        $(document).on('click', '.btn-auto-fill', function() {
-            const productId = $(this).data('product-id');
-            const productPrice = 1000; // 任意價格，可根據需要調整
-            const status = '1';
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('btn-auto-fill')) {
+                const productId = event.target.getAttribute('data-product-id');
+                const productPrice = 1000; // 任意價格，可根據需要調整
+                const status = '1';
 
-            $('#addProductId').val(productId);
-            $('#addProductPrice').val(productPrice);
-            $('#addStatus').val(status);
+                document.getElementById('addProductId').value = productId;
+                document.getElementById('addProductPrice').value = productPrice;
+                document.getElementById('addStatus').value = status;
+            }
         });
-
         // 初始化頁面，載入數據
         loadProducts(currentPage);
     });

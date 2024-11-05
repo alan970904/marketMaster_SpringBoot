@@ -50,7 +50,6 @@ public class SupplierProductsService {
       Optional<SupplierProductsBean> productsBean= supplierProductsRepository.findById(supplierProductId);
       if (productsBean.isPresent()) {
           supplierProductsRepository.save(supplierProductsBean);
-          System.out.println("更新成功");
       }
 
     }
@@ -92,6 +91,10 @@ public class SupplierProductsService {
     // 新增的方法：根据 supplierId 和 productId 查询 productPrice
     public Optional<Integer> getProductPrice(String supplierId, String productId) {
         return supplierProductsRepository.findProductPriceBySupplierIdAndProductId(supplierId, productId);
+    }
+
+    public List<SupplierProductDTO> findAllProductIdAndProductName() {
+      return   supplierProductsRepository.findAllProducts();
     }
 
 
